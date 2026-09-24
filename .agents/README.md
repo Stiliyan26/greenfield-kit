@@ -15,7 +15,7 @@
 | Design purposeful animation | `design-animations` |
 | Review code without editing | `reviewer` agent |
 
-Use `/greenfield-mode` in Cursor or `$greenfield-mode` in Codex. Cursor can pin it as a custom mode. The generic workflow skills, `frontend-design`, and `impeccable` are installed in `~/.agents/skills/` for other local projects. The initializer creates a fresh studio only when the mode is used in a project without one. Before showing concepts, the agent records distinct direction contracts, renders desktop and phone views, and runs the [visual quality gate](skills/design-interface/references/visual-quality.md).
+Use `/greenfield-mode` in Cursor or `$greenfield-mode` in Codex. Cursor can pin it as a custom mode. The generic workflow skills, `frontend-design`, and `impeccable` are installed in `~/.agents/skills/` for other local projects. The initializer creates a fresh studio only when the mode is used in a project without one. Before showing concepts, the agent inspects relevant production screens (Mobbin MCP when available), records reference-to-decision notes and distinct direction contracts, tests the same difficult screen in every direction, renders full-size desktop and phone views, and runs the [visual quality gate](skills/design-interface/references/visual-quality.md). If references or rendering are unavailable, the agent reports the gap rather than claiming the gate passed.
 
 ## Local design studio
 

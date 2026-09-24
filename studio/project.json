@@ -1,0 +1,22 @@
+{
+  "name": "PartyFox",
+  "screens": [],
+  "concepts": [],
+  "fonts": [
+    {
+      "id": "humanist",
+      "name": "Humanist",
+      "family": "Arial, sans-serif"
+    },
+    {
+      "id": "geometric",
+      "name": "Geometric",
+      "family": "Verdana, sans-serif"
+    },
+    {
+      "id": "editorial",
+      "name": "Editorial",
+      "family": "Georgia, serif"
+    }
+  ]
+}
