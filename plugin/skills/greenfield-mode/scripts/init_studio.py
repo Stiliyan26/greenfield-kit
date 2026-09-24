@@ -26,6 +26,9 @@ def main():
     shutil.copytree(template, destination)
     for folder in ("candidates", "references"):
         (destination / folder).mkdir(exist_ok=True)
+    # Remember where this engine is, so server.py finds it even from a plugin cache.
+    engine = Path(__file__).resolve().parent.parent / "assets" / "studio-engine"
+    (destination / ".engine-path").write_text(str(engine) + "\n", encoding="utf-8")
     project_file = destination / "project.json"
     project = json.loads(project_file.read_text(encoding="utf-8"))
     project["name"] = args.name.strip()

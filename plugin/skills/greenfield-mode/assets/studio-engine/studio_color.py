@@ -110,11 +110,19 @@ def tone(seed, lightness):
     return fmt(fit((lightness, chroma * taper, hue)))
 
 
-TONES = (0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
+# Tone steps follow perceived lightness (CIE L*), like Material tones, so the
+# dark end isn't a run of near-blacks.
+TONES = (10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99)
+
+
+def tone_lightness(step):
+    """OKLab lightness of a grey at CIE L* = step."""
+    luminance = ((step + 16) / 116) ** 3 if step > 8 else step / 903.3
+    return luminance ** (1 / 3)
 
 
 def tonal_scale(seed):
-    return {step: to_hex(tone(seed, step / 100)) for step in TONES}
+    return {step: to_hex(tone(seed, tone_lightness(step))) for step in TONES}
 
 
 def to_oklab(value):

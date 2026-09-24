@@ -1,5 +1,5 @@
 // The canvas: one frame at its true width, or an overview of every layout × world.
-import { byId } from "./util.js"
+import { byId, escapeHtml } from "./util.js"
 
 const WIDTHS = [1440, 1024, 390]
 const THUMB_WIDTH = 1440
@@ -91,8 +91,8 @@ export function createCanvas(ctx) {
     frame.src = frameSrc(layout?.id, world.id)
     thumb.append(frame)
     thumbObserver.observe(thumb)
-    const label = Object.assign(document.createElement("span"), { className: "cell-label", textContent: `${layout ? `${layout.name} · ` : ""}${world.name}` })
-    button.append(thumb, label)
+    button.setAttribute("aria-label", `${layout ? `${layout.name} in ` : "Specimen in "}${world.name}`)
+    button.append(thumb)
     return button
   }
 
@@ -103,7 +103,8 @@ export function createCanvas(ctx) {
     if (!world || (!layout && selection.screen !== "specimen")) return
     const src = frameSrc(layout?.id, world.id)
     const screen = selection.screen === "specimen" ? "Specimen" : project.screens.find((item) => item.id === selection.screen)?.label
-    byId("preview-title").textContent = [selection.screen === "specimen" ? null : layout.name, world.name, screen, `${selection.width} px`].filter(Boolean).join("  ·  ")
+    const lead = selection.screen === "specimen" ? `<strong>Specimen</strong> of ${escapeHtml(world.name)}` : `<strong>${escapeHtml(layout.name)}</strong> in ${escapeHtml(world.name)}`
+    byId("preview-title").innerHTML = `${lead}, ${escapeHtml(screen)}, ${selection.width} px`
     byId("open-tab").href = src
     const key = `${src}|${selection.width}`
     if (key !== previewKey) {
@@ -130,7 +131,7 @@ export function createCanvas(ctx) {
     byId("preview-title").parentElement.style.width = holder.style.width
     const toggle = byId("zoom-toggle")
     toggle.setAttribute("aria-pressed", String(store.fit))
-    toggle.textContent = store.fit ? `Fit · ${Math.round(scale * 100)}%` : "100%"
+    toggle.textContent = store.fit ? `Fit ${Math.round(scale * 100)}%` : "100%"
   }
 
   function broadcastTokens() {

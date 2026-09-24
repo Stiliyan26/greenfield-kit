@@ -15,10 +15,12 @@ look, pins comments, and approves. Approval writes `DESIGN.md` and
   `candidates/`, `references/` and any data file the candidates load. The page
   writes `selection.json`, `comments.json` and `taste.md`.
 
-`studio/server.py` is a small stub. It looks for the engine in the project's
-`.agents/skills/greenfield-mode/` first, then in `~/.agents/skills/`. Run it
-from the project root: `python3 studio/server.py`. It prints its URL; add
-`--port 4173` for a fixed one.
+`studio/server.py` is a small stub. It finds the engine in this order: the
+`STUDIO_ENGINE` variable; `studio/.engine-path`, which `init_studio.py` writes
+(and a `.gitignore` keeps out of git); a `plugin/` or `.agents/` folder in any
+parent directory; `~/.agents/skills/`; then the Claude Code plugin cache,
+newest first. Run it from the project root: `python3 studio/server.py`. It
+prints its URL; add `--port 4173` for a fixed one.
 
 ## Words
 

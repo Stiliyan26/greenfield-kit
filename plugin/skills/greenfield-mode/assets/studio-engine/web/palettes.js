@@ -10,7 +10,7 @@ const TAG_ORDER = ["warm", "cool", "earthy", "vivid", "muted", "mono", "dark", "
 export function createPalettes(ctx, { library, custom }) {
   const { store } = ctx
   const panel = byId("panel-colors")
-  const filter = { tag: "all", query: "", hideFailing: false }
+  const filter = { mood: "all", shortlist: false, query: "", hideFailing: false }
   let saved = custom
   let generated = []
   let editingRole = null
@@ -48,8 +48,8 @@ export function createPalettes(ctx, { library, custom }) {
   function visible() {
     const query = filter.query.trim().toLowerCase()
     return all().filter((entry) => {
-      if (filter.tag === "shortlist" && !store.selection.shortlist.includes(entry.id)) return false
-      if (!["all", "shortlist"].includes(filter.tag) && !entry.tags.includes(filter.tag)) return false
+      if (filter.shortlist && !store.selection.shortlist.includes(entry.id)) return false
+      if (filter.mood !== "all" && !entry.tags.includes(filter.mood)) return false
       if (query && !`${entry.name} ${entry.tags.join(" ")}`.toLowerCase().includes(query)) return false
       if (filter.hideFailing && !fitFor(entry).pass) return false
       return true
@@ -107,7 +107,7 @@ export function createPalettes(ctx, { library, custom }) {
     if (!/^#[0-9a-f]{6}$/i.test(hex)) return
     const seeds = { ...currentSeeds(), [role]: hex.toLowerCase() }
     const base = applied()
-    const name = base ? (base.name.endsWith(" · edited") ? base.name : `${base.name} · edited`) : "Custom"
+    const name = base ? (base.name.endsWith(" (edited)") ? base.name : `${base.name} (edited)`) : "Custom"
     apply({ ...seeds, id: "edited", name })
   }
 
@@ -125,7 +125,7 @@ export function createPalettes(ctx, { library, custom }) {
       ["Triadic", [lightness - 0.05, chroma * 0.8, hue + 120], [0.64, chroma, hue + 240], hue],
     ]
     generated = recipes.map(([name, secondary, tertiary, neutralHue]) => ({
-      id: `generated-${name.toLowerCase().replace(/ /g, "-")}`, name: `${name} · ${hex.toLowerCase()}`, tags: ["generated"],
+      id: `generated-${name.toLowerCase().replace(/ /g, "-")}`, name: `${name} of ${hex.toUpperCase()}`, tags: ["generated"],
       primary: hex.toLowerCase(), secondary: make(...secondary), tertiary: make(...tertiary), neutral: neutral(neutralHue),
     }))
     renderGenerated()
@@ -173,11 +173,12 @@ export function createPalettes(ctx, { library, custom }) {
 
   function renderFilters() {
     const present = new Set(all().flatMap((entry) => entry.tags))
-    const tags = ["all", "shortlist", ...TAG_ORDER.filter((tag) => present.has(tag))]
-    byId("palette-filters").innerHTML = tags.map((tag) => {
-      const label = tag === "all" ? "All" : tag === "shortlist" ? `${icon("star", { size: 12, filled: true })}Shortlist` : tag[0].toUpperCase() + tag.slice(1)
-      return `<button type="button" data-filter="${tag}" aria-pressed="${filter.tag === tag}">${label}</button>`
-    }).join("")
+    const moods = TAG_ORDER.filter((tag) => present.has(tag))
+    const count = store.selection.shortlist.length
+    byId("palette-filters").innerHTML = `
+      <label class="sr-only" for="palette-mood">Mood</label>
+      <select id="palette-mood">${["all", ...moods].map((mood) => `<option value="${mood}"${filter.mood === mood ? " selected" : ""}>${mood === "all" ? "Every mood" : mood[0].toUpperCase() + mood.slice(1)}</option>`).join("")}</select>
+      <button type="button" data-filter="shortlist" aria-pressed="${filter.shortlist}">${icon("star", { size: 13, filled: filter.shortlist })}Shortlist${count ? ` ${count}` : ""}</button>`
   }
 
   function row(entry) {
@@ -187,7 +188,7 @@ export function createPalettes(ctx, { library, custom }) {
     return `<li class="palette-row" data-palette="${escapeHtml(entry.id)}" aria-current="${applied()?.id === entry.id}">
       <button type="button" class="palette-apply" data-apply="${escapeHtml(entry.id)}" title="Apply ${escapeHtml(entry.name)}">
         <span class="chip4">${chip}</span>
-        <span class="palette-text"><span class="name">${escapeHtml(entry.name)}</span><span class="tags">${escapeHtml(entry.tags.join(" · "))}</span></span>
+        <span class="palette-text"><span class="name">${escapeHtml(entry.name)}</span><span class="tags">${escapeHtml(entry.tags.join(", "))}</span></span>
       </button>
       <span class="fit" data-state="${fitResult.pass ? "pass" : "fail"}" title="${escapeHtml(fitResult.pass ? "Passes every check for this project" : fitResult.title)}">${fitResult.pass ? icon("check", { size: 13 }) : `${icon("alert", { size: 13 })}${fitResult.label}`}</span>
       ${entry.tags.includes("generated") ? "<span></span>" : `<button type="button" class="star" data-star="${escapeHtml(entry.id)}" aria-pressed="${starred}" aria-label="${starred ? "Remove from" : "Add to"} shortlist">${icon("star", { size: 15, filled: starred })}</button>`}
@@ -197,7 +198,7 @@ export function createPalettes(ctx, { library, custom }) {
   function renderList() {
     const list = visible()
     byId("library-count").textContent = `${list.length} of ${all().length}`
-    byId("palette-list").innerHTML = list.map(row).join("") || `<li class="empty-note">${filter.tag === "shortlist" ? "Star palettes with S or the star to build a shortlist." : "No palettes match."}</li>`
+    byId("palette-list").innerHTML = list.map(row).join("") || `<li class="empty-note">${filter.shortlist ? "Star palettes with S or the star to build a shortlist." : "No palettes match."}</li>`
   }
 
   function renderGenerated() {
@@ -213,7 +214,7 @@ export function createPalettes(ctx, { library, custom }) {
   function renderNow() {
     const palette = applied()
     const seeds = currentSeeds()
-    byId("palette-now").innerHTML = `<span class="dots">${ROLES.map((role) => `<i style="background:${toHex(seeds[role])}"></i>`).join("")}</span><span>${escapeHtml(palette ? palette.name : "World colors")}${isTuned() ? " · tuned" : ""}</span>`
+    byId("palette-now").innerHTML = `<span class="dots">${ROLES.map((role) => `<i style="background:${toHex(seeds[role])}"></i>`).join("")}</span><span>${escapeHtml(palette ? palette.name : "World colors")}${isTuned() ? "<em>tuned</em>" : ""}</span>`
     const state = byId("palette-state")
     if (state) state.textContent = isTuned() ? "tuned" : palette ? "" : "no palette applied"
   }
@@ -228,7 +229,7 @@ export function createPalettes(ctx, { library, custom }) {
         const entry = [...all(), ...generated].find((item) => item.id === button.dataset.apply)
         if (entry) apply(entry)
       } else if (button.dataset.star) toggleStar(button.dataset.star)
-      else if (button.dataset.filter) { filter.tag = button.dataset.filter; renderFilters(); renderList() }
+      else if (button.dataset.filter === "shortlist") { filter.shortlist = !filter.shortlist; renderFilters(); renderList() }
       else if (button.dataset.roleEdit) { editingRole = editingRole === button.dataset.roleEdit ? null : button.dataset.roleEdit; renderCurrent() }
       else if (button.id === "palette-clear") clear()
       else if (button.id === "palette-save") { byId("save-form").hidden = false; byId("save-name").focus() }
@@ -243,6 +244,7 @@ export function createPalettes(ctx, { library, custom }) {
     })
     panel.addEventListener("change", (event) => {
       if (event.target.id === "hide-failing") { filter.hideFailing = event.target.checked; renderList() }
+      if (event.target.id === "palette-mood") { filter.mood = event.target.value; renderList() }
     })
     byId("save-form").addEventListener("submit", async (event) => {
       event.preventDefault()

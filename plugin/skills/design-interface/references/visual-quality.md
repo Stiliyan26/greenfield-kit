@@ -62,7 +62,7 @@ Function (15), with evidence from each capture. A total under 70, or any score
 of 1, means "revise first".
 
 If the `design-critic` agent isn't registered in this session, give a
-general-purpose agent the file `.agents/agents/design-critic.md`. Tell it to
+general-purpose agent the file `agents/design-critic.md` from the greenfield-kit plugin. Tell it to
 follow that file and stay read-only. Say in your report that you did this.
 
 ## Revise

@@ -19,6 +19,8 @@ const paths = {
   plus: '<path d="M12 5v14M5 12h14"/>',
   trash: '<path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/>',
   dot: '<circle cx="12" cy="12" r="3"/>',
+  panelLeft: '<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M9 5v14"/>',
+  panelRight: '<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M15 5v14"/>',
   panels: '<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M8 5v14M16 5v14"/>',
   pencil: '<path d="M15 5l4 4L9 19H5v-4Z"/><path d="m13 7 4 4"/>',
   home: '<path d="M4 11 12 4l8 7"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/>',

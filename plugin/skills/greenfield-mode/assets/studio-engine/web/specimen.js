@@ -4,6 +4,7 @@ import { icon } from "./icons.js"
 
 const DEFAULT_SAMPLE = {
   display: "The quick brown fox",
+  heading: "A section heading",
   body: "Body text should stay easy to read in long paragraphs and in tight table cells.",
   label: "Label · 12 items",
   search: "Search",
@@ -22,11 +23,21 @@ const escape = (value) => String(value ?? "").replace(/[&<>"']/g, (character) =>
 document.querySelectorAll("[data-font]").forEach((element) => { element.textContent = family(world?.fonts?.[element.dataset.font]) })
 document.querySelectorAll("[data-sample]").forEach((element) => { element.textContent = sample[element.dataset.sample] ?? "" })
 document.querySelectorAll("[data-icon]").forEach((element) => element.insertAdjacentHTML("afterbegin", icon(element.dataset.icon, { size: 20 })))
-document.querySelectorAll("[data-icon-before]").forEach((element) => element.insertAdjacentHTML("afterbegin", icon(element.dataset.iconBefore, { size: 18 })))
+
+// Product parts: a project-written HTML fragment (tokens only), so the specimen
+// shows the product's own components, not generic ones.
+if (sample.parts) {
+  fetch(sample.parts).then((response) => (response.ok ? response.text() : Promise.reject(new Error(`${sample.parts} answered ${response.status}`))))
+    .then((html) => {
+      document.getElementById("parts").innerHTML = html
+      document.getElementById("parts-card").hidden = false
+    })
+    .catch((error) => console.error("Specimen parts:", error.message))
+}
 document.getElementById("alerts").innerHTML = ["danger", "warning", "ok"].map((name) =>
   `<div class="alert ${name}">${name[0].toUpperCase()}${name.slice(1)}<span>${escape(meaning[name] ?? "No meaning recorded in project.json")}</span></div>`).join("")
 document.getElementById("rows").innerHTML = sample.rows.map(([time, item, state], index) =>
-  `<tr class="${index === 1 ? "selected" : ""}"><td class="num">${escape(time)}</td><td>${escape(item)}</td><td><span class="pill ${escape(state)}">${escape(state)}</span></td></tr>`).join("")
+  `<tr><td class="num">${escape(time)}</td><td>${escape(item)}</td><td><span class="pill ${escape(state)}">${escape(sample.statusLabels?.[state] ?? state)}</span></td></tr>`).join("")
 
 function paint() {
   const style = getComputedStyle(document.documentElement)

@@ -71,14 +71,24 @@ function decorate() {
   byId("palette-prev").innerHTML = icon("left")
   byId("palette-next").innerHTML = icon("right")
   byId("comment-toggle").innerHTML = `${icon("comment")}<span>Comment</span>`
+  byId("comment-toggle").setAttribute("aria-label", "Comment")
   byId("open-tab").innerHTML = `${icon("external", { size: 14 })}Open alone`
   byId("shortcuts-button").innerHTML = icon("keyboard")
-  byId("panels-toggle").innerHTML = icon("panels")
-  setPanels(readPanels())
+  byId("rail-toggle").innerHTML = icon("panelLeft")
+  byId("inspector-toggle").innerHTML = icon("panelRight")
+  const wide = innerWidth >= 1280
+  setPanel("rail", readPanel("rail", wide))
+  setPanel("inspector", readPanel("inspector", true))
   document.querySelectorAll("dialog [data-close].icon-btn").forEach((button) => { button.innerHTML = icon("x") })
 }
 
 function setStatus(text) { byId("save-status").textContent = text }
+
+function fontPair(world) {
+  const display = familyName(world.fonts?.display || "")
+  const body = familyName(world.fonts?.body || "")
+  return display === body ? `${display} throughout` : `${display} and ${body}`
+}
 
 // --- rendering ------------------------------------------------------------------
 
@@ -103,6 +113,10 @@ function renderTop() {
 
 function renderRail() {
   const { project, selection } = store
+  const choice = selection.layoutChoice
+  const chosenName = project.layouts.find((item) => item.id === choice?.layout)?.name ?? choice?.layout
+  byId("layout-choice").hidden = !choice
+  byId("layout-choice").innerHTML = choice ? `<span><strong>${escapeHtml(chosenName)}</strong> is chosen</span><button type="button" id="undo-layout" class="btn btn-quiet btn-small">Undo</button>` : ""
   byId("layout-options").innerHTML = project.layouts.map((layout) => `
     <button type="button" class="option" data-layout="${escapeHtml(layout.id)}" aria-pressed="${selection.layout === layout.id}">
       <span class="option-name">${escapeHtml(layout.name)}</span>
@@ -114,9 +128,9 @@ function renderRail() {
     const strip = ["color-primary", "color-secondary", "color-tertiary", "color-bg", "color-ink"].map((name) => `<span style="background:${escapeHtml(tokens[name])}"></span>`).join("")
     const palette = selection.palette?.[world.id]
     return `<button type="button" class="option" data-world="${escapeHtml(world.id)}" aria-pressed="${selection.world === world.id}">
-      <span class="option-name">${escapeHtml(world.name)}${world.neutral ? " <span class='tag'>neutral</span>" : ""}</span>
+      <span class="option-name">${escapeHtml(world.name)}${world.neutral ? " <span class='tag'>layout round only</span>" : ""}</span>
       <span class="option-summary">${escapeHtml(world.summary || "")}</span>
-      <span class="option-fonts mono">${escapeHtml(familyName(world.fonts?.display || ""))} / ${escapeHtml(familyName(world.fonts?.body || ""))}${palette ? ` · ${escapeHtml(palette.name)}` : ""}</span>
+      <span class="option-fonts">${escapeHtml(fontPair(world))}${palette ? `, ${escapeHtml(palette.name)} colors` : ""}</span>
       <span class="strip">${strip}</span>
     </button>`
   }).join("") || "<p class='hint'>No worlds in project.json yet.</p>"
@@ -130,11 +144,6 @@ function renderRail() {
     </button>`).join("") || "<p class='hint'>No references yet.</p>"
   byId("round-label").textContent = ctx.round() === "layout" ? "Layout round: judge the arrangement in neutral grey, or preview palettes on it." : "Identity round: choose and tune a complete look."
 
-  const tokens = ctx.currentWorld() ? ctx.currentTokens() : null
-  if (tokens) {
-    const mark = document.querySelector(".brand-mark")
-    ;["color-primary", "color-secondary", "color-tertiary", "color-bg"].forEach((name, index) => mark.style.setProperty(`--mark-${index + 1}`, tokens[name]))
-  }
 }
 
 function renderFooter() {
@@ -144,12 +153,17 @@ function renderFooter() {
   const approved = selection.status === "approved"
   const layoutRound = ctx.round() === "layout"
 
-  const steps = { layout: selection.layoutChoice ? "done" : layoutRound ? "current" : "done", identity: approved ? "done" : layoutRound ? "todo" : "current", approved: approved ? "done" : "todo" }
-  document.querySelectorAll("#stepper li").forEach((item) => { item.dataset.state = steps[item.dataset.step] })
+  const layoutDone = Boolean(selection.layoutChoice)
+  const steps = { layout: layoutDone ? "done" : "current", identity: approved ? "done" : layoutDone ? "current" : "todo", approved: approved ? "done" : "todo" }
+  document.querySelectorAll("#stepper li").forEach((item) => {
+    item.dataset.state = steps[item.dataset.step]
+    item.innerHTML = `${steps[item.dataset.step] === "done" ? icon("check", { size: 13 }) : ""}${item.dataset.label}`
+  })
 
-  const revision = byId("revision-label")
-  revision.textContent = `Rev ${selection.revision} · ${approved ? "Approved" : "Draft"}`
-  revision.dataset.state = approved ? "approved" : "draft"
+  byId("revision-label").textContent = `Revision ${selection.revision}`
+  const chip = byId("status-chip")
+  chip.textContent = approved ? "Approved" : "Draft"
+  chip.dataset.state = approved ? "approved" : "draft"
   const exported = selection.exported
   const outdated = Boolean(exported && exported.revision !== selection.revision)
   const label = byId("export-label")
@@ -157,10 +171,12 @@ function renderFooter() {
   label.dataset.outdated = String(outdated)
 
   const choose = byId("choose-layout")
-  choose.hidden = !layoutRound
+  choose.hidden = !layoutRound && Boolean(selection.layoutChoice)
   const chosen = selection.layoutChoice?.layout === selection.layout
   choose.disabled = !layout || chosen
-  choose.textContent = chosen ? `${layout?.name} chosen` : `Choose ${layout?.name ?? "layout"}`
+  choose.classList.toggle("btn-done", chosen)
+  choose.classList.toggle("btn-primary", !chosen)
+  choose.innerHTML = chosen ? `${icon("check", { size: 14 })}${escapeHtml(layout?.name)} chosen` : `Choose ${escapeHtml(layout?.name ?? "layout")}`
 
   const approve = byId("approve")
   approve.hidden = layoutRound
@@ -170,7 +186,12 @@ function renderFooter() {
   if (store.blocking) reasons.push(`${store.blocking} check${store.blocking > 1 ? "s" : ""} failing`)
   if (world && !store.fonts[world.id]) reasons.push("the font check is still running")
   approve.disabled = approved || reasons.length > 0
-  approve.textContent = approved ? `Rev ${selection.revision} approved` : `Approve rev ${selection.revision}`
+  const reason = byId("approve-reason")
+  reason.hidden = layoutRound || approved || !store.blocking
+  reason.innerHTML = `${icon("alert", { size: 14 })}${store.blocking} check${store.blocking > 1 ? "s" : ""} blocking`
+  approve.classList.toggle("btn-done", approved)
+  approve.classList.toggle("btn-primary", !approved)
+  approve.innerHTML = approved ? `${icon("check", { size: 14 })}Revision ${selection.revision} approved` : `Approve revision ${selection.revision}`
 
   let hint = ""
   if (layoutRound) hint = chosen ? "Layout chosen. The agent builds complete worlds for it next." : "Choose the arrangement that works best. Palettes here are only a preview."
@@ -239,7 +260,20 @@ function listen() {
 
   byId("feedback").addEventListener("input", (event) => { store.selection.feedback = event.target.value; queueSave() })
   byId("shortcuts-button").addEventListener("click", () => byId("shortcuts-dialog").showModal())
-  byId("panels-toggle").addEventListener("click", () => setPanels(document.body.classList.contains("panels-hidden")))
+  byId("approve-reason").addEventListener("click", () => { setPanel("inspector", true); ctx.inspector.setTab("checks") })
+  byId("rail-toggle").addEventListener("click", () => togglePanel("rail"))
+  byId("inspector-toggle").addEventListener("click", () => togglePanel("inspector"))
+
+  byId("layout-choice").addEventListener("click", async (event) => {
+    if (!event.target.closest("#undo-layout")) return
+    if (!await save()) return
+    try {
+      Object.assign(store.selection, await postJson("/api/choose-layout", { revision: store.selection.revision, undo: true }))
+      setStatus("Layout choice undone")
+    } catch (error) { setStatus(error.message) }
+    renderRail()
+    renderFooter()
+  })
 
   byId("choose-layout").addEventListener("click", async () => {
     if (!await save()) return
@@ -247,6 +281,7 @@ function listen() {
       Object.assign(store.selection, await postJson("/api/choose-layout", { revision: store.selection.revision }))
       setStatus("Layout chosen")
     } catch (error) { setStatus(error.message) }
+    renderRail()
     renderFooter()
   })
 
@@ -268,7 +303,13 @@ function listen() {
     else if (key === "c" || key === "C") ctx.comments.toggle()
     else if (key === "g" || key === "G") ctx.canvas.setView(store.view === "frame" ? "grid" : "frame")
     else if (key === "f" || key === "F") ctx.canvas.toggleFit()
-    else if (key === "p" || key === "P") setPanels(document.body.classList.contains("panels-hidden"))
+    else if (key === "[") togglePanel("rail")
+    else if (key === "]") togglePanel("inspector")
+    else if (key === "p" || key === "P") {
+      const show = document.body.classList.contains("rail-hidden") || document.body.classList.contains("inspector-hidden")
+      setPanel("rail", show)
+      setPanel("inspector", show)
+    }
     else if (["1", "2", "3"].includes(key)) change({ width: [1440, 1024, 390][Number(key) - 1] })
     else if (key === "?") byId("shortcuts-dialog").showModal()
   })
@@ -285,14 +326,24 @@ function listen() {
 }
 
 // Side panels are a per-viewer preference, so they live in localStorage.
-function readPanels() {
-  try { return localStorage.getItem("studio-panels") !== "hidden" } catch { return true }
+// First visit below 1280 px starts with the left rail hidden, so the frame gets the width.
+function readPanel(name, fallback) {
+  try {
+    const stored = localStorage.getItem(`studio-${name}`)
+    if (stored) return stored !== "hidden"
+  } catch { /* private window: use the default */ }
+  return fallback
 }
 
-function setPanels(show) {
-  document.body.classList.toggle("panels-hidden", !show)
-  byId("panels-toggle").setAttribute("aria-pressed", String(show))
-  try { localStorage.setItem("studio-panels", show ? "shown" : "hidden") } catch { /* private window: keep it for this visit */ }
+function setPanel(name, show) {
+  document.body.classList.toggle(`${name}-hidden`, !show)
+  byId(`${name}-toggle`).setAttribute("aria-pressed", String(show))
+  try { localStorage.setItem(`studio-${name}`, show ? "shown" : "hidden") } catch { /* private window: keep it for this visit */ }
+  ctx.canvas?.render()
+}
+
+function togglePanel(name) {
+  setPanel(name, document.body.classList.contains(`${name}-hidden`))
 }
 
 function openReference(index) {

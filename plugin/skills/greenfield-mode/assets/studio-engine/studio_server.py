@@ -158,6 +158,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "_rules": {
                     "contrastPairs": studio_export.CONTRAST_PAIRS,
                     "hueGuard": {"degrees": studio_export.HUE_GUARD_DEGREES, "chroma": studio_export.HUE_GUARD_CHROMA},
+                    "warningGuard": {"degrees": studio_export.WARNING_GUARD_DEGREES, "chroma": studio_export.WARNING_GUARD_CHROMA},
                     "requiredTokens": studio_export.REQUIRED_TOKENS,
                 },
             })
@@ -312,6 +313,10 @@ class Handler(SimpleHTTPRequestHandler):
         selection = self.studio.selection()
         if body.get("revision") != selection["revision"] or not selection["layout"]:
             raise PermissionError("The page is out of date. Reload and choose again.")
+        if body.get("undo"):
+            selection["layoutChoice"] = None
+            self.studio.save_selection(selection)
+            return selection
         selection["layoutChoice"] = {"layout": selection["layout"], "revision": selection["revision"], "at": now()}
         self.studio.save_selection(selection)
         return selection

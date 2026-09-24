@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Compare this project's skills and agents with the global copies in ~/.agents.
+"""Compare the greenfield-kit plugin's skills and agents with the copies in ~/.agents.
 
-The project copy is the working version. Global copies let other projects use
-the same skills.
+Claude Code loads the kit as a plugin. Codex and Cursor read ~/.agents/skills,
+so this copies the kit there. The plugin is the source of truth.
 
-    python3 .agents/scripts/sync_skills.py            # report differences (exit 1 if any)
-    python3 .agents/scripts/sync_skills.py --push     # copy project -> global for skills in both
-    python3 .agents/scripts/sync_skills.py --push design-critic   # also installs a project-only item
-    python3 .agents/scripts/sync_skills.py --pull NAME            # copy global -> project
+    python3 sync_global.py                 # report what differs (exit 1 if any)
+    python3 sync_global.py --push          # copy every kit skill and agent to ~/.agents
+    python3 sync_global.py --push NAME     # copy only these
+    python3 sync_global.py --pull NAME     # copy global copies back into the kit
 """
 
 import argparse
@@ -16,7 +16,8 @@ from pathlib import Path
 import shutil
 import sys
 
-PROJECT = Path(__file__).resolve().parent.parent
+# <plugin>/skills/setup-project/scripts/sync_global.py -> <plugin>
+PROJECT = Path(__file__).resolve().parents[3]
 IGNORE = {"__pycache__", ".DS_Store"}
 
 
@@ -90,17 +91,17 @@ def main():
                     drift += 1
                     print(f"differs {label}:\n  " + "\n  ".join(changed))
             elif here:
-                if args.push and name in args.names:
+                if args.push and (not args.names or name in args.names):
                     copy(here, args.global_root / kind / here.name)
                     print(f"installed {label} globally")
                 elif not args.push:
-                    print(f"project only {label}")
+                    print(f"not installed {label}")
             else:
                 if args.pull and name in args.names:
                     copy(there, PROJECT / kind / there.name)
                     print(f"installed {label} in the project")
                 elif not args.pull:
-                    print(f"global only {label}")
+                    pass  # other skills in ~/.agents are not the kit's business
     if not (args.push or args.pull):
         print(f"{drift} shared item(s) differ." if drift else "Shared skills and agents match.")
     return 1 if drift else 0

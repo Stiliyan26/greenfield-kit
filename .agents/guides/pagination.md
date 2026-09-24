@@ -1,0 +1,1 @@
+../../plugin/skills/setup-project/templates/.agents/guides/pagination.md

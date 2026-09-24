@@ -1,0 +1,40 @@
+<style>
+  /* PartyFox parts for the specimen. Tokens only, like the candidates. */
+  .pf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; font-size: 14px; }
+  .pf-booking { border-radius: var(--radius-sm); padding: 10px 12px; background: var(--color-primary-soft); border: 1px solid color-mix(in oklab, var(--color-primary) 35%, var(--color-surface)); }
+  .pf-booking b { display: block; font-family: var(--font-display); font-size: 15px; font-variant-numeric: tabular-nums; }
+  .pf-booking span { color: var(--color-muted); font-size: 13px; }
+  .pf-missing { border: 2px solid var(--status-danger); background: color-mix(in oklab, var(--status-danger) 8%, var(--color-surface)); }
+  .pf-booking .pf-badge { display: inline-block; margin-top: 6px; padding: 1px 8px; border-radius: var(--radius-sm); background: var(--status-danger); color: var(--color-surface); font-size: 12px; font-weight: 700; }
+  .pf-tags { display: flex; flex-wrap: wrap; gap: 8px; align-content: start; }
+  .pf-tag { padding: 3px 10px; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 600; border: 1px solid currentColor; }
+  .pf-tag.clash { color: var(--status-warning); background: color-mix(in oklab, var(--status-warning) 12%, var(--color-surface)); }
+  .pf-tag.open { color: var(--status-warning); border-style: dashed; }
+  .pf-tag.count { color: var(--color-secondary); background: var(--color-secondary-soft); border-color: transparent; }
+  .pf-tag.leave { color: var(--color-muted); }
+  .pf-row { grid-column: 1 / -1; display: grid; grid-template-columns: 150px 1fr; border: 1px solid var(--color-line); border-radius: var(--radius-sm); overflow: hidden; background: var(--color-surface); }
+  .pf-row .who { padding: 10px 12px; border-right: 1px solid var(--color-line); background: var(--color-surface-2); }
+  .pf-row .who b { display: block; }
+  .pf-row .who span { color: var(--color-muted); font-size: 12.5px; }
+  .pf-row .lane { position: relative; min-height: 76px; }
+  .pf-row .hours { position: absolute; left: 0; right: 0; bottom: 4px; display: flex; justify-content: space-between; padding: 0 8px; color: var(--color-muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+  .pf-row .lane .pf-booking { position: absolute; top: 8px; height: 40px; left: 12.5%; width: 25%; padding: 6px 10px; }
+  .pf-row .lane .next { position: absolute; top: 0; bottom: 18px; left: 60%; width: 2px; background: var(--color-tertiary); }
+  .pf-row .lane .next::after { content: "сега"; position: absolute; top: 4px; left: 6px; font-size: 11.5px; font-weight: 600; color: var(--color-tertiary); font-style: normal; }
+  .pf-row .ticks { position: absolute; left: 0; right: 0; top: 0; bottom: 18px; background: repeating-linear-gradient(90deg, var(--color-line) 0 1px, transparent 1px 12.5%); }
+  @media (max-width: 640px) { .pf { grid-template-columns: 1fr; } .pf-row { grid-template-columns: 1fr; } .pf-row .who { border-right: 0; } }
+</style>
+<div class="pf">
+  <div class="pf-booking" data-part="booking"><b>10:00–12:00</b><span>Алекс, 6 г. · Пирати</span></div>
+  <div class="pf-booking pf-missing" data-part="missing-deposit"><b>16:00–18:00</b><span>Софи, 4 г. · Балони</span><br><span class="pf-badge">Депозит липсва</span></div>
+  <div class="pf-tags" data-part="tags">
+    <span class="pf-tag count">6 партита</span>
+    <span class="pf-tag clash">Застъпване 15:00–16:00</span>
+    <span class="pf-tag open">Търси се аниматор</span>
+    <span class="pf-tag leave">Отпуск, одобрен</span>
+  </div>
+  <div class="pf-row" data-part="animator-row">
+    <div class="who"><b>Ема</b><span>Клоун / балони</span></div>
+    <div class="lane"><div class="ticks" aria-hidden="true"></div><div class="pf-booking"><b>10:00–12:00</b></div><i class="next" title="Сега"></i><div class="hours"><span>09:00</span><span>11:00</span><span>13:00</span><span>15:00</span><span>17:00</span></div></div>
+  </div>
+</div>

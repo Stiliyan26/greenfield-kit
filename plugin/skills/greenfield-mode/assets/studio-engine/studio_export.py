@@ -41,6 +41,9 @@ CONTRAST_PAIRS = (
 )
 HUE_GUARD_DEGREES = 30
 HUE_GUARD_CHROMA = 0.06
+# Warning gets a narrower guard: a colored role this close reads as a warning.
+WARNING_GUARD_DEGREES = 20
+WARNING_GUARD_CHROMA = 0.08
 
 DEFAULT_TYPE = {
     "display": {"font": "display", "fontSize": "32px", "fontWeight": 700, "lineHeight": 1.1},
@@ -115,6 +118,17 @@ def run_checks(tokens):
         clash = chroma >= HUE_GUARD_CHROMA and distance < HUE_GUARD_DEGREES
         results.append({
             "id": f"{name}/hue", "kind": "hue", "label": f"{name} stays clear of the danger red",
+            "distance": round(distance), "pass": not clash,
+        })
+    warning = studio_color.parse(tokens["status-warning"])
+    for name in ("color-primary", "color-secondary", "color-accent"):
+        if name not in tokens:
+            continue
+        _, chroma, hue = studio_color.parse(tokens[name])
+        distance = studio_color.hue_distance(hue, warning[2])
+        clash = chroma >= WARNING_GUARD_CHROMA and warning[1] >= WARNING_GUARD_CHROMA and distance < WARNING_GUARD_DEGREES
+        results.append({
+            "id": f"{name}/warning", "kind": "hue", "label": f"{name} stays clear of the warning amber",
             "distance": round(distance), "pass": not clash,
         })
     for name, value in tokens.items():

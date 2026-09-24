@@ -74,7 +74,13 @@ export function hueDistance(first, second) {
 
 // --- palettes: tonal scales and role mapping (twin of studio_color.py / studio_export.py) ---
 
-export const TONES = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+// Tone steps follow perceived lightness (CIE L*), like Material tones. Twin of studio_color.py.
+export const TONES = [10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99]
+
+export function toneLightness(step) {
+  const luminance = step > 8 ? ((step + 16) / 116) ** 3 : step / 903.3
+  return Math.cbrt(luminance)
+}
 export const WHITE = "oklch(1.000 0.000 0.0)"
 
 export function fit([lightness, chroma, hue]) {
@@ -96,7 +102,7 @@ export function tone(seed, lightness) {
 }
 
 export function tonalScale(seed) {
-  return TONES.map((step) => ({ step, hex: toHex(tone(seed, step / 100)) }))
+  return TONES.map((step) => ({ step, hex: toHex(tone(seed, toneLightness(step))) }))
 }
 
 export function mix(first, second, amount) {

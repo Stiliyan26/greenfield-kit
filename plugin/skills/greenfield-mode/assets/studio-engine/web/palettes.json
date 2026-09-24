@@ -498,6 +498,146 @@
    "secondary": "#393173",
    "tertiary": "#35b9c0",
    "neutral": "#f1f1f6"
+  },
+  {
+   "id": "fjord",
+   "name": "Fjord",
+   "tags": [
+    "cool"
+   ],
+   "primary": "#00566e",
+   "secondary": "#18394b",
+   "tertiary": "#3a997d",
+   "neutral": "#eaeff1"
+  },
+  {
+   "id": "orchid",
+   "name": "Orchid",
+   "tags": [
+    "vivid"
+   ],
+   "primary": "#743981",
+   "secondary": "#492b5d",
+   "tertiary": "#0d9298",
+   "neutral": "#f1edf2"
+  },
+  {
+   "id": "kelp",
+   "name": "Kelp",
+   "tags": [
+    "earthy",
+    "cool"
+   ],
+   "primary": "#1f533a",
+   "secondary": "#103b31",
+   "tertiary": "#3884a5",
+   "neutral": "#eaf0ed"
+  },
+  {
+   "id": "blueprint",
+   "name": "Blueprint",
+   "tags": [
+    "cool",
+    "vivid"
+   ],
+   "primary": "#004b97",
+   "secondary": "#112d55",
+   "tertiary": "#009a9a",
+   "neutral": "#eff2f6"
+  },
+  {
+   "id": "mint-ink",
+   "name": "Mint & Ink",
+   "tags": [
+    "dark",
+    "contrast",
+    "cool"
+   ],
+   "primary": "#1e2f41",
+   "secondary": "#335166",
+   "tertiary": "#44a781",
+   "neutral": "#edf3f3"
+  },
+  {
+   "id": "violet-hour",
+   "name": "Violet Hour",
+   "tags": [
+    "vivid",
+    "dark"
+   ],
+   "primary": "#4f3a92",
+   "secondary": "#3a2659",
+   "tertiary": "#ae6aa8",
+   "neutral": "#eeeef4"
+  },
+  {
+   "id": "eucalyptus",
+   "name": "Eucalyptus",
+   "tags": [
+    "muted",
+    "cool"
+   ],
+   "primary": "#3e6e5e",
+   "secondary": "#2e4f48",
+   "tertiary": "#777bb0",
+   "neutral": "#ebf0ec"
+  },
+  {
+   "id": "cornflower",
+   "name": "Cornflower",
+   "tags": [
+    "cool"
+   ],
+   "primary": "#4365b3",
+   "secondary": "#2d457d",
+   "tertiary": "#957ec0",
+   "neutral": "#f3f5f9"
+  },
+  {
+   "id": "pine-needle",
+   "name": "Pine Needle",
+   "tags": [
+    "earthy"
+   ],
+   "primary": "#1d4e2b",
+   "secondary": "#4b6646",
+   "tertiary": "#0d9298",
+   "neutral": "#edf0ea"
+  },
+  {
+   "id": "slate-lilac",
+   "name": "Slate & Lilac",
+   "tags": [
+    "muted",
+    "contrast"
+   ],
+   "primary": "#384352",
+   "secondary": "#52657a",
+   "tertiary": "#997eb8",
+   "neutral": "#f0f2f5"
+  },
+  {
+   "id": "lagoon-night",
+   "name": "Lagoon Night",
+   "tags": [
+    "dark",
+    "cool"
+   ],
+   "primary": "#004252",
+   "secondary": "#006266",
+   "tertiary": "#00aa95",
+   "neutral": "#e7ecee"
+  },
+  {
+   "id": "heath",
+   "name": "Heath",
+   "tags": [
+    "muted"
+   ],
+   "primary": "#734363",
+   "secondary": "#4c334a",
+   "tertiary": "#5a8d72",
+   "neutral": "#f2ecf0"
   }
  ]
 }

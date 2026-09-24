@@ -37,7 +37,7 @@ export function createComments(ctx) {
     byId("comment-count").textContent = open ? String(open) : ""
     byId("comment-list").innerHTML = items.map((item, index) => `
       <li data-id="${item.id}" data-status="${item.status}" class="kind-${item.kind}${focused === item.id ? " focus" : ""}">
-        <div class="meta-row"><span class="num">${index + 1}</span><span>${item.kind === "note" ? "Note" : item.kind === "like" ? "Like" : "Reject"}</span><span>· ${escapeHtml(item.world)}</span><span>· ${item.width ?? "?"} px</span><span>· rev ${item.revision}</span>${item.status === "done" ? "<span>· done</span>" : ""}${missing.has(item.id) ? "<span>· element not found</span>" : ""}</div>
+        <div class="meta-row"><span class="num">${index + 1}</span><span>${item.kind === "note" ? "Note" : item.kind === "like" ? "Like" : "Reject"}</span><span>${escapeHtml(item.world)}</span><span>${item.width ?? "?"} px</span><span>revision ${item.revision}</span>${item.status === "done" ? "<span>done</span>" : ""}${missing.has(item.id) ? "<span>element not found</span>" : ""}</div>
         <div>${escapeHtml(item.text)}</div>
         <div class="snippet">On “${escapeHtml(item.snippet)}”</div>
         <div class="actions">

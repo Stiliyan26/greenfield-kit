@@ -1,4 +1,4 @@
-# Generated from .agents/agents/ by npm run agents:sync; do not edit.
+# Generated from the greenfield-kit agents/ folder by codex_agents.py; do not edit.
 name = "reviewer"
 description = "Read-only review of a change or plan - checks it against the requirements, code rules, permissions, design and real test results, sorts findings by what to act on, and reports problems without fixing them."
 sandbox_mode = "read-only"

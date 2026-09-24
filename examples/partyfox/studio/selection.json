@@ -1,49 +1,73 @@
 {
   "screen": "ops-day",
-  "layout": "roster",
-  "world": "neutral",
-  "width": 1440,
+  "layout": "agenda",
+  "world": "rota",
+  "width": 1024,
   "tuning": {
     "neutral": {
-      "color-bg": "oklch(0.965 0.008 139.4)",
-      "color-surface": "oklch(0.992 0.008 139.4)",
-      "color-surface-2": "oklch(0.935 0.008 139.4)",
-      "color-line": "oklch(0.870 0.008 139.4)",
-      "color-muted": "oklch(0.470 0.008 139.4)",
-      "color-ink": "oklch(0.210 0.008 139.4)",
-      "color-primary": "oklch(0.421 0.081 154.8)",
+      "color-bg": "oklch(0.965 0.008 228.9)",
+      "color-surface": "oklch(0.992 0.005 228.9)",
+      "color-surface-2": "oklch(0.935 0.008 228.9)",
+      "color-line": "oklch(0.870 0.008 228.9)",
+      "color-muted": "oklch(0.470 0.008 228.9)",
+      "color-ink": "oklch(0.210 0.008 228.9)",
+      "color-primary": "oklch(0.419 0.086 232.8)",
       "color-on-primary": "oklch(1.000 0.000 0.0)",
-      "color-primary-soft": "oklch(0.930 0.040 154.8)",
-      "color-secondary": "oklch(0.329 0.050 159.5)",
+      "color-primary-soft": "oklch(0.930 0.041 232.8)",
+      "color-secondary": "oklch(0.331 0.059 241.0)",
       "color-on-secondary": "oklch(1.000 0.000 0.0)",
-      "color-secondary-soft": "oklch(0.930 0.024 159.5)",
-      "color-tertiary": "oklch(0.620 0.100 75.4)",
-      "color-on-tertiary": "oklch(0.160 0.040 75.4)",
-      "color-tertiary-soft": "oklch(0.930 0.049 75.4)",
-      "color-accent": "oklch(0.620 0.100 75.4)"
+      "color-secondary-soft": "oklch(0.930 0.029 241.0)",
+      "color-tertiary": "oklch(0.650 0.100 195.0)",
+      "color-on-tertiary": "oklch(0.160 0.031 195.0)",
+      "color-tertiary-soft": "oklch(0.930 0.049 195.0)",
+      "color-accent": "oklch(0.650 0.100 195.0)"
+    },
+    "rota": {
+      "color-bg": "oklch(0.965 0.006 239.8)",
+      "color-surface": "oklch(0.992 0.004 239.8)",
+      "color-surface-2": "oklch(0.935 0.006 239.8)",
+      "color-line": "oklch(0.870 0.006 239.8)",
+      "color-muted": "oklch(0.470 0.006 239.8)",
+      "color-ink": "oklch(0.210 0.006 239.8)",
+      "color-primary": "oklch(0.450 0.060 238.9)",
+      "color-on-primary": "oklch(1.000 0.000 0.0)",
+      "color-primary-soft": "oklch(0.930 0.029 238.9)",
+      "color-secondary": "oklch(0.360 0.040 239.7)",
+      "color-on-secondary": "oklch(1.000 0.000 0.0)",
+      "color-secondary-soft": "oklch(0.930 0.020 239.7)",
+      "color-tertiary": "oklch(0.649 0.060 209.9)",
+      "color-on-tertiary": "oklch(0.160 0.027 209.9)",
+      "color-tertiary-soft": "oklch(0.930 0.029 209.9)",
+      "color-accent": "oklch(0.649 0.060 209.9)"
     }
   },
   "palette": {
     "neutral": {
-      "id": "forest-floor",
-      "name": "Forest Floor",
+      "id": "deep-sea",
+      "name": "Deep Sea",
       "seeds": {
-        "primary": "#225a39",
-        "secondary": "#1c3d2c",
-        "tertiary": "#a97d3a",
-        "neutral": "#e8ece7"
+        "primary": "#005474",
+        "secondary": "#153951",
+        "tertiary": "#31a5a5",
+        "neutral": "#e6ecef"
+      }
+    },
+    "rota": {
+      "id": "nordic-frost",
+      "name": "Nordic Frost",
+      "seeds": {
+        "primary": "#345a73",
+        "secondary": "#294050",
+        "tertiary": "#77afb9",
+        "neutral": "#ebeff2"
       }
     }
   },
   "shortlist": [],
   "feedback": "",
   "status": "draft",
-  "revision": 75,
+  "revision": 118,
   "approvedAt": null,
-  "layoutChoice": {
-    "layout": "roster",
-    "revision": 37,
-    "at": "2026-09-24T15:12:21+00:00"
-  },
+  "layoutChoice": null,
   "exported": null
 }

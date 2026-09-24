@@ -6,7 +6,7 @@ everything and cut it in memory.
 
 ## Numbered pages
 
-- `page` and `pageSize` have limits. HRise's defaults are in `project.md`.
+- `page` and `pageSize` have limits. The project's defaults are in `project.md`.
 - Sort in a fixed order, with a unique field last (like `id`), so ties don't
   jump between pages.
 - Return the items plus the existing page and total fields.

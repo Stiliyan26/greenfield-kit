@@ -1,0 +1,14 @@
+{
+  "name": "greenfield-kit",
+  "description": "The greenfield-kit plugin: design studio, palette library, design critic, and the plan and delivery skills that build from the approved design.",
+  "owner": {
+    "name": "Stiliyan Nikolov"
+  },
+  "plugins": [
+    {
+      "name": "greenfield-kit",
+      "source": "./plugin",
+      "description": "Design-to-delivery workflow with a local design studio, palette library, design critic and token handoff."
+    }
+  ]
+}

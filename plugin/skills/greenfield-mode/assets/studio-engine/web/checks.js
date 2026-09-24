@@ -37,6 +37,15 @@ export function runChecks(project, tokens) {
     const distance = hueDistance(hue, danger[2])
     results.push({ id: `${name}/hue`, kind: "hue", label: `${name.replace("color-", "")} stays clear of the danger red`, distance, pass: !(chroma >= minimumChroma && distance < degrees) })
   }
+  const warningGuard = project._rules.warningGuard
+  const warning = parse(tokens["status-warning"])
+  for (const name of ["color-primary", "color-secondary", "color-accent"]) {
+    if (!warningGuard || !(name in tokens)) continue
+    const [, chroma, hue] = parse(tokens[name])
+    const distance = hueDistance(hue, warning[2])
+    const clash = chroma >= warningGuard.chroma && warning[1] >= warningGuard.chroma && distance < warningGuard.degrees
+    results.push({ id: `${name}/warning`, kind: "hue", label: `${name.replace("color-", "")} stays clear of the warning amber`, distance, pass: !clash })
+  }
   for (const [name, value] of Object.entries(tokens)) {
     if (/^(color|status)-/.test(name) && !inGamut(parse(value))) {
       results.push({ id: `${name}/gamut`, kind: "gamut", label: `${name} is outside sRGB and will be clipped`, pass: true, warning: true })
