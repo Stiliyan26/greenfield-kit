@@ -1,11 +1,40 @@
 # Starting a new product
 
-The skill is a reusable workflow. It does not hold a product's brand, screens, or sample data. The initializer creates a neutral local studio in the current project; the agent must build and review product-specific candidates before showing them as designs.
+This skill is a reusable workflow. It holds no product's brand, screens or
+sample data. The studio engine lives in this skill and serves any project's
+`studio/` content folder.
 
-1. Read the new project's brief and any existing instructions. Do not copy another project's product files or approved design.
-2. If `studio/` already exists, inspect it. Otherwise run `python3 <skill-root>/scripts/init_studio.py <project-root> --name "<product name>"`. The script refuses to overwrite an existing studio.
-3. Choose representative tasks and one difficult screen from the brief. Before coding, use the `design-interface` research step: inspect 3–5 relevant production screens with Mobbin MCP when available; save links and concrete decisions to adapt or avoid in the project's design evidence folder. If unavailable, use accessible examples and record the limitation. For each concept, write a direction contract with its product-specific source, composition sketch, named palette, type roles, signature detail, and closest generic template to avoid. Test two or three contracts against the same difficult screen and realistic data first. Review its desktop and phone renders; expand only viable concepts to the other representative screens. Add the concepts to `studio/project.json`. Each concept needs a distinct name, summary, and a local HTML preview file for **every** screen. Put the preview files under `studio/candidates/`, in separate paths per concept. Update the font choices to suit this product. The candidate CSS should use `--gf-primary`, `--gf-secondary`, `--gf-tertiary`, and `--gf-font-family` so the studio controls affect it.
-4. Verify that every candidate page loads and that the alternatives differ in composition and interaction, not just color. Run the [visual quality gate](../../design-interface/references/visual-quality.md) on actual desktop and phone captures, compare with the recorded reference decisions, correct weak candidates, and reopen captures before presenting them. If browser rendering is unavailable, report that visual quality is unverified. Start `python3 studio/server.py` and open the URL it prints. The default port is chosen automatically, so different projects can run at the same time.
-5. The user compares and edits locally. The studio saves their selection, palette, font, notes, revision, and approval in `studio/selection.json`. A draft is feedback. Only an explicit approval moves the chosen experience to architecture. Agent edits to a candidate after approval require a new draft and review.
+1. Read the new project's brief and instructions. Don't copy another project's
+   product files or approved design.
+2. If `studio/` exists, inspect it. Otherwise run
+   `python3 <skill-root>/scripts/init_studio.py <project-root> --name "<product name>"`.
+   It creates `project.json` with a neutral world, empty `candidates/` and
+   `references/`, and the `server.py` stub. It refuses to overwrite.
+3. Fill in `project.json` as [studio.md](studio.md) describes: `language`,
+   `scripts`, the screens, the three status colors with their meanings, and
+   sample text for the specimen. Write studio text in English; only candidate
+   pages and specimen samples use the product's language. Put shared fake data in one file, such as
+   `studio/data.js`, so every candidate shows the same content.
+4. Research with `design-interface` step 2. Save the images to
+   `studio/references/` and list them in `project.json`.
+5. Round 1: write two or three layout contracts, then build each layout as
+   `studio/candidates/<layout>.html` for every screen. Load
+   `/_studio/frame.js` first and use only tokens. Keep `"round": "layout"`.
+6. Run the quality gate: `capture.mjs`, then `check_tokens.py`, then the
+   `design-critic` agent. Revise, then start `python3 studio/server.py` and
+   give the user the URL. Wait for **Choose layout** in `selection.json`.
+7. Round 2: add two or three worlds for the chosen layout. Set
+   `"round": "identity"`. Remove the other layouts from `layouts` or leave
+   them for reference; the user decides. Run the quality gate again, including
+   each world's specimen.
+8. The user tunes and presses **Approve**. Approval writes `DESIGN.md` and
+   `design/tokens.css`. A later tune makes a new draft and marks the export
+   outdated. If you change an approved candidate or world, tell the user and
+   ask for a new approval. Move to architecture only after an approval.
 
-The script creates the folder when the mode is run in a new project. It does not run automatically when a folder is created, and it does not generate professional screens by itself. The agent creates those screens from that project's brief. Skills installed globally are discoverable in other local projects; a copy stored under one project's `.agents/skills/` is only available there.
+If the browser or Playwright isn't available, say that visual quality is
+unchecked. Don't present candidates as reviewed.
+
+Skills installed in `~/.agents/skills/` work in every local project. A copy in
+one project's `.agents/skills/` works only there. `server.py` finds the engine
+in either place.

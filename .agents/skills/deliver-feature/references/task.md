@@ -5,6 +5,7 @@
 - Depends on (task IDs, and which plan/design/API version):
 - Where the code goes; files or folders it may change:
 - Existing components, helpers or APIs to reuse:
+- Design: `DESIGN.md` revision and the approved screen it follows (UI tasks):
 - What changes, and what it won't do:
 - Tests and scenarios; check commands; what to show in the running app:
 - Tries allowed, and any real time or cost limit:

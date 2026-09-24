@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Design studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/_studio/styles.css">
+  <script type="module" src="/_studio/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <strong id="product-name">Studio</strong>
+    </div>
+    <ol id="stepper" class="stepper" aria-label="Design rounds">
+      <li data-step="layout">Layout</li>
+      <li data-step="identity">Identity</li>
+      <li data-step="approved">Approved</li>
+    </ol>
+    <div class="top-actions">
+      <span id="export-label" class="meta"></span>
+      <span id="revision-label" class="chip"></span>
+      <span id="save-status" class="meta" role="status">Loading…</span>
+      <button id="shortcuts-button" type="button" class="icon-btn" title="Keyboard shortcuts (?)"></button>
+      <button id="choose-layout" type="button" class="btn btn-primary">Choose layout</button>
+      <button id="approve" type="button" class="btn btn-primary">Approve</button>
+    </div>
+  </header>
+  <div id="problems" class="problems" role="alert" hidden></div>
+
+  <nav class="rail" aria-label="Layouts, worlds and references">
+    <section class="rail-section">
+      <h2 class="section-title">Layouts</h2>
+      <div id="layout-options" class="option-list"></div>
+    </section>
+    <section class="rail-section">
+      <h2 class="section-title">Worlds</h2>
+      <div id="world-options" class="option-list"></div>
+    </section>
+    <section class="rail-section">
+      <h2 class="section-title">References <span id="reference-count" class="count"></span></h2>
+      <div id="references" class="reference-grid"></div>
+    </section>
+    <p id="round-label" class="rail-foot"></p>
+  </nav>
+
+  <main class="workspace">
+    <div class="canvas-bar">
+      <button type="button" id="panels-toggle" class="icon-btn" aria-pressed="true" title="Show or hide the side panels (P)"></button>
+      <div id="screen-tabs" class="segmented" role="tablist" aria-label="Screen"></div>
+      <div class="segmented" role="group" aria-label="View">
+        <button type="button" id="view-frame" class="icon-btn" aria-pressed="true" title="Frame (G)"></button>
+        <button type="button" id="view-grid" class="icon-btn" aria-pressed="false" title="Overview (G)"></button>
+      </div>
+      <div id="width-options" class="segmented" role="group" aria-label="Frame width"></div>
+      <button id="zoom-toggle" type="button" class="btn btn-quiet" aria-pressed="true" title="Fit or real size (F)">Fit</button>
+      <span class="bar-gap"></span>
+      <div class="palette-stepper" aria-label="Browse palettes">
+        <button type="button" id="palette-prev" class="icon-btn" title="Previous palette (←)"></button>
+        <span id="palette-now" class="palette-now"></span>
+        <button type="button" id="palette-next" class="icon-btn" title="Next palette (→)"></button>
+      </div>
+      <button id="comment-toggle" type="button" class="btn btn-quiet" aria-pressed="false" title="Pin a comment (C)"></button>
+    </div>
+    <p id="comment-hint" class="canvas-hint" hidden>Click any element in the frame to pin a comment. Esc cancels.</p>
+    <div id="canvas" class="canvas">
+      <div id="grid" class="grid" aria-label="Layouts by worlds" hidden></div>
+      <div id="stage" class="stage">
+        <div class="frame-label"><span id="preview-title"></span><a id="open-tab" target="_blank" rel="noopener" title="Open this frame alone in a new tab"></a></div>
+        <div id="frame-holder" class="frame-holder"></div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="inspector" aria-label="Inspector">
+    <div class="tabs" role="tablist" aria-label="Inspector panels">
+      <button type="button" role="tab" data-tab="colors" aria-selected="true">Colors</button>
+      <button type="button" role="tab" data-tab="tune" aria-selected="false">Tune</button>
+      <button type="button" role="tab" data-tab="checks" aria-selected="false">Checks <span id="check-badge" class="badge"></span></button>
+      <button type="button" role="tab" data-tab="comments" aria-selected="false">Comments <span id="comment-count" class="badge"></span></button>
+    </div>
+
+    <div class="panel" data-panel="colors" id="panel-colors"></div>
+
+    <div class="panel" data-panel="tune" hidden>
+      <div class="panel-head">
+        <h2 class="section-title">Tokens</h2>
+        <button id="reset-tuning" type="button" class="btn btn-quiet btn-small">Reset world</button>
+      </div>
+      <p class="hint">Fine-tune any color after choosing a palette. Lightness, chroma and hue are OKLCH.</p>
+      <div id="tuner"></div>
+    </div>
+
+    <div class="panel" data-panel="checks" hidden>
+      <p id="check-summary" class="check-summary"></p>
+      <ul id="checks" class="checks"></ul>
+      <p class="hint">Approve stays off while a check fails. The server runs the contrast and hue checks again before it writes anything.</p>
+    </div>
+
+    <div class="panel" data-panel="comments" hidden>
+      <ol id="comment-list" class="comment-list"></ol>
+      <label class="field-label" for="feedback">General notes for the agent</label>
+      <textarea id="feedback" rows="4" maxlength="4000" placeholder="What works overall? What feels wrong?"></textarea>
+    </div>
+
+    <footer class="inspector-foot">
+      <p id="approve-hint" class="hint"></p>
+    </footer>
+  </aside>
+
+  <form id="comment-form" class="popover comment-form" hidden>
+    <p id="comment-target" class="popover-target"></p>
+    <div class="segmented kind" role="radiogroup" aria-label="Kind">
+      <label><input type="radio" name="kind" value="note" checked><span>Note</span></label>
+      <label><input type="radio" name="kind" value="like"><span>Like</span></label>
+      <label><input type="radio" name="kind" value="reject"><span>Reject</span></label>
+    </div>
+    <label class="sr-only" for="comment-text">Comment</label>
+    <textarea id="comment-text" rows="3" maxlength="2000" required placeholder="What should change here?"></textarea>
+    <div class="popover-actions">
+      <button type="button" id="comment-cancel" class="btn btn-quiet btn-small">Cancel</button>
+      <button type="submit" class="btn btn-primary btn-small">Pin comment</button>
+    </div>
+  </form>
+
+  <dialog id="reference-dialog" class="dialog reference-dialog">
+    <figure>
+      <div id="reference-image" class="reference-image"></div>
+      <figcaption>
+        <div><strong id="reference-app"></strong><span id="reference-note"></span></div>
+        <a id="reference-link" target="_blank" rel="noopener">Open source</a>
+        <button type="button" class="icon-btn" data-close title="Close (Esc)"></button>
+      </figcaption>
+    </figure>
+  </dialog>
+
+  <dialog id="shortcuts-dialog" class="dialog shortcuts-dialog">
+    <h2>Keyboard shortcuts</h2>
+    <dl>
+      <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous or next palette</dd>
+      <dt><kbd>S</kbd></dt><dd>Star the current palette</dd>
+      <dt><kbd>C</kbd></dt><dd>Pin a comment</dd>
+      <dt><kbd>G</kbd></dt><dd>Frame or overview</dd>
+      <dt><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></dt><dd>1440, 1024 or 390 px</dd>
+      <dt><kbd>F</kbd></dt><dd>Fit or real size</dd>
+      <dt><kbd>P</kbd></dt><dd>Show or hide the side panels</dd>
+      <dt><kbd>Esc</kbd></dt><dd>Close or cancel</dd>
+    </dl>
+    <button type="button" class="btn btn-quiet" data-close>Close</button>
+  </dialog>
+</body>
+</html>

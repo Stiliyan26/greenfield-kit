@@ -1,0 +1,161 @@
+{
+  "url": "http://127.0.0.1:4173",
+  "at": "2026-09-24T14:43:17.915Z",
+  "shots": [
+    {
+      "name": "ops-day__roster__neutral__1440",
+      "path": "/candidates/roster.html?world=neutral",
+      "width": 1440,
+      "screen": "ops-day",
+      "layout": "roster",
+      "world": "neutral",
+      "file": "ops-day__roster__neutral__1440.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "ops-day__roster__neutral__390",
+      "path": "/candidates/roster.html?world=neutral",
+      "width": 390,
+      "screen": "ops-day",
+      "layout": "roster",
+      "world": "neutral",
+      "file": "ops-day__roster__neutral__390.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [],
+      "tinyText": 0,
+      "clipped": [
+        "Аниматор\n09:00\n11:00\n13:00\n15:00\n17:00\n1",
+        "10:00–12:00",
+        "14:00–16:00",
+        "15:00–17:00",
+        "16:00–18:00\nДепозит липсва",
+        "11:00–13:00"
+      ],
+      "problems": []
+    },
+    {
+      "name": "ops-day__board__neutral__1440",
+      "path": "/candidates/board.html?world=neutral",
+      "width": 1440,
+      "screen": "ops-day",
+      "layout": "board",
+      "world": "neutral",
+      "file": "ops-day__board__neutral__1440.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [],
+      "tinyText": 0,
+      "clipped": [
+        "кв. Бояна, ул. \"Севернa\" 3 — дълъг адрес"
+      ],
+      "problems": []
+    },
+    {
+      "name": "ops-day__board__neutral__390",
+      "path": "/candidates/board.html?world=neutral",
+      "width": 390,
+      "screen": "ops-day",
+      "layout": "board",
+      "world": "neutral",
+      "file": "ops-day__board__neutral__390.png",
+      "overflowX": 0,
+      "height": 1462,
+      "loadedFonts": [],
+      "tinyText": 0,
+      "clipped": [
+        "кв. Бояна, ул. \"Севернa\" 3 — дълъг адрес"
+      ],
+      "problems": []
+    },
+    {
+      "name": "ops-day__agenda__neutral__1440",
+      "path": "/candidates/agenda.html?world=neutral",
+      "width": 1440,
+      "screen": "ops-day",
+      "layout": "agenda",
+      "world": "neutral",
+      "file": "ops-day__agenda__neutral__1440.png",
+      "overflowX": 0,
+      "height": 909,
+      "loadedFonts": [],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "ops-day__agenda__neutral__390",
+      "path": "/candidates/agenda.html?world=neutral",
+      "width": 390,
+      "screen": "ops-day",
+      "layout": "agenda",
+      "world": "neutral",
+      "file": "ops-day__agenda__neutral__390.png",
+      "overflowX": 0,
+      "height": 1213,
+      "loadedFonts": [],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "specimen__neutral__1440",
+      "path": "/_studio/specimen.html?world=neutral",
+      "width": 1440,
+      "screen": "specimen",
+      "world": "neutral",
+      "file": "specimen__neutral__1440.png",
+      "overflowX": 0,
+      "height": 1254,
+      "loadedFonts": [],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "specimen__neutral__390",
+      "path": "/_studio/specimen.html?world=neutral",
+      "width": 390,
+      "screen": "specimen",
+      "world": "neutral",
+      "file": "specimen__neutral__390.png",
+      "overflowX": 0,
+      "height": 2413,
+      "loadedFonts": [],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "studio__1440",
+      "path": "/",
+      "width": 1440,
+      "studio": true,
+      "file": "studio__1440.png",
+      "overflowX": 0,
+      "height": 1960,
+      "loadedFonts": [],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "studio__390",
+      "path": "/",
+      "width": 390,
+      "studio": true,
+      "file": "studio__390.png",
+      "overflowX": 0,
+      "height": 4089,
+      "loadedFonts": [],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    }
+  ]
+}

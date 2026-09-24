@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Дъска</title>
+<script src="/_studio/frame.js"></script>
+<script src="../data.js"></script>
+<style>
+  /* Layout candidate. Every color, font and radius comes from the studio world. */
+  :root{
+    --tint-warning:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));
+    --tint-danger:color-mix(in oklab, var(--status-danger) 10%, var(--color-surface));
+    --tint-primary:color-mix(in oklab, var(--color-primary) 10%, var(--color-surface));
+    --shadow:0 1px 2px color-mix(in oklab, var(--color-ink) 10%, transparent);
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font-family:var(--font-body);color:var(--color-ink);background:var(--color-bg);
+       font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
+  .shell{max-width:1180px;margin:0 auto;padding:20px 22px}
+
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+  h1{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .day{color:var(--color-muted);font-size:13px;margin-top:2px}
+  .filters{display:flex;gap:8px;margin:14px 0 16px;flex-wrap:wrap}
+  .filter{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-sm);
+          padding:6px 12px;font-size:12.5px;font-weight:600;color:var(--color-muted)}
+  .filter.on{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-on-primary)}
+
+  .board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
+  .col{display:flex;flex-direction:column;gap:10px;min-height:200px}
+  .col-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;
+            border-radius:var(--radius-md);background:var(--color-surface);border:1px solid var(--color-line)}
+  .col-head h2{font-family:var(--font-display);font-size:13px;font-weight:700}
+  .count{font-size:12px;font-weight:700;background:var(--color-bg);border-radius:999px;padding:2px 9px;color:var(--color-muted)}
+  /* The problem column is weighted by position and a heavy rule, not by red. */
+  .col.problem .col-head{border:2px solid var(--color-ink)}
+  .col.problem .count{background:var(--color-ink);color:var(--color-surface)}
+  .col-head h2{display:flex;align-items:center;gap:8px}
+  .col-head h2::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--color-line)}
+  .col.new .col-head h2::before{background:var(--color-tertiary)}
+  .col.sched .col-head h2::before{background:var(--color-secondary)}
+  .col.ready .col-head h2::before{background:var(--color-primary)}
+  .col.problem .col-head h2::before{background:var(--status-warning)}
+
+  .card{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);
+        padding:11px 12px;display:flex;flex-direction:column;gap:7px;box-shadow:var(--shadow)}
+  .card .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .card .time{font-family:var(--font-display);font-weight:800;font-variant-numeric:tabular-nums;font-size:15px}
+  .card .pkg{font-size:11px;font-weight:700;color:var(--color-secondary);background:var(--color-secondary-soft);
+             border-radius:var(--radius-sm);padding:2px 7px;white-space:nowrap}
+  .card .child{font-weight:650;font-size:14.5px}
+  .card .addr{font-size:12px;color:var(--color-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px;flex-wrap:wrap}
+  .who-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+  .pill{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px}
+  .pill.ok{background:color-mix(in oklab, var(--status-ok) 12%, var(--color-surface));color:var(--status-ok)}
+  .pill.red{background:var(--status-danger);color:var(--color-surface)}   /* the only solid red */
+  .pill.amber{background:var(--tint-warning);color:var(--status-warning);border:1px dashed var(--status-warning)}
+  .card.missing{border:2px solid var(--status-danger);background:var(--tint-danger)}
+  .card.flag-amber{border:1.5px dashed var(--status-warning);background:var(--tint-warning)}
+
+  .assign{display:flex;align-items:center;gap:8px}
+  .assign select{flex:1;font:inherit;font-size:12px;padding:5px 8px;border-radius:var(--radius-sm);
+                 border:1px solid var(--color-line);color:var(--color-ink);background:var(--color-bg)}
+
+  .empty{border:1.5px dashed var(--color-line);border-radius:var(--radius-md);padding:18px 12px;
+         text-align:center;color:var(--color-muted);font-size:12.5px}
+
+  .note{margin-top:16px;font-size:13px;color:var(--color-muted)}
+  .note b{color:var(--status-danger)}
+
+  @media (max-width:640px){
+    .shell{padding:14px}
+    .board{grid-template-columns:minmax(0,1fr);gap:12px}
+    .col{min-height:0}
+    .col.problem{order:-1}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div><h1>Работна дъска</h1><div class="day" id="day"></div></div>
+    <div class="filters" id="filters"></div>
+  </header>
+
+  <div class="board" id="board"></div>
+
+  <p class="note">Депозитът на <b>Софи (16:00)</b> не е получен — картата е в „Проблем“.
+  Иван е на две места 15:00–16:00. Сумата на депозита не е зададена.</p>
+</div>
+
+<script>
+const D = window.PARTYFOX;
+const byId = id => document.getElementById(id);
+const anim = id => D.animators.find(a=>a.id===id);
+
+byId("day").textContent = D.day + " · изглед „Дъска“";
+byId("filters").innerHTML =
+  `<span class="filter on">Днес</span><span class="filter">Тази седмица</span>
+   <span class="filter">Всички аниматори</span><span class="filter">Без депозит</span>
+   <span class="filter">Без аниматор</span>`;
+
+// A clash puts BOTH parties into "Проблем" — an animator sharing is a property of each booking.
+const clashIds = new Set();
+for (const b of D.bookings) if (b.clashWith) { clashIds.add(b.id); clashIds.add(b.clashWith); }
+const isProblem = b => !b.deposit || clashIds.has(b.id) || !b.animator;
+
+const problems = D.bookings.filter(isProblem);
+const newOnes  = [];                                   // none new this Saturday
+const scheduled= D.bookings.filter(b => !isProblem(b) && b.start < 14);
+const ready    = D.bookings.filter(b => !isProblem(b) && b.start >= 14);
+const unassigned = D.bookings.filter(b=>!b.animator);
+
+function card(b, kind){
+  const a = b.animator ? anim(b.animator) : null;
+  const flags = [];
+  if (!b.deposit) flags.push(`<span class="pill red">Депозит липсва</span>`);
+  if (clashIds.has(b.id)) flags.push(`<span class="pill amber">Иван е зает 15:00–16:00</span>`);
+  if (b.deposit && !clashIds.has(b.id)) flags.push(`<span class="pill ok">Депозит ✓</span>`);
+  const cls = !b.deposit ? "card missing" : clashIds.has(b.id) ? "card flag-amber" : "card";
+  const assign = (!a) ? `<div class="assign"><select aria-label="Избери аниматор">
+      <option>Избери аниматор…</option>${D.animators.map(x=>`<option>${x.name}</option>`).join("")}
+    </select></div>` : "";
+  return `<div class="${cls}">
+    <div class="top"><span class="time">${b.start}:00–${b.end}:00</span><span class="pkg">${b.package}</span></div>
+    <div class="child">${b.child}, ${b.age} г.</div>
+    <div class="addr" title="${b.address}">${b.address}</div>
+    <div class="meta">${a?`<span class="who-chip">${a.name}</span>`:"<span></span>"}${flags.join("")}</div>
+    ${assign}
+  </div>`;
+}
+
+const cols = [
+  {id:"new",  label:"Нова поръчка", cls:"new",  items:newOnes},
+  {id:"sched",label:"Насрочена",    cls:"sched",items:scheduled},
+  {id:"ready",label:"Готова за деня",cls:"ready",items:ready},
+  {id:"prob", label:"Проблем",      cls:"problem",items:problems},
+];
+
+byId("board").innerHTML = cols.map(c=>`
+  <section class="col ${c.cls}">
+    <div class="col-head"><h2>${c.label}</h2><span class="count">${c.items.length}</span></div>
+    ${c.items.length ? c.items.map(b=>card(b)).join("") : `<div class="empty">Празно — всичко е обработено.</div>`}
+  </section>`).join("");
+</script>
+</body>
+</html>

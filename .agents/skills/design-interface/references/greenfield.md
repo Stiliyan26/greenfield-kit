@@ -10,14 +10,34 @@ Check obvious feasibility constraints with `plan-feature`: roles, private inform
 
 ## Make a fair comparison
 
-Produce two or three distinct, locally viewable directions. Use the same representative content, roles, tasks, and states in each so the comparison is meaningful. Each direction needs a real screen that carries its layout idea. A swatch board or `/kit` alone cannot show whether a dense calendar works.
+Run two rounds in the studio, as `design-interface` describes. Round 1 compares
+two or three layouts in the neutral world. Round 2 compares two or three
+complete worlds on the chosen layout. Every candidate uses the same content,
+roles, tasks and states. A swatch board alone can't show whether a dense
+calendar works, so each world is judged on a real screen and on its specimen.
 
-If parallel agents are available, assign each a separate output path and the same product brief. Request different approaches to composition and interaction. Different models are useful when available, but record the actual models and do not claim diversity if all candidates used one. Review each result for factual accuracy and basic usability before presenting it.
+If parallel agents are available, give each its own output file and the same
+brief, data, difficult state and reference notes. Ask for different
+structures in round 1 and different type, color and surfaces in round 2.
+Different models help when they're available; record which models actually
+ran. Check each result for facts and basic usability before the critic sees
+it.
 
-Use the project's local studio to compare the same representative tasks and data in each concept. Let the user select a concept, adjust color harmony, hue, and typography, inspect a phone view, save feedback, and approve a revision. Treat a saved selection with `status: draft` as work in progress. Only a user approval in chat or `status: approved` set by the studio locks the design. An edit after approval creates a new draft.
+In the studio the user picks a layout and a world, tunes colors inside the
+contrast and status limits, pins comments, and approves. A saved selection
+with `status: "draft"` is work in progress. Only `status: "approved"` from the
+studio's **Approve** button locks the design; after an approval in chat, ask
+the user to press it. A tune after approval makes a new draft. If you change
+an approved candidate or world, tell the user and ask for a new approval.
 
-## After selection
+## After approval
 
-Record named color roles, typography, spacing, screen composition, and how warning, success, and error states appear. Confirm Cyrillic support for Bulgarian content and readable contrast on actual surfaces. Extract the component kit from the chosen screens. Build further screens in the selected system and revisit the user when a new requirement changes it materially.
+Approval writes `DESIGN.md` at the project root and `design/tokens.css`. They
+record the colors, both typefaces, the type scale, radius, contrast results,
+status meanings and the approved screens. Extract components from those
+screens. Build later screens with the same tokens. Return to the studio when a
+new requirement changes the look.
 
-The local studio is an exploration tool; its mock data and interactions are not a production application. The implemented prototype uses the stack chosen in the approved plan. Do not install a framework merely to present design options. Check desktop and phone captures against the named revision before declaring the design ready for architecture.
+The studio is an exploration tool; its sample data and interactions are not a
+product. The real app uses the stack chosen in the approved plan. Don't
+install a framework just to show options.

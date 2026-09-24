@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create a neutral local design studio in a new project."""
+"""Create a project's design studio folder: content only, the engine stays in this skill."""
 
 import argparse
 import json
@@ -22,15 +22,17 @@ def main():
     if destination.exists():
         parser.error(f"Studio already exists; inspect it instead of overwriting: {destination}")
 
-    template = Path(__file__).resolve().parent.parent / "assets" / "studio-template"
+    template = Path(__file__).resolve().parent.parent / "assets" / "studio-content"
     shutil.copytree(template, destination)
+    for folder in ("candidates", "references"):
+        (destination / folder).mkdir(exist_ok=True)
     project_file = destination / "project.json"
     project = json.loads(project_file.read_text(encoding="utf-8"))
     project["name"] = args.name.strip()
     project_file.write_text(json.dumps(project, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Created {destination}")
-    print("Add real screens and candidate files to studio/project.json before presenting designs.")
-    print(f"Then run: python3 {destination / 'server.py'}")
+    print("Add screens, layouts and candidate files to studio/project.json before showing designs.")
+    print("Run from the project root: python3 studio/server.py")
 
 
 if __name__ == "__main__":

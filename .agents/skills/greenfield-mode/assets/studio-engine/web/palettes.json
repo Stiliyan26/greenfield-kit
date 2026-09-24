@@ -1,0 +1,503 @@
+{
+ "version": 1,
+ "palettes": [
+  {
+   "id": "ochre",
+   "name": "Ochre",
+   "tags": [
+    "warm",
+    "earthy"
+   ],
+   "primary": "#775800",
+   "secondary": "#604100",
+   "tertiary": "#9e7a23",
+   "neutral": "#e8e4dc"
+  },
+  {
+   "id": "olive-grove",
+   "name": "Olive Grove",
+   "tags": [
+    "warm",
+    "earthy",
+    "muted"
+   ],
+   "primary": "#5d6b2b",
+   "secondary": "#3b4823",
+   "tertiary": "#9c8437",
+   "neutral": "#e8e8e1"
+  },
+  {
+   "id": "forest-floor",
+   "name": "Forest Floor",
+   "tags": [
+    "earthy"
+   ],
+   "primary": "#225a39",
+   "secondary": "#1c3d2c",
+   "tertiary": "#a97d3a",
+   "neutral": "#e8ece7"
+  },
+  {
+   "id": "deep-sea",
+   "name": "Deep Sea",
+   "tags": [
+    "cool"
+   ],
+   "primary": "#005474",
+   "secondary": "#153951",
+   "tertiary": "#31a5a5",
+   "neutral": "#e6ecef"
+  },
+  {
+   "id": "ink-apricot",
+   "name": "Ink & Apricot",
+   "tags": [
+    "cool",
+    "contrast"
+   ],
+   "primary": "#212d47",
+   "secondary": "#3b5876",
+   "tertiary": "#d3823d",
+   "neutral": "#f1eeea"
+  },
+  {
+   "id": "plum-velvet",
+   "name": "Plum Velvet",
+   "tags": [
+    "warm",
+    "dark"
+   ],
+   "primary": "#6a2a66",
+   "secondary": "#44234c",
+   "tertiary": "#b67594",
+   "neutral": "#efe9ee"
+  },
+  {
+   "id": "lavender-field",
+   "name": "Lavender Field",
+   "tags": [
+    "cool",
+    "muted"
+   ],
+   "primary": "#6953a0",
+   "secondary": "#433f76",
+   "tertiary": "#ae91c4",
+   "neutral": "#efedf3"
+  },
+  {
+   "id": "sage-clay",
+   "name": "Sage & Clay",
+   "tags": [
+    "earthy",
+    "muted"
+   ],
+   "primary": "#4f6c54",
+   "secondary": "#344f40",
+   "tertiary": "#ae6f42",
+   "neutral": "#eeebe4"
+  },
+  {
+   "id": "nordic-frost",
+   "name": "Nordic Frost",
+   "tags": [
+    "cool",
+    "muted"
+   ],
+   "primary": "#345a73",
+   "secondary": "#294050",
+   "tertiary": "#77afb9",
+   "neutral": "#ebeff2"
+  },
+  {
+   "id": "saffron-market",
+   "name": "Saffron Market",
+   "tags": [
+    "warm",
+    "vivid"
+   ],
+   "primary": "#9f6700",
+   "secondary": "#704000",
+   "tertiary": "#256d4c",
+   "neutral": "#f3eee4"
+  },
+  {
+   "id": "teal-studio",
+   "name": "Teal Studio",
+   "tags": [
+    "cool"
+   ],
+   "primary": "#006c68",
+   "secondary": "#004c50",
+   "tertiary": "#c3972a",
+   "neutral": "#e5edec"
+  },
+  {
+   "id": "cobalt-print",
+   "name": "Cobalt Print",
+   "tags": [
+    "cool",
+    "vivid"
+   ],
+   "primary": "#144bb7",
+   "secondary": "#192f65",
+   "tertiary": "#d7b43b",
+   "neutral": "#eceff2"
+  },
+  {
+   "id": "midnight-brass",
+   "name": "Midnight Brass",
+   "tags": [
+    "dark",
+    "contrast"
+   ],
+   "primary": "#1d293d",
+   "secondary": "#354962",
+   "tertiary": "#b58a3a",
+   "neutral": "#ebe7e2"
+  },
+  {
+   "id": "rosewood",
+   "name": "Rosewood",
+   "tags": [
+    "warm"
+   ],
+   "primary": "#793240",
+   "secondary": "#56272c",
+   "tertiary": "#b88472",
+   "neutral": "#f2e9e7"
+  },
+  {
+   "id": "moss-stone",
+   "name": "Moss & Stone",
+   "tags": [
+    "earthy",
+    "muted"
+   ],
+   "primary": "#445e36",
+   "secondary": "#383d2b",
+   "tertiary": "#847967",
+   "neutral": "#e6e4e0"
+  },
+  {
+   "id": "graphite",
+   "name": "Graphite",
+   "tags": [
+    "mono",
+    "cool"
+   ],
+   "primary": "#2a2e33",
+   "secondary": "#51565b",
+   "tertiary": "#3072c1",
+   "neutral": "#edeff0"
+  },
+  {
+   "id": "sandstone",
+   "name": "Sandstone",
+   "tags": [
+    "warm",
+    "earthy",
+    "muted"
+   ],
+   "primary": "#815939",
+   "secondary": "#5d402d",
+   "tertiary": "#aa8c6a",
+   "neutral": "#f1eae3"
+  },
+  {
+   "id": "evergreen-gold",
+   "name": "Evergreen Gold",
+   "tags": [
+    "earthy",
+    "contrast"
+   ],
+   "primary": "#134e39",
+   "secondary": "#0d362a",
+   "tertiary": "#c4a040",
+   "neutral": "#f0efe7"
+  },
+  {
+   "id": "harbor",
+   "name": "Harbor",
+   "tags": [
+    "cool",
+    "contrast"
+   ],
+   "primary": "#336288",
+   "secondary": "#648e9b",
+   "tertiary": "#b86838",
+   "neutral": "#e8ecef"
+  },
+  {
+   "id": "citrus-grove",
+   "name": "Citrus Grove",
+   "tags": [
+    "vivid"
+   ],
+   "primary": "#49782a",
+   "secondary": "#1b552c",
+   "tertiary": "#d5bf36",
+   "neutral": "#f2f2eb"
+  },
+  {
+   "id": "aubergine-mint",
+   "name": "Aubergine & Mint",
+   "tags": [
+    "contrast"
+   ],
+   "primary": "#4c2a5a",
+   "secondary": "#624c7c",
+   "tertiary": "#62b995",
+   "neutral": "#f0edf3"
+  },
+  {
+   "id": "copper-pot",
+   "name": "Copper Pot",
+   "tags": [
+    "warm",
+    "earthy"
+   ],
+   "primary": "#9a5328",
+   "secondary": "#6a3820",
+   "tertiary": "#b68852",
+   "neutral": "#f1e9e3"
+  },
+  {
+   "id": "glacier",
+   "name": "Glacier",
+   "tags": [
+    "cool"
+   ],
+   "primary": "#00768a",
+   "secondary": "#16556a",
+   "tertiary": "#86cccf",
+   "neutral": "#f2f6f7"
+  },
+  {
+   "id": "marigold-ink",
+   "name": "Marigold Ink",
+   "tags": [
+    "dark",
+    "contrast"
+   ],
+   "primary": "#162330",
+   "secondary": "#354a5c",
+   "tertiary": "#e8a127",
+   "neutral": "#f1eee7"
+  },
+  {
+   "id": "juniper",
+   "name": "Juniper",
+   "tags": [
+    "cool",
+    "earthy",
+    "muted"
+   ],
+   "primary": "#295d51",
+   "secondary": "#1e3f39",
+   "tertiary": "#6c9264",
+   "neutral": "#e6edea"
+  },
+  {
+   "id": "dusk",
+   "name": "Dusk",
+   "tags": [
+    "cool",
+    "contrast"
+   ],
+   "primary": "#433e7b",
+   "secondary": "#242a50",
+   "tertiary": "#d58b4b",
+   "neutral": "#eaebf1"
+  },
+  {
+   "id": "pine-blush",
+   "name": "Pine & Blush",
+   "tags": [
+    "earthy",
+    "contrast"
+   ],
+   "primary": "#194e35",
+   "secondary": "#49664f",
+   "tertiary": "#d5a2a5",
+   "neutral": "#f4edea"
+  },
+  {
+   "id": "denim",
+   "name": "Denim",
+   "tags": [
+    "cool"
+   ],
+   "primary": "#23588a",
+   "secondary": "#1d3f60",
+   "tertiary": "#7d9db4",
+   "neutral": "#edebe7"
+  },
+  {
+   "id": "espresso",
+   "name": "Espresso",
+   "tags": [
+    "warm",
+    "dark",
+    "earthy"
+   ],
+   "primary": "#4f3320",
+   "secondary": "#392316",
+   "tertiary": "#a37f4d",
+   "neutral": "#ece7e1"
+  },
+  {
+   "id": "lagoon",
+   "name": "Lagoon",
+   "tags": [
+    "cool",
+    "vivid"
+   ],
+   "primary": "#008287",
+   "secondary": "#005763",
+   "tertiary": "#5dc291",
+   "neutral": "#edf3f3"
+  },
+  {
+   "id": "tangerine-dream",
+   "name": "Tangerine Dream",
+   "tags": [
+    "warm",
+    "vivid"
+   ],
+   "primary": "#d16100",
+   "secondary": "#8a3819",
+   "tertiary": "#32669a",
+   "neutral": "#f7f0eb"
+  },
+  {
+   "id": "heather",
+   "name": "Heather",
+   "tags": [
+    "muted"
+   ],
+   "primary": "#6d5373",
+   "secondary": "#493d53",
+   "tertiary": "#8a8fb7",
+   "neutral": "#eee9ee"
+  },
+  {
+   "id": "bottle-green",
+   "name": "Bottle Green",
+   "tags": [
+    "mono",
+    "earthy"
+   ],
+   "primary": "#1b552c",
+   "secondary": "#0f3620",
+   "tertiary": "#539344",
+   "neutral": "#ebf0ec"
+  },
+  {
+   "id": "royal-mustard",
+   "name": "Royal Mustard",
+   "tags": [
+    "contrast",
+    "vivid"
+   ],
+   "primary": "#2d337b",
+   "secondary": "#1e234f",
+   "tertiary": "#d4ac32",
+   "neutral": "#edeef4"
+  },
+  {
+   "id": "chalk-charcoal",
+   "name": "Chalk & Charcoal",
+   "tags": [
+    "mono"
+   ],
+   "primary": "#23211f",
+   "secondary": "#4e4d4a",
+   "tertiary": "#787165",
+   "neutral": "#eeebe5"
+  },
+  {
+   "id": "seaglass",
+   "name": "Seaglass",
+   "tags": [
+    "cool",
+    "muted"
+   ],
+   "primary": "#35705d",
+   "secondary": "#295653",
+   "tertiary": "#98c5a0",
+   "neutral": "#edf3f0"
+  },
+  {
+   "id": "brick-slate",
+   "name": "Brick & Slate",
+   "tags": [
+    "warm",
+    "contrast"
+   ],
+   "primary": "#8b3722",
+   "secondary": "#364452",
+   "tertiary": "#7797ae",
+   "neutral": "#eeeae7"
+  },
+  {
+   "id": "periwinkle",
+   "name": "Periwinkle",
+   "tags": [
+    "cool"
+   ],
+   "primary": "#5e6ab7",
+   "secondary": "#3a497e",
+   "tertiary": "#77b6e1",
+   "neutral": "#f0f1f6"
+  },
+  {
+   "id": "honey-charcoal",
+   "name": "Honey & Charcoal",
+   "tags": [
+    "dark",
+    "contrast",
+    "warm"
+   ],
+   "primary": "#2a2e33",
+   "secondary": "#4d5660",
+   "tertiary": "#d19936",
+   "neutral": "#f1eee7"
+  },
+  {
+   "id": "cranberry-bog",
+   "name": "Cranberry Bog",
+   "tags": [
+    "warm",
+    "dark"
+   ],
+   "primary": "#78182b",
+   "secondary": "#4e1924",
+   "tertiary": "#599576",
+   "neutral": "#f4ecec"
+  },
+  {
+   "id": "spruce-rust",
+   "name": "Spruce & Rust",
+   "tags": [
+    "earthy",
+    "contrast"
+   ],
+   "primary": "#164547",
+   "secondary": "#3d5f5f",
+   "tertiary": "#b36139",
+   "neutral": "#efeae5"
+  },
+  {
+   "id": "iris",
+   "name": "Iris",
+   "tags": [
+    "vivid",
+    "cool"
+   ],
+   "primary": "#6047b0",
+   "secondary": "#393173",
+   "tertiary": "#35b9c0",
+   "neutral": "#f1f1f6"
+  }
+ ]
+}

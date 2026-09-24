@@ -1,29 +1,84 @@
-# Visual quality gate for design exploration
+# Visual quality gate
 
-Use this for new visual worlds and full redesigns. Keep the working notes beside the candidate files or in the project's design evidence folder. This is a review of rendered work, not a claim that a skill name guarantees taste.
+Run this on rendered candidates before the user sees them, in both rounds.
+It checks pixels, not intentions. Naming a skill doesn't make a design good,
+and neither does a passing check.
 
-## Before coding
+`<studio-scripts>` means `greenfield-mode`'s `scripts/` folder.
 
-For each direction, write down:
+## Before building
 
-- The user task and real content that determine the layout.
-- A short reference-to-decision record: 3–5 relevant production screens researched when access is available; link each useful screen, name the specific hierarchy, interaction, or density choice to adapt, and say what will not be copied. Inspect images, not only search metadata. If unavailable, record the limitation and the examples actually used.
-- Its source in this product's world or in a named user reference; say what is borrowed and what is not.
-- A small wireframe, type roles, 4–6 named colors, and one signature visual or interaction choice.
-- The closest generic template it could be mistaken for, and a concrete change that avoids that result.
+For each candidate, write down:
 
-Make the directions different in information architecture or composition. Switching fonts, colors, borders, and shadows on one layout produces variants of one design, not competing directions. Do not install a component library as a substitute for this step.
+- The task and the real content that decide the layout.
+- The references it learns from: link, what to adapt, what not to copy. Look
+  at the images, not only the search results.
+- Round 1: the source idea, a composition sketch, and the closest generic
+  template plus the change that avoids it.
+- Round 2: the type pair, the ten tokens, the signature detail and where it
+  comes from.
 
-## Before showing the user
+Candidates must differ in structure (round 1) or in type, color use and
+surface (round 2). A hue change on one design is not a second candidate.
 
-First render the same difficult representative screen and state for every direction. Inspect full-size desktop and phone captures before expanding viable directions into other screens. Compare with the reference-to-decision record: does each borrowed principle improve this product's task without copying another product's identity? Then check:
+## Mechanical checks
 
-1. **Fit:** Can the intended user identify the next decision or action quickly? Does the hierarchy reflect the actual work?
-2. **Identity:** Could the layout, type, color, and wording belong to this product? Which detail would still identify it with the logo removed?
-3. **Craft:** Are typography, spacing, alignment, surfaces, and content density intentional at real size, rather than relying on miniature previews?
-4. **Distinctness:** Are the directions genuinely different? Identify any repeated card grid, generic dashboard chrome, stock eyebrow labels, or decorative flourishes with no job.
-5. **Usability:** Inspect contrast, focus, long content, empty/error states that matter, and the phone arrangement.
+1. Start the studio and capture every candidate:
 
-Compare against user references for their standard of finish and the particular qualities the user called out; do not clone another product's identity. Record specific defects, their evidence in the capture, and the changes made. Fix meaningful defects in one bounded pass; if the concept is generic, change its composition or replace it rather than adjusting shadows. Reopen the captures once to confirm the fixes. A design that still looks like a generic template should be revised or replaced before the user is asked to approve it. Save screenshots and notes in the project's evidence folder. Report what was checked and which uncertainties remain; if captures could not be made, do not claim a visual pass.
+   ```
+   node <studio-scripts>/capture.mjs --url <studio url> --out temp/verification/<run>
+   ```
 
-After a user rejection, use their exact feedback as the next round's constraint. Change the core composition or visual language where needed, show the revision in the same local studio, and leave approval to the user.
+2. Read `capture.md`. Fix every sideways scroll, clipped label, missing font
+   and console error. A clipped label you made on purpose, such as a one-line
+   address with a full `title`, may stay. Say so in your report.
+
+3. Run the token check. It must print `0 problems`:
+
+   ```
+   python3 <studio-scripts>/check_tokens.py --project studio/project.json studio/candidates
+   ```
+
+4. If the impeccable hook is on, it checks each edit. If it isn't, run
+   `.agents/skills/impeccable/scripts/impeccable detect studio/candidates`
+   once, where that skill is installed. Fix anti-patterns you introduced.
+
+5. In the identity round, open each world's specimen. Status colors must keep
+   one meaning each. Approval stays blocked while any contrast, hue or font
+   check fails.
+
+## Critique by someone else
+
+The agent that built a candidate may not grade it. Ask the `design-critic`
+agent. Give it:
+
+- The capture folder, including `capture.md`.
+- The contracts and the reference notes.
+- `studio/taste.md` and the product brief.
+- The product's hard rules, such as "only a missing deposit is red".
+
+It scores Originality (weight 40), Design quality (25), Craft (20) and
+Function (15), with evidence from each capture. A total under 70, or any score
+of 1, means "revise first".
+
+If the `design-critic` agent isn't registered in this session, give a
+general-purpose agent the file `.agents/agents/design-critic.md`. Tell it to
+follow that file and stay read-only. Say in your report that you did this.
+
+## Revise
+
+- Fix the critic's top fixes, then capture and critique again.
+- If a candidate is generic, change its composition or its world. Shadows and
+  accent colors won't fix it.
+- After two failed passes on the same idea, replace the idea. Don't polish it
+  a third time.
+- Keep captures and critiques in `temp/verification/<run>/` until the user has
+  seen them.
+
+## Report to the user
+
+Say what each candidate is, what the critic scored, what you fixed, and what
+you couldn't check. If you couldn't capture, don't claim a visual pass.
+
+After a rejection, the user's exact words become the next round's constraint.
+The studio adds each Reject comment to `taste.md`, so later rounds see it too.

@@ -13,7 +13,9 @@ planning.
 
 1. **Read what exists.** In an existing project: the project profile
    (`.agents/guides/project.md`), related code and tests, access rules, earlier plans.
-   Fit what's there; don't re-ask questions already answered. In a new project:
+   Fit what's there; don't re-ask questions already answered. If `DESIGN.md`
+   exists, it settles the look; link it instead of asking about colors or
+   fonts. In a new project:
    the brief and any constraints the user gave.
 2. **Pick the mode.** If the user didn't say, ask once:
    - **You propose**: you draft the whole plan, then go through it with the user.
@@ -74,6 +76,7 @@ Save to the plan folder named in the project profile, or `docs/plans/<feature>/p
 # <Feature> plan
 
 Status: Draft | Approved (YYYY-MM-DD, by the user)
+Design: `DESIGN.md` at studio revision <n>, or "no approved design yet"
 
 ## What it does
 Two or three sentences a user would understand.
@@ -90,7 +93,9 @@ Two or three sentences a user would understand.
 - Database: new or changed tables/columns; what happens to existing data.
 - API: each endpoint, who may call it, what goes in and out, errors. Show one
   example call from the screen that uses it.
-- Screens: which screens and components, reused or new.
+- Screens: which screens and components, reused or new. Name the approved
+  studio screen each one follows. Don't restate colors or fonts; `DESIGN.md`
+  owns them.
 
 ## Decisions
 - <Question>: <chosen option>. Why: <reason>. Evidence: <file, doc, test>.

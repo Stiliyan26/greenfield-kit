@@ -10,6 +10,15 @@ decision is missing, use `plan-feature` or `design-interface` for that part
 only. Don't redo work that's already approved. Follow any project-specific
 rules for retries, review and the final report.
 
+**Design.** If the project has `DESIGN.md`, read it before any UI task. Build
+screens from its approved screens and `design/tokens.css`: every color, font
+and radius is a `var(--…)` from that file. Don't invent a look, add a
+component kit's theme, or copy raw values. Before a UI task is done, run
+`python3 <greenfield-mode>/scripts/check_tokens.py --tokens design/tokens.css <changed files>`
+and fix what it prints. `<greenfield-mode>` is that skill's folder, in
+`.agents/skills/` or `~/.agents/skills/`. If a task needs a look the approved
+design doesn't cover, stop that part and use `design-interface`.
+
 1. **Plan the tasks.** Write a short list of small tasks in the order they
    depend on each other, using [task.md](references/task.md). Each task says
    which requirement it meets, where the code goes, what it reuses, what it
@@ -24,6 +33,8 @@ rules for retries, review and the final report.
    files.
 4. **Check once, at the end.** Each helper runs its own small checks. Put all
    the pieces together, then run the project's verification checks once.
+   For screens, capture desktop and phone and compare them with the approved
+   screens in `DESIGN.md`.
    After any fix, run again the checks
    it affects.
 5. **Review, then report** the feature as ready, blocked, or not checked.

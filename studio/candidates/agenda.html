@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · График</title>
+<script src="/_studio/frame.js"></script>
+<script src="../data.js"></script>
+<style>
+  /* Layout candidate. Every color, font and radius comes from the studio world. */
+  :root{
+    --tint-warning:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));
+    --tint-danger:color-mix(in oklab, var(--status-danger) 10%, var(--color-surface));
+    --tint-primary:color-mix(in oklab, var(--color-primary) 10%, var(--color-surface));
+    --shadow:0 1px 2px color-mix(in oklab, var(--color-ink) 8%, transparent);
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font-family:var(--font-body);color:var(--color-ink);background:var(--color-bg);
+       font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  .shell{max-width:960px;margin:0 auto;padding:20px 22px;display:grid;grid-template-columns:220px 1fr;gap:26px}
+
+  aside{position:sticky;top:20px;align-self:start}
+  h1{font-family:var(--font-display);font-size:20px;font-weight:700;letter-spacing:-.01em}
+  .day{color:var(--color-muted);font-size:12.5px;margin:2px 0 18px}
+  .stat{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--color-line);font-size:13px}
+  .stat b{font-family:var(--font-display);font-size:18px;font-variant-numeric:tabular-nums}
+  .stat.red b{color:var(--status-danger)}
+  .stat.amber b{color:var(--status-warning)}
+  .legend{margin-top:16px;font-size:12px;color:var(--color-muted);display:flex;flex-direction:column;gap:8px}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .lg{width:12px;height:12px;border-radius:var(--radius-sm)}
+  .lg-booked{background:var(--color-secondary)}
+  .lg-deposit{background:var(--status-danger)}
+  .lg-clash{background:var(--tint-warning);border:1px solid var(--status-warning)}
+  .lg-need{background:var(--color-surface);border:1px dashed var(--status-warning)}
+
+  main{position:relative;padding-left:26px}
+  main::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:var(--color-line);border-radius:2px}
+
+  .slot{position:relative;margin-bottom:14px}
+  .slot::before{content:"";position:absolute;left:-22px;top:8px;width:9px;height:9px;border-radius:50%;
+                background:var(--color-surface);border:2px solid var(--color-primary)}
+  .slot.next::before{background:var(--color-tertiary);border-color:var(--color-tertiary);box-shadow:0 0 0 4px color-mix(in oklab, var(--color-primary) 15%, transparent)}
+
+  .row{display:grid;grid-template-columns:74px 1fr;gap:14px;align-items:start}
+  .time{font-family:var(--font-display);font-size:26px;font-weight:700;line-height:1;
+        font-variant-numeric:tabular-nums;color:var(--color-primary);padding-top:2px}
+  .time small{display:block;font-size:12px;color:var(--color-muted);font-family:var(--font-body);margin-top:3px;font-weight:600}
+
+  .card{background:var(--color-surface);border:1px solid var(--color-line);
+        border-radius:var(--radius-md);padding:11px 14px;box-shadow:var(--shadow)}
+  .card .head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .card .child{font-weight:700;font-size:15px}
+  .card .pkg{font-size:11px;font-weight:700;color:var(--color-secondary);background:var(--color-secondary-soft);border-radius:var(--radius-sm);padding:2px 8px}
+  .card .sub{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;font-size:12.5px;color:var(--color-muted)}
+  .card .sub .who{color:var(--color-ink);font-weight:600}
+  .card .addr{margin-top:5px;font-size:12px;color:var(--color-muted)}
+
+  .pill{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px}
+  .pill.ok{background:color-mix(in oklab, var(--status-ok) 12%, var(--color-surface));color:var(--status-ok)}
+  .pill.red{background:var(--status-danger);color:var(--color-surface)}   /* the only solid red */
+  .seek{color:var(--status-warning);font-weight:700}
+  .card.missing{border:2px solid var(--status-danger);background:var(--tint-danger)}
+  .card.need{border:1.5px dashed var(--status-warning);background:var(--tint-warning)}
+  .leave-note{margin-top:7px;font-size:12px;font-weight:700;color:var(--status-warning);background:var(--tint-warning);
+              border:1px solid var(--status-warning);border-radius:var(--radius-sm);padding:3px 9px;display:inline-block}
+
+  .banner{display:flex;align-items:center;gap:10px;background:var(--tint-warning);border:1px solid var(--status-warning);
+          color:var(--status-warning);border-radius:var(--radius-md);padding:8px 14px;font-size:13px;font-weight:600;margin:2px 0 14px 88px}
+  .banner .tag{background:var(--status-warning);color:var(--color-surface);border-radius:var(--radius-sm);padding:1px 8px;font-size:11px;font-weight:800}
+
+  .gap{margin:2px 0 14px 88px;font-size:12px;color:var(--color-muted);font-style:italic}
+  .next-label{margin:0 0 14px 88px;font-size:12px;font-weight:700;color:var(--color-tertiary)}
+
+  .note{margin-top:8px;font-size:13px;color:var(--color-muted);grid-column:2}
+  .note b{color:var(--status-danger)}
+
+  @media (max-width:640px){
+    .shell{grid-template-columns:1fr;padding:14px}
+    aside{position:static;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+    .stat{border:0;padding:4px 0}
+    .legend{flex-direction:row;flex-wrap:wrap;margin-top:0}
+    main{padding-left:20px;margin-top:8px}
+    .row{grid-template-columns:56px 1fr}
+    .time{font-size:20px}
+    .banner,.gap,.next-label{margin-left:0}
+    .note{grid-column:1}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside>
+    <div><h1>График на деня</h1><div class="day" id="day"></div></div>
+    <div class="stat"><span>Партита</span><b id="s-parties"></b></div>
+    <div class="stat amber"><span>Без аниматор</span><b id="s-un"></b></div>
+    <div class="stat red"><span>Без депозит</span><b id="s-dep"></b></div>
+    <div class="legend">
+      <span><i class="lg lg-booked"></i> Насрочено</span>
+      <span><i class="lg lg-deposit"></i> Липсва депозит</span>
+      <span><i class="lg lg-clash"></i> Застъпване</span>
+      <span><i class="lg lg-need"></i> Търси се аниматор</span>
+    </div>
+  </aside>
+
+  <main id="timeline"></main>
+  <p class="note">Депозитът на <b>Софи (16:00)</b> не е получен. Иван е на две места 15:00–16:00.
+  Сумата на депозита не е зададена.</p>
+</div>
+
+<script>
+const D = window.PARTYFOX;
+const anim = id => D.animators.find(a=>a.id===id);
+document.getElementById("day").textContent = D.day + " · изглед „График“";
+document.getElementById("s-parties").textContent = D.summary.parties;
+document.getElementById("s-un").textContent = D.summary.unassigned;
+document.getElementById("s-dep").textContent = D.summary.depositsMissing;
+
+const sorted = [...D.bookings].sort((a,b)=>a.start-b.start);
+const nextUp = sorted.find(b=>b.start>=10)?.id;        // pretend "now" is ~10:00
+const leaveFor = b => {
+  const l = D.leave.find(lv => lv.animator === b.animator && b.start < lv.to && b.end > lv.from);
+  return l ? `${anim(b.animator)?.name || "Аниматор"} е в отпуск ${l.from}:00–${l.to}:00 — потвърдете покритие.` : "";
+};
+let html = "";
+let prevEnd = D.hours.start;
+
+for (const b of sorted){
+  if (b.start > prevEnd) html += `<div class="gap">— празен прозорец ${prevEnd}:00–${b.start}:00 —</div>`;
+
+  if (b.id === nextUp) html += `<div class="next-label">Следващо</div>`;
+
+  const a = b.animator ? anim(b.animator) : null;
+  const cls = !b.deposit ? "card missing" : !b.animator ? "card need" : "card";
+  html += `<div class="slot${b.id===nextUp?" next":""}"><div class="row">
+    <div class="time">${b.start}:00<small>до ${b.end}:00</small></div>
+    <div class="${cls}">
+      <div class="head"><span class="child">${b.child}, ${b.age} г.</span><span class="pkg">${b.package}</span></div>
+      <div class="sub">
+        ${a?`<span class="who">${a.name} · ${a.role}</span>`:""}
+        ${b.deposit?`<span class="pill ok">Депозит ✓</span>`:`<span class="pill red">Депозит липсва</span>`}
+        ${!a?`<span class="seek">Търси се аниматор</span>`:""}
+      </div>
+      ${leaveFor(b)?`<div class="leave-note">⚠ ${leaveFor(b)}</div>`:""}
+      <div class="addr" title="${b.address}">${b.address}</div>
+    </div>
+  </div></div>`;
+
+  if (b.clashWith){
+    const o = sorted.find(x=>x.id===b.clashWith);
+    html += `<div class="banner"><span class="tag">Застъпване</span> Иван е на две места
+      ${Math.max(b.start,o.start)}:00–${Math.min(b.end,o.end)}:00 — назначете заместник.</div>`;
+  }
+  prevEnd = Math.max(prevEnd, b.end);
+}
+document.getElementById("timeline").innerHTML = html;
+</script>
+</body>
+</html>
