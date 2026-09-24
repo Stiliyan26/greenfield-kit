@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PartyFox · Design studio</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <div class="studio">
+      <aside class="rail" aria-label="Design controls">
+        <div class="identity">
+          <div class="identity-mark" aria-hidden="true">✳</div>
+          <div><strong>PartyFox</strong><span>Design studio</span></div>
+        </div>
+
+        <div class="rail-scroll">
+          <div class="stage-label"><span class="stage-dot"></span> Greenfield · Explore</div>
+          <h1>Find the right feel.</h1>
+          <p class="intro">Same bookings. Three different ways to run the day. Choose a direction, then tune it on the real screens.</p>
+
+          <section class="control-section" aria-labelledby="direction-title">
+            <div class="section-heading"><h2 id="direction-title">Direction</h2></div>
+            <div class="concept-list" id="concept-list"></div>
+          </section>
+
+          <section class="control-section" aria-labelledby="color-title">
+            <div class="section-heading"><h2 id="color-title">Color</h2></div>
+            <div class="color-control">
+              <button id="color-wheel" class="color-wheel" type="button" aria-label="Choose a hue from the color wheel"><span></span></button>
+              <div class="color-readout"><strong id="hue-name">Blue</strong><span id="hue-value">213°</span></div>
+            </div>
+            <label class="field-label" for="hue">Base hue <output id="hue-output">213°</output></label>
+            <input id="hue" type="range" min="0" max="360" value="213" />
+            <div class="harmony-options" id="harmony-options" role="group" aria-label="Color harmony"></div>
+            <div class="swatches" id="swatches" aria-label="Current color palette"></div>
+            <p class="control-help">The deposit warning keeps its own red. Harmony changes the product colors.</p>
+          </section>
+
+          <section class="control-section" aria-labelledby="type-title">
+            <div class="section-heading"><h2 id="type-title">Typography</h2></div>
+            <div id="font-options" class="font-options" role="group" aria-label="Typography"></div>
+          </section>
+
+          <section class="control-section" aria-labelledby="density-title">
+            <div class="section-heading"><h2 id="density-title">Spacing</h2></div>
+            <div class="segmented" id="density-options" role="group" aria-label="Spacing density"></div>
+          </section>
+
+          <section class="control-section notes-section" aria-labelledby="notes-title">
+            <div class="section-heading"><h2 id="notes-title">What would you change?</h2></div>
+            <label class="sr-only" for="feedback">Design feedback</label>
+            <textarea id="feedback" rows="4" maxlength="2000" placeholder="The calendar is clearer in B, but I prefer A's type and warmer colors…"></textarea>
+            <p class="control-help">Your notes save with the selection for the next design round.</p>
+          </section>
+        </div>
+
+        <div class="rail-footer">
+          <div class="save-status" id="save-status" role="status">Loading design…</div>
+          <button class="save-button" id="save-button" type="button">Save direction</button>
+          <button class="approve-button" id="approve-button" type="button">Approve this revision</button>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <div class="workspace-topline"><span>Design exploration <b>/</b> Party desk</span><span id="revision-label">Revision 01 · Draft</span></div>
+        <div class="workspace-title">
+          <div><h2>Which desk feels like PartyFox?</h2></div>
+          <p>Evaluate the layout first. Then adjust the palette and type while the same work stays in view.</p>
+        </div>
+
+        <div class="comparison" id="comparison" aria-label="Three design directions"></div>
+
+        <section class="stage" aria-labelledby="preview-title">
+          <div class="stage-heading">
+            <div><h3 id="preview-title">Dispatch</h3><p id="preview-description"></p></div>
+            <div class="stage-tools">
+              <div class="screen-tabs" id="screen-tabs" role="tablist" aria-label="Preview screen"></div>
+              <button class="viewport-button" id="viewport-button" type="button" aria-pressed="false">Phone view</button>
+            </div>
+          </div>
+          <div class="preview-shell" id="preview-shell"><div id="preview" class="preview"></div></div>
+          <div class="stage-caption"><span>Real sample data · Missing amounts stay unset</span><span id="palette-description"></span></div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

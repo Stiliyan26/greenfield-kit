@@ -1,0 +1,11 @@
+# Starting a new product
+
+The skill is a reusable workflow. It does not hold a product's brand, screens, or sample data. The initializer creates a neutral local studio in the current project; the agent must build and review product-specific candidates before showing them as designs.
+
+1. Read the new project's brief and any existing instructions. Do not copy another project's product files or approved design.
+2. If `studio/` already exists, inspect it. Otherwise run `python3 <skill-root>/scripts/init_studio.py <project-root> --name "<product name>"`. The script refuses to overwrite an existing studio.
+3. Choose representative tasks and screens from the brief. Add two or three concepts to `studio/project.json`. Each concept needs a distinct name, summary, and a local HTML preview file for **every** screen. Put the preview files under `studio/candidates/`, in separate paths per concept. Update the font choices to suit this product. The candidate CSS should use `--gf-primary`, `--gf-secondary`, `--gf-tertiary`, and `--gf-font-family` so the studio controls affect it.
+4. Verify that every candidate page loads and that the alternatives differ in composition and interaction, not just color. Start `python3 studio/server.py` and open the URL it prints. The default port is chosen automatically, so different projects can run at the same time.
+5. The user compares and edits locally. The studio saves their selection, palette, font, notes, revision, and approval in `studio/selection.json`. A draft is feedback. Only an explicit approval moves the chosen experience to architecture. Agent edits to a candidate after approval require a new draft and review.
+
+The script creates the folder when the mode is run in a new project. It does not run automatically when a folder is created, and it does not generate professional screens by itself. The agent creates those screens from that project's brief. Skills installed globally are discoverable in other local projects; a copy stored under one project's `.agents/skills/` is only available there.

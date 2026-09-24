@@ -1,0 +1,4 @@
+interface:
+  display_name: "Greenfield mode"
+  short_description: "Compare designs, choose a look, then build"
+  default_prompt: "Use $greenfield-mode to take this product from brief through local design choices, architecture, and verified delivery."
