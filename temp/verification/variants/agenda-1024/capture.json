@@ -1,0 +1,132 @@
+{
+  "url": "http://127.0.0.1:4183",
+  "at": "2026-09-25T10:05:42.994Z",
+  "shots": [
+    {
+      "name": "inbox__agenda__rota__1024",
+      "path": "/candidates/agenda/inbox.html?world=rota",
+      "width": 1024,
+      "screen": "inbox",
+      "layout": "agenda",
+      "world": "rota",
+      "file": "inbox__agenda__rota__1024.png",
+      "overflowX": 0,
+      "height": 1147,
+      "loadedFonts": [
+        "Onest",
+        "Unbounded"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "booking__agenda__rota__1024",
+      "path": "/candidates/agenda/booking.html?world=rota",
+      "width": 1024,
+      "screen": "booking",
+      "layout": "agenda",
+      "world": "rota",
+      "file": "booking__agenda__rota__1024.png",
+      "overflowX": 0,
+      "height": 1026,
+      "loadedFonts": [
+        "Onest",
+        "Unbounded"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "leave-requests__agenda__rota__1024",
+      "path": "/candidates/agenda/leave-requests.html?world=rota",
+      "width": 1024,
+      "screen": "leave-requests",
+      "layout": "agenda",
+      "world": "rota",
+      "file": "leave-requests__agenda__rota__1024.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [
+        "Onest",
+        "Unbounded"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "customers__agenda__rota__1024",
+      "path": "/candidates/agenda/customers.html?world=rota",
+      "width": 1024,
+      "screen": "customers",
+      "layout": "agenda",
+      "world": "rota",
+      "file": "customers__agenda__rota__1024.png",
+      "overflowX": 0,
+      "height": 1549,
+      "loadedFonts": [
+        "Onest",
+        "Unbounded"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "my-parties__agenda__rota__1024",
+      "path": "/candidates/agenda/my-parties.html?world=rota",
+      "width": 1024,
+      "screen": "my-parties",
+      "layout": "agenda",
+      "world": "rota",
+      "file": "my-parties__agenda__rota__1024.png",
+      "overflowX": 0,
+      "height": 1072,
+      "loadedFonts": [
+        "Onest",
+        "Unbounded"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "my-leave__agenda__rota__1024",
+      "path": "/candidates/agenda/my-leave.html?world=rota",
+      "width": 1024,
+      "screen": "my-leave",
+      "layout": "agenda",
+      "world": "rota",
+      "file": "my-leave__agenda__rota__1024.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [
+        "Onest",
+        "Unbounded"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "my-pay__agenda__rota__1024",
+      "path": "/candidates/agenda/my-pay.html?world=rota",
+      "width": 1024,
+      "screen": "my-pay",
+      "layout": "agenda",
+      "world": "rota",
+      "file": "my-pay__agenda__rota__1024.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [
+        "Onest",
+        "Unbounded"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    }
+  ]
+}

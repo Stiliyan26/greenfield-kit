@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Резервация — PartyFox</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--color-bg); color: var(--color-ink); font-family: var(--font-body); font-size: 15px; line-height: 1.4; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+  .page { max-width: 1200px; margin: 0 auto; padding: clamp(16px, 2.4vw, 36px); }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: .02em; color: var(--color-primary); }
+  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-tertiary); }
+  .role { font-size: 12px; color: var(--color-muted); text-transform: uppercase; letter-spacing: .08em; }
+
+  .head-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; border-bottom: 4px double var(--color-ink); padding-bottom: 10px; margin-bottom: 18px; }
+  h1.heading { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 2.4vw, 30px); margin: 0; }
+  .head-row .meta { color: var(--color-muted); font-size: 13px; margin-top: 4px; }
+
+  .chip { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 14px; border-radius: 0 var(--radius-pill) var(--radius-pill) 0; font-size: 12px; font-weight: 700; white-space: nowrap; border: 1px solid var(--color-line); background: var(--color-surface-2); color: var(--color-muted); }
+  .chip::before { content: ""; position: absolute; left: -1px; top: 50%; width: 8px; height: 8px; background: var(--color-bg); border-radius: 50%; transform: translate(-50%, -50%); border: 1px solid var(--color-line); }
+  .chip[data-status="danger"] { background: var(--status-danger); color: var(--color-surface); border-color: var(--status-danger); }
+
+  .layout { display: grid; grid-template-columns: 1.15fr .85fr; gap: 20px; align-items: start; }
+  .card { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: 18px 20px; }
+  .card h2 { font-family: var(--font-display); font-size: 15px; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--color-line); }
+  .card + .card { margin-top: 16px; }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .step { display: flex; gap: 12px; padding: 8px 0; position: relative; }
+  .step::before { content: ""; position: absolute; left: 8px; top: 26px; bottom: -8px; width: 1px; background: var(--color-line); }
+  .step:last-child::before { display: none; }
+  .dot { width: 17px; height: 17px; border-radius: 50%; border: 2px solid var(--color-line); background: var(--color-surface); flex: none; margin-top: 2px; }
+  .step[data-state="done"] .dot { background: var(--status-ok); border-color: var(--status-ok); }
+  .step[data-state="next"] .dot { border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-primary) 20%, transparent); }
+  .step[data-state="missing"] .dot { background: var(--status-danger); border-color: var(--status-danger); }
+  .step .label { font-weight: 600; }
+  .step[data-state="todo"] .label { color: var(--color-muted); font-weight: 500; }
+  .step .when { font-size: 12px; color: var(--color-muted); }
+  .step[data-state="missing"] .when::after { content: "Не е получен"; color: var(--status-danger); font-weight: 700; }
+
+  dl.facts { margin: 0; font-size: 13px; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; }
+  dl.facts dt { color: var(--color-muted); }
+  dl.facts dd { margin: 0; }
+
+  .providers { list-style: none; margin: 0; padding: 0; }
+  .providers li { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--color-line); font-size: 13px; }
+  .providers li:last-child { border-bottom: none; }
+  .providers .who { color: var(--color-muted); }
+
+  .msg { padding: 10px 0; border-bottom: 1px solid var(--color-line); font-size: 13px; }
+  .msg:last-child { border-bottom: none; }
+  .msg .meta { color: var(--color-muted); font-size: 11px; margin-bottom: 3px; }
+
+  .deposit-panel { background: color-mix(in oklab, var(--status-danger) 8%, var(--color-surface)); border: 1px solid color-mix(in oklab, var(--status-danger) 35%, var(--color-line)); }
+  .deposit-panel .amount { font-family: var(--font-display); font-size: 13px; color: var(--color-muted); margin: 8px 0 14px; }
+  .btn { border-radius: var(--radius-md); padding: 11px 16px; font-size: 14px; font-weight: 700; border: 1px solid transparent; width: 100%; }
+  .btn.danger { background: var(--status-danger); color: var(--color-surface); }
+  .btn.ghost { background: var(--color-surface); border-color: var(--color-line); color: var(--color-ink); margin-top: 8px; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .head-row { align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div class="brand"><span class="brand-dot"></span>PartyFox</div>
+    <span class="role">Собственик</span>
+  </div>
+  <div class="head-row">
+    <div>
+      <h1 class="heading" data-field="title"></h1>
+      <div class="meta" data-field="meta"></div>
+    </div>
+    <span class="chip" data-status="danger" data-field="status-chip"></span>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="card">
+        <h2>Път на резервацията</h2>
+        <ul class="steps" id="steps" data-block="steps"></ul>
+      </div>
+      <div class="card">
+        <h2>Съобщения</h2>
+        <div id="messages" data-block="messages"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h2>Клиент</h2>
+        <dl class="facts" id="facts" data-block="facts"></dl>
+      </div>
+      <div class="card">
+        <h2>Външни доставчици</h2>
+        <ul class="providers" id="providers" data-block="providers"></ul>
+      </div>
+      <div class="card deposit-panel">
+        <h2>Депозит</h2>
+        <p class="amount" data-field="deposit-note"></p>
+        <button class="btn danger" data-action="mark-deposit-received">Отбележи депозит като получен</button>
+        <button class="btn ghost" data-action="remind">Изпрати напомняне</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const D = window.PARTYFOX;
+  const b = D.booking;
+  const bk = D.bookings.find(x => x.id === b.id);
+  const animator = D.animators.find(a => a.id === bk.animator);
+  const customer = D.customers.find(c => c.id === b.customer);
+
+  document.querySelector('[data-field="title"]').textContent = `${bk.child}, ${bk.age} г. · ${bk.package}`;
+  document.querySelector('[data-field="meta"]').textContent = `Поръчка ${b.order} · ${D.day}, ${bk.start}:00–${bk.end}:00`;
+  document.querySelector('[data-field="status-chip"]').textContent = "Депозит липсва";
+  document.querySelector('[data-field="deposit-note"]').textContent = b.depositNote;
+
+  document.getElementById("steps").innerHTML = b.steps.map(s =>
+    `<li class="step" data-state="${s.state}" data-step="${s.label}">
+      <span class="dot"></span>
+      <div><div class="label">${s.label}</div><div class="when">${s.when ?? ""}</div></div>
+    </li>`
+  ).join("");
+
+  document.getElementById("facts").innerHTML = `
+    <dt>Родител</dt><dd>${b.parent}</dd>
+    <dt>Телефон</dt><dd>${b.phone}</dd>
+    <dt>Имейл</dt><dd>${b.email}</dd>
+    <dt>Гости</dt><dd>${b.guests}</dd>
+    <dt>Адрес</dt><dd>${bk.address}</dd>
+    <dt>Бележка</dt><dd>${b.addressNote}</dd>
+    <dt>Аниматор</dt><dd>${animator ? animator.name : "—"}</dd>
+    ${customer ? `<dt>История</dt><dd>${customer.history.length} предишни партита</dd>` : ""}
+  `;
+
+  document.getElementById("providers").innerHTML = b.providers.map(p =>
+    `<li data-provider="${p.what}"><span>${p.what}</span><span class="who">${p.who} · ${p.state}</span></li>`
+  ).join("");
+
+  document.getElementById("messages").innerHTML = b.messages.map(m =>
+    `<div class="msg"><div class="meta">${m.channel} · ${m.when}</div>${m.text}</div>`
+  ).join("");
+</script>
+</body>
+</html>

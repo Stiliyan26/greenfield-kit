@@ -16,8 +16,8 @@ The caller names:
 - Screenshot files, usually `temp/verification/<run>/*.png`, and the
   `capture.md` report beside them (fonts loaded, sideways scroll, clipped text,
   console errors).
-- The direction contract for each world or layout, and the reference notes
-  (what each reference should teach, what not to copy).
+- Each variant's `variant.json` (the model, its design idea and its look),
+  and the reference notes (what each reference should teach, what not to copy).
 - `studio/taste.md`, if it exists: the user's likes and rejects.
 - The product brief (`PRODUCT.md` or the named file).
 
@@ -51,10 +51,10 @@ booking").
 
 ## Output
 
-For each candidate:
+For each variant (one model's design, judged on every screen at every size):
 
 ```
-### <layout> · <world>
+### <model> · <variant id>
 Seen: <two or three sentences of what is on screen>
 Originality 3/5: <evidence>
 Design quality 4/5: <evidence>

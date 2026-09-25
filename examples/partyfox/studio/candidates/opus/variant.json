@@ -1,0 +1,50 @@
+{
+  "model": "Claude Opus 5.5",
+  "summary": "Every party is a ticket: its time sits on a perforated stub, and the owner's day reads like a stage call sheet, one row per animator, with the three problems pinned above it.",
+  "world": {
+    "name": "Ticket Stub",
+    "summary": "Cool paper, deep indigo ink and one orchid accent. Sofia Sans, a Bulgarian-made family, with Bulgarian letterforms switched on. Parties are tickets; status lives on the ticket.",
+    "signature": "The ticket stub: every party card has a time stub cut off by a dashed perforation with two punched notches. The stub carries the start and end time in condensed numerals; a missing deposit turns the whole ticket red.",
+    "fonts": {
+      "display": "\"Sofia Sans Condensed\", sans-serif",
+      "body": "\"Sofia Sans\", sans-serif",
+      "google": "family=Sofia+Sans+Condensed:wght@600;700;800&family=Sofia+Sans:wght@400;500;600;700"
+    },
+    "tokens": {
+      "color-bg": "oklch(0.965 0.007 265)",
+      "color-surface": "oklch(0.995 0.002 265)",
+      "color-surface-2": "oklch(0.945 0.01 265)",
+      "color-ink": "oklch(0.23 0.035 268)",
+      "color-muted": "oklch(0.47 0.03 268)",
+      "color-line": "oklch(0.885 0.014 265)",
+      "color-primary": "oklch(0.4 0.15 275)",
+      "color-on-primary": "oklch(0.99 0.004 265)",
+      "color-primary-soft": "oklch(0.94 0.035 275)",
+      "color-secondary": "oklch(0.47 0.09 210)",
+      "color-on-secondary": "oklch(0.99 0.004 265)",
+      "color-secondary-soft": "oklch(0.95 0.03 210)",
+      "color-accent": "oklch(0.54 0.2 320)",
+      "color-tertiary": "oklch(0.54 0.2 320)",
+      "color-on-tertiary": "oklch(0.99 0.004 265)",
+      "color-tertiary-soft": "oklch(0.95 0.04 320)",
+      "radius-sm": "4px",
+      "radius-md": "8px",
+      "radius-lg": "14px",
+      "radius-pill": "999px"
+    },
+    "type": {
+      "display": { "font": "display", "fontSize": "34px", "fontWeight": 800, "lineHeight": 1.02 },
+      "heading": { "font": "display", "fontSize": "21px", "fontWeight": 700, "lineHeight": 1.15 },
+      "body": { "font": "body", "fontSize": "15px", "fontWeight": 400, "lineHeight": 1.45 },
+      "label": { "font": "body", "fontSize": "12.5px", "fontWeight": 600, "lineHeight": 1.3 }
+    },
+    "rules": [
+      "Do put every party on a ticket: time on the stub, child, age and package on the body, status inside the ticket.",
+      "Do set times and counts in the condensed display face with tabular numbers.",
+      "Do use the orchid accent once per screen, for the one thing that is next or selected. Never for a problem.",
+      "Don't use solid red for anything but a missing deposit. Clashes, missing animators and leave that needs cover are amber, never filled.",
+      "Don't print empty time as text; empty time stays white space on the grid.",
+      "Don't invent money: an unknown amount shows as a dashed 'не е зададено' slot."
+    ]
+  }
+}

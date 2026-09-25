@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Дъска</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+  :root{
+    --tint-warning:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));
+    --tint-danger:color-mix(in oklab, var(--status-danger) 10%, var(--color-surface));
+    --shadow:0 1px 2px color-mix(in oklab, var(--color-ink) 10%, transparent);
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font-family:var(--font-body);color:var(--color-ink);background:var(--color-bg);
+       font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
+  .shell{max-width:1180px;margin:0 auto;padding:20px 22px}
+
+  header{margin-bottom:16px}
+  h1{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .sub{color:var(--color-muted);font-size:13px;margin-top:3px}
+
+  .board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
+  .col{display:flex;flex-direction:column;gap:10px;min-height:160px}
+  .col-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;
+            border-radius:var(--radius-md);background:var(--color-surface);border:1px solid var(--color-line)}
+  .col-head h2{font-family:var(--font-display);font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .count{font-size:12px;font-weight:700;background:var(--color-bg);border-radius:999px;padding:2px 9px;color:var(--color-muted)}
+  .col.problem .col-head{border:2px solid var(--color-ink)}
+  .col.problem .count{background:var(--color-ink);color:var(--color-surface)}
+  .col-head h2::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--color-line)}
+  .col.pending .col-head h2::before{background:var(--color-tertiary)}
+  .col.problem .col-head h2::before{background:var(--status-warning)}
+  .col.approved .col-head h2::before{background:var(--status-ok)}
+  .col.declined .col-head h2::before{background:var(--color-muted)}
+
+  .card{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);
+        padding:11px 12px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow)}
+  .card .name{font-weight:650;font-size:14.5px}
+  .card .role{font-size:11.5px;color:var(--color-muted)}
+  .card .dates{font-family:var(--font-display);font-weight:700;font-size:13px;margin-top:2px}
+  .card .reason{font-size:12px;color:var(--color-muted)}
+  .card .sent{font-size:11px;color:var(--color-muted)}
+  .card.flag-amber{border:1.5px dashed var(--status-warning);background:var(--tint-warning)}
+  .cover{font-size:11.5px;background:var(--color-bg);border-radius:var(--radius-sm);padding:6px 8px}
+  .cover b{color:var(--status-warning)}
+  .note{font-size:11.5px;background:var(--color-bg);border-radius:var(--radius-sm);padding:6px 8px}
+  .actions{display:flex;gap:8px;margin-top:2px}
+  .btn{font:inherit;font-size:12px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm);
+       border:1px solid var(--color-line);background:var(--color-bg);color:var(--color-ink);cursor:pointer}
+  .btn.primary{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-on-primary)}
+  .btn:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+  .pill{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;display:inline-block}
+  .pill.ok{background:color-mix(in oklab, var(--status-ok) 12%, var(--color-surface));color:var(--status-ok)}
+
+  .empty{border:1.5px dashed var(--color-line);border-radius:var(--radius-md);padding:18px 12px;
+         text-align:center;color:var(--color-muted);font-size:12.5px}
+
+  @media (max-width:900px){ .board{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:640px){
+    .shell{padding:14px}
+    .board{grid-template-columns:minmax(0,1fr);gap:12px}
+    .col.problem{order:-1}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <h1>Отпуски</h1>
+    <div class="sub" id="sub"></div>
+  </header>
+  <div class="board" id="board"></div>
+</div>
+
+<script>
+const D = window.PARTYFOX;
+const byId = id => document.getElementById(id);
+const anim = id => D.animators.find(a=>a.id===id);
+
+byId("sub").textContent = D.leaveRequests.length + " заявки · сортирани по статус";
+
+const needsCover = D.leaveRequests.filter(l=>l.state==="pending" && l.cover && l.cover.length);
+const pending   = D.leaveRequests.filter(l=>l.state==="pending" && !(l.cover && l.cover.length));
+const approved  = D.leaveRequests.filter(l=>l.state==="approved");
+const declined  = D.leaveRequests.filter(l=>l.state==="declined");
+
+function when(l){ return l.hours ? `${l.from} · ${l.hours}` : (l.from===l.to ? l.from : `${l.from} – ${l.to}`); }
+
+function card(l, kind){
+  const a = anim(l.animator);
+  const cls = ["card"];
+  if (kind==="cover") cls.push("flag-amber");
+  const cover = (l.cover && l.cover.length) ? l.cover.map(c=>
+    `<div class="cover">Без покритие: <b>${c.booking}</b>, ${c.when}</div>`).join("") : "";
+  const note = l.ownerNote ? `<div class="note">${l.ownerNote}</div>` : "";
+  const actions = (l.state==="pending") ?
+    `<div class="actions"><button class="btn primary" data-leave="${l.id}">Одобри</button><button class="btn" data-leave="${l.id}">Откажи</button></div>` :
+    (l.state==="approved" ? `<span class="pill ok">Одобрена</span>` : "");
+  return `<div class="${cls.join(' ')}" data-leave="${l.id}">
+    <div class="name">${a.name}</div>
+    <div class="role">${a.role}</div>
+    <div class="dates">${when(l)}${l.days?` · ${l.days} дни`:""}</div>
+    ${l.reason ? `<div class="reason">${l.reason}</div>` : ""}
+    <div class="sent">Подадена: ${l.sent}</div>
+    ${cover}${note}${actions}
+  </div>`;
+}
+
+const cols = [
+  {id:"pending", label:"Чака одобрение", cls:"pending", items:pending, kind:"plain"},
+  {id:"cover",   label:"Нужно покритие", cls:"problem", items:needsCover, kind:"cover"},
+  {id:"approved",label:"Одобрена",       cls:"approved", items:approved, kind:"plain"},
+  {id:"declined",label:"Отказана",       cls:"declined", items:declined, kind:"plain"},
+];
+
+byId("board").innerHTML = cols.map(c=>`
+  <section class="col ${c.cls}">
+    <div class="col-head"><h2>${c.label}</h2><span class="count">${c.items.length}</span></div>
+    ${c.items.length ? c.items.map(l=>card(l,c.kind)).join("") : `<div class="empty">Празно.</div>`}
+  </section>`).join("");
+</script>
+</body>
+</html>

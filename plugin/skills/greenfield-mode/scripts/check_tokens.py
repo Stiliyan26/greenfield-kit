@@ -89,8 +89,9 @@ def defined_names(args):
     if args.project:
         project = json.loads(Path(args.project).read_text(encoding="utf-8"))
         names = {"font-display", "font-body"} | {f"status-{name}" for name in project.get("status", {})} | PALETTE_TOKENS
-        for world in project.get("worlds", []):
-            names |= set(world.get("tokens", {}))
+        # Each model's look lives in studio/candidates/<variant>/variant.json.
+        for variant in sorted(Path(args.project).parent.glob("candidates/*/variant.json")):
+            names |= set(json.loads(variant.read_text(encoding="utf-8")).get("world", {}).get("tokens", {}))
         return names
     return None
 
@@ -109,7 +110,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     source = parser.add_mutually_exclusive_group()
     source.add_argument("--tokens", help="tokens.css that defines the allowed var(--…) names")
-    source.add_argument("--project", help="studio/project.json whose worlds define the allowed names")
+    source.add_argument("--project", help="studio/project.json; the variants in studio/candidates/*/variant.json define the allowed names")
     parser.add_argument("paths", nargs="+", type=Path)
     args = parser.parse_args()
     defined = defined_names(args)

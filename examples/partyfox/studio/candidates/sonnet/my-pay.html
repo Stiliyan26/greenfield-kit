@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Моето заплащане — PartyFox</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--color-bg); color: var(--color-ink); font-family: var(--font-body); font-size: 15px; line-height: 1.4; -webkit-font-smoothing: antialiased; }
+  :focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+  .page { max-width: 640px; margin: 0 auto; padding: clamp(16px, 3vw, 32px); }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: .02em; color: var(--color-primary); }
+  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-tertiary); }
+  .role { font-size: 12px; color: var(--color-muted); text-transform: uppercase; letter-spacing: .08em; }
+
+  h1.heading { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 3vw, 28px); margin: 0 0 10px; border-bottom: 4px double var(--color-ink); padding-bottom: 10px; }
+  .sub { color: var(--color-muted); margin: 8px 0 18px; font-size: 14px; text-transform: capitalize; }
+
+  .summary { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 18px; display: flex; gap: 22px; flex-wrap: wrap; }
+  .summary .num { text-align: left; }
+  .summary .num .n { font-family: var(--font-display); font-weight: 700; font-size: 22px; display: block; }
+  .summary .num .l { font-size: 12px; color: var(--color-muted); }
+  .summary .note { font-size: 12px; color: var(--color-muted); border-top: 1px solid var(--color-line); margin-top: 12px; padding-top: 10px; width: 100%; }
+
+  h2.section { font-family: var(--font-display); font-size: 15px; margin: 0 0 10px; padding-bottom: 8px; border-bottom: 2px solid var(--color-line); }
+
+  .list { display: flex; flex-direction: column; gap: 8px; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-md); padding: 10px 14px; }
+  .row[data-state="today"] { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary) inset; }
+  .row[data-state="upcoming"] { opacity: .7; }
+  .row .who { font-weight: 600; font-size: 14px; }
+  .row .meta { font-size: 12px; color: var(--color-muted); }
+  .row .hours { font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--color-muted); min-width: 44px; text-align: right; }
+
+  .chip { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 14px; border-radius: 0 var(--radius-pill) var(--radius-pill) 0; font-size: 11px; font-weight: 700; white-space: nowrap; border: 1px solid var(--color-line); }
+  .chip::before { content: ""; position: absolute; left: -1px; top: 50%; width: 7px; height: 7px; background: var(--color-bg); border-radius: 50%; transform: translate(-50%, -50%); border: 1px solid var(--color-line); }
+  .chip[data-status="danger"] { background: var(--status-danger); color: var(--color-surface); border-color: var(--status-danger); }
+
+  .check { font-size: 12px; color: var(--color-muted); margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--color-line); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div class="brand"><span class="brand-dot"></span>PartyFox</div>
+    <span class="role" data-field="me"></span>
+  </div>
+  <h1 class="heading">Моето заплащане</h1>
+  <p class="sub" data-field="month"></p>
+
+  <div class="summary">
+    <div class="num"><span class="n" data-field="count"></span><span class="l">Партита</span></div>
+    <div class="num"><span class="n" data-field="hours"></span><span class="l">Часове</span></div>
+    <div class="num"><span class="n" data-field="amount"></span><span class="l">Сума</span></div>
+    <div class="note" data-field="unset-note"></div>
+  </div>
+
+  <h2 class="section">Партита този месец</h2>
+  <div class="list" id="list" data-block="my-pay"></div>
+
+  <p class="check" data-field="check"></p>
+</div>
+
+<script>
+  const D = window.PARTYFOX;
+  const me = D.animators.find(a => a.id === D.me);
+  const pay = D.myPay;
+
+  document.querySelector('[data-field="me"]').textContent = `${me.name} · ${me.role}`;
+  document.querySelector('[data-field="month"]').textContent = pay.month;
+  document.querySelector('[data-field="count"]').textContent = pay.parties.length;
+  document.querySelector('[data-field="hours"]').textContent = pay.parties.reduce((s, p) => s + p.hours, 0);
+  document.querySelector('[data-field="amount"]').textContent = pay.amount === null ? "Не е зададена" : pay.amount;
+  document.querySelector('[data-field="unset-note"]').textContent = pay.unsetNote;
+  document.querySelector('[data-field="check"]').textContent = pay.check;
+
+  const stateLabel = { done: "Приключено", today: "Днес", upcoming: "Предстои" };
+
+  document.getElementById("list").innerHTML = pay.parties.map(p => `
+    <div class="row" data-state="${p.state}" data-pay-item="${p.date}">
+      <div>
+        <div class="who">${p.child} · ${p.package}</div>
+        <div class="meta">${p.date} · ${stateLabel[p.state]}</div>
+      </div>
+      ${p.depositMissing ? `<span class="chip" data-status="danger">Без депозит</span>` : ""}
+      <span class="hours">${p.hours} ч.</span>
+    </div>`).join("");
+</script>
+</body>
+</html>

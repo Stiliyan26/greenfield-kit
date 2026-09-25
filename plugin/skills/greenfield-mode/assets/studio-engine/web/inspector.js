@@ -18,7 +18,7 @@ export function createInspector(ctx) {
 
   byId("tuner").addEventListener("input", onSlide)
   byId("reset-tuning").addEventListener("click", () => {
-    const world = store.selection.world
+    const world = store.selection.variant
     const tuning = { ...store.selection.tuning }
     const palette = { ...store.selection.palette }
     delete tuning[world]
@@ -87,7 +87,7 @@ export function createInspector(ctx) {
     const details = input.closest("details")
     const lch = [...details.querySelectorAll("input")].map((item) => Number(item.value))
     const value = format(lch)
-    const world = store.selection.world
+    const world = store.selection.variant
     store.selection.tuning = { ...store.selection.tuning, [world]: { ...(store.selection.tuning[world] || {}), [details.dataset.token]: value } }
     tunerKey = `${world}|${JSON.stringify(store.selection.tuning[world])}`
     input.nextElementSibling.textContent = input.dataset.channel === "H" ? Number(input.value).toFixed(0) : Number(input.value).toFixed(3)

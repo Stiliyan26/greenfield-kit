@@ -1,0 +1,326 @@
+{
+  "name": "PartyFox",
+  "language": "bg",
+  "scripts": [
+    "cyrillic"
+  ],
+  "round": "identity",
+  "specimen": {
+    "display": "Оперативен ден",
+    "heading": "Събота, 27 септември · 6 партита",
+    "body": "Депозитът на Софи не е получен. Иван е насрочен на две партита едновременно.",
+    "label": "Без аниматор · 1",
+    "rows": [
+      [
+        "10:00",
+        "Алекс, 6 г. · Пирати",
+        "ok"
+      ],
+      [
+        "15:00",
+        "Давид, 8 г. · Наука",
+        "warning"
+      ],
+      [
+        "16:00",
+        "Софи, 4 г. · Балони",
+        "danger"
+      ]
+    ],
+    "search": "Търси парти",
+    "parts": "/specimen-parts.html",
+    "statusLabels": {
+      "ok": "Депозит платен",
+      "warning": "Застъпване",
+      "danger": "Депозит липсва"
+    }
+  },
+  "screens": [
+    {
+      "id": "ops-day",
+      "label": "Operations day",
+      "role": "Owner",
+      "device": "desktop",
+      "requirement": "The owner moves each booking through scheduling and animator assignment."
+    },
+    {
+      "id": "inbox",
+      "label": "Order inbox",
+      "role": "Owner",
+      "device": "desktop",
+      "requirement": "Site orders arrive in one inbox."
+    },
+    {
+      "id": "booking",
+      "label": "Booking",
+      "role": "Owner",
+      "device": "desktop",
+      "requirement": "Owner and animator can see when a deposit is missing, with a clear red warning. The owner marks a deposit received."
+    },
+    {
+      "id": "leave-requests",
+      "label": "Leave requests",
+      "role": "Owner",
+      "device": "desktop",
+      "requirement": "Animators request leave; the owner approves it."
+    },
+    {
+      "id": "customers",
+      "label": "Customers",
+      "role": "Owner",
+      "device": "desktop",
+      "requirement": "The owner can find customer history, repeat families, large orders, and upcoming birthdays."
+    },
+    {
+      "id": "my-parties",
+      "label": "My parties",
+      "role": "Animator",
+      "device": "phone",
+      "requirement": "Each animator sees correct party times and a usable address."
+    },
+    {
+      "id": "my-leave",
+      "label": "Request leave",
+      "role": "Animator",
+      "device": "phone",
+      "requirement": "Animators request leave; the owner approves it."
+    },
+    {
+      "id": "my-pay",
+      "label": "My pay",
+      "role": "Animator",
+      "device": "phone",
+      "requirement": "Animators can see their own pay so month end checking takes less manual work."
+    }
+  ],
+  "layouts": [
+    {
+      "id": "roster",
+      "name": "Roster",
+      "model": "Claude Opus 5.5",
+      "summary": "Day grid: animators as rows, hours as columns.",
+      "previews": {
+        "ops-day": "/candidates/roster/ops-day.html",
+        "inbox": "/candidates/roster/inbox.html",
+        "booking": "/candidates/roster/booking.html",
+        "leave-requests": "/candidates/roster/leave-requests.html",
+        "customers": "/candidates/roster/customers.html",
+        "my-parties": "/candidates/roster/my-parties.html",
+        "my-leave": "/candidates/roster/my-leave.html",
+        "my-pay": "/candidates/roster/my-pay.html"
+      }
+    },
+    {
+      "id": "board",
+      "name": "Board",
+      "model": "Claude Sonnet 5",
+      "summary": "Kanban by status; the Problem column collects clashes and deposits.",
+      "previews": {
+        "ops-day": "/candidates/board/ops-day.html",
+        "inbox": "/candidates/board/inbox.html",
+        "booking": "/candidates/board/booking.html",
+        "leave-requests": "/candidates/board/leave-requests.html",
+        "customers": "/candidates/board/customers.html",
+        "my-parties": "/candidates/board/my-parties.html",
+        "my-leave": "/candidates/board/my-leave.html",
+        "my-pay": "/candidates/board/my-pay.html"
+      }
+    },
+    {
+      "id": "agenda",
+      "name": "Agenda",
+      "model": "Claude Fable 5.1",
+      "summary": "Time-ordered list of the day, with the next event emphasised.",
+      "previews": {
+        "ops-day": "/candidates/agenda/ops-day.html",
+        "inbox": "/candidates/agenda/inbox.html",
+        "booking": "/candidates/agenda/booking.html",
+        "leave-requests": "/candidates/agenda/leave-requests.html",
+        "customers": "/candidates/agenda/customers.html",
+        "my-parties": "/candidates/agenda/my-parties.html",
+        "my-leave": "/candidates/agenda/my-leave.html",
+        "my-pay": "/candidates/agenda/my-pay.html"
+      }
+    }
+  ],
+  "worlds": [
+    {
+      "id": "rota",
+      "name": "Rota",
+      "summary": "Warm and confident: heavy rounded headings, olive and plum.",
+      "signature": "Heavy rounded numerals for times and day counts",
+      "fonts": {
+        "display": "\"Unbounded\", sans-serif",
+        "body": "\"Onest\", sans-serif",
+        "google": "family=Unbounded:wght@600;700&family=Onest:wght@400;500;600;700"
+      },
+      "tokens": {
+        "color-bg": "oklch(0.965 0.012 67.7)",
+        "color-surface": "oklch(0.992 0.006 67.7)",
+        "color-surface-2": "oklch(0.935 0.012 67.7)",
+        "color-line": "oklch(0.870 0.012 67.7)",
+        "color-muted": "oklch(0.470 0.012 67.7)",
+        "color-ink": "oklch(0.210 0.012 67.7)",
+        "color-primary": "oklch(0.441 0.090 107.9)",
+        "color-on-primary": "oklch(1.000 0.000 0.0)",
+        "color-primary-soft": "oklch(0.930 0.044 107.9)",
+        "color-secondary": "oklch(0.339 0.060 99.7)",
+        "color-on-secondary": "oklch(1.000 0.000 0.0)",
+        "color-secondary-soft": "oklch(0.930 0.029 99.7)",
+        "color-tertiary": "oklch(0.501 0.130 345.1)",
+        "color-on-tertiary": "oklch(1.000 0.000 0.0)",
+        "color-tertiary-soft": "oklch(0.930 0.045 345.1)",
+        "color-accent": "oklch(0.501 0.130 345.1)",
+        "radius-sm": "6px",
+        "radius-md": "10px"
+      },
+      "type": {
+        "display": {
+          "font": "display",
+          "fontSize": "28px",
+          "fontWeight": 700,
+          "lineHeight": 1.1
+        }
+      }
+    },
+    {
+      "id": "ledger",
+      "name": "Ledger",
+      "summary": "Printed-rota calm: serif numerals, plain sans, square corners.",
+      "signature": "Serif time numerals and hairline rules, like a printed staff rota",
+      "fonts": {
+        "display": "\"Literata\", serif",
+        "body": "\"IBM Plex Sans\", sans-serif",
+        "google": "family=Literata:opsz,wght@7..72,600;7..72,700&family=IBM+Plex+Sans:wght@400;500;600;700"
+      },
+      "tokens": {
+        "color-bg": "oklch(0.965 0.006 84.6)",
+        "color-surface": "oklch(0.992 0.006 84.6)",
+        "color-surface-2": "oklch(0.935 0.006 84.6)",
+        "color-line": "oklch(0.870 0.006 84.6)",
+        "color-muted": "oklch(0.470 0.006 84.6)",
+        "color-ink": "oklch(0.210 0.006 84.6)",
+        "color-primary": "oklch(0.299 0.046 251.9)",
+        "color-on-primary": "oklch(1.000 0.000 0.0)",
+        "color-primary-soft": "oklch(0.930 0.022 251.9)",
+        "color-secondary": "oklch(0.460 0.049 239.7)",
+        "color-on-secondary": "oklch(1.000 0.000 0.0)",
+        "color-secondary-soft": "oklch(0.930 0.024 239.7)",
+        "color-tertiary": "oklch(0.520 0.130 294.6)",
+        "color-on-tertiary": "oklch(1.000 0.000 0.0)",
+        "color-tertiary-soft": "oklch(0.930 0.037 294.6)",
+        "color-accent": "oklch(0.520 0.130 294.6)",
+        "radius-sm": "2px",
+        "radius-md": "4px"
+      },
+      "type": {
+        "display": {
+          "font": "display",
+          "fontSize": "30px",
+          "fontWeight": 700,
+          "lineHeight": 1.1
+        }
+      }
+    },
+    {
+      "id": "playroom",
+      "name": "Playroom",
+      "summary": "Friendly but tidy: one rounded sans, soft generous corners.",
+      "signature": "Soft rounded blocks and chips with generous corners",
+      "fonts": {
+        "display": "\"Rubik\", sans-serif",
+        "body": "\"Rubik\", sans-serif",
+        "google": "family=Rubik:wght@400;500;600;700"
+      },
+      "tokens": {
+        "color-bg": "oklch(0.965 0.008 207.1)",
+        "color-surface": "oklch(0.992 0.008 207.1)",
+        "color-surface-2": "oklch(0.935 0.008 207.1)",
+        "color-line": "oklch(0.870 0.008 207.1)",
+        "color-muted": "oklch(0.470 0.008 207.1)",
+        "color-ink": "oklch(0.210 0.008 207.1)",
+        "color-primary": "oklch(0.480 0.082 200.5)",
+        "color-on-primary": "oklch(1.000 0.000 0.0)",
+        "color-primary-soft": "oklch(0.930 0.040 200.5)",
+        "color-secondary": "oklch(0.380 0.067 215.6)",
+        "color-on-secondary": "oklch(1.000 0.000 0.0)",
+        "color-secondary-soft": "oklch(0.930 0.033 215.6)",
+        "color-tertiary": "oklch(0.600 0.130 330.0)",
+        "color-on-tertiary": "oklch(0.160 0.058 330.0)",
+        "color-tertiary-soft": "oklch(0.930 0.058 330.0)",
+        "color-accent": "oklch(0.600 0.130 330.0)",
+        "radius-sm": "10px",
+        "radius-md": "16px"
+      }
+    },
+    {
+      "id": "neutral",
+      "name": "Neutral",
+      "neutral": true,
+      "summary": "Plain grey for the layout round, so only the arrangement is judged.",
+      "fonts": {
+        "display": "system-ui, sans-serif",
+        "body": "system-ui, sans-serif"
+      },
+      "tokens": {
+        "color-bg": "oklch(0.975 0 0)",
+        "color-surface": "oklch(1 0 0)",
+        "color-ink": "oklch(0.24 0 0)",
+        "color-muted": "oklch(0.48 0 0)",
+        "color-line": "oklch(0.88 0 0)",
+        "color-primary": "oklch(0.32 0 0)",
+        "color-on-primary": "oklch(1 0 0)",
+        "color-accent": "oklch(0.5 0 0)",
+        "radius-sm": "4px",
+        "radius-md": "6px"
+      }
+    }
+  ],
+  "status": {
+    "danger": "oklch(0.52 0.19 27)",
+    "warning": "oklch(0.52 0.12 70)",
+    "ok": "oklch(0.5 0.12 150)"
+  },
+  "statusMeaning": {
+    "danger": "Only a missing deposit. Nothing else on any screen may be solid red.",
+    "warning": "An animator clash, an unassigned party, or leave that needs cover.",
+    "ok": "Deposit received, party confirmed."
+  },
+  "references": [
+    {
+      "app": "Deputy",
+      "title": "Week schedule by area",
+      "url": "https://mobbin.com/screens/18006cca-cadc-40e3-bed7-18c92b0f32f0",
+      "image": "/references/deputy-schedule.webp",
+      "note": "Row per person; status sits inside each shift block."
+    },
+    {
+      "app": "7shifts",
+      "title": "Week schedule with conflicts",
+      "url": "https://mobbin.com/screens/f5cc7abc-a384-4f41-989e-ffb4e57ed819",
+      "image": "/references/7shifts-week.webp",
+      "note": "Conflict and overtime counts are pinned in the toolbar, not hidden in rows."
+    },
+    {
+      "app": "Fresha",
+      "title": "Day view, staff as columns",
+      "url": "https://mobbin.com/screens/f8925220-1238-43a1-ac64-1b45d649ee86",
+      "image": "/references/fresha-day.webp",
+      "note": "Three facts per block; empty time stays visible as white space."
+    },
+    {
+      "app": "Fresha",
+      "title": "Week view with overlaps",
+      "url": "https://mobbin.com/screens/ff9e85cc-a7ef-4a0f-a06e-1de358678cd7",
+      "image": "/references/fresha-week.webp",
+      "note": "Overlapping appointments split the column instead of covering each other."
+    },
+    {
+      "app": "Toggl Track",
+      "title": "Day calendar",
+      "url": "https://mobbin.com/screens/7471d106-27f9-4050-ae32-9d5486816a7d",
+      "image": "/references/toggl-day.webp",
+      "note": "A single strong accent marks the current entry on a quiet grid."
+    }
+  ]
+}

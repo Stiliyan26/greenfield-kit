@@ -12,7 +12,7 @@ and don't invent a new look. For a new product or a full redesign, follow
 [choose-a-look.md](references/choose-a-look.md) to make deliberate visual
 choices. The client brief wins over both references.
 
-The local studio is the place to show and approve work. Its format, rounds and
+The local studio is the place to show and approve work. Its format, views and
 scripts are in `greenfield-mode`'s [studio.md](../greenfield-mode/references/studio.md).
 Below, `<studio-scripts>` means that skill's `scripts/` folder.
 
@@ -22,15 +22,17 @@ Use the existing screens, components and `design/tokens.css`. Look outside
 only for a pattern the product doesn't have yet. Show the change in the
 studio or as a capture, then run `check_tokens.py` on the files you touched.
 
-## New look or big redesign: two rounds
+## New look or big redesign: models compete
 
-Layout and identity are separate decisions. Mixing them lets a nice color
-hide a weak arrangement, and a good arrangement hide a default look.
+Up to three models each design the whole product on their own, with its look.
+The user compares them in the studio and picks one. A structure is judged on
+every real screen at three sizes, not on one sample page.
 
-1. **Frame the task.** Name the user, the device, the information that matters
-   and the states that change the layout. Pick one difficult screen: dense
-   data, a warning or conflict, long real-language text. Read `studio/taste.md`
-   if it exists. Ask only about gaps that would change the result a lot.
+1. **Frame the task.** Name the users, their devices, the information that
+   matters and the states that change the screens. List every screen the brief
+   names, with its role and requirement. Note the difficult ones: dense data,
+   a warning or conflict, long real-language text. Read `studio/taste.md` if
+   it exists. Ask only about gaps that would change the result a lot.
 
 2. **Research in two passes.** Use Mobbin MCP (`search_screens`,
    `search_flows`) when it's connected. Retry a failed search once, then report
@@ -48,30 +50,15 @@ hide a weak arrangement, and a good arrangement hide a default look.
    - If Mobbin isn't available, use the user's examples or other real products
      and say so. Never invent a citation.
 
-3. **Round 1: layouts.** Write a short contract for two or three layouts:
-   the source idea from this product's world, a composition sketch, and the
-   generic template it could be mistaken for plus the change that avoids it.
-   Build each as a candidate on the same realistic data and difficult state,
-   in the `neutral` world, with `"round": "layout"`. Layouts must differ in
-   structure, not in color. Run the quality gate (step 5), then let the user
-   choose a layout in the studio.
+3. **Write the facts, not the design.** Put the screens, status colors and
+   specimen text in `project.json`, and every record the screens need in one
+   shared data file. Don't assign structures or styles to the models.
 
-4. **Round 2: identity.** Write a contract for two or three worlds on the
-   chosen layout. Each contract names:
-   - A real typeface pair from Google Fonts that covers the product's scripts
-     (for Bulgarian, `cyrillic`). Never a system font.
-   - All ten tokens, with colors in `oklch()`. The quickest honest start is
-     a library palette mapped to tokens (see the studio's Palettes section).
-     Nothing is "provisional": each world must look finished before the user
-     sees it. The user can then swap palettes freely, so type, shape and the
-     signature detail carry the difference between worlds.
-   - One signature detail you'd recognize without the logo, and the Pass 2
-     reference it comes from.
-   - What it must avoid: grey rounded cards, a lone blue primary, cream plus
-     terracotta, black plus acid green, all-caps labels everywhere.
-   Worlds must differ in type, color use and surface, not only in hue. Add
-   them to `project.json`, set `"round": "identity"`, and check the specimen
-   page for each world.
+4. **Each model designs.** Fill in greenfield-mode's `variant-brief.md` once
+   per model and start them in parallel. Each delivers every screen at
+   1920×1080, 1440×900 and 390×844, and its own look: a real typeface pair
+   that covers the product's scripts, all tokens in `oklch()`, and one
+   signature detail. The brief tells them what to avoid and how to check.
 
 5. **Quality gate, before the user sees anything.** Follow
    [visual-quality.md](references/visual-quality.md):
@@ -83,7 +70,7 @@ hide a weak arrangement, and a good arrangement hide a default look.
      your own work. Revise anything marked "revise first", capture again, and
      ask again. After two failed passes on one idea, replace the idea.
 
-6. **User choice.** Give the studio URL. Say what each candidate is, in one
+6. **User choice.** Give the studio URL. Say what each model made, in one
    line each, and what you couldn't check. Read `selection.json`,
    `comments.json` and `taste.md` after the user works in the page. Handle
    each open comment, then mark it done. Only `status: "approved"` counts.

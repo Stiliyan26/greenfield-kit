@@ -1,151 +1,154 @@
-// The canvas: one frame at its true width, or an overview of every layout × world.
+// The canvas area: tabs (one per model, then Arena), the frame canvas (board.js) for
+// the model, arena and screen views, and one screen alone at an exact size.
+import { effectiveTokens } from "./checks.js"
 import { byId, escapeHtml } from "./util.js"
 
-const WIDTHS = [1440, 1024, 390]
-const THUMB_WIDTH = 1440
+export const VIEWS = ["model", "arena", "screen", "frame"]
+
+// Screens grouped by role, in project.json order. A screen without a role goes in the "" group.
+export function screenGroups(project) {
+  const groups = new Map()
+  for (const screen of project.screens) {
+    const role = screen.role || ""
+    if (!groups.has(role)) groups.set(role, [])
+    groups.get(role).push(screen)
+  }
+  return groups
+}
 
 export function createCanvas(ctx) {
   const { store } = ctx
-  let gridKey = ""
   let previewKey = ""
-  let frameHeight = 900
   store.fit = readFit()
+  store.back = "model"
 
-  const thumbObserver = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const frame = entry.target.querySelector("iframe")
-      if (frame) frame.style.transform = `scale(${entry.contentRect.width / THUMB_WIDTH})`
-    }
-  })
-
-  byId("view-frame").addEventListener("click", () => setView("frame"))
-  byId("view-grid").addEventListener("click", () => setView("grid"))
   byId("zoom-toggle").addEventListener("click", toggleFit)
+  byId("frame-back").addEventListener("click", back)
   new ResizeObserver(sizePreview).observe(byId("canvas"))
 
-  function frameSrc(layoutId, worldId) {
-    const world = encodeURIComponent(worldId)
-    if (store.selection.screen === "specimen") return `/_studio/specimen.html?world=${world}`
-    const layout = store.project.layouts.find((item) => item.id === layoutId)
-    return `${layout.previews[store.selection.screen]}?world=${world}`
+  // A screen's address, or null when that variant has no file for it yet.
+  function frameSrc(variantId, screenId) {
+    const world = encodeURIComponent(variantId)
+    if (screenId === "specimen") return `/_studio/specimen.html?world=${world}`
+    if ((store.project._missing?.[variantId] || []).includes(screenId)) return null
+    return `/candidates/${encodeURIComponent(variantId)}/${encodeURIComponent(screenId)}.html?world=${world}`
   }
 
+  function sizes() { return store.project._sizes || [] }
+  function currentSize() { return sizes().find((size) => size.width === store.selection.width) || sizes()[0] }
   function previewFrame() { return byId("frame-holder").querySelector("iframe") }
 
+  // Fit shows the whole frame, width and height, like a real screen seen from further away.
   function previewScale() {
-    const available = byId("canvas").clientWidth - 56
-    return store.fit ? Math.min(1, available / store.selection.width) : 1
+    const size = currentSize()
+    if (!store.fit || !size) return 1
+    const canvas = byId("canvas")
+    return Math.min(1, (canvas.clientWidth - 56) / size.width, (canvas.clientHeight - 96) / size.height)
   }
 
   function render() {
     const { project, selection } = store
-    byId("screen-tabs").innerHTML = [...project.screens, { id: "specimen", label: "Specimen" }].map((screen) =>
-      `<button type="button" role="tab" data-screen="${screen.id}" aria-selected="${selection.screen === screen.id}">${screen.label}</button>`).join("")
-    byId("width-options").innerHTML = WIDTHS.map((width) => `<button type="button" data-width="${width}" aria-pressed="${selection.width === width}">${width}</button>`).join("")
-    byId("view-frame").setAttribute("aria-pressed", String(store.view === "frame"))
-    byId("view-grid").setAttribute("aria-pressed", String(store.view === "grid"))
-    byId("grid").hidden = store.view !== "grid"
-    byId("stage").hidden = store.view !== "frame"
-    renderGrid()
-    renderPreview()
+    try { localStorage.setItem("studio-view", store.view) } catch { /* private window: forget it */ }
+    renderTabs()
+    const frame = store.view === "frame"
+    byId("board").hidden = frame
+    byId("stage").hidden = !frame
+    byId("zoom-controls").hidden = frame
+    for (const id of ["frame-back", "screen-stepper", "width-group"]) byId(id).hidden = !frame
+    const option = (screen) => `<option value="${escapeHtml(screen.id)}"${selection.screen === screen.id ? " selected" : ""}>${escapeHtml(screen.label)}</option>`
+    byId("screen-select").innerHTML = [...screenGroups(project)].map(([role, screens]) =>
+      role ? `<optgroup label="${escapeHtml(role)}">${screens.map(option).join("")}</optgroup>` : screens.map(option).join("")).join("") +
+      option({ id: "specimen", label: "Specimen" })
+    byId("width-options").innerHTML = sizes().map((size) => `<button type="button" data-width="${size.width}" aria-pressed="${selection.width === size.width}" title="${escapeHtml(size.label)} ${size.width} × ${size.height}">${size.width}</button>`).join("")
+    byId("view-title").textContent = viewTitle()
+    if (frame) renderPreview()
+    else ctx.board.render()
   }
 
-  function renderGrid() {
-    const { project, selection } = store
-    const specimen = selection.screen === "specimen"
-    const layouts = specimen ? [null] : project.layouts
-    const key = JSON.stringify([selection.screen, layouts.map((item) => item?.id), project.worlds.map((item) => item.id)])
-    if (key !== gridKey) {
-      gridKey = key
-      // Put the longer list across, so a layout round with one world is one row.
-      const layoutsAcross = layouts.length > project.worlds.length
-      const columns = layoutsAcross ? layouts : project.worlds
-      const rows = layoutsAcross ? project.worlds : layouts
-      const grid = byId("grid")
-      grid.style.gridTemplateColumns = `18px repeat(${columns.length || 1}, minmax(0, 1fr))`
-      grid.replaceChildren(document.createElement("span"))
-      for (const column of columns) grid.append(Object.assign(document.createElement("span"), { className: "col-head", textContent: column?.name ?? "Specimen" }))
-      for (const row of rows) {
-        grid.append(Object.assign(document.createElement("span"), { className: "row-head", textContent: row?.name ?? "Specimen" }))
-        for (const column of columns) grid.append(layoutsAcross ? cell(column, row) : cell(row, column))
-      }
-    }
-    byId("grid").querySelectorAll(".cell").forEach((item) => {
-      const layoutMatches = !item.dataset.layout || item.dataset.layout === selection.layout
-      item.setAttribute("aria-pressed", String(layoutMatches && item.dataset.world === selection.world))
-    })
+  function viewTitle() {
+    const screen = store.project.screens.find((item) => item.id === store.selection.screen)
+    if (store.view === "arena") return "Every model, every screen"
+    if (store.view === "screen") return `${screen?.label ?? "Specimen"} from every model`
+    if (store.view === "model") return "Every screen at three sizes"
+    return ""
   }
 
-  function cell(layout, world) {
-    const button = document.createElement("button")
-    button.type = "button"
-    button.className = "cell"
-    if (layout) button.dataset.layout = layout.id
-    button.dataset.world = world.id
-    const thumb = document.createElement("span")
-    thumb.className = "thumb"
-    const frame = document.createElement("iframe")
-    frame.loading = "lazy"
-    frame.tabIndex = -1
-    frame.title = `${layout?.name ?? "Specimen"} in ${world.name}`
-    frame.src = frameSrc(layout?.id, world.id)
-    thumb.append(frame)
-    thumbObserver.observe(thumb)
-    button.setAttribute("aria-label", `${layout ? `${layout.name} in ` : "Specimen in "}${world.name}`)
-    button.append(thumb)
-    return button
+  // One tab per model's design, then Arena when there is more than one.
+  function renderTabs() {
+    const { variants } = store.project
+    const tabs = variants.map((variant) => `
+      <button type="button" role="tab" data-model-tab="${escapeHtml(variant.id)}" aria-selected="${store.view === "model" && store.selection.variant === variant.id}" title="${escapeHtml(variant.summary || "")}">
+        <strong>${escapeHtml(variant.model || variant.id)}</strong><span>${escapeHtml(variant.world.name || "")}</span>
+      </button>`).join("")
+    const arena = variants.length > 1 ? `<button type="button" role="tab" data-model-tab="" class="arena-tab" aria-selected="${store.view === "arena"}"><strong>Arena</strong><span>all ${variants.length} models</span></button>` : ""
+    byId("model-tabs").innerHTML = tabs + arena || "<p class='hint'>No model has delivered a variant yet.</p>"
   }
 
   function renderPreview() {
     const { selection, project } = store
-    const layout = ctx.currentLayout()
-    const world = ctx.currentWorld()
-    if (!world || (!layout && selection.screen !== "specimen")) return
-    const src = frameSrc(layout?.id, world.id)
-    const screen = selection.screen === "specimen" ? "Specimen" : project.screens.find((item) => item.id === selection.screen)?.label
-    const lead = selection.screen === "specimen" ? `<strong>Specimen</strong> of ${escapeHtml(world.name)}` : `<strong>${escapeHtml(layout.name)}</strong> in ${escapeHtml(world.name)}`
-    byId("preview-title").innerHTML = `${lead}, ${escapeHtml(screen)}, ${selection.width} px`
-    byId("open-tab").href = src
-    const key = `${src}|${selection.width}`
+    const variant = ctx.currentVariant()
+    const size = currentSize()
+    if (!variant || !size) return
+    const src = frameSrc(variant.id, selection.screen)
+    const specimen = selection.screen === "specimen"
+    const screen = project.screens.find((item) => item.id === selection.screen)
+    byId("preview-title").innerHTML = `<strong>${escapeHtml(specimen ? "Specimen" : screen?.label ?? selection.screen)}</strong> by ${escapeHtml(variant.model || variant.id)}, ${escapeHtml(size.label)} ${size.width} × ${size.height}`
+    byId("preview-need").textContent = specimen || !screen ? "" : [screen.role, screen.requirement].filter(Boolean).join(" · ")
+    byId("open-tab").hidden = !src
+    if (src) byId("open-tab").href = src
+    const key = `${src}|${size.width}`
     if (key !== previewKey) {
       previewKey = key
-      frameHeight = 900
+      const holder = byId("frame-holder")
+      if (!src) {
+        holder.replaceChildren(Object.assign(document.createElement("p"), { className: "frame-missing", textContent: `${variant.model || variant.id} has no ${screen?.label ?? selection.screen} screen yet.` }))
+        holder.style.width = holder.style.height = ""
+        return
+      }
       const frame = document.createElement("iframe")
-      frame.title = "Candidate at its true width"
+      frame.title = "Screen at its exact size"
       frame.src = src
-      byId("frame-holder").replaceChildren(frame)
+      // Comments read which screen a frame shows from these.
+      Object.assign(frame.dataset, { variant: variant.id, screen: selection.screen, world: variant.id, width: String(size.width) })
+      holder.replaceChildren(frame)
     }
     sizePreview()
   }
 
   function sizePreview() {
     const frame = previewFrame()
-    if (!frame) return
+    const size = currentSize()
+    if (!frame || !size || store.view !== "frame") return
     const scale = previewScale()
-    frame.style.width = `${store.selection.width}px`
-    frame.style.height = `${frameHeight}px`
+    frame.style.width = `${size.width}px`
+    frame.style.height = `${size.height}px`
     frame.style.transform = scale === 1 ? "" : `scale(${scale})`
     const holder = byId("frame-holder")
-    holder.style.width = `${Math.floor(store.selection.width * scale)}px`
-    holder.style.height = `${Math.ceil(frameHeight * scale)}px`
+    holder.style.width = `${Math.floor(size.width * scale)}px`
+    holder.style.height = `${Math.ceil(size.height * scale)}px`
     byId("preview-title").parentElement.style.width = holder.style.width
+    byId("preview-need").style.width = holder.style.width
     const toggle = byId("zoom-toggle")
     toggle.setAttribute("aria-pressed", String(store.fit))
     toggle.textContent = store.fit ? `Fit ${Math.round(scale * 100)}%` : "100%"
   }
 
-  function broadcastTokens() {
-    const world = ctx.currentWorld()
+  // Send a model's current tokens to its frames (default: the selected model).
+  function broadcastTokens(world = ctx.currentWorld()) {
     if (!world) return
-    const message = { type: "tokens", world: world.id, tokens: ctx.currentTokens() }
+    const message = { type: "tokens", world: world.id, tokens: effectiveTokens(store.project, world, store.selection.tuning) }
     document.querySelectorAll("iframe").forEach((frame) => frame.contentWindow?.postMessage(message, location.origin))
   }
 
   function setView(view) {
-    store.view = view
+    const next = VIEWS.includes(view) ? view : "model"
+    if (next === "frame" && store.view !== "frame") store.back = store.view
+    store.view = next
     render()
-    if (view === "grid") broadcastTokens()
   }
+
+  function openFrame() { setView("frame") }
+  function back() { setView(store.back === "frame" ? "model" : store.back) }
 
   function toggleFit() {
     store.fit = !store.fit
@@ -153,10 +156,7 @@ export function createCanvas(ctx) {
     sizePreview()
   }
 
-  return {
-    render, broadcastTokens, previewFrame, previewScale, setView, toggleFit,
-    setFrameHeight(height) { frameHeight = Math.max(400, height); sizePreview() },
-  }
+  return { render, broadcastTokens, frameSrc, previewFrame, previewScale, setView, openFrame, back, toggleFit }
 }
 
 function readFit() {

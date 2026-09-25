@@ -24,7 +24,13 @@ export function createPalettes(ctx, { library, custom }) {
 
   const all = () => [...library, ...saved]
   const seedsOf = (entry) => Object.fromEntries(ROLES.map((role) => [role, entry[role]]))
-  const applied = () => store.selection.palette?.[store.selection.world] || null
+  const applied = () => store.selection.palette?.[store.selection.variant] || null
+  const modelName = (variant) => variant?.model || variant?.id || "The model"
+  const ownName = () => `${modelName(ctx.currentVariant())}'s colors`
+
+  // A model's colors are changed when it has a palette or tuning in selection.json. Its
+  // original colors stay in variant.json, which the studio never writes.
+  const changed = (variantId) => Boolean(store.selection.palette?.[variantId] || Object.keys(store.selection.tuning[variantId] || {}).length)
 
   function tokensFor(seeds) {
     const key = JSON.stringify(seeds)
@@ -66,7 +72,7 @@ export function createPalettes(ctx, { library, custom }) {
 
   function isTuned() {
     const palette = applied()
-    const tuning = store.selection.tuning[store.selection.world] || {}
+    const tuning = store.selection.tuning[store.selection.variant] || {}
     if (!palette) return Object.keys(tuning).length > 0
     const expected = tokensFor(palette.seeds)
     return Object.keys({ ...expected, ...tuning }).some((name) => expected[name] !== tuning[name])
@@ -75,7 +81,7 @@ export function createPalettes(ctx, { library, custom }) {
   // --- actions ----------------------------------------------------------------
 
   function apply(entry, { name = entry.name, id = entry.id } = {}) {
-    const world = store.selection.world
+    const world = store.selection.variant
     const seeds = seedsOf(entry)
     store.selection.palette = { ...store.selection.palette, [world]: { id, name, seeds } }
     store.selection.tuning = { ...store.selection.tuning, [world]: tokensFor(seeds) }
@@ -154,8 +160,9 @@ export function createPalettes(ctx, { library, custom }) {
   function renderCurrent() {
     const seeds = currentSeeds()
     const palette = applied()
-    byId("palette-name").textContent = palette ? palette.name : "World colors"
-    byId("palette-state").textContent = isTuned() ? "tuned" : palette ? "" : "no palette applied"
+    byId("palette-model").textContent = `Editing ${modelName(ctx.currentVariant())}`
+    byId("palette-name").textContent = palette ? palette.name : ownName()
+    byId("palette-state").textContent = isTuned() ? "tuned" : palette ? "" : "as the model chose"
     byId("roles").innerHTML = ROLES.map((role) => {
       const hex = toHex(seeds[role])
       const label = role[0].toUpperCase() + role.slice(1)
@@ -168,7 +175,8 @@ export function createPalettes(ctx, { library, custom }) {
       </div>`
     }).join("")
     byId("status-swatches").innerHTML = Object.entries(store.project.status || {}).map(([name, value]) => `<i style="background:${escapeHtml(value)}" title="${escapeHtml(name)}: ${escapeHtml(store.project.statusMeaning?.[name] || "")}"></i>`).join("")
-    byId("palette-clear").disabled = !palette && !Object.keys(store.selection.tuning[store.selection.world] || {}).length
+    byId("palette-clear").disabled = !palette && !Object.keys(store.selection.tuning[store.selection.variant] || {}).length
+    byId("palette-clear").innerHTML = `${icon("reset", { size: 14 })}Restore ${escapeHtml(ownName())}`
   }
 
   function renderFilters() {
@@ -195,7 +203,25 @@ export function createPalettes(ctx, { library, custom }) {
     </li>`
   }
 
+  // Every model's original colors, each with its own Restore, and Restore all.
+  function renderOriginals() {
+    const variants = store.project.variants
+    byId("original-list").innerHTML = variants.map((variant) => {
+      const tokens = effectiveTokens(store.project, variant.world, {})
+      const chip = ["color-primary", "color-secondary", "color-tertiary", "color-bg"].map((name) => `<i style="background:${escapeHtml(tokens[name])}"></i>`).join("")
+      const palette = store.selection.palette?.[variant.id]
+      const state = !changed(variant.id) ? "Original" : palette ? `Now: ${palette.name}` : "Now: tuned"
+      return `<li class="original-row" data-original="${escapeHtml(variant.id)}" aria-current="${variant.id === store.selection.variant}">
+        <span class="chip4">${chip}</span>
+        <span class="palette-text"><span class="name">${escapeHtml(modelName(variant))}</span><span class="tags" data-changed="${changed(variant.id)}">${escapeHtml(state)}</span></span>
+        <button type="button" class="btn btn-quiet btn-small" data-restore="${escapeHtml(variant.id)}"${changed(variant.id) ? "" : " disabled"}>Restore</button>
+      </li>`
+    }).join("")
+    byId("restore-all").disabled = !variants.some((variant) => changed(variant.id))
+  }
+
   function renderList() {
+    renderOriginals()
     const list = visible()
     byId("library-count").textContent = `${list.length} of ${all().length}`
     byId("palette-list").innerHTML = list.map(row).join("") || `<li class="empty-note">${filter.shortlist ? "Star palettes with S or the star to build a shortlist." : "No palettes match."}</li>`
@@ -207,16 +233,20 @@ export function createPalettes(ctx, { library, custom }) {
 
   function markRows() {
     const id = applied()?.id
-    panel.querySelectorAll(".palette-row").forEach((item) => item.setAttribute("aria-current", String(item.dataset.palette === id)))
+    const own = `model:${store.selection.variant}`
+    panel.querySelectorAll(".palette-row").forEach((item) => item.setAttribute("aria-current", String(item.dataset.palette === own ? !id && !isTuned() : item.dataset.palette === id)))
   }
 
   // The canvas bar shows the applied palette, so browsing works without the panel open.
+  // Every color change (palette, arrow keys, tuning, restore) passes through here, so the
+  // Original colors list and its Restore buttons stay current too.
   function renderNow() {
+    renderOriginals()
     const palette = applied()
     const seeds = currentSeeds()
-    byId("palette-now").innerHTML = `<span class="dots">${ROLES.map((role) => `<i style="background:${toHex(seeds[role])}"></i>`).join("")}</span><span>${escapeHtml(palette ? palette.name : "World colors")}${isTuned() ? "<em>tuned</em>" : ""}</span>`
+    byId("palette-now").innerHTML = `<span class="dots">${ROLES.map((role) => `<i style="background:${toHex(seeds[role])}"></i>`).join("")}</span><span>${escapeHtml(palette ? palette.name : ownName())}${isTuned() ? "<em>tuned</em>" : ""}</span>`
     const state = byId("palette-state")
-    if (state) state.textContent = isTuned() ? "tuned" : palette ? "" : "no palette applied"
+    if (state) state.textContent = isTuned() ? "tuned" : palette ? "" : "as the model chose"
   }
 
   // --- events -------------------------------------------------------------------
@@ -232,6 +262,8 @@ export function createPalettes(ctx, { library, custom }) {
       else if (button.dataset.filter === "shortlist") { filter.shortlist = !filter.shortlist; renderFilters(); renderList() }
       else if (button.dataset.roleEdit) { editingRole = editingRole === button.dataset.roleEdit ? null : button.dataset.roleEdit; renderCurrent() }
       else if (button.id === "palette-clear") clear()
+      else if (button.dataset.restore) clear([button.dataset.restore])
+      else if (button.id === "restore-all") clear(store.project.variants.map((variant) => variant.id))
       else if (button.id === "palette-save") { byId("save-form").hidden = false; byId("save-name").focus() }
     })
     panel.addEventListener("input", (event) => {
@@ -261,17 +293,19 @@ export function createPalettes(ctx, { library, custom }) {
     byId("palette-next").addEventListener("click", () => step(1))
   }
 
-  function clear() {
-    const world = store.selection.world
+  // Restore the listed models (default: the selected one) to the colors in their variant.json.
+  // Only those models change; every other model keeps its own palette and tuning.
+  function clear(variantIds = [store.selection.variant]) {
     const tuning = { ...store.selection.tuning }
     const palette = { ...store.selection.palette }
-    delete tuning[world]
-    delete palette[world]
+    for (const id of variantIds) { delete tuning[id]; delete palette[id] }
     Object.assign(store.selection, { tuning, palette })
     ctx.inspector.resetKey()
     ctx.inspector.renderTuner()
     ctx.designChanged()
+    for (const id of variantIds) ctx.canvas.broadcastTokens(store.project.variants.find((variant) => variant.id === id)?.world)
     renderCurrent()
+    renderOriginals()
     markRows()
   }
 
@@ -286,12 +320,13 @@ export function createPalettes(ctx, { library, custom }) {
 function shell() {
   return `
     <section class="current-palette" aria-labelledby="palette-name">
-      <div class="current-head"><h2 id="palette-name">World colors</h2><span id="palette-state" class="meta"></span></div>
+      <p id="palette-model" class="palette-model"></p>
+      <div class="current-head"><h2 id="palette-name">Model colors</h2><span id="palette-state" class="meta"></span></div>
       <div id="roles" class="roles"></div>
       <div class="status-row">${icon("lock", { size: 13 })}<span>Status colors are locked</span><span id="status-swatches" class="swatches"></span></div>
       <div class="current-actions">
         <button type="button" id="palette-save" class="btn btn-small">${icon("plus", { size: 14 })}Save to library</button>
-        <button type="button" id="palette-clear" class="btn btn-quiet btn-small">${icon("reset", { size: 14 })}Use world colors</button>
+        <button type="button" id="palette-clear" class="btn btn-quiet btn-small">${icon("reset", { size: 14 })}Restore the model's colors</button>
       </div>
       <form id="save-form" class="generate-input" hidden>
         <input type="text" id="save-name" maxlength="60" placeholder="Palette name" aria-label="Palette name">
@@ -299,6 +334,11 @@ function shell() {
         <button type="button" id="save-cancel" class="btn btn-quiet btn-small">Cancel</button>
         <span id="save-error" class="hint"></span>
       </form>
+    </section>
+    <section class="library" aria-label="Original colors">
+      <div class="panel-head"><h2 class="section-title">Original colors</h2><button type="button" id="restore-all" class="btn btn-quiet btn-small">${icon("reset", { size: 14 })}Restore all</button></div>
+      <p class="hint">The colors each model chose. Restore puts back only that model's colors.</p>
+      <ul id="original-list" class="palette-list"></ul>
     </section>
     <section class="library" aria-label="Palette library">
       <div class="panel-head"><h2 class="section-title">Library <span id="library-count" class="count"></span></h2><span class="meta"><kbd>←</kbd> <kbd>→</kbd> browse</span></div>

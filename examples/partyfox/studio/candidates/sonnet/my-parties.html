@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Моите партита — PartyFox</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--color-bg); color: var(--color-ink); font-family: var(--font-body); font-size: 15px; line-height: 1.4; -webkit-font-smoothing: antialiased; }
+  :focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+  .page { max-width: 640px; margin: 0 auto; padding: clamp(16px, 3vw, 32px); }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: .02em; color: var(--color-primary); }
+  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-tertiary); }
+  .role { font-size: 12px; color: var(--color-muted); text-transform: uppercase; letter-spacing: .08em; }
+
+  h1.heading { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 3vw, 28px); margin: 0 0 10px; border-bottom: 4px double var(--color-ink); padding-bottom: 10px; }
+  .sub { color: var(--color-muted); margin: 8px 0 18px; font-size: 14px; }
+
+  .list { display: flex; flex-direction: column; gap: 12px; }
+  .party { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-lg); overflow: hidden; }
+  .party .top { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--color-surface-2); }
+  .party .top .date { font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+  .party .top .time { color: var(--color-muted); font-size: 13px; }
+  .party .body { padding: 14px 16px; }
+  .party .who { font-weight: 700; font-size: 15px; margin-bottom: 2px; }
+  .party .meta { color: var(--color-muted); font-size: 13px; margin-bottom: 10px; }
+  .party .addr { font-size: 13px; display: flex; gap: 8px; margin-bottom: 4px; }
+  .party .addr .icon { color: var(--color-secondary); flex: none; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  .party .note { font-size: 12px; color: var(--color-muted); margin-left: 0; margin-top: 2px; }
+  .party .contact { font-size: 13px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--color-line); color: var(--color-muted); }
+
+  .banner { display: flex; align-items: center; gap: 8px; padding: 8px 16px; font-size: 13px; font-weight: 700; background: var(--status-danger); color: var(--color-surface); }
+  .flag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 600; background: color-mix(in oklab, var(--status-warning) 16%, var(--color-surface)); color: var(--status-warning); margin-top: 8px; }
+
+  @media (min-width: 900px) {
+    .list { display: grid; grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div class="brand"><span class="brand-dot"></span>PartyFox</div>
+    <span class="role" data-field="me"></span>
+  </div>
+  <h1 class="heading">Моите партита</h1>
+  <p class="sub" data-field="subhead"></p>
+  <div class="list" id="list" data-block="my-parties"></div>
+</div>
+
+<script>
+  const D = window.PARTYFOX;
+  const me = D.animators.find(a => a.id === D.me);
+  document.querySelector('[data-field="me"]').textContent = `${me.name} · ${me.role}`;
+  document.querySelector('[data-field="subhead"]').textContent = `Следващите ${D.myParties.length} партита`;
+
+  document.getElementById("list").innerHTML = D.myParties.map(p => {
+    const missing = !p.deposit;
+    const leave = p.inLeave ? `<div class="flag" data-leave-flag>По това време имате чакаща заявка за отпуск</div>` : "";
+    return `<article class="party" data-party="${p.id}">
+      ${missing ? `<div class="banner" data-status="danger">Депозит липсва — потвърдете преди партито</div>` : ""}
+      <div class="top">
+        <span class="date">${p.date}</span>
+        <span class="time">${p.start}–${p.end}</span>
+      </div>
+      <div class="body">
+        <div class="who">${p.child}, ${p.age} г. · ${p.package}</div>
+        <div class="meta">${p.guests} гости</div>
+        <div class="addr"><span class="icon">Адрес</span><span>${p.address}</span></div>
+        ${p.addressNote ? `<div class="note">${p.addressNote}</div>` : ""}
+        <div class="contact">${p.parent} · ${p.phone}</div>
+        ${leave}
+      </div>
+    </article>`;
+  }).join("");
+</script>
+</body>
+</html>

@@ -1,5 +1,6 @@
-// Pinned comments: pick an element in the frame, save a note, like or reject with
-// its CSS selector, and show numbered pins on later visits.
+// Pinned comments: pick an element in any screen frame (the single frame or one on
+// the board), save a note, like or reject with its CSS selector, and show numbered
+// pins on later visits. Each frame says which screen it shows in its data-* attributes.
 import { icon } from "./icons.js"
 import { byId, escapeHtml, postJson } from "./util.js"
 
@@ -12,23 +13,26 @@ export function createComments(ctx) {
   let focused = null
   const form = byId("comment-form")
 
-  function visible() {
-    const { screen, layout, world } = store.selection
-    return list.filter((item) => item.screen === screen && (screen === "specimen" ? item.world === world : item.layout === layout))
-  }
+  const commentsOn = ({ screen, variant }) => list.filter((item) => item.screen === screen && item.variant === variant)
+  function visible() { return commentsOn(store.selection) }
 
-  function post(message) { ctx.canvas.previewFrame()?.contentWindow?.postMessage(message, location.origin) }
+  function frames() { return [...document.querySelectorAll("iframe[data-screen]")] }
+  function send(frame, message) { frame?.contentWindow?.postMessage(message, location.origin) }
+  function post(message) { send(ctx.canvas.previewFrame(), message) }
 
-  function sendPins() {
-    post({ type: "pins", pins: visible().map((item, index) => ({ id: item.id, number: index + 1, selector: item.selector, kind: item.kind, status: item.status, text: item.text })) })
+  function sendPins(only) {
+    for (const frame of only ? [only] : frames()) {
+      const pins = commentsOn(frame.dataset).map((item, index) => ({ id: item.id, number: index + 1, selector: item.selector, kind: item.kind, status: item.status, text: item.text }))
+      send(frame, { type: "pins", pins })
+    }
   }
 
   function setMode(on) {
-    if (on && store.view !== "frame") ctx.canvas.setView("frame")
     mode = on
     byId("comment-toggle").setAttribute("aria-pressed", String(on))
     byId("comment-hint").hidden = !on
-    post({ type: "comment-mode", on })
+    ctx.board.setCommenting(on)
+    for (const frame of frames()) send(frame, { type: "comment-mode", on })
   }
 
   function render() {
@@ -37,7 +41,7 @@ export function createComments(ctx) {
     byId("comment-count").textContent = open ? String(open) : ""
     byId("comment-list").innerHTML = items.map((item, index) => `
       <li data-id="${item.id}" data-status="${item.status}" class="kind-${item.kind}${focused === item.id ? " focus" : ""}">
-        <div class="meta-row"><span class="num">${index + 1}</span><span>${item.kind === "note" ? "Note" : item.kind === "like" ? "Like" : "Reject"}</span><span>${escapeHtml(item.world)}</span><span>${item.width ?? "?"} px</span><span>revision ${item.revision}</span>${item.status === "done" ? "<span>done</span>" : ""}${missing.has(item.id) ? "<span>element not found</span>" : ""}</div>
+        <div class="meta-row"><span class="num">${index + 1}</span><span>${item.kind === "note" ? "Note" : item.kind === "like" ? "Like" : "Reject"}</span><span>${escapeHtml(store.project.variants.find((variant) => variant.id === item.variant)?.model || item.variant || "")}</span><span>${item.width ?? "?"} px</span><span>revision ${item.revision}</span>${item.status === "done" ? "<span>done</span>" : ""}${missing.has(item.id) ? "<span>element not found</span>" : ""}</div>
         <div>${escapeHtml(item.text)}</div>
         <div class="snippet">On “${escapeHtml(item.snippet)}”</div>
         <div class="actions">
@@ -49,10 +53,11 @@ export function createComments(ctx) {
     sendPins()
   }
 
-  function openForm(message) {
-    pending = { selector: message.selector, snippet: message.snippet }
-    const frame = ctx.canvas.previewFrame().getBoundingClientRect()
-    const scale = ctx.canvas.previewScale()
+  function openForm(message, source) {
+    const { variant, screen, width } = source.dataset
+    pending = { selector: message.selector, snippet: message.snippet, variant, screen, width: Number(width) }
+    const frame = source.getBoundingClientRect()
+    const scale = frame.width / source.offsetWidth
     const rect = { x: message.rect.x * scale, y: message.rect.y * scale, height: message.rect.height * scale }
     const left = Math.min(Math.max(8, frame.left + rect.x), innerWidth - 316)
     const below = frame.top + rect.y + rect.height + 8
@@ -76,11 +81,12 @@ export function createComments(ctx) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault()
     if (!pending) return
-    const { layout, world, screen, width } = store.selection
     try {
-      const saved = await postJson("/api/comments", { ...pending, kind: new FormData(form).get("kind"), text: byId("comment-text").value, layout: screen === "specimen" ? "" : layout, world, screen, width })
+      const saved = await postJson("/api/comments", { ...pending, kind: new FormData(form).get("kind"), text: byId("comment-text").value })
       list.push(saved)
       closeForm()
+      // Select the screen the comment is on, so the Comments tab lists it.
+      if (saved.screen !== store.selection.screen || saved.variant !== store.selection.variant) ctx.change({ screen: saved.screen, variant: saved.variant })
       focused = saved.id
       ctx.inspector.setTab("comments")
       render()
@@ -96,7 +102,13 @@ export function createComments(ctx) {
     const id = button.closest("li").dataset.id
     const item = list.find((entry) => entry.id === id)
     try {
-      if (button.dataset.commentAction === "show") { focused = id; render(); ctx.canvas.setView("frame"); post({ type: "focus-pin", id }) }
+      if (button.dataset.commentAction === "show") {
+        focused = id
+        ctx.change({ screen: item.screen, variant: item.variant, ...(item.width ? { width: item.width } : {}) })
+        ctx.canvas.openFrame()
+        // The single frame may be new; its pins arrive with frameReady, then focus the pin.
+        setTimeout(() => post({ type: "focus-pin", id }), 400)
+      }
       if (button.dataset.commentAction === "toggle") { item.status = item.status === "done" ? "open" : "done"; await postJson(`/api/comments/${id}`, { status: item.status }); render() }
       if (button.dataset.commentAction === "delete") { await postJson(`/api/comments/${id}/delete`, {}); list = list.filter((entry) => entry.id !== id); render() }
     } catch (error) {
@@ -108,17 +120,23 @@ export function createComments(ctx) {
     load(value) { list = value },
     render,
     toggle() { setMode(!mode) },
-    frameReady() { missing = new Set(); sendPins(); if (mode) post({ type: "comment-mode", on: true }) },
-    handleMessage(message) {
-      if (message.type === "pick") openForm(message)
+    frameReady(frame) {
+      if (frame === ctx.canvas.previewFrame()) missing = new Set()
+      sendPins(frame)
+      if (mode) send(frame, { type: "comment-mode", on: true })
+    },
+    handleMessage(message, frame) {
+      if (message.type === "pick") openForm(message, frame)
       if (message.type === "pick-cancel") closeForm()
       if (message.type === "pin-click") {
+        const { screen, variant } = frame.dataset
+        if (screen !== store.selection.screen || variant !== store.selection.variant) ctx.change({ screen, variant })
         focused = message.id
         ctx.inspector.setTab("comments")
         render()
         document.querySelector(`#comment-list li[data-id="${message.id}"]`)?.scrollIntoView({ block: "nearest" })
       }
-      if (message.type === "pins-missing") {
+      if (message.type === "pins-missing" && frame === ctx.canvas.previewFrame()) {
         const next = new Set(message.ids)
         if ([...next].join() !== [...missing].join()) { missing = next; render() }
       }

@@ -1,0 +1,214 @@
+{
+  "url": "http://127.0.0.1:4174",
+  "at": "2026-09-25T10:34:42.467Z",
+  "shots": [
+    {
+      "name": "ops-day__roster__rota__1440",
+      "path": "/candidates/roster/ops-day.html?world=rota",
+      "width": 1440,
+      "screen": "ops-day",
+      "layout": "roster",
+      "world": "rota",
+      "file": "ops-day__roster__rota__1440.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [
+        "Onest",
+        "Unbounded"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "ops-day__roster__rota__1024",
+      "path": "/candidates/roster/ops-day.html?world=rota",
+      "width": 1024,
+      "screen": "ops-day",
+      "layout": "roster",
+      "world": "rota",
+      "file": "ops-day__roster__rota__1024.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [
+        "Onest",
+        "Unbounded"
+      ],
+      "tinyText": 0,
+      "clipped": [
+        "Гергана, 7 г. · Фокуси",
+        "Мика, 5 г. · Принцеси"
+      ],
+      "problems": []
+    },
+    {
+      "name": "ops-day__roster__rota__390",
+      "path": "/candidates/roster/ops-day.html?world=rota",
+      "width": 390,
+      "screen": "ops-day",
+      "layout": "roster",
+      "world": "rota",
+      "file": "ops-day__roster__rota__390.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [
+        "Onest",
+        "Unbounded"
+      ],
+      "tinyText": 0,
+      "clipped": [
+        "Аниматор\n09:00\n11:00\n13:00\n15:00\n17:00\n1",
+        "10:00–12:00",
+        "14:00–16:00",
+        "15:00–17:00",
+        "16:00–18:00\nДепозит липсва",
+        "11:00–13:00"
+      ],
+      "problems": []
+    },
+    {
+      "name": "studio__1440",
+      "path": "/",
+      "width": 1440,
+      "studio": true,
+      "file": "studio__1440.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [
+        "Instrument Sans"
+      ],
+      "tinyText": 0,
+      "clipped": [
+        "Operations day\nOwner\nOpen\nOrder inbox\nOw",
+        "Animator · phone",
+        "Animator · phone",
+        "Animator · phone",
+        "Search palettes",
+        "Mood",
+        "Complementary of #2F5D8A",
+        "Split complementary of #2F5D8A"
+      ],
+      "problems": []
+    },
+    {
+      "name": "studio__1024",
+      "path": "/",
+      "width": 1024,
+      "studio": true,
+      "file": "studio__1024.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [
+        "Instrument Sans"
+      ],
+      "tinyText": 0,
+      "clipped": [
+        "Operations day\nOwner\nOpen\nOrder inbox\nOw",
+        "Animator · phone",
+        "Request leave",
+        "Animator · phone",
+        "Animator · phone",
+        "Secondary\n#294050",
+        "Search palettes",
+        "Mood"
+      ],
+      "problems": []
+    },
+    {
+      "name": "studio__390",
+      "path": "/",
+      "width": 390,
+      "studio": true,
+      "file": "studio__390.png",
+      "overflowX": 0,
+      "height": 4443,
+      "loadedFonts": [
+        "Instrument Sans"
+      ],
+      "tinyText": 0,
+      "clipped": [
+        "Operations day\nOwner\nOpen\nOrder inbox\nOw",
+        "Animator · phone",
+        "Request leave",
+        "Animator · phone",
+        "Animator · phone",
+        "Search palettes",
+        "Mood",
+        "Complementary of #2F5D8A"
+      ],
+      "problems": []
+    },
+    {
+      "name": "studio-compare__1440",
+      "path": "/?view=compare",
+      "width": 1440,
+      "studio": true,
+      "file": "studio-compare__1440.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [
+        "Instrument Sans"
+      ],
+      "tinyText": 0,
+      "clipped": [
+        "Claude Opus 5.5\nRoster\nOperations day\nOw",
+        "Animator · phone",
+        "Animator · phone",
+        "Animator · phone",
+        "Animator · phone",
+        "Animator · phone",
+        "Animator · phone",
+        "Animator · phone"
+      ],
+      "problems": []
+    },
+    {
+      "name": "studio-compare__1024",
+      "path": "/?view=compare",
+      "width": 1024,
+      "studio": true,
+      "file": "studio-compare__1024.png",
+      "overflowX": 0,
+      "height": 900,
+      "loadedFonts": [
+        "Instrument Sans"
+      ],
+      "tinyText": 0,
+      "clipped": [
+        "Claude Opus 5.5\nRoster\nOperations day\nOw",
+        "Animator · phone",
+        "Request leave",
+        "Animator · phone",
+        "Animator · phone",
+        "Animator · phone",
+        "Request leave",
+        "Animator · phone"
+      ],
+      "problems": []
+    },
+    {
+      "name": "studio-compare__390",
+      "path": "/?view=compare",
+      "width": 390,
+      "studio": true,
+      "file": "studio-compare__390.png",
+      "overflowX": 0,
+      "height": 4443,
+      "loadedFonts": [
+        "Instrument Sans"
+      ],
+      "tinyText": 0,
+      "clipped": [
+        "Claude Opus 5.5\nRoster\nOperations day\nOw",
+        "Animator · phone",
+        "Request leave",
+        "Animator · phone",
+        "Animator · phone",
+        "Animator · phone",
+        "Request leave",
+        "Animator · phone"
+      ],
+      "problems": []
+    }
+  ]
+}

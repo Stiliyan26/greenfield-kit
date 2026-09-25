@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Моето заплащане</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+  /* Agenda candidate · animator · my pay, phone first: the month as a dated list with a running hour count. */
+  :root{
+    --tint-warning:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));
+    --tint-danger:color-mix(in oklab, var(--status-danger) 10%, var(--color-surface));
+    --tint-ok:color-mix(in oklab, var(--status-ok) 12%, var(--color-surface));
+    --tint-primary:color-mix(in oklab, var(--color-primary) 10%, var(--color-surface));
+    --shadow:0 1px 2px color-mix(in oklab, var(--color-ink) 8%, transparent);
+    --ring:0 0 0 3px color-mix(in oklab, var(--color-primary) 35%, transparent);
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font-family:var(--font-body);color:var(--color-ink);background:var(--color-bg);
+       font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+
+  .shell{max-width:560px;margin:0 auto;padding:14px 16px 28px}
+  header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+  h1{font-family:var(--font-display);font-size:20px;font-weight:700;letter-spacing:-.01em}
+  .day{color:var(--color-muted);font-size:12.5px;margin-top:2px}
+  .me{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;flex:none}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--color-primary);color:var(--color-on-primary);
+          display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:14px}
+
+  .total{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);padding:12px 14px;box-shadow:var(--shadow);margin-bottom:18px}
+  .total .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+  .kpi span{display:block;font-size:12px;font-weight:700;color:var(--color-muted)}
+  .kpi b{font-family:var(--font-display);font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+  .kpi b.unset{font-family:var(--font-body);font-size:14px;font-weight:600;color:var(--color-muted);font-style:italic}
+  .total p{margin-top:10px;font-size:12.5px;color:var(--color-muted);border-top:1px solid var(--color-line);padding-top:8px}
+  .total p b{color:var(--color-ink)}
+
+  main{position:relative;padding-left:20px;min-width:0}
+  main::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--color-line);border-radius:2px}
+  .section{position:relative;margin:0 0 12px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);display:flex;gap:8px;align-items:baseline}
+  .section::before{content:"";position:absolute;left:-18px;top:4px;width:9px;height:9px;border-radius:2px;background:var(--color-muted)}
+  .section b{font-family:var(--font-display);font-size:14px;letter-spacing:0;color:var(--color-ink);text-transform:none}
+
+  .slot{position:relative;margin-bottom:8px}
+  .slot::before{content:"";position:absolute;left:-18px;top:9px;width:9px;height:9px;border-radius:50%;
+                background:var(--color-primary);border:2px solid var(--color-primary)}
+  .slot.today::before{background:var(--status-danger);border-color:var(--status-danger)}
+  .slot.upcoming::before{background:var(--color-surface);border-color:var(--color-line)}
+
+  .row{display:grid;grid-template-columns:minmax(52px,max-content) 1fr;gap:10px;align-items:start}
+  .time{font-family:var(--font-display);font-size:20px;font-weight:700;line-height:1;
+        font-variant-numeric:tabular-nums;color:var(--color-primary);padding-top:4px}
+  .time small{display:block;font-size:12px;color:var(--color-muted);font-family:var(--font-body);margin-top:3px;font-weight:600}
+  .slot.upcoming .time{color:var(--color-muted)}
+
+  .card{background:var(--color-surface);border:1px solid var(--color-line);
+        border-radius:var(--radius-md);padding:8px 12px;box-shadow:var(--shadow);min-width:0;
+        display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
+  .card.missing{border:2px solid var(--status-danger);background:var(--tint-danger)}
+  .card.upcoming{border-style:dashed;background:transparent;box-shadow:none}
+  .card .child{grid-column:1;grid-row:1;font-weight:700;font-size:14.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pkg{font-size:11px;font-weight:700;color:var(--color-secondary);background:var(--color-secondary-soft);border-radius:var(--radius-sm);padding:2px 8px}
+  .card .meta{grid-column:1;grid-row:2;font-size:12.5px;color:var(--color-muted);display:flex;gap:4px 12px;flex-wrap:wrap}
+  .card .amt{grid-column:2;grid-row:1 / span 2;text-align:right;font-size:12px;color:var(--color-muted);font-style:italic;white-space:nowrap}
+  .card .hrs{font-family:var(--font-display);font-size:16px;font-style:normal;color:var(--color-ink);display:block;font-variant-numeric:tabular-nums}
+  .pill{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap}
+  .pill.red{background:var(--status-danger);color:var(--color-surface)}   /* the only solid red */
+  .pill.soft{background:var(--color-surface-2);color:var(--color-muted)}
+  .dep-note{grid-column:1 / -1;grid-row:3;font-size:12px;color:var(--status-danger);font-weight:600}
+
+  .sum{margin-top:14px;padding:10px 12px;border-top:2px solid var(--color-ink);display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:13px}
+  .sum b{font-family:var(--font-display);font-size:16px;font-variant-numeric:tabular-nums}
+  .sum .unset{font-style:italic;color:var(--color-muted);text-align:right}
+
+  .note{margin-top:14px;font-size:12.5px;color:var(--color-muted)}
+
+  @media (min-width:720px){
+    .shell{max-width:960px;padding:20px 22px;display:grid;grid-template-columns:260px 1fr;gap:26px;align-items:start}
+    .side{position:sticky;top:20px}
+    header{flex-direction:column;gap:12px;margin-bottom:14px}
+    .total{margin-bottom:0}
+    .total .grid{grid-template-columns:1fr}
+    .note{grid-column:2;margin-top:8px;font-size:13px}
+    main{padding-left:26px}
+    main::before{left:8px}
+    .section::before,.slot::before{left:-22px}
+    .row{grid-template-columns:minmax(74px,max-content) 1fr;gap:14px}
+    .time{font-size:26px;padding-top:2px}
+    .card{padding:9px 14px}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="side">
+    <header>
+      <div><h1>Моето заплащане</h1><div class="day" id="day"></div></div>
+      <div class="me"><span class="avatar" id="initial"></span><span id="me"></span></div>
+    </header>
+    <div class="total" data-part="total">
+      <div class="grid">
+        <div class="kpi"><span>Партита</span><b id="k-parties"></b></div>
+        <div class="kpi"><span>Часове</span><b id="k-hours"></b></div>
+        <div class="kpi"><span>Сума за месеца</span><b class="unset" id="k-amount"></b></div>
+        <div class="kpi"><span>Бонус</span><b class="unset" id="k-bonus"></b></div>
+      </div>
+      <p id="k-note"></p>
+    </div>
+  </div>
+
+  <main id="list"></main>
+  <p class="note">Списъкът е по дата, за да го сравниш със собствения си календар в края на месеца. Партита с липсващ депозит са в червено: собственикът ги проверява отделно.</p>
+</div>
+
+<script>
+const D = window.PARTYFOX;
+const me = D.animators.find(a => a.id === D.me);
+const P = D.myPay;
+const UNSET = "не е зададено";
+
+document.getElementById("initial").textContent = me.name[0];
+document.getElementById("me").textContent = `${me.name} · ${me.role}`;
+document.getElementById("day").textContent = `${P.month} · ${D.day}`;
+
+const done = P.parties.filter(p => p.state !== "upcoming");
+const hours = done.reduce((s, p) => s + p.hours, 0);
+document.getElementById("k-parties").textContent = P.parties.length;
+document.getElementById("k-hours").textContent = hours + " ч";
+document.getElementById("k-amount").textContent = P.amount == null ? UNSET : P.amount;
+document.getElementById("k-bonus").textContent = P.bonus == null ? UNSET : P.bonus;
+document.getElementById("k-note").innerHTML = `${P.unsetNote} <b>${P.check}</b>`;
+
+let running = 0, html = `<div class="section"><b>${P.month}</b><span>${P.parties.length} партита</span></div>`;
+for (const p of P.parties){
+  const [day, mon] = p.date.split(" ");
+  if (p.state !== "upcoming") running += p.hours;
+  html += `<div class="slot ${p.state}" data-pay="${p.date}" data-child="${p.child}"><div class="row">
+    <div class="time">${day}<small>${p.state === "today" ? "днес" : mon}</small></div>
+    <div class="card${p.depositMissing ? " missing" : ""}${p.state === "upcoming" ? " upcoming" : ""}">
+      <div class="child">${p.child}<span class="pkg">${p.package}</span>${p.depositMissing ? `<span class="pill red">Депозит липсва</span>` : ""}${p.state === "upcoming" ? `<span class="pill soft">Предстои</span>` : ""}</div>
+      <div class="meta"><span>${p.date}</span>${p.state !== "upcoming" ? `<span>общо дотук ${running} ч</span>` : `<span>още не е минало</span>`}</div>
+      <div class="amt"><span class="hrs">${p.hours} ч</span>${UNSET}</div>
+      ${p.depositMissing ? `<div class="dep-note">Заплащането за това парти зависи от получения депозит.</div>` : ""}
+    </div>
+  </div></div>`;
+}
+html += `<div class="sum" data-part="sum"><span>Часове (без предстоящите)</span><b>${hours} ч</b><span>Сума</span><span class="unset">${UNSET}</span><span>Бонус</span><span class="unset">${UNSET}</span></div>`;
+document.getElementById("list").innerHTML = html;
+</script>
+</body>
+</html>

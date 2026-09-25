@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Моите партита</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+  /* Agenda candidate · animator · my parties, phone first: one dated list, today on top. */
+  :root{
+    --tint-warning:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));
+    --tint-danger:color-mix(in oklab, var(--status-danger) 10%, var(--color-surface));
+    --tint-ok:color-mix(in oklab, var(--status-ok) 12%, var(--color-surface));
+    --tint-primary:color-mix(in oklab, var(--color-primary) 10%, var(--color-surface));
+    --shadow:0 1px 2px color-mix(in oklab, var(--color-ink) 8%, transparent);
+    --ring:0 0 0 3px color-mix(in oklab, var(--color-primary) 35%, transparent);
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font-family:var(--font-body);color:var(--color-ink);background:var(--color-bg);
+       font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+
+  /* Phone first: one column. */
+  .shell{max-width:560px;margin:0 auto;padding:14px 16px 28px}
+  header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+  h1{font-family:var(--font-display);font-size:20px;font-weight:700;letter-spacing:-.01em}
+  .day{color:var(--color-muted);font-size:12.5px;margin-top:2px}
+  .me{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;flex:none}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--color-primary);color:var(--color-on-primary);
+          display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:14px}
+  .stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .stat{display:flex;align-items:center;gap:6px;font-size:12.5px;padding:5px 10px;border:1px solid var(--color-line);border-radius:999px;background:var(--color-surface)}
+  .stat b{font-family:var(--font-display);font-size:14px;font-variant-numeric:tabular-nums}
+  .stat.red{border-color:var(--status-danger);color:var(--status-danger)}
+  .stat.amber{border-color:var(--status-warning);color:var(--status-warning)}
+
+  main{position:relative;padding-left:20px;min-width:0}
+  main::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--color-line);border-radius:2px}
+  .date{position:relative;margin:0 0 10px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);display:flex;gap:8px;align-items:baseline}
+  .date::before{content:"";position:absolute;left:-18px;top:4px;width:9px;height:9px;border-radius:2px;background:var(--color-muted)}
+  .date b{font-family:var(--font-display);font-size:14px;letter-spacing:0;color:var(--color-ink);text-transform:none}
+  .date.today b{color:var(--color-tertiary)}
+  .slot + .date{margin-top:22px}
+
+  .slot{position:relative;margin-bottom:12px}
+  .slot::before{content:"";position:absolute;left:-18px;top:8px;width:9px;height:9px;border-radius:50%;
+                background:var(--color-surface);border:2px solid var(--color-primary)}
+  .slot.now::before{background:var(--color-tertiary);border-color:var(--color-tertiary);box-shadow:0 0 0 4px color-mix(in oklab, var(--color-primary) 15%, transparent)}
+  .slot.leave::before{border-color:var(--color-line);background:var(--color-surface-2)}
+  .slot.amber::before{border-color:var(--status-warning)}
+
+  .row{display:grid;grid-template-columns:minmax(52px,max-content) 1fr;gap:10px;align-items:start}
+  .time{font-family:var(--font-display);font-size:20px;font-weight:700;line-height:1;
+        font-variant-numeric:tabular-nums;color:var(--color-primary);padding-top:2px}
+  .time small{display:block;font-size:12px;color:var(--color-muted);font-family:var(--font-body);margin-top:3px;font-weight:600}
+  .slot.leave .time{color:var(--color-muted);font-size:14px;font-family:var(--font-body);padding-top:6px}
+
+  .card{background:var(--color-surface);border:1px solid var(--color-line);
+        border-radius:var(--radius-md);padding:11px 12px;box-shadow:var(--shadow);min-width:0}
+  .card.missing{border:2px solid var(--status-danger);background:var(--tint-danger)}
+  .card.quiet{background:transparent;box-shadow:none;border-style:dashed;padding:7px 12px;font-size:12.5px;color:var(--color-muted)}
+  .card .head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .card .child{font-weight:700;font-size:15px}
+  .pkg{font-size:11px;font-weight:700;color:var(--color-secondary);background:var(--color-secondary-soft);border-radius:var(--radius-sm);padding:2px 8px}
+  .sub{display:flex;gap:4px 12px;flex-wrap:wrap;margin-top:5px;font-size:12.5px;color:var(--color-muted)}
+
+  .addr{margin-top:8px;font-size:13.5px;font-weight:600;line-height:1.35}
+  .addr small{display:block;font-size:12.5px;font-weight:500;color:var(--color-muted);margin-top:2px}
+  .pill{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap}
+  .pill.ok{background:var(--tint-ok);color:var(--status-ok)}
+  .pill.red{background:var(--status-danger);color:var(--color-surface)}   /* the only solid red */
+  .dep-note{margin-top:6px;font-size:12.5px;color:var(--status-danger);font-weight:600}
+  .warn{margin-top:8px;font-size:12.5px;color:var(--color-ink);background:var(--tint-warning);
+        border:1px solid var(--status-warning);border-radius:var(--radius-sm);padding:6px 10px}
+  .warn b{color:var(--status-warning)}
+
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .btn{font-family:inherit;font-size:13px;font-weight:700;padding:8px 12px;border-radius:var(--radius-sm);text-decoration:none;
+       border:1px solid var(--color-line);background:var(--color-surface);color:var(--color-ink);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .btn.primary{background:var(--color-primary);color:var(--color-on-primary);border-color:var(--color-primary)}
+  .btn:focus-visible{outline:none;box-shadow:var(--ring)}
+
+  .note{margin-top:14px;font-size:12.5px;color:var(--color-muted)}
+
+  /* Wider screens: the header becomes a sticky side column, like the owner's day view. */
+  @media (min-width:720px){
+    .shell{max-width:960px;padding:20px 22px;display:grid;grid-template-columns:220px 1fr;gap:26px;align-items:start}
+    .side{position:sticky;top:20px}
+    header{flex-direction:column;gap:12px;margin-bottom:14px}
+    .stats{flex-direction:column;gap:0;margin:0}
+    .stat{border:0;border-bottom:1px solid var(--color-line);border-radius:0;background:transparent;padding:9px 0;justify-content:space-between;font-size:13px;color:var(--color-ink)}
+    .stat b{font-size:18px}
+    .stat.red{color:var(--color-ink)} .stat.red b{color:var(--status-danger)}
+    .stat.amber{color:var(--color-ink)} .stat.amber b{color:var(--status-warning)}
+    .note{grid-column:2;margin-top:8px;font-size:13px}
+    main{padding-left:26px}
+    main::before{left:8px}
+    .date::before,.slot::before{left:-22px}
+    .row{grid-template-columns:minmax(74px,max-content) 1fr;gap:14px}
+    .time{font-size:26px}
+    .card{padding:11px 14px}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="side">
+    <header>
+      <div><h1>Моите партита</h1><div class="day" id="day"></div></div>
+      <div class="me"><span class="avatar" id="initial"></span><span id="me"></span></div>
+    </header>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <main id="list"></main>
+  <p class="note">Виждаш само своите партита. Червено има само когато собственикът още не е получил депозита; той ще го отбележи, когато пристигне.</p>
+</div>
+
+<script>
+const D = window.PARTYFOX;
+const me = D.animators.find(a => a.id === D.me);
+const parties = D.myParties;
+const myLeave = D.leaveRequests.filter(l => l.animator === D.me);
+const leaveToday = D.leave.filter(l => l.animator === D.me);
+
+document.getElementById("initial").textContent = me.name[0];
+document.getElementById("me").textContent = `${me.name} · ${me.role}`;
+document.getElementById("day").textContent = `${D.day} · следващите 10 дни`;
+
+const missing = parties.filter(p => !p.deposit).length;
+const inLeave = parties.filter(p => p.inLeave).length;
+document.getElementById("stats").innerHTML =
+  `<span class="stat"><b>${parties.length}</b> партита</span>` +
+  `<span class="stat red"><b>${missing}</b> без депозит</span>` +
+  (inLeave ? `<span class="stat amber"><b>${inLeave}</b> в заявен отпуск</span>` : "");
+
+const tel = p => p.replace(/\s/g, "");
+const maps = a => "https://maps.google.com/?q=" + encodeURIComponent(a);
+const leaveFor = p => p.inLeave ? myLeave.find(l => l.id === p.inLeave) : null;
+
+let html = "", last = null;
+for (const p of parties){
+  const isToday = p.date.startsWith("днес");
+  if (p.date !== last){
+    const label = isToday ? p.date.replace("днес, ", "Днес · ") : p.date;
+    html += `<div class="date${isToday ? " today" : ""}"><b>${label}</b></div>`;
+    last = p.date;
+    if (isToday) for (const l of leaveToday){
+      const lr = myLeave.find(r => r.hours === `${l.from}:00–${l.to}:00`);
+      html += `<div class="slot leave" data-leave="${lr?.id || ""}"><div class="row">
+        <div class="time">${l.from}:00</div>
+        <div class="card quiet">${l.note}${lr?.reason ? ` · ${lr.reason}` : ""}</div>
+      </div></div>`;
+    }
+  }
+  const lv = leaveFor(p);
+  const cls = !p.deposit ? "now" : lv ? "amber" : "";
+  html += `<div class="slot ${cls}" data-booking="${p.id}"><div class="row">
+    <div class="time">${p.start}<small>до ${p.end}</small></div>
+    <div class="card${p.deposit ? "" : " missing"}">
+      <div class="head"><span class="child">${p.child}, ${p.age} г.</span><span class="pkg">${p.package}</span></div>
+      <div class="sub"><span>${p.guests} гости</span><span>${p.parent}</span>${p.deposit ? `<span class="pill ok">Депозит ✓</span>` : `<span class="pill red">Депозит липсва</span>`}</div>
+      ${p.deposit ? "" : `<div class="dep-note">Собственикът още не е получил депозита. Ако не пристигне, партито може да отпадне.</div>`}
+      <div class="addr" data-part="address">${p.address}${p.addressNote ? `<small>${p.addressNote}</small>` : ""}</div>
+      ${lv ? `<div class="warn" data-leave="${lv.id}"><b>Този ден е в заявения ти отпуск</b> (${lv.from} – ${lv.to}, чака одобрение). Ако бъде одобрен, собственикът ще намери заместник.</div>` : ""}
+      <div class="actions">
+        <a class="btn primary" href="${maps(p.address)}">Навигация</a>
+        <a class="btn" href="tel:${tel(p.phone)}">Обади се · ${p.phone}</a>
+      </div>
+    </div>
+  </div></div>`;
+}
+document.getElementById("list").innerHTML = html;
+</script>
+</body>
+</html>

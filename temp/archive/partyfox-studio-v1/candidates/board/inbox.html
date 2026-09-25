@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Дъска</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+  :root{
+    --tint-warning:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));
+    --tint-danger:color-mix(in oklab, var(--status-danger) 10%, var(--color-surface));
+    --shadow:0 1px 2px color-mix(in oklab, var(--color-ink) 10%, transparent);
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font-family:var(--font-body);color:var(--color-ink);background:var(--color-bg);
+       font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
+  .shell{max-width:1180px;margin:0 auto;padding:20px 22px}
+
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+  h1{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .day{color:var(--color-muted);font-size:13px;margin-top:2px}
+  .filters{display:flex;gap:8px;margin:14px 0 16px;flex-wrap:wrap}
+  .filter{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-sm);
+          padding:6px 12px;font-size:12.5px;font-weight:600;color:var(--color-muted)}
+  .filter.on{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-on-primary)}
+
+  .board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+  .col{display:flex;flex-direction:column;gap:10px;min-height:200px}
+  .col-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;
+            border-radius:var(--radius-md);background:var(--color-surface);border:1px solid var(--color-line)}
+  .col-head h2{font-family:var(--font-display);font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .count{font-size:12px;font-weight:700;background:var(--color-bg);border-radius:999px;padding:2px 9px;color:var(--color-muted)}
+  .col.problem .col-head{border:2px solid var(--color-ink)}
+  .col.problem .count{background:var(--color-ink);color:var(--color-surface)}
+  .col-head h2::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--color-line)}
+  .col.new .col-head h2::before{background:var(--color-tertiary)}
+  .col.problem .col-head h2::before{background:var(--status-warning)}
+  .col.sched .col-head h2::before{background:var(--color-primary)}
+
+  .card{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);
+        padding:12px 13px;display:flex;flex-direction:column;gap:7px;box-shadow:var(--shadow)}
+  .card .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .card .when{font-family:var(--font-display);font-weight:800;font-variant-numeric:tabular-nums;font-size:13.5px}
+  .card .pkg{font-size:11px;font-weight:700;color:var(--color-secondary);background:var(--color-secondary-soft);
+             border-radius:var(--radius-sm);padding:2px 7px;white-space:nowrap}
+  .card .who{font-weight:650;font-size:14.5px}
+  .card .sub{font-size:12px;color:var(--color-muted)}
+  .card .addr{font-size:12px;color:var(--color-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .note{font-size:12px;color:var(--color-ink);background:var(--color-bg);border-radius:var(--radius-sm);padding:6px 8px}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+  .pill{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px}
+  .pill.ok{background:color-mix(in oklab, var(--status-ok) 12%, var(--color-surface));color:var(--status-ok)}
+  .pill.amber{background:var(--tint-warning);color:var(--status-warning);border:1px dashed var(--status-warning)}
+  .pill.info{background:var(--color-primary-soft);color:var(--color-primary)}
+  .pill.tag{background:var(--color-bg);color:var(--color-muted);border:1px solid var(--color-line)}
+  .card.flag-amber{border:1.5px dashed var(--status-warning);background:var(--tint-warning)}
+  .actions{display:flex;gap:8px;margin-top:2px}
+  .btn{font:inherit;font-size:12px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm);
+       border:1px solid var(--color-line);background:var(--color-bg);color:var(--color-ink);cursor:pointer}
+  .btn.primary{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-on-primary)}
+  .btn:focus-visible,.filter:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+
+  .empty{border:1.5px dashed var(--color-line);border-radius:var(--radius-md);padding:18px 12px;
+         text-align:center;color:var(--color-muted);font-size:12.5px}
+
+  @media (max-width:640px){
+    .shell{padding:14px}
+    .board{grid-template-columns:minmax(0,1fr);gap:12px}
+    .col.problem{order:-1}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div><h1>Входяща поща</h1><div class="day" id="day"></div></div>
+    <div class="filters" id="filters"></div>
+  </header>
+
+  <div class="board" id="board"></div>
+</div>
+
+<script>
+const D = window.PARTYFOX;
+const byId = id => document.getElementById(id);
+const cust = id => D.customers.find(c=>c.id===id);
+
+byId("day").textContent = D.orders.length + " поръчки от сайта · сортирани по статус";
+byId("filters").innerHTML =
+  `<span class="filter on">Всички</span><span class="filter">Нови</span>
+   <span class="filter">Проблем</span><span class="filter">Насрочени</span>`;
+
+const newOnes  = D.orders.filter(o=>o.state==="new");
+const problems = D.orders.filter(o=>o.state==="needs-info"||o.state==="clash");
+const scheduled= D.orders.filter(o=>o.state==="scheduled");
+
+function tagPills(o){
+  const c = o.customer ? cust(o.customer) : null;
+  const out = [];
+  if (c && c.tags.includes("repeat")) out.push(`<span class="pill tag">Постоянен клиент</span>`);
+  if (c && c.tags.includes("new")) out.push(`<span class="pill tag">Нов клиент</span>`);
+  if (o.large) out.push(`<span class="pill info">Голяма поръчка · ${o.guests} гости</span>`);
+  return out.join("");
+}
+
+function card(o){
+  const cls = ["card"];
+  const flags = [];
+  if (o.state === "needs-info") { cls.push("flag-amber"); flags.push(`<span class="pill amber">Липсва адрес</span>`); }
+  if (o.state === "clash")      { cls.push("flag-amber"); flags.push(`<span class="pill amber">Застъпване</span>`); }
+  if (o.state === "scheduled")  { flags.push(`<span class="pill ok">Насрочено · ${D.animators.find(a=>a.id===o.animator)?.name||""}</span>`); }
+  if (o.state === "new")        { flags.push(`<span class="pill info">Ново</span>`); }
+
+  return `<div class="${cls.join(" ")}" data-order="${o.id}">
+    <div class="top"><span class="when">${o.date} · ${o.time}</span><span class="pkg">${o.package}</span></div>
+    <div class="who">${o.parent}</div>
+    <div class="sub">${o.child}, ${o.age} г. · ${o.guests} гости · ${o.phone}</div>
+    <div class="addr" title="${o.address||''}">${o.address ? o.address : "Няма адрес — родителят ще го изпрати."}</div>
+    ${o.note ? `<div class="note">${o.note}</div>` : ""}
+    ${o.clashNote ? `<div class="note">${o.clashNote}</div>` : ""}
+    <div class="tags">${tagPills(o)}${flags.join("")}</div>
+    <div class="actions">
+      <button class="btn primary">Насрочи</button>
+      <button class="btn">Отвори клиент</button>
+    </div>
+  </div>`;
+}
+
+const cols = [
+  {id:"new",  label:"Нова поръчка", cls:"new",  items:newOnes},
+  {id:"prob", label:"Проблем",      cls:"problem",items:problems},
+  {id:"sched",label:"Насрочена",    cls:"sched",items:scheduled},
+];
+
+byId("board").innerHTML = cols.map(c=>`
+  <section class="col ${c.cls}">
+    <div class="col-head"><h2>${c.label}</h2><span class="count">${c.items.length}</span></div>
+    ${c.items.length ? c.items.map(card).join("") : `<div class="empty">Празно.</div>`}
+  </section>`).join("");
+</script>
+</body>
+</html>

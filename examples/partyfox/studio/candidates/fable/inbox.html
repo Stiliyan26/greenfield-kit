@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Order inbox</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--color-bg);color:var(--color-ink);font-family:var(--font-body);font-size:14.5px;line-height:1.45;min-height:100vh}
+h1,h2,h3,h4{margin:0;font-family:var(--font-display);font-weight:700;line-height:1.15}
+p{margin:0}
+a{color:var(--color-primary)}
+button{font:inherit}
+.tnum{font-variant-numeric:tabular-nums}
+.muted{color:var(--color-muted)}
+.small{font-size:12.5px}
+.ellip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+:focus-visible{outline:3px solid var(--color-accent);outline-offset:2px;border-radius:var(--radius-sm)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* chrome */
+.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:22px;height:56px;padding:0 24px;background:var(--color-surface);border-bottom:1px solid var(--color-line)}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:800;font-size:23px;letter-spacing:.01em;color:var(--color-ink);text-decoration:none}
+.brand i{width:15px;height:18px;border-radius:50% 50% 50% 50% / 45% 45% 55% 55%;background:var(--color-accent);position:relative;display:inline-block}
+.brand i::after{content:"";position:absolute;left:6px;bottom:-5px;width:3px;height:6px;background:var(--color-accent);border-radius:1px;transform:rotate(-12deg)}
+.nav{display:flex;gap:2px}
+.nav a{padding:7px 12px;border-radius:var(--radius-pill);color:var(--color-muted);text-decoration:none;font-weight:500;font-size:14px}
+.nav a[aria-current=page]{background:var(--color-primary-soft);color:var(--color-primary);font-weight:600}
+.who{margin-left:auto;display:flex;align-items:center;gap:10px;color:var(--color-muted);font-size:13px;text-align:right}
+.who b{display:block;color:var(--color-ink);font-weight:600}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--color-secondary);color:var(--color-on-secondary);display:grid;place-items:center;font-weight:700;font-family:var(--font-display);font-size:15px;flex:none}
+.tabbar{display:none;position:fixed;left:0;right:0;bottom:0;height:62px;background:var(--color-surface);border-top:1px solid var(--color-line);z-index:6;padding:4px 6px 6px}
+.tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;color:var(--color-muted);text-decoration:none;font-weight:600;border-radius:var(--radius-sm)}
+.tabbar a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabbar a[aria-current=page]{color:var(--color-primary)}
+
+/* page */
+.page{padding:18px 24px 28px;max-width:1800px;margin:0 auto}
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.pagehead h1{font-size:30px;font-weight:800;line-height:1.02}
+.pagehead .sub{color:var(--color-muted);margin-top:3px}
+.crumb{font-size:12.5px;color:var(--color-muted);margin-bottom:6px}
+.crumb a{color:var(--color-muted);text-decoration:none}
+.crumb a:hover{color:var(--color-primary)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* cards */
+.card{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);min-width:0}
+.card>header{padding:10px 14px;border-bottom:1px solid var(--color-line);display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.card>header h2{font-size:17px}
+.card .pad{padding:12px 14px}
+.label{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted)}
+.kv{display:grid;grid-template-columns:minmax(90px,120px) 1fr;gap:6px 12px;font-size:14px}
+.kv dt{color:var(--color-muted)}
+.kv dd{margin:0;min-width:0}
+.unset{color:var(--color-muted);font-style:italic}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;line-height:1.5;white-space:nowrap;vertical-align:middle}
+.badge.danger{background:var(--status-danger);color:var(--color-on-status)}
+.badge.warning{background:color-mix(in oklab, var(--status-warning) 14%, var(--color-surface));color:var(--status-warning);border:1px solid color-mix(in oklab, var(--status-warning) 45%, var(--color-surface))}
+.badge.ok{background:color-mix(in oklab, var(--status-ok) 12%, var(--color-surface));color:var(--status-ok)}
+.badge.neutral{background:var(--color-surface-2);color:var(--color-muted)}
+.badge.primary{background:var(--color-primary-soft);color:var(--color-primary)}
+.badge.secondary{background:var(--color-secondary-soft);color:var(--color-secondary)}
+.badge.accent{background:var(--color-tertiary-soft);color:var(--color-accent)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block;flex:none}
+.count{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 8px;border-radius:var(--radius-pill);border:1px solid var(--color-line);background:var(--color-surface);font-size:13px;font-weight:600;color:var(--color-ink);text-decoration:none}
+.count b{font-family:var(--font-display);font-size:17px;font-weight:800;line-height:1;min-width:14px;text-align:center}
+.count.danger{border-color:var(--status-danger);color:var(--status-danger)}
+.count.warning{border-color:color-mix(in oklab, var(--status-warning) 60%, var(--color-surface));color:var(--status-warning)}
+.count.ok{color:var(--status-ok)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:var(--radius-sm);border:1px solid var(--color-line);background:var(--color-surface);color:var(--color-ink);font-weight:600;font-size:13.5px;cursor:pointer;white-space:nowrap;line-height:1.3;text-decoration:none}
+.btn:hover{border-color:var(--color-muted)}
+.btn.primary{background:var(--color-primary);color:var(--color-on-primary);border-color:transparent}
+.btn.primary:hover{background:color-mix(in oklab, var(--color-primary) 88%, var(--color-ink))}
+.btn.secondary{background:var(--color-secondary-soft);color:var(--color-secondary);border-color:transparent}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--color-primary)}
+.btn.sm{padding:5px 10px;font-size:12.5px}
+.btn.block{width:100%}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* inputs */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12.5px;font-weight:600;color:var(--color-muted)}
+.input{width:100%;padding:9px 11px;border:1px solid var(--color-line);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-ink);font:inherit;font-size:14px;min-height:38px}
+.input::placeholder{color:color-mix(in oklab, var(--color-muted) 70%, var(--color-surface))}
+.search{display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--color-line);border-radius:var(--radius-pill);background:var(--color-surface);height:38px;min-width:0}
+.search svg{width:16px;height:16px;stroke:var(--color-muted);fill:none;stroke-width:2;flex:none}
+.search input{border:0;outline:0;background:transparent;font:inherit;font-size:14px;width:100%;color:var(--color-ink);min-width:0}
+.search input:focus-visible{outline:none}
+.search:focus-within{border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft)}
+.seg{display:inline-flex;border:1px solid var(--color-line);border-radius:var(--radius-sm);overflow:hidden;background:var(--color-surface)}
+.seg button{border:0;background:transparent;padding:7px 12px;font-size:13px;font-weight:600;color:var(--color-muted);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--color-primary);color:var(--color-on-primary)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 11px;border-radius:var(--radius-pill);border:1px solid var(--color-line);background:var(--color-surface);font-size:12.5px;font-weight:600;color:var(--color-muted);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--color-ink);color:var(--color-surface);border-color:var(--color-ink)}
+.chip b{font-weight:700;color:inherit}
+
+/* the signature: a ticket with a perforated stub */
+.ticket{--stub:86px;position:relative;display:grid;grid-template-columns:var(--stub) minmax(0,1fr);background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);min-width:0;text-align:left;color:inherit;text-decoration:none}
+.ticket>.stub{position:relative;padding:10px 8px;border-right:2px dashed var(--color-line);display:flex;flex-direction:column;justify-content:center;gap:2px;font-family:var(--font-display);font-weight:700;font-variant-numeric:tabular-nums;border-radius:calc(var(--radius-md) - 1px) 0 0 calc(var(--radius-md) - 1px);min-width:0;text-align:center}
+.ticket>.stub .t{font-size:19px;line-height:1.02;font-weight:800;letter-spacing:.005em}
+.ticket>.stub .d{font-size:12px;font-weight:600;color:var(--color-muted);font-family:var(--font-body);line-height:1.25}
+.ticket>.body{padding:10px 12px;min-width:0;display:flex;flex-direction:column;gap:3px;justify-content:center}
+.ticket .title{font-family:var(--font-display);font-size:17px;font-weight:700;line-height:1.1}
+.ticket .meta{font-size:13px;color:var(--color-muted)}
+.ticket::before,.ticket::after{content:"";position:absolute;left:calc(var(--stub) - 1px);width:12px;height:12px;border-radius:50%;background:var(--color-bg);border:1px solid var(--color-line);transform:translateX(-50%);z-index:1;pointer-events:none}
+.ticket::before{top:-7px;clip-path:inset(6px 0 0 0)}
+.ticket::after{bottom:-7px;clip-path:inset(0 0 6px 0)}
+.ticket.danger{border-color:var(--status-danger)}
+.ticket.danger>.stub{background:var(--status-danger);color:var(--color-on-status);border-right-color:color-mix(in oklab, var(--status-danger) 55%, var(--color-surface))}
+.ticket.danger>.stub .d{color:color-mix(in oklab, var(--color-on-status) 80%, var(--status-danger))}
+.ticket.danger::before,.ticket.danger::after{border-color:var(--status-danger)}
+.ticket.warning>.stub{background:color-mix(in oklab, var(--status-warning) 16%, var(--color-surface));color:var(--status-warning);border-right-color:color-mix(in oklab, var(--status-warning) 45%, var(--color-surface))}
+.ticket.warning{border-color:color-mix(in oklab, var(--status-warning) 55%, var(--color-surface))}
+.ticket.warning>.stub .d{color:var(--status-warning)}
+.ticket.ok>.stub{background:color-mix(in oklab, var(--status-ok) 10%, var(--color-surface));color:var(--status-ok)}
+.ticket.leave>.stub{background:repeating-linear-gradient(135deg, var(--color-surface-2) 0 5px, var(--color-surface) 5px 10px);color:var(--color-muted)}
+.ticket.selected{box-shadow:0 0 0 2px var(--color-primary);border-color:var(--color-primary)}
+.ticket.sm{--stub:62px}
+.ticket.sm>.stub{padding:6px 5px}
+.ticket.sm>.stub .t{font-size:16px}
+.ticket.sm>.stub .d{font-size:11.5px}
+.ticket.sm>.body{padding:6px 9px;gap:1px}
+.ticket.sm .title{font-size:15px}
+.ticket.sm .meta{font-size:12px}
+.ticket.lg{--stub:112px}
+.ticket.lg>.stub .t{font-size:26px}
+.ticket.lg>.stub .d{font-size:13px}
+.ticket.lg>.body{padding:14px 16px;gap:6px}
+.ticket.lg .title{font-size:24px}
+.ticket.lg .meta{font-size:14px}
+
+/* status blocks */
+.note{padding:10px 12px;border-radius:var(--radius-sm);font-size:13.5px;line-height:1.4}
+.note.warning{background:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));color:var(--status-warning);border:1px solid color-mix(in oklab, var(--status-warning) 40%, var(--color-surface))}
+.note.danger{background:var(--status-danger);color:var(--color-on-status)}
+.note.ok{background:color-mix(in oklab, var(--status-ok) 10%, var(--color-surface));color:var(--status-ok)}
+.note.neutral{background:var(--color-surface-2);color:var(--color-muted)}
+.note.info{background:var(--color-primary-soft);color:var(--color-primary)}
+.note b{font-weight:700}
+
+.stack{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hidden{display:none !important}
+
+@media (max-width:720px){
+  .topbar{height:52px;padding:0 16px;gap:12px}
+  .nav{display:none}
+  .who span{display:none}
+  .tabbar{display:flex}
+  body{padding-bottom:70px}
+  .page{padding:12px 16px 20px}
+  .pagehead{margin-bottom:10px}
+  .pagehead h1{font-size:26px}
+  .kv{grid-template-columns:88px 1fr}
+}
+
+/* inbox */
+.inbox{display:grid;grid-template-columns:minmax(360px,470px) minmax(0,1fr);gap:16px;align-items:start}
+.list{display:flex;flex-direction:column;gap:10px}
+.list .ticket{cursor:pointer;width:100%;font:inherit}
+.list .ticket .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.list .ticket .top .rcv{font-size:12px;color:var(--color-muted);white-space:nowrap}
+.list .ticket .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}
+.detail{position:sticky;top:72px}
+.detail .card>header{padding:12px 16px}
+.detail .card>header h2{font-size:20px}
+.detail .sec{padding:14px 16px;border-bottom:1px solid var(--color-line);display:flex;flex-direction:column;gap:10px}
+.detail .sec:last-child{border-bottom:0}
+.steps{display:flex;gap:0;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--color-muted)}
+.steps span{padding:3px 9px;border:1px solid var(--color-line);border-radius:var(--radius-pill);background:var(--color-surface);white-space:nowrap}
+.steps span.done{background:var(--color-primary-soft);color:var(--color-primary);border-color:transparent}
+.steps span.now{background:var(--color-ink);color:var(--color-surface);border-color:var(--color-ink);font-weight:600}
+.steps i{width:10px;height:1px;background:var(--color-line);display:inline-block}
+.history{font-size:13px;color:var(--color-muted)}
+.history b{color:var(--color-ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
+@media (max-width:1100px){.inbox{grid-template-columns:minmax(340px,400px) minmax(0,1fr)}.two{grid-template-columns:1fr}}
+@media (max-width:720px){
+  .inbox{grid-template-columns:1fr}
+  .detail{position:static}
+  .list .detail{margin:-4px 0 4px}
+  .list .detail .card{border-top-left-radius:0;border-top-right-radius:0;border-top:0}
+  .list .ticket.selected{border-bottom-left-radius:0;border-bottom-right-radius:0}
+  .list .ticket.selected::after{display:none}
+  .detail .sec{padding:12px 14px}
+  .list .ticket .meta{white-space:normal}
+}
+
+</style>
+</head>
+<body data-screen="inbox" data-role="owner">
+<header class="topbar" data-part="topbar"><a class="brand" href="ops-day.html?world=fable"><i aria-hidden="true"></i>PartyFox</a><nav class="nav" aria-label="Основна навигация"><a href="ops-day.html?world=fable">Ден</a><a href="inbox.html?world=fable" aria-current="page">Поръчки</a><a href="customers.html?world=fable">Клиенти</a><a href="leave-requests.html?world=fable">Отпуски</a></nav><div class="who"><span><b>Собственик</b>PartyFox София</span><div class="avatar" aria-hidden="true">С</div></div></header><nav class="tabbar" aria-label="Основна навигация" data-part="tabbar"><a href="ops-day.html?world=fable"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Ден</a><a href="inbox.html?world=fable" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 13l2.5-7h13L21 13v6H3z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></svg>Поръчки</a><a href="customers.html?world=fable"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5a5 5 0 016 5.5"/></svg>Клиенти</a><a href="leave-requests.html?world=fable"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Отпуски</a></nav>
+<main class="page" id="main">
+  <div class="pagehead" data-part="pagehead">
+    <div>
+      <h1>Поръчки от сайта</h1>
+      <p class="sub" id="sub"></p>
+    </div>
+    <div class="chips" id="filters" data-part="filters" role="group" aria-label="Филтър"></div>
+  </div>
+  <div class="inbox">
+    <section class="list" id="list" data-part="order-list" aria-label="Поръчки, най-новите първи"></section>
+    <aside class="detail" id="detail" data-part="order-detail" aria-live="polite"></aside>
+  </div>
+</main>
+
+<script>
+const D = window.PARTYFOX;
+const A = Object.fromEntries(D.animators.map((a) => [a.id, a]));
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const hh = (h) => String(h).padStart(2, "0") + ":00";
+const span = (s, e) => hh(s) + "–" + hh(e);
+const $ = (sel, root = document) => root.querySelector(sel);
+const html = (target, markup) => { (typeof target === "string" ? $(target) : target).innerHTML = markup; };
+const isPhone = () => window.matchMedia("(max-width: 720px)").matches;
+// Animators free for a slot on the ops day (no party, no leave).
+const freeAt = (s, e, except) => D.animators.filter((a) => a.id !== except
+  && !D.bookings.some((b) => b.animator === a.id && b.start < e && b.end > s)
+  && !D.leave.some((l) => l.animator === a.id && l.from < e && l.to > s));
+const stateOf = (b) => (b.deposit === false ? "danger" : (b.state === "needs-animator" || b.clashWith || D.bookings.some((o) => o.clashWith === b.id)) ? "warning" : "ok");
+// A ticket: stub with the time, body with the facts. cls adds the status, sizes and data-* hooks.
+function ticket({ cls = "", stub, sub, title, meta, extra = "", data = "", tag = "div", attrs = "" }) {
+  return `<${tag} class="ticket ${cls}" ${data} ${attrs}>
+    <div class="stub"><span class="t">${stub}</span>${sub ? `<span class="d">${sub}</span>` : ""}</div>
+    <div class="body"><div class="title ellip" title="${esc(title)}">${title}</div>${meta ? `<div class="meta ellip" title="${esc(meta.replace(/<[^>]+>/g, ""))}">${meta}</div>` : ""}${extra}</div>
+  </${tag}>`;
+}
+const badge = (cls, text) => `<span class="badge ${cls}">${text}</span>`;
+const orderLabel = { new: ["secondary", "Нова"], "needs-info": ["warning", "Липсва адрес"], clash: ["warning", "Няма свободен аниматор"], scheduled: ["neutral", "Насрочена"] };
+const leaveLabel = { pending: ["secondary", "Чака отговор"], approved: ["neutral", "Одобрен"], declined: ["neutral", "Отказан"] };
+const tagLabel = { repeat: ["primary", "Редовни"], large: ["accent", "Големи партита"], new: ["neutral", "Нови"] };
+const byId = (list) => Object.fromEntries(list.map((x) => [x.id, x]));
+const ORDERS = byId(D.orders), CUSTOMERS = byId(D.customers), BOOKINGS = byId(D.bookings);
+
+let selected = "o1045";
+const needs = D.orders.filter((o) => o.state === "needs-info" || o.state === "clash").length;
+html("#sub", `${D.orders.length} поръчки · ${D.orders.filter((o) => o.state === "new").length} нови · ${needs} чакат решение`);
+html("#filters", [
+  ["all", "Всички", D.orders.length, true], ["new", "Нови", D.orders.filter((o) => o.state === "new").length],
+  ["attn", "Чакат решение", needs], ["scheduled", "Насрочени", D.orders.filter((o) => o.state === "scheduled").length],
+].map(([id, label, n, on]) => `<button class="chip" type="button" aria-pressed="${!!on}" data-filter="${id}">${label} <b>${n}</b></button>`).join(""));
+
+const timeParts = (o) => ({ stub: o.time, sub: o.date });
+function orderTicket(o) {
+  const [cls, label] = orderLabel[o.state];
+  const st = o.state === "needs-info" || o.state === "clash" ? "warning" : "";
+  const tags = [badge(cls, label + (o.state === "scheduled" && o.animator ? ` · ${A[o.animator].name}` : ""))];
+  if (o.large) tags.push(badge("accent", `${o.guests} гости · голямо`));
+  const extra = `<div class="tags">${tags.join("")}</div>`;
+  return `<button type="button" class="ticket ${st} ${o.id === selected ? "selected" : ""}" data-order="${o.id}" aria-pressed="${o.id === selected}">
+    <div class="stub"><span class="t">${esc(o.time)}</span><span class="d">${esc(o.date)}</span></div>
+    <div class="body"><div class="top"><span class="title ellip">${esc(o.child)}, ${o.age} г. · ${esc(o.package)}</span><span class="rcv">${esc(o.received)}</span></div>
+    <div class="meta ellip">${esc(o.parent)} · ${o.guests} гости${o.address ? " · " + esc(o.address) : ""}</div>${extra}</div></button>`;
+}
+
+function detail(o) {
+  const c = o.customer ? CUSTOMERS[o.customer] : null;
+  const [cls, label] = orderLabel[o.state];
+  const free = D.animators.filter((a) => /Симо/.test(o.clashNote || "") ? a.id === "simo" : false);
+  let decision = "";
+  if (o.state === "clash") decision = `<div class="sec" data-part="decision"><div class="note warning"><b>Няма свободен аниматор.</b> ${esc(o.clashNote)}</div>
+    <div class="actions">${free.map((a) => `<button class="btn primary" type="button">Насрочи със ${a.name}</button>`).join("")}<button class="btn" type="button">Предложи друг час</button><button class="btn ghost" type="button">Отговори на родителя</button></div></div>`;
+  else if (o.state === "needs-info") decision = `<div class="sec" data-part="decision"><div class="note warning"><b>Адресът липсва.</b> Родителят пише: „${esc(o.note)}“</div>
+    <div class="actions"><button class="btn primary" type="button">Поискай адреса</button><button class="btn" type="button">Насрочи без адрес</button></div></div>`;
+  else if (o.state === "new") decision = `<div class="sec" data-part="decision">${o.large ? `<div class="note info"><b>${o.guests} гости.</b> ${esc(o.note)}</div>` : ""}
+    <div class="actions"><button class="btn primary" type="button">Насрочи</button><button class="btn" type="button">Отговори на родителя</button><button class="btn ghost" type="button">Откажи</button></div></div>`;
+  else decision = `<div class="sec" data-part="decision"><div class="note neutral">Насрочена за ${esc(o.date)} в ${esc(o.time)} с ${A[o.animator].name}.</div>
+    <div class="actions"><a class="btn primary" href="booking.html?world=fable">Отвори резервацията</a></div></div>`;
+  const stepIdx = { new: 0, "needs-info": 0, clash: 1, scheduled: 2 }[o.state];
+  const steps = ["Поръчка", "Насрочване", "Аниматор", "Съобщение", "Депозит", "Парти"].map((s, i) => `<span class="${i < stepIdx ? "done" : i === stepIdx ? "now" : ""}">${s}</span>`).join("<i></i>");
+  const history = c ? (c.history.length
+    ? `<b>${esc(c.family)}</b> · ${c.history.length} ${c.history.length === 1 ? "предишно парти" : "предишни партита"}: ${c.history.map((h) => `${esc(h.date)} ${esc(h.package)} (${h.guests})`).join(", ")}`
+    : `<b>${esc(c.family)}</b> · ново семейство, първо парти`) : "Няма профил на семейството още";
+  return `<article class="card" data-order-detail="${o.id}">
+    <header><h2>Поръчка ${o.id}</h2><div class="row">${badge(cls, label)}<span class="small muted">получена ${esc(o.received)}</span></div></header>
+    <div class="sec">${ticket({ cls: "lg", stub: esc(o.time), sub: esc(o.date), title: `${esc(o.child)}, ${o.age} г. · ${esc(o.package)}`, meta: `${o.guests} гости · ${esc(o.parent)}`, data: `data-order-summary="${o.id}"` })}
+      <div class="steps" aria-label="Етап">${steps}</div></div>
+    ${decision}
+    <div class="sec"><div class="two">
+      <dl class="kv"><dt>Родител</dt><dd>${esc(o.parent)}</dd><dt>Телефон</dt><dd class="tnum"><a href="tel:${o.phone.replace(/\s/g, "")}">${esc(o.phone)}</a></dd><dt>Гости</dt><dd>${o.guests}</dd></dl>
+      <dl class="kv"><dt>Адрес</dt><dd>${o.address ? esc(o.address) : `<span class="badge warning">липсва</span>`}</dd><dt>Бележка</dt><dd>${o.note ? esc(o.note) : `<span class="unset">няма</span>`}</dd><dt>Депозит</dt><dd><span class="unset">сумата не е зададена</span></dd></dl>
+    </div></div>
+    <div class="sec"><span class="label">Семейство</span><div class="history">${history}</div>${c ? `<div><a class="btn sm" href="customers.html?world=fable">История на семейството</a></div>` : ""}</div>
+  </article>`;
+}
+
+function render() {
+  const filter = $("#filters [aria-pressed=true]")?.dataset.filter || "all";
+  const list = D.orders.filter((o) => filter === "all" || (filter === "attn" ? o.state === "needs-info" || o.state === "clash" : o.state === filter));
+  html("#list", list.map(orderTicket).join("") || `<p class="muted">Няма поръчки в този филтър.</p>`);
+  const panel = $("#detail");
+  html(panel, detail(ORDERS[selected]));
+  const sel = $(`#list [data-order="${selected}"]`);
+  if (isPhone() && sel) sel.after(panel); else $(".inbox").append(panel);
+}
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-order]"); if (t) { selected = t.dataset.order; render(); }
+  const f = e.target.closest("[data-filter]"); if (f) { document.querySelectorAll("[data-filter]").forEach((c) => c.setAttribute("aria-pressed", c === f)); render(); }
+});
+window.matchMedia("(max-width: 720px)").addEventListener("change", render);
+render();
+
+</script>
+</body>
+</html>

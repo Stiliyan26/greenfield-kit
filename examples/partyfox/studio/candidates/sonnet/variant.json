@@ -1,0 +1,42 @@
+{
+  "model": "Claude Sonnet 5",
+  "summary": "A day-ledger for the owner and a pocket docket for animators: bookings read like ruled ledger lines, with the missing deposit as the one red stamp on the page.",
+  "world": {
+    "name": "Docket",
+    "summary": "Paper-ledger operations tool: a warm off-white page, a deep indigo ink for structure, plum for the one accent action, ruled double-lines under every table head.",
+    "signature": "A ledger tab: status chips get a die-cut notch on their left edge (clip-path), like a paper tab peeking from a binder, and header rules are doubled (a thin line under a thick one) the way a ruled ledger book prints its column heads.",
+    "fonts": {
+      "display": "\"PT Serif\", serif",
+      "body": "\"Manrope\", sans-serif",
+      "google": "family=PT+Serif:wght@400;700&family=Manrope:wght@400;500;600;700;800"
+    },
+    "tokens": {
+      "color-bg": "oklch(0.965 0.012 82)",
+      "color-surface": "oklch(0.995 0.004 85)",
+      "color-surface-2": "oklch(0.93 0.016 82)",
+      "color-ink": "oklch(0.24 0.02 265)",
+      "color-muted": "oklch(0.5 0.025 265)",
+      "color-line": "oklch(0.85 0.015 82)",
+      "color-primary": "oklch(0.4 0.115 264)",
+      "color-on-primary": "oklch(0.98 0.01 264)",
+      "color-secondary": "oklch(0.52 0.07 226)",
+      "color-on-secondary": "oklch(0.98 0.01 226)",
+      "color-tertiary": "oklch(0.52 0.145 332)",
+      "color-on-tertiary": "oklch(0.98 0.02 332)",
+      "color-accent": "oklch(0.52 0.145 332)",
+      "radius-sm": "6px",
+      "radius-md": "10px",
+      "radius-lg": "18px",
+      "radius-pill": "999px"
+    },
+    "type": {
+      "display": { "font": "display", "fontSize": "34px", "fontWeight": 700, "lineHeight": 1.08 }
+    },
+    "rules": [
+      "Do set section heads in PT Serif with a doubled rule beneath.",
+      "Do keep every card corner at radius-md, chips at radius-pill.",
+      "Don't fill any surface with the accent; it marks one action per screen.",
+      "Don't use solid red for anything but a missing deposit."
+    ]
+  }
+}

@@ -8,29 +8,36 @@ sample data. The studio engine lives in this skill and serves any project's
    product files or approved design.
 2. If `studio/` exists, inspect it. Otherwise run
    `python3 <skill-root>/scripts/init_studio.py <project-root> --name "<product name>"`.
-   It creates `project.json` with a neutral world, empty `candidates/` and
-   `references/`, and the `server.py` stub. It refuses to overwrite.
+   It creates `project.json`, empty `candidates/` and `references/`, and the
+   `server.py` stub. It refuses to overwrite.
 3. Fill in `project.json` as [studio.md](studio.md) describes: `language`,
-   `scripts`, the screens, the three status colors with their meanings, and
-   sample text for the specimen. Write studio text in English; only candidate
-   pages and specimen samples use the product's language. Put shared fake data in one file, such as
-   `studio/data.js`, so every candidate shows the same content.
-4. Research with `design-interface` step 2. Save the images to
+   `scripts`, the three status colors with their meanings, and sample text for
+   the specimen, with optional product parts. Write studio text in English;
+   only screens and specimen samples use the product's language.
+4. List the screens. Read the brief's confirmed requirements and add one
+   screen for every view they name, with its `role` and the `requirement` it
+   answers. A requirement that two roles act on (one asks, one approves) gets
+   a screen per role. Owner ideas and unknowns get no screen yet.
+5. Write the shared fake data in one file, such as `studio/data.js`: every
+   record the screens need, with the difficult states the brief implies
+   (conflicts, missing information, long text, unknown figures left unset).
+   Every model uses the same data.
+6. Research with `design-interface` step 2. Save the images to
    `studio/references/` and list them in `project.json`.
-5. Round 1: write two or three layout contracts, then build each layout as
-   `studio/candidates/<layout>.html` for every screen. Load
-   `/_studio/frame.js` first and use only tokens. Keep `"round": "layout"`.
-6. Run the quality gate: `capture.mjs`, then `check_tokens.py`, then the
-   `design-critic` agent. Revise, then start `python3 studio/server.py` and
-   give the user the URL. Wait for **Choose layout** in `selection.json`.
-7. Round 2: add two or three worlds for the chosen layout. Set
-   `"round": "identity"`. Remove the other layouts from `layouts` or leave
-   them for reference; the user decides. Run the quality gate again, including
-   each world's specimen.
-8. The user tunes and presses **Approve**. Approval writes `DESIGN.md` and
-   `design/tokens.css`. A later tune makes a new draft and marks the export
-   outdated. If you change an approved candidate or world, tell the user and
-   ask for a new approval. Move to architecture only after an approval.
+7. Fill in [variant-brief.md](variant-brief.md) once per model. Only the
+   variant id, the model name and the port differ. Start one agent per model,
+   up to three, in parallel. With one model, one variant is the whole round.
+8. When they report, run the quality gate on all variants:
+   `check_variant.py`, `capture.mjs`, `check_tokens.py`, then the
+   `design-critic` agent. Send failures back to the model that made them.
+9. Start `python3 studio/server.py` and give the user the URL. Say what each
+   tab shows: one model's screens at three sizes; **Arena** shows every
+   model; a screen in the left rail shows that screen from every model.
+10. The user picks a model, tunes its colors and presses **Approve**.
+    Approval writes `DESIGN.md` and `design/tokens.css`. A later tune makes a
+    new draft and marks the export outdated. If a variant changes after
+    approval, tell the user and ask for a new approval. Move to architecture
+    only after an approval.
 
 If the browser or Playwright isn't available, say that visual quality is
 unchecked. Don't present candidates as reviewed.

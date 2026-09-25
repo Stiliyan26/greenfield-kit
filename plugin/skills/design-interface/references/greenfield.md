@@ -4,26 +4,22 @@ Design choices need visible evidence. A brief with business requirements does no
 
 ## Before concepts
 
-Write a short brief that separates what the client said, what the operator proposed, and what is unknown. Identify the users, their main tasks, devices, and the one difficult screen that will expose weak layout decisions. Ask about existing branding and examples the user likes or dislikes when that would change the work. Do not require the user to name fonts, hex codes, or spacing values.
+Write a short brief that separates what the client said, what the operator proposed, and what is unknown. Identify the users, their main tasks, devices, every screen the requirements name, and the one difficult screen that will expose weak layout decisions. Ask about existing branding and examples the user likes or dislikes when that would change the work. Do not require the user to name fonts, hex codes, or spacing values.
 
 Check obvious feasibility constraints with `plan-feature`: roles, private information, important data, and external integrations. Leave detailed architecture until the user has chosen an experience.
 
 ## Make a fair comparison
 
-Run two rounds in the studio, as `design-interface` describes. Round 1 compares
-two or three layouts in the neutral world. Round 2 compares two or three
-complete worlds on the chosen layout. Every candidate uses the same content,
-roles, tasks and states. A swatch board alone can't show whether a dense
-calendar works, so each world is judged on a real screen and on its specimen.
+Up to three models each design the whole product, as `design-interface`
+describes. Every model gets the same brief, screen list, data, taste log and
+reference notes, filled in from greenfield-mode's `variant-brief.md`, and
+designs freely: structure and look. The studio shows every screen at
+1920×1080, 1440×900 and 390×844, so each design is judged on real screens,
+not a swatch board. Record the model that actually ran in each
+`variant.json`. Check each result for facts and basic usability before the
+critic sees it.
 
-If parallel agents are available, give each its own output file and the same
-brief, data, difficult state and reference notes. Ask for different
-structures in round 1 and different type, color and surfaces in round 2.
-Different models help when they're available; record which models actually
-ran. Check each result for facts and basic usability before the critic sees
-it.
-
-In the studio the user picks a layout and a world, tunes colors inside the
+In the studio the user picks a model's design, tunes its colors inside the
 contrast and status limits, pins comments, and approves. A saved selection
 with `status: "draft"` is work in progress. Only `status: "approved"` from the
 studio's **Approve** button locks the design; after an approval in chat, ask

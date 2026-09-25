@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Customers</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--color-bg);color:var(--color-ink);font-family:var(--font-body);font-size:14.5px;line-height:1.45;min-height:100vh}
+h1,h2,h3,h4{margin:0;font-family:var(--font-display);font-weight:700;line-height:1.15}
+p{margin:0}
+a{color:var(--color-primary)}
+button{font:inherit}
+.tnum{font-variant-numeric:tabular-nums}
+.muted{color:var(--color-muted)}
+.small{font-size:12.5px}
+.ellip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+:focus-visible{outline:3px solid var(--color-accent);outline-offset:2px;border-radius:var(--radius-sm)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* chrome */
+.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:22px;height:56px;padding:0 24px;background:var(--color-surface);border-bottom:1px solid var(--color-line)}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:800;font-size:23px;letter-spacing:.01em;color:var(--color-ink);text-decoration:none}
+.brand i{width:15px;height:18px;border-radius:50% 50% 50% 50% / 45% 45% 55% 55%;background:var(--color-accent);position:relative;display:inline-block}
+.brand i::after{content:"";position:absolute;left:6px;bottom:-5px;width:3px;height:6px;background:var(--color-accent);border-radius:1px;transform:rotate(-12deg)}
+.nav{display:flex;gap:2px}
+.nav a{padding:7px 12px;border-radius:var(--radius-pill);color:var(--color-muted);text-decoration:none;font-weight:500;font-size:14px}
+.nav a[aria-current=page]{background:var(--color-primary-soft);color:var(--color-primary);font-weight:600}
+.who{margin-left:auto;display:flex;align-items:center;gap:10px;color:var(--color-muted);font-size:13px;text-align:right}
+.who b{display:block;color:var(--color-ink);font-weight:600}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--color-secondary);color:var(--color-on-secondary);display:grid;place-items:center;font-weight:700;font-family:var(--font-display);font-size:15px;flex:none}
+.tabbar{display:none;position:fixed;left:0;right:0;bottom:0;height:62px;background:var(--color-surface);border-top:1px solid var(--color-line);z-index:6;padding:4px 6px 6px}
+.tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;color:var(--color-muted);text-decoration:none;font-weight:600;border-radius:var(--radius-sm)}
+.tabbar a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabbar a[aria-current=page]{color:var(--color-primary)}
+
+/* page */
+.page{padding:18px 24px 28px;max-width:1800px;margin:0 auto}
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.pagehead h1{font-size:30px;font-weight:800;line-height:1.02}
+.pagehead .sub{color:var(--color-muted);margin-top:3px}
+.crumb{font-size:12.5px;color:var(--color-muted);margin-bottom:6px}
+.crumb a{color:var(--color-muted);text-decoration:none}
+.crumb a:hover{color:var(--color-primary)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* cards */
+.card{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);min-width:0}
+.card>header{padding:10px 14px;border-bottom:1px solid var(--color-line);display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.card>header h2{font-size:17px}
+.card .pad{padding:12px 14px}
+.label{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted)}
+.kv{display:grid;grid-template-columns:minmax(90px,120px) 1fr;gap:6px 12px;font-size:14px}
+.kv dt{color:var(--color-muted)}
+.kv dd{margin:0;min-width:0}
+.unset{color:var(--color-muted);font-style:italic}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;line-height:1.5;white-space:nowrap;vertical-align:middle}
+.badge.danger{background:var(--status-danger);color:var(--color-on-status)}
+.badge.warning{background:color-mix(in oklab, var(--status-warning) 14%, var(--color-surface));color:var(--status-warning);border:1px solid color-mix(in oklab, var(--status-warning) 45%, var(--color-surface))}
+.badge.ok{background:color-mix(in oklab, var(--status-ok) 12%, var(--color-surface));color:var(--status-ok)}
+.badge.neutral{background:var(--color-surface-2);color:var(--color-muted)}
+.badge.primary{background:var(--color-primary-soft);color:var(--color-primary)}
+.badge.secondary{background:var(--color-secondary-soft);color:var(--color-secondary)}
+.badge.accent{background:var(--color-tertiary-soft);color:var(--color-accent)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block;flex:none}
+.count{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 8px;border-radius:var(--radius-pill);border:1px solid var(--color-line);background:var(--color-surface);font-size:13px;font-weight:600;color:var(--color-ink);text-decoration:none}
+.count b{font-family:var(--font-display);font-size:17px;font-weight:800;line-height:1;min-width:14px;text-align:center}
+.count.danger{border-color:var(--status-danger);color:var(--status-danger)}
+.count.warning{border-color:color-mix(in oklab, var(--status-warning) 60%, var(--color-surface));color:var(--status-warning)}
+.count.ok{color:var(--status-ok)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:var(--radius-sm);border:1px solid var(--color-line);background:var(--color-surface);color:var(--color-ink);font-weight:600;font-size:13.5px;cursor:pointer;white-space:nowrap;line-height:1.3;text-decoration:none}
+.btn:hover{border-color:var(--color-muted)}
+.btn.primary{background:var(--color-primary);color:var(--color-on-primary);border-color:transparent}
+.btn.primary:hover{background:color-mix(in oklab, var(--color-primary) 88%, var(--color-ink))}
+.btn.secondary{background:var(--color-secondary-soft);color:var(--color-secondary);border-color:transparent}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--color-primary)}
+.btn.sm{padding:5px 10px;font-size:12.5px}
+.btn.block{width:100%}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* inputs */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12.5px;font-weight:600;color:var(--color-muted)}
+.input{width:100%;padding:9px 11px;border:1px solid var(--color-line);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-ink);font:inherit;font-size:14px;min-height:38px}
+.input::placeholder{color:color-mix(in oklab, var(--color-muted) 70%, var(--color-surface))}
+.search{display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--color-line);border-radius:var(--radius-pill);background:var(--color-surface);height:38px;min-width:0}
+.search svg{width:16px;height:16px;stroke:var(--color-muted);fill:none;stroke-width:2;flex:none}
+.search input{border:0;outline:0;background:transparent;font:inherit;font-size:14px;width:100%;color:var(--color-ink);min-width:0}
+.search input:focus-visible{outline:none}
+.search:focus-within{border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft)}
+.seg{display:inline-flex;border:1px solid var(--color-line);border-radius:var(--radius-sm);overflow:hidden;background:var(--color-surface)}
+.seg button{border:0;background:transparent;padding:7px 12px;font-size:13px;font-weight:600;color:var(--color-muted);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--color-primary);color:var(--color-on-primary)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 11px;border-radius:var(--radius-pill);border:1px solid var(--color-line);background:var(--color-surface);font-size:12.5px;font-weight:600;color:var(--color-muted);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--color-ink);color:var(--color-surface);border-color:var(--color-ink)}
+.chip b{font-weight:700;color:inherit}
+
+/* the signature: a ticket with a perforated stub */
+.ticket{--stub:86px;position:relative;display:grid;grid-template-columns:var(--stub) minmax(0,1fr);background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);min-width:0;text-align:left;color:inherit;text-decoration:none}
+.ticket>.stub{position:relative;padding:10px 8px;border-right:2px dashed var(--color-line);display:flex;flex-direction:column;justify-content:center;gap:2px;font-family:var(--font-display);font-weight:700;font-variant-numeric:tabular-nums;border-radius:calc(var(--radius-md) - 1px) 0 0 calc(var(--radius-md) - 1px);min-width:0;text-align:center}
+.ticket>.stub .t{font-size:19px;line-height:1.02;font-weight:800;letter-spacing:.005em}
+.ticket>.stub .d{font-size:12px;font-weight:600;color:var(--color-muted);font-family:var(--font-body);line-height:1.25}
+.ticket>.body{padding:10px 12px;min-width:0;display:flex;flex-direction:column;gap:3px;justify-content:center}
+.ticket .title{font-family:var(--font-display);font-size:17px;font-weight:700;line-height:1.1}
+.ticket .meta{font-size:13px;color:var(--color-muted)}
+.ticket::before,.ticket::after{content:"";position:absolute;left:calc(var(--stub) - 1px);width:12px;height:12px;border-radius:50%;background:var(--color-bg);border:1px solid var(--color-line);transform:translateX(-50%);z-index:1;pointer-events:none}
+.ticket::before{top:-7px;clip-path:inset(6px 0 0 0)}
+.ticket::after{bottom:-7px;clip-path:inset(0 0 6px 0)}
+.ticket.danger{border-color:var(--status-danger)}
+.ticket.danger>.stub{background:var(--status-danger);color:var(--color-on-status);border-right-color:color-mix(in oklab, var(--status-danger) 55%, var(--color-surface))}
+.ticket.danger>.stub .d{color:color-mix(in oklab, var(--color-on-status) 80%, var(--status-danger))}
+.ticket.danger::before,.ticket.danger::after{border-color:var(--status-danger)}
+.ticket.warning>.stub{background:color-mix(in oklab, var(--status-warning) 16%, var(--color-surface));color:var(--status-warning);border-right-color:color-mix(in oklab, var(--status-warning) 45%, var(--color-surface))}
+.ticket.warning{border-color:color-mix(in oklab, var(--status-warning) 55%, var(--color-surface))}
+.ticket.warning>.stub .d{color:var(--status-warning)}
+.ticket.ok>.stub{background:color-mix(in oklab, var(--status-ok) 10%, var(--color-surface));color:var(--status-ok)}
+.ticket.leave>.stub{background:repeating-linear-gradient(135deg, var(--color-surface-2) 0 5px, var(--color-surface) 5px 10px);color:var(--color-muted)}
+.ticket.selected{box-shadow:0 0 0 2px var(--color-primary);border-color:var(--color-primary)}
+.ticket.sm{--stub:62px}
+.ticket.sm>.stub{padding:6px 5px}
+.ticket.sm>.stub .t{font-size:16px}
+.ticket.sm>.stub .d{font-size:11.5px}
+.ticket.sm>.body{padding:6px 9px;gap:1px}
+.ticket.sm .title{font-size:15px}
+.ticket.sm .meta{font-size:12px}
+.ticket.lg{--stub:112px}
+.ticket.lg>.stub .t{font-size:26px}
+.ticket.lg>.stub .d{font-size:13px}
+.ticket.lg>.body{padding:14px 16px;gap:6px}
+.ticket.lg .title{font-size:24px}
+.ticket.lg .meta{font-size:14px}
+
+/* status blocks */
+.note{padding:10px 12px;border-radius:var(--radius-sm);font-size:13.5px;line-height:1.4}
+.note.warning{background:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));color:var(--status-warning);border:1px solid color-mix(in oklab, var(--status-warning) 40%, var(--color-surface))}
+.note.danger{background:var(--status-danger);color:var(--color-on-status)}
+.note.ok{background:color-mix(in oklab, var(--status-ok) 10%, var(--color-surface));color:var(--status-ok)}
+.note.neutral{background:var(--color-surface-2);color:var(--color-muted)}
+.note.info{background:var(--color-primary-soft);color:var(--color-primary)}
+.note b{font-weight:700}
+
+.stack{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hidden{display:none !important}
+
+@media (max-width:720px){
+  .topbar{height:52px;padding:0 16px;gap:12px}
+  .nav{display:none}
+  .who span{display:none}
+  .tabbar{display:flex}
+  body{padding-bottom:70px}
+  .page{padding:12px 16px 20px}
+  .pagehead{margin-bottom:10px}
+  .pagehead h1{font-size:26px}
+  .kv{grid-template-columns:88px 1fr}
+}
+
+/* customers */
+.cu{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+.cu .col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--color-line)}
+.tools .search{flex:1 1 260px}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);padding:8px 12px;border-bottom:1px solid var(--color-line);font-weight:700;background:var(--color-surface-2)}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--color-line);vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr{cursor:pointer}
+.tbl tbody tr:hover td{background:color-mix(in oklab, var(--color-primary) 4%, var(--color-surface))}
+.tbl tbody tr[aria-selected=true] td{background:var(--color-primary-soft)}
+.tbl tbody tr[aria-selected=true] td:first-child{box-shadow:inset 3px 0 var(--color-primary)}
+.tbl .fam{font-family:var(--font-display);font-size:16px;font-weight:700}
+.tbl .sub{font-size:12.5px;color:var(--color-muted)}
+.tbl .n{font-family:var(--font-display);font-size:16px;font-weight:700}
+.tbl .badge{margin:1px 2px 1px 0}
+.bd{display:flex;flex-direction:column}
+.bd .r{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 14px;border-top:1px solid var(--color-line);font-size:13.5px}
+.bd .r:first-child{border-top:0}
+.bd .r .d{font-family:var(--font-display);font-weight:700;font-size:15px;line-height:1.1}
+.bd .r .d span{display:block;font-family:var(--font-body);font-size:11.5px;color:var(--color-muted);font-weight:500}
+.bd .r .pw{min-width:0}
+.bd .r .pw small{display:block;color:var(--color-muted);font-size:12px}
+.bd .r .bk{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.fam-card .kv{padding:12px 14px}
+.hist{width:100%;border-collapse:collapse;font-size:13.5px}
+.hist td{padding:7px 14px;border-top:1px solid var(--color-line)}
+.hist td:last-child{text-align:right;white-space:nowrap}
+.kids{padding:0 14px 12px;display:flex;gap:6px;flex-wrap:wrap}
+.cards{display:none;flex-direction:column;gap:10px}
+.cards .ticket .body{gap:4px}
+.cards .ticket .meta{white-space:normal}
+@media (max-width:1100px){.cu{grid-template-columns:minmax(0,1fr) 320px}}
+@media (max-width:720px){
+  .cu{grid-template-columns:1fr}
+  .tbl{display:none}
+  .cards{display:flex}
+  .tools{padding:0;border:0;flex-direction:column;align-items:stretch}
+  .tools .search{flex:auto}
+  .bd .r{padding:7px 0;grid-template-columns:70px minmax(0,1fr) auto}
+}
+
+</style>
+</head>
+<body data-screen="customers" data-role="owner">
+<header class="topbar" data-part="topbar"><a class="brand" href="ops-day.html?world=fable"><i aria-hidden="true"></i>PartyFox</a><nav class="nav" aria-label="Основна навигация"><a href="ops-day.html?world=fable">Ден</a><a href="inbox.html?world=fable">Поръчки</a><a href="customers.html?world=fable" aria-current="page">Клиенти</a><a href="leave-requests.html?world=fable">Отпуски</a></nav><div class="who"><span><b>Собственик</b>PartyFox София</span><div class="avatar" aria-hidden="true">С</div></div></header><nav class="tabbar" aria-label="Основна навигация" data-part="tabbar"><a href="ops-day.html?world=fable"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Ден</a><a href="inbox.html?world=fable"><svg viewBox="0 0 24 24"><path d="M3 13l2.5-7h13L21 13v6H3z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></svg>Поръчки</a><a href="customers.html?world=fable" aria-current="page"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5a5 5 0 016 5.5"/></svg>Клиенти</a><a href="leave-requests.html?world=fable"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Отпуски</a></nav>
+<main class="page" id="main">
+  <div class="pagehead" data-part="pagehead">
+    <div><h1>Клиенти</h1><p class="sub" id="sub"></p></div>
+    <div class="actions"><button class="btn" type="button">Ново семейство</button></div>
+  </div>
+  <div class="cu">
+    <div class="col">
+      <section class="card" data-part="families">
+        <div class="tools"><label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" id="q" placeholder="Търси семейство, дете или телефон" aria-label="Търси семейство"></label>
+          <div class="chips" id="chips" role="group" aria-label="Филтър"></div></div>
+        <table class="tbl" id="tbl"><thead><tr><th>Семейство</th><th>Деца</th><th>Партита</th><th>Етикети</th><th>Отворена поръчка</th></tr></thead><tbody id="rows"></tbody></table>
+        <div class="cards" id="cards"></div>
+      </section>
+    </div>
+    <div class="col">
+      <section class="card" data-part="birthdays"><header><h2>Рождени дни до 30 дни</h2><span class="small muted" id="bdsum"></span></header><div class="bd" id="bd"></div></section>
+      <section class="card fam-card" id="fam" data-part="family"></section>
+    </div>
+  </div>
+</main>
+
+<script>
+const D = window.PARTYFOX;
+const A = Object.fromEntries(D.animators.map((a) => [a.id, a]));
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const hh = (h) => String(h).padStart(2, "0") + ":00";
+const span = (s, e) => hh(s) + "–" + hh(e);
+const $ = (sel, root = document) => root.querySelector(sel);
+const html = (target, markup) => { (typeof target === "string" ? $(target) : target).innerHTML = markup; };
+const isPhone = () => window.matchMedia("(max-width: 720px)").matches;
+// Animators free for a slot on the ops day (no party, no leave).
+const freeAt = (s, e, except) => D.animators.filter((a) => a.id !== except
+  && !D.bookings.some((b) => b.animator === a.id && b.start < e && b.end > s)
+  && !D.leave.some((l) => l.animator === a.id && l.from < e && l.to > s));
+const stateOf = (b) => (b.deposit === false ? "danger" : (b.state === "needs-animator" || b.clashWith || D.bookings.some((o) => o.clashWith === b.id)) ? "warning" : "ok");
+// A ticket: stub with the time, body with the facts. cls adds the status, sizes and data-* hooks.
+function ticket({ cls = "", stub, sub, title, meta, extra = "", data = "", tag = "div", attrs = "" }) {
+  return `<${tag} class="ticket ${cls}" ${data} ${attrs}>
+    <div class="stub"><span class="t">${stub}</span>${sub ? `<span class="d">${sub}</span>` : ""}</div>
+    <div class="body"><div class="title ellip" title="${esc(title)}">${title}</div>${meta ? `<div class="meta ellip" title="${esc(meta.replace(/<[^>]+>/g, ""))}">${meta}</div>` : ""}${extra}</div>
+  </${tag}>`;
+}
+const badge = (cls, text) => `<span class="badge ${cls}">${text}</span>`;
+const orderLabel = { new: ["secondary", "Нова"], "needs-info": ["warning", "Липсва адрес"], clash: ["warning", "Няма свободен аниматор"], scheduled: ["neutral", "Насрочена"] };
+const leaveLabel = { pending: ["secondary", "Чака отговор"], approved: ["neutral", "Одобрен"], declined: ["neutral", "Отказан"] };
+const tagLabel = { repeat: ["primary", "Редовни"], large: ["accent", "Големи партита"], new: ["neutral", "Нови"] };
+const byId = (list) => Object.fromEntries(list.map((x) => [x.id, x]));
+const ORDERS = byId(D.orders), CUSTOMERS = byId(D.customers), BOOKINGS = byId(D.bookings);
+
+let selected = "c4", filter = "all", q = "";
+html("#sub", `${D.customers.length} семейства · ${D.customers.filter((c) => c.tags.includes("repeat")).length} редовни · ${D.customers.filter((c) => c.tags.includes("large")).length} с големи партита`);
+const counts = { all: D.customers.length, repeat: D.customers.filter((c) => c.tags.includes("repeat")).length, large: D.customers.filter((c) => c.tags.includes("large")).length, new: D.customers.filter((c) => c.tags.includes("new")).length };
+html("#chips", [["all", "Всички"], ["repeat", "Редовни"], ["large", "Големи партита"], ["new", "Нови"]].map(([id, l]) => `<button class="chip" type="button" data-filter="${id}" aria-pressed="${id === filter}">${l} <b>${counts[id]}</b></button>`).join(""));
+const shortLabel = { new: "нова поръчка", "needs-info": "липсва адрес", clash: "няма аниматор", scheduled: "насрочена" };
+const bookedLabel = (id, short = false) => {
+  if (!id) return badge("accent", "няма поръчка");
+  if (BOOKINGS[id]) return badge("neutral", `парти днес ${hh(BOOKINGS[id].start)}`);
+  const o = ORDERS[id]; const [cls, label] = orderLabel[o.state];
+  return badge(cls, short ? shortLabel[o.state] : `${o.id} · ${label.toLowerCase()}`);
+};
+const lastParty = (c) => c.history[0] ? `${esc(c.history[0].date)} · ${esc(c.history[0].package)}` : "още няма парти";
+const tags = (c) => c.tags.map((t) => badge(tagLabel[t][0], tagLabel[t][1])).join("") || `<span class="small muted">—</span>`;
+const openOrder = (c) => c.open ? bookedLabel(c.open) + ` <span class="small muted">${esc(ORDERS[c.open].child)}, ${esc(ORDERS[c.open].date)}</span>` : `<span class="small muted">—</span>`;
+const depositFlag = (c) => c.history.some((h) => h.depositMissing) ? ` ${badge("danger", "депозит липсва")}` : "";
+function matches(c) {
+  const hay = [c.family, c.parent, c.phone, ...c.children.map((k) => k.name)].join(" ").toLowerCase();
+  return (filter === "all" || c.tags.includes(filter)) && (!q || hay.includes(q));
+}
+function render() {
+  const list = D.customers.filter(matches);
+  html("#rows", list.map((c) => `<tr data-customer="${c.id}" aria-selected="${c.id === selected}" tabindex="0">
+    <td><div class="fam">${esc(c.family)}</div><div class="sub">${esc(c.parent)}<br><span class="tnum">${esc(c.phone)}</span></div></td>
+    <td>${c.children.map((k) => `${esc(k.name)} <span class="sub">(${esc(k.birthday)})</span>`).join("<br>")}</td>
+    <td><span class="n">${c.history.length}</span> <span class="sub">${lastParty(c)}</span>${depositFlag(c)}</td>
+    <td>${tags(c)}</td><td>${openOrder(c)}</td></tr>`).join("") || `<tr><td colspan="5" class="muted">Няма семейство по този филтър.</td></tr>`);
+  html("#cards", list.map((c) => ticket({ cls: c.id === selected ? "selected" : "", stub: `${c.history.length}`, sub: c.history.length === 1 ? "парти" : "партита",
+    title: esc(c.family), meta: `${c.children.map((k) => `${esc(k.name)} (${esc(k.birthday)})`).join(", ")} · ${esc(c.parent)}`,
+    extra: `<div class="row">${tags(c)}${c.open ? bookedLabel(c.open) : ""}${depositFlag(c)}</div>`, data: `data-customer="${c.id}"`, tag: "button", attrs: `type="button"` })).join(""));
+  const c = CUSTOMERS[selected];
+  html("#fam", `<header><h2>${esc(c.family)}</h2><div class="row">${tags(c)}</div></header>
+    <dl class="kv"><dt>Родител</dt><dd>${esc(c.parent)}</dd><dt>Телефон</dt><dd class="tnum"><a href="tel:${c.phone.replace(/\s/g, "")}">${esc(c.phone)}</a></dd><dt>Отворена</dt><dd>${openOrder(c)}</dd></dl>
+    <div class="kids">${c.children.map((k) => badge("secondary", `${esc(k.name)} · ${esc(k.birthday)}`)).join("")}</div>
+    <table class="hist" aria-label="История на партитата">${c.history.map((h) => `<tr><td><b>${esc(h.date)}</b> · ${esc(h.child)}</td><td>${esc(h.package)}${h.depositMissing ? " " + badge("danger", "депозит липсва") : ""}</td><td>${h.guests} гости</td></tr>`).join("") || `<tr><td class="muted">Първо парти предстои.</td></tr>`}</table>`);
+}
+html("#bdsum", `${D.birthdays.length} деца`);
+html("#bd", D.birthdays.map((b) => { const c = CUSTOMERS[b.customer]; const [wd, ...rest] = b.date.split(", ");
+  return `<div class="r" data-birthday="${esc(b.child)}"><div class="d">${esc(rest.join(", "))}<span>${esc(wd)}</span></div><div class="pw">${esc(b.child)} става на ${b.turns}<small>${esc(c.family)} · ${esc(c.parent)}</small></div><div class="bk">${bookedLabel(b.booked, true)}${b.booked ? "" : `<button class="btn sm" type="button">Пиши на семейството</button>`}</div></div>`; }).join(""));
+document.addEventListener("click", (e) => {
+  const r = e.target.closest("[data-customer]"); if (r) { selected = r.dataset.customer; render(); }
+  const f = e.target.closest("[data-filter]"); if (f) { filter = f.dataset.filter; document.querySelectorAll("[data-filter]").forEach((c) => c.setAttribute("aria-pressed", c === f)); render(); }
+});
+$("#q").addEventListener("input", (e) => { q = e.target.value.trim().toLowerCase(); render(); });
+render();
+
+</script>
+</body>
+</html>

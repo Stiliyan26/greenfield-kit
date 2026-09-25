@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · My parties</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--color-bg);color:var(--color-ink);font-family:var(--font-body);font-size:14.5px;line-height:1.45;min-height:100vh}
+h1,h2,h3,h4{margin:0;font-family:var(--font-display);font-weight:700;line-height:1.15}
+p{margin:0}
+a{color:var(--color-primary)}
+button{font:inherit}
+.tnum{font-variant-numeric:tabular-nums}
+.muted{color:var(--color-muted)}
+.small{font-size:12.5px}
+.ellip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+:focus-visible{outline:3px solid var(--color-accent);outline-offset:2px;border-radius:var(--radius-sm)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* chrome */
+.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:22px;height:56px;padding:0 24px;background:var(--color-surface);border-bottom:1px solid var(--color-line)}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:800;font-size:23px;letter-spacing:.01em;color:var(--color-ink);text-decoration:none}
+.brand i{width:15px;height:18px;border-radius:50% 50% 50% 50% / 45% 45% 55% 55%;background:var(--color-accent);position:relative;display:inline-block}
+.brand i::after{content:"";position:absolute;left:6px;bottom:-5px;width:3px;height:6px;background:var(--color-accent);border-radius:1px;transform:rotate(-12deg)}
+.nav{display:flex;gap:2px}
+.nav a{padding:7px 12px;border-radius:var(--radius-pill);color:var(--color-muted);text-decoration:none;font-weight:500;font-size:14px}
+.nav a[aria-current=page]{background:var(--color-primary-soft);color:var(--color-primary);font-weight:600}
+.who{margin-left:auto;display:flex;align-items:center;gap:10px;color:var(--color-muted);font-size:13px;text-align:right}
+.who b{display:block;color:var(--color-ink);font-weight:600}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--color-secondary);color:var(--color-on-secondary);display:grid;place-items:center;font-weight:700;font-family:var(--font-display);font-size:15px;flex:none}
+.tabbar{display:none;position:fixed;left:0;right:0;bottom:0;height:62px;background:var(--color-surface);border-top:1px solid var(--color-line);z-index:6;padding:4px 6px 6px}
+.tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;color:var(--color-muted);text-decoration:none;font-weight:600;border-radius:var(--radius-sm)}
+.tabbar a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabbar a[aria-current=page]{color:var(--color-primary)}
+
+/* page */
+.page{padding:18px 24px 28px;max-width:1800px;margin:0 auto}
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.pagehead h1{font-size:30px;font-weight:800;line-height:1.02}
+.pagehead .sub{color:var(--color-muted);margin-top:3px}
+.crumb{font-size:12.5px;color:var(--color-muted);margin-bottom:6px}
+.crumb a{color:var(--color-muted);text-decoration:none}
+.crumb a:hover{color:var(--color-primary)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* cards */
+.card{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);min-width:0}
+.card>header{padding:10px 14px;border-bottom:1px solid var(--color-line);display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.card>header h2{font-size:17px}
+.card .pad{padding:12px 14px}
+.label{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted)}
+.kv{display:grid;grid-template-columns:minmax(90px,120px) 1fr;gap:6px 12px;font-size:14px}
+.kv dt{color:var(--color-muted)}
+.kv dd{margin:0;min-width:0}
+.unset{color:var(--color-muted);font-style:italic}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;line-height:1.5;white-space:nowrap;vertical-align:middle}
+.badge.danger{background:var(--status-danger);color:var(--color-on-status)}
+.badge.warning{background:color-mix(in oklab, var(--status-warning) 14%, var(--color-surface));color:var(--status-warning);border:1px solid color-mix(in oklab, var(--status-warning) 45%, var(--color-surface))}
+.badge.ok{background:color-mix(in oklab, var(--status-ok) 12%, var(--color-surface));color:var(--status-ok)}
+.badge.neutral{background:var(--color-surface-2);color:var(--color-muted)}
+.badge.primary{background:var(--color-primary-soft);color:var(--color-primary)}
+.badge.secondary{background:var(--color-secondary-soft);color:var(--color-secondary)}
+.badge.accent{background:var(--color-tertiary-soft);color:var(--color-accent)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block;flex:none}
+.count{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 8px;border-radius:var(--radius-pill);border:1px solid var(--color-line);background:var(--color-surface);font-size:13px;font-weight:600;color:var(--color-ink);text-decoration:none}
+.count b{font-family:var(--font-display);font-size:17px;font-weight:800;line-height:1;min-width:14px;text-align:center}
+.count.danger{border-color:var(--status-danger);color:var(--status-danger)}
+.count.warning{border-color:color-mix(in oklab, var(--status-warning) 60%, var(--color-surface));color:var(--status-warning)}
+.count.ok{color:var(--status-ok)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:var(--radius-sm);border:1px solid var(--color-line);background:var(--color-surface);color:var(--color-ink);font-weight:600;font-size:13.5px;cursor:pointer;white-space:nowrap;line-height:1.3;text-decoration:none}
+.btn:hover{border-color:var(--color-muted)}
+.btn.primary{background:var(--color-primary);color:var(--color-on-primary);border-color:transparent}
+.btn.primary:hover{background:color-mix(in oklab, var(--color-primary) 88%, var(--color-ink))}
+.btn.secondary{background:var(--color-secondary-soft);color:var(--color-secondary);border-color:transparent}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--color-primary)}
+.btn.sm{padding:5px 10px;font-size:12.5px}
+.btn.block{width:100%}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* inputs */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12.5px;font-weight:600;color:var(--color-muted)}
+.input{width:100%;padding:9px 11px;border:1px solid var(--color-line);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-ink);font:inherit;font-size:14px;min-height:38px}
+.input::placeholder{color:color-mix(in oklab, var(--color-muted) 70%, var(--color-surface))}
+.search{display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--color-line);border-radius:var(--radius-pill);background:var(--color-surface);height:38px;min-width:0}
+.search svg{width:16px;height:16px;stroke:var(--color-muted);fill:none;stroke-width:2;flex:none}
+.search input{border:0;outline:0;background:transparent;font:inherit;font-size:14px;width:100%;color:var(--color-ink);min-width:0}
+.search input:focus-visible{outline:none}
+.search:focus-within{border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft)}
+.seg{display:inline-flex;border:1px solid var(--color-line);border-radius:var(--radius-sm);overflow:hidden;background:var(--color-surface)}
+.seg button{border:0;background:transparent;padding:7px 12px;font-size:13px;font-weight:600;color:var(--color-muted);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--color-primary);color:var(--color-on-primary)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 11px;border-radius:var(--radius-pill);border:1px solid var(--color-line);background:var(--color-surface);font-size:12.5px;font-weight:600;color:var(--color-muted);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--color-ink);color:var(--color-surface);border-color:var(--color-ink)}
+.chip b{font-weight:700;color:inherit}
+
+/* the signature: a ticket with a perforated stub */
+.ticket{--stub:86px;position:relative;display:grid;grid-template-columns:var(--stub) minmax(0,1fr);background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);min-width:0;text-align:left;color:inherit;text-decoration:none}
+.ticket>.stub{position:relative;padding:10px 8px;border-right:2px dashed var(--color-line);display:flex;flex-direction:column;justify-content:center;gap:2px;font-family:var(--font-display);font-weight:700;font-variant-numeric:tabular-nums;border-radius:calc(var(--radius-md) - 1px) 0 0 calc(var(--radius-md) - 1px);min-width:0;text-align:center}
+.ticket>.stub .t{font-size:19px;line-height:1.02;font-weight:800;letter-spacing:.005em}
+.ticket>.stub .d{font-size:12px;font-weight:600;color:var(--color-muted);font-family:var(--font-body);line-height:1.25}
+.ticket>.body{padding:10px 12px;min-width:0;display:flex;flex-direction:column;gap:3px;justify-content:center}
+.ticket .title{font-family:var(--font-display);font-size:17px;font-weight:700;line-height:1.1}
+.ticket .meta{font-size:13px;color:var(--color-muted)}
+.ticket::before,.ticket::after{content:"";position:absolute;left:calc(var(--stub) - 1px);width:12px;height:12px;border-radius:50%;background:var(--color-bg);border:1px solid var(--color-line);transform:translateX(-50%);z-index:1;pointer-events:none}
+.ticket::before{top:-7px;clip-path:inset(6px 0 0 0)}
+.ticket::after{bottom:-7px;clip-path:inset(0 0 6px 0)}
+.ticket.danger{border-color:var(--status-danger)}
+.ticket.danger>.stub{background:var(--status-danger);color:var(--color-on-status);border-right-color:color-mix(in oklab, var(--status-danger) 55%, var(--color-surface))}
+.ticket.danger>.stub .d{color:color-mix(in oklab, var(--color-on-status) 80%, var(--status-danger))}
+.ticket.danger::before,.ticket.danger::after{border-color:var(--status-danger)}
+.ticket.warning>.stub{background:color-mix(in oklab, var(--status-warning) 16%, var(--color-surface));color:var(--status-warning);border-right-color:color-mix(in oklab, var(--status-warning) 45%, var(--color-surface))}
+.ticket.warning{border-color:color-mix(in oklab, var(--status-warning) 55%, var(--color-surface))}
+.ticket.warning>.stub .d{color:var(--status-warning)}
+.ticket.ok>.stub{background:color-mix(in oklab, var(--status-ok) 10%, var(--color-surface));color:var(--status-ok)}
+.ticket.leave>.stub{background:repeating-linear-gradient(135deg, var(--color-surface-2) 0 5px, var(--color-surface) 5px 10px);color:var(--color-muted)}
+.ticket.selected{box-shadow:0 0 0 2px var(--color-primary);border-color:var(--color-primary)}
+.ticket.sm{--stub:62px}
+.ticket.sm>.stub{padding:6px 5px}
+.ticket.sm>.stub .t{font-size:16px}
+.ticket.sm>.stub .d{font-size:11.5px}
+.ticket.sm>.body{padding:6px 9px;gap:1px}
+.ticket.sm .title{font-size:15px}
+.ticket.sm .meta{font-size:12px}
+.ticket.lg{--stub:112px}
+.ticket.lg>.stub .t{font-size:26px}
+.ticket.lg>.stub .d{font-size:13px}
+.ticket.lg>.body{padding:14px 16px;gap:6px}
+.ticket.lg .title{font-size:24px}
+.ticket.lg .meta{font-size:14px}
+
+/* status blocks */
+.note{padding:10px 12px;border-radius:var(--radius-sm);font-size:13.5px;line-height:1.4}
+.note.warning{background:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));color:var(--status-warning);border:1px solid color-mix(in oklab, var(--status-warning) 40%, var(--color-surface))}
+.note.danger{background:var(--status-danger);color:var(--color-on-status)}
+.note.ok{background:color-mix(in oklab, var(--status-ok) 10%, var(--color-surface));color:var(--status-ok)}
+.note.neutral{background:var(--color-surface-2);color:var(--color-muted)}
+.note.info{background:var(--color-primary-soft);color:var(--color-primary)}
+.note b{font-weight:700}
+
+.stack{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hidden{display:none !important}
+
+@media (max-width:720px){
+  .topbar{height:52px;padding:0 16px;gap:12px}
+  .nav{display:none}
+  .who span{display:none}
+  .tabbar{display:flex}
+  body{padding-bottom:70px}
+  .page{padding:12px 16px 20px}
+  .pagehead{margin-bottom:10px}
+  .pagehead h1{font-size:26px}
+  .kv{grid-template-columns:88px 1fr}
+}
+
+/* my-parties */
+.mp{display:grid;grid-template-columns:minmax(380px,540px) minmax(0,1fr);gap:16px;align-items:start}
+.mp .col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.mp h2{font-size:18px;display:flex;align-items:center;gap:8px}
+.today .ticket .body{gap:8px}
+.today .title{white-space:normal}
+.today .meta{white-space:normal}
+.addr{background:var(--color-surface-2);border-radius:var(--radius-sm);padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.addr .a{font-family:var(--font-display);font-size:19px;font-weight:700;line-height:1.15}
+.addr .n{font-size:13px;color:var(--color-muted)}
+.today .actions .btn{flex:1}
+.up{display:flex;flex-direction:column;gap:10px}
+.up .ticket .body{gap:4px}
+.up .meta{white-space:normal}
+.up .title{white-space:normal}
+.up .ticket .row{margin-top:2px}
+.up .addr{padding:7px 10px}
+.up .addr .a{font-size:15px}
+@media (max-width:720px){
+  .mp{grid-template-columns:1fr}
+  .today .ticket{--stub:92px}
+}
+
+</style>
+</head>
+<body data-screen="my-parties" data-role="animator">
+<header class="topbar" data-part="topbar"><a class="brand" href="my-parties.html?world=fable"><i aria-hidden="true"></i>PartyFox</a><nav class="nav" aria-label="Основна навигация"><a href="my-parties.html?world=fable" aria-current="page">Партита</a><a href="my-leave.html?world=fable">Отпуск</a><a href="my-pay.html?world=fable">Заплащане</a></nav><div class="who"><span><b>Мая</b>Лицева рисунка</span><div class="avatar" aria-hidden="true">М</div></div></header><nav class="tabbar" aria-label="Основна навигация" data-part="tabbar"><a href="my-parties.html?world=fable" aria-current="page"><svg viewBox="0 0 24 24"><path d="M5 21l4.5-12 6.5 6.5z"/><path d="M13 5l1-2M17 7l2-1M15 11l3 .5M9 9L8 6"/></svg>Партита</a><a href="my-leave.html?world=fable"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Отпуск</a><a href="my-pay.html?world=fable"><svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="13" rx="2"/><circle cx="12" cy="12.5" r="3"/><path d="M6 9.5h.01M18 15.5h.01"/></svg>Заплащане</a></nav>
+<main class="page" id="main">
+  <div class="pagehead" data-part="pagehead">
+    <div><h1>Моите партита</h1><p class="sub" id="sub"></p></div>
+  </div>
+  <div class="mp">
+    <section class="col today" data-part="today"><h2>Днес</h2><div id="today"></div></section>
+    <section class="col" data-part="upcoming"><h2>Следващи <span class="badge neutral" id="nup"></span></h2><div class="up" id="up"></div></section>
+  </div>
+</main>
+
+<script>
+const D = window.PARTYFOX;
+const A = Object.fromEntries(D.animators.map((a) => [a.id, a]));
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const hh = (h) => String(h).padStart(2, "0") + ":00";
+const span = (s, e) => hh(s) + "–" + hh(e);
+const $ = (sel, root = document) => root.querySelector(sel);
+const html = (target, markup) => { (typeof target === "string" ? $(target) : target).innerHTML = markup; };
+const isPhone = () => window.matchMedia("(max-width: 720px)").matches;
+// Animators free for a slot on the ops day (no party, no leave).
+const freeAt = (s, e, except) => D.animators.filter((a) => a.id !== except
+  && !D.bookings.some((b) => b.animator === a.id && b.start < e && b.end > s)
+  && !D.leave.some((l) => l.animator === a.id && l.from < e && l.to > s));
+const stateOf = (b) => (b.deposit === false ? "danger" : (b.state === "needs-animator" || b.clashWith || D.bookings.some((o) => o.clashWith === b.id)) ? "warning" : "ok");
+// A ticket: stub with the time, body with the facts. cls adds the status, sizes and data-* hooks.
+function ticket({ cls = "", stub, sub, title, meta, extra = "", data = "", tag = "div", attrs = "" }) {
+  return `<${tag} class="ticket ${cls}" ${data} ${attrs}>
+    <div class="stub"><span class="t">${stub}</span>${sub ? `<span class="d">${sub}</span>` : ""}</div>
+    <div class="body"><div class="title ellip" title="${esc(title)}">${title}</div>${meta ? `<div class="meta ellip" title="${esc(meta.replace(/<[^>]+>/g, ""))}">${meta}</div>` : ""}${extra}</div>
+  </${tag}>`;
+}
+const badge = (cls, text) => `<span class="badge ${cls}">${text}</span>`;
+const orderLabel = { new: ["secondary", "Нова"], "needs-info": ["warning", "Липсва адрес"], clash: ["warning", "Няма свободен аниматор"], scheduled: ["neutral", "Насрочена"] };
+const leaveLabel = { pending: ["secondary", "Чака отговор"], approved: ["neutral", "Одобрен"], declined: ["neutral", "Отказан"] };
+const tagLabel = { repeat: ["primary", "Редовни"], large: ["accent", "Големи партита"], new: ["neutral", "Нови"] };
+const byId = (list) => Object.fromEntries(list.map((x) => [x.id, x]));
+const ORDERS = byId(D.orders), CUSTOMERS = byId(D.customers), BOOKINGS = byId(D.bookings);
+
+const P = D.myParties, me = A[D.me];
+const today = P.filter((p) => /^днес/.test(p.date)), later = P.filter((p) => !/^днес/.test(p.date));
+html("#sub", `${me.name} · ${P.length} партита до ${later[later.length - 1].date.replace(/^\w+, /, "")}`);
+html("#nup", later.length);
+const tel = (p) => `<a class="btn" href="tel:${p.replace(/\s/g, "")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg>Обади се</a>`;
+const nav = (p) => `<a class="btn primary" href="#" role="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.5 7-11.5A7 7 0 005 9.5C5 14.5 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Навигация</a>`;
+const addr = (p, cls = "") => `<div class="addr ${cls}" data-address="${p.id}"><span class="a">${esc(p.address)}</span>${p.addressNote ? `<span class="n">${esc(p.addressNote)}</span>` : ""}</div>`;
+const leaveOf = (p) => p.inLeave ? D.leaveRequests.find((l) => l.id === p.inLeave) : null;
+html("#today", today.map((p) => ticket({ cls: `lg ${p.deposit ? "" : "danger"}`, stub: p.start, sub: `до ${p.end}`, title: `${esc(p.child)}, ${p.age} г. · ${esc(p.package)}`,
+  meta: `${p.guests} гости · ${esc(p.parent)}`, data: `data-booking="${p.id}"`,
+  extra: `${p.deposit ? "" : `<div class="note danger" data-part="deposit-warning"><b>Депозитът не е получен.</b> Провери със собственика преди да тръгнеш.</div>`}${addr(p)}<div class="actions">${nav(p)}${tel(p.phone)}</div>` })).join("") || `<p class="muted">Днес нямаш парти.</p>`);
+html("#up", later.map((p) => { const l = leaveOf(p);
+  return ticket({ cls: l ? "warning" : "", stub: p.start, sub: esc(p.date), title: `${esc(p.child)}, ${p.age} г. · ${esc(p.package)}`,
+    meta: `до ${p.end} · ${p.guests} гости · ${esc(p.parent)} · <span class="tnum">${esc(p.phone)}</span>`, data: `data-booking="${p.id}"`,
+    extra: `${addr(p)}${l ? `<div class="note warning" data-part="leave-clash"><b>В заявения ти отпуск ${esc(l.from)} – ${esc(l.to)}</b> Собственикът още не е отговорил; ако одобри, търси покритие.</div>` : ""}` }); }).join(""));
+
+</script>
+</body>
+</html>

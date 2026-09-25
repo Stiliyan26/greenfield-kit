@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Заявки за отпуск</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+  /* Agenda candidate · owner · leave requests, soonest first, the ones waiting for an answer on top. */
+  :root{
+    --tint-warning:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));
+    --tint-danger:color-mix(in oklab, var(--status-danger) 10%, var(--color-surface));
+    --tint-ok:color-mix(in oklab, var(--status-ok) 12%, var(--color-surface));
+    --tint-primary:color-mix(in oklab, var(--color-primary) 10%, var(--color-surface));
+    --shadow:0 1px 2px color-mix(in oklab, var(--color-ink) 8%, transparent);
+    --ring:0 0 0 3px color-mix(in oklab, var(--color-primary) 35%, transparent);
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font-family:var(--font-body);color:var(--color-ink);background:var(--color-bg);
+       font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  .shell{max-width:960px;margin:0 auto;padding:20px 22px;display:grid;grid-template-columns:220px 1fr;gap:26px}
+
+  aside{position:sticky;top:20px;align-self:start}
+  h1{font-family:var(--font-display);font-size:20px;font-weight:700;letter-spacing:-.01em}
+  .day{color:var(--color-muted);font-size:12.5px;margin:2px 0 18px}
+  .stat{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--color-line);font-size:13px}
+  .stat b{font-family:var(--font-display);font-size:18px;font-variant-numeric:tabular-nums}
+  .stat.amber b{color:var(--status-warning)}
+  .stat.ok b{color:var(--status-ok)}
+
+  .team{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+  .team .lbl{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);margin-bottom:2px}
+  .member{display:flex;justify-content:space-between;gap:8px;font-size:12.5px}
+  .member b{font-weight:600}
+  .member span{color:var(--color-muted)}
+
+  .legend{margin-top:16px;font-size:12px;color:var(--color-muted);display:flex;flex-direction:column;gap:8px}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .lg{width:12px;height:12px;border-radius:var(--radius-sm);flex:none}
+  .lg-wait{background:var(--color-surface);border:2px solid var(--color-primary)}
+  .lg-cover{background:var(--tint-warning);border:1px solid var(--status-warning)}
+  .lg-ok{background:var(--tint-ok);border:1px solid var(--status-ok)}
+  .lg-no{background:var(--color-surface-2);border:1px solid var(--color-line)}
+
+  main{position:relative;padding-left:26px;min-width:0}
+  main::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:var(--color-line);border-radius:2px}
+  .section{position:relative;margin:0 0 12px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);display:flex;gap:8px;align-items:baseline}
+  .section::before{content:"";position:absolute;left:-22px;top:4px;width:9px;height:9px;border-radius:2px;background:var(--color-muted)}
+  .section b{font-family:var(--font-display);font-size:14px;letter-spacing:0;color:var(--color-ink);text-transform:none}
+  .slot + .section{margin-top:26px}
+
+  .slot{position:relative;margin-bottom:14px}
+  .slot::before{content:"";position:absolute;left:-22px;top:8px;width:9px;height:9px;border-radius:50%;
+                background:var(--color-surface);border:2px solid var(--color-primary)}
+  .slot.cover::before{border-color:var(--status-warning)}
+  .slot.approved::before{border-color:var(--status-ok);background:var(--status-ok)}
+  .slot.declined::before{border-color:var(--color-line);background:var(--color-surface-2)}
+
+  .row{display:grid;grid-template-columns:minmax(74px,max-content) 1fr;gap:14px;align-items:start}
+  .time{font-family:var(--font-display);font-size:26px;font-weight:700;line-height:1;
+        font-variant-numeric:tabular-nums;color:var(--color-primary);padding-top:2px;letter-spacing:-.02em}
+  .time small{display:block;font-size:12px;color:var(--color-muted);font-family:var(--font-body);margin-top:3px;font-weight:600;letter-spacing:0}
+  .slot.declined .time{color:var(--color-muted)}
+
+  .card{background:var(--color-surface);border:1px solid var(--color-line);
+        border-radius:var(--radius-md);padding:11px 14px;box-shadow:var(--shadow);min-width:0}
+  .card.need{border:1.5px dashed var(--status-warning);background:var(--tint-warning)}
+  .card.declined{background:transparent;box-shadow:none}
+  .card .head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .head .left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .card .who{font-weight:700;font-size:15px}
+  .role{font-size:11px;font-weight:700;color:var(--color-secondary);background:var(--color-secondary-soft);border-radius:var(--radius-sm);padding:2px 8px}
+  .sent{font-size:12px;color:var(--color-muted);white-space:nowrap}
+  .sub{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:6px;font-size:12.5px;color:var(--color-muted)}
+  .sub .reason{color:var(--color-ink);font-weight:600}
+
+  .pill{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap}
+  .pill.wait{background:var(--tint-primary);color:var(--color-primary)}
+  .pill.ok{background:var(--tint-ok);color:var(--status-ok)}
+  .pill.no{background:var(--color-surface-2);color:var(--color-muted)}
+
+  .warn{margin-top:8px;font-size:12.5px;color:var(--color-ink);background:var(--color-surface);
+        border:1px solid var(--status-warning);border-radius:var(--radius-sm);padding:7px 10px}
+  .warn .tag{display:inline-block;background:var(--status-warning);color:var(--color-surface);border-radius:var(--radius-sm);padding:1px 7px;font-size:11px;font-weight:800;margin-right:6px}
+  .warn b{font-weight:700}
+  .ownernote{margin-top:8px;font-size:12.5px;color:var(--color-ink);border-left:3px solid var(--color-line);padding:1px 0 1px 9px}
+  .ownernote small{display:block;font-size:12px;color:var(--color-muted);font-weight:600}
+
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+  .btn{font-family:inherit;font-size:12.5px;font-weight:700;padding:6px 11px;border-radius:var(--radius-sm);
+       border:1px solid var(--color-line);background:var(--color-surface);color:var(--color-ink);cursor:pointer}
+  .btn.primary{background:var(--color-primary);color:var(--color-on-primary);border-color:var(--color-primary)}
+  .btn.amber{border-color:var(--status-warning);color:var(--status-warning)}
+  .btn:focus-visible{outline:none;box-shadow:var(--ring)}
+  .hint{font-size:12px;color:var(--color-muted)}
+
+  .note{margin-top:8px;font-size:13px;color:var(--color-muted);grid-column:2}
+
+  @media (max-width:640px){
+    .shell{grid-template-columns:1fr;padding:14px;gap:14px}
+    aside{position:static}
+    .stats{display:flex;gap:16px;flex-wrap:wrap}
+    .stat{border:0;padding:4px 0;gap:6px}
+    .team,.legend{display:none}
+    main{padding-left:20px;margin-top:4px}
+    main::before{left:6px}
+    .section::before,.slot::before{left:-18px}
+    .row{grid-template-columns:minmax(52px,max-content) 1fr;gap:10px}
+    .time{font-size:20px}
+    .card{padding:10px 12px}
+    .sent{white-space:normal}
+    .note{grid-column:1}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside>
+    <div><h1>Заявки за отпуск</h1><div class="day" id="day"></div></div>
+    <div class="stats">
+      <div class="stat"><span>Чакат отговор</span><b id="s-pending"></b></div>
+      <div class="stat amber"><span>Трябва заместник</span><b id="s-cover"></b></div>
+      <div class="stat ok"><span>Одобрени</span><b id="s-ok"></b></div>
+    </div>
+    <div class="team"><div class="lbl">Екип</div><div id="team"></div></div>
+    <div class="legend">
+      <span><i class="lg lg-wait"></i> Чака отговор</span>
+      <span><i class="lg lg-cover"></i> Има парти в периода</span>
+      <span><i class="lg lg-ok"></i> Одобрена</span>
+      <span><i class="lg lg-no"></i> Отказана</span>
+    </div>
+  </aside>
+
+  <main id="list"></main>
+  <p class="note">Първо идват заявките, които чакат отговор, най-скорошната най-отгоре. Отпуск, в който има насрочено парти, е в жълто, докато не бъде намерен заместник.</p>
+</div>
+
+<script>
+const D = window.PARTYFOX;
+const anim = id => D.animators.find(a => a.id === id);
+const MONTHS = {"септ.":9,"окт.":10,"ноем.":11,"дек.":12};
+const parse = s => { const m = s.match(/(\S+),\s*(\d+)\s+(\S+)/); return { dow:m[1], day:+m[2], mon:m[3], key: MONTHS[m[3]]*100 + +m[2] }; };
+
+const reqs = D.leaveRequests.map(r => ({...r, f: parse(r.from), t: parse(r.to)})).sort((a,b) => a.f.key - b.f.key);
+const pending = reqs.filter(r => r.state === "pending");
+const decided = reqs.filter(r => r.state !== "pending");
+const needCover = r => r.state === "pending" && (r.cover||[]).length > 0;
+
+document.getElementById("day").textContent = `${D.day} · ${reqs.length} заявки`;
+document.getElementById("s-pending").textContent = pending.length;
+document.getElementById("s-cover").textContent = reqs.filter(needCover).length;
+document.getElementById("s-ok").textContent = decided.filter(r => r.state === "approved").length;
+document.getElementById("team").innerHTML = D.animators.map(a => {
+  const n = reqs.filter(r => r.animator === a.id && r.state !== "declined").length;
+  return `<div class="member"><b>${a.name}</b><span>${n ? n + (n===1 ? " отпуск" : " отпуска") : "—"}</span></div>`;
+}).join("");
+
+const timeCol = r => {
+  const isToday = r.from === "съб, 27 септ.";
+  const range = r.f.key === r.t.key ? `${r.f.day}` : `${r.f.day}–${r.t.day}`;
+  const small = isToday ? "днес" : r.f.mon === r.t.mon ? r.f.mon : `${r.f.mon} – ${r.t.mon}`;
+  return `<div class="time">${range}<small>${small}</small></div>`;
+};
+const pill = r => ({ pending: `<span class="pill wait">Чака отговор</span>`, approved: `<span class="pill ok">Одобрена</span>`, declined: `<span class="pill no">Отказана</span>` })[r.state];
+const span = r => r.hours ? r.hours : `${r.from} – ${r.to}${r.days ? ` · ${r.days} ${r.days===1?"ден":"дни"}` : ""}`;
+
+function card(r){
+  const a = anim(r.animator);
+  const cls = needCover(r) ? "cover" : r.state;
+  return `<div class="slot ${cls}" data-leave="${r.id}"><div class="row">
+    ${timeCol(r)}
+    <div class="card${needCover(r) ? " need" : r.state==="declined" ? " declined" : ""}">
+      <div class="head">
+        <div class="left"><span class="who">${a.name}</span><span class="role">${a.role}</span>${pill(r)}</div>
+        <span class="sent">изпратена ${r.sent}</span>
+      </div>
+      <div class="sub"><span class="reason">${r.reason || "Без посочена причина"}</span><span>${span(r)}</span></div>
+      ${(r.cover||[]).map(c => `<div class="warn" data-cover="${r.id}"><span class="tag">Има парти</span><b>${c.booking}</b> · ${c.when}. Без заместник партито остава без аниматор.</div>`).join("")}
+      ${r.ownerNote ? `<div class="ownernote"><small>Бележка на собственика</small>${r.ownerNote}</div>` : ""}
+      ${r.state === "pending" ? `<div class="actions">
+          <button class="btn primary">Одобри</button>
+          <button class="btn">Откажи</button>
+          ${needCover(r) ? `<button class="btn amber">Назначи заместник</button><span class="hint">първо намерете заместник, после одобрете</span>` : ""}
+        </div>` : ""}
+    </div>
+  </div></div>`;
+}
+
+document.getElementById("list").innerHTML =
+  `<div class="section"><b>Чакат отговор</b><span>${pending.length}</span></div>` + pending.map(card).join("") +
+  `<div class="section"><b>Решени</b><span>${decided.length}</span></div>` + decided.map(card).join("");
+</script>
+</body>
+</html>

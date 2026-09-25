@@ -34,7 +34,8 @@ def main():
     project["name"] = args.name.strip()
     project_file.write_text(json.dumps(project, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Created {destination}")
-    print("Add screens, layouts and candidate files to studio/project.json before showing designs.")
+    print("Add one screen per view the brief names to studio/project.json.")
+    print("Each model (up to three) then writes studio/candidates/<variant>/variant.json and one <screen>.html per screen.")
     print("Run from the project root: python3 studio/server.py")
 
 

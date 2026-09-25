@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Дъска</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+  :root{
+    --tint-warning:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));
+    --tint-danger:color-mix(in oklab, var(--status-danger) 10%, var(--color-surface));
+    --shadow:0 1px 2px color-mix(in oklab, var(--color-ink) 10%, transparent);
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font-family:var(--font-body);color:var(--color-ink);background:var(--color-bg);
+       font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
+  .shell{max-width:1180px;margin:0 auto;padding:20px 22px}
+
+  header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+  h1{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .sub{color:var(--color-muted);font-size:13px;margin-top:3px}
+  .who{display:flex;flex-direction:column;gap:2px;text-align:right;font-size:12.5px;color:var(--color-muted)}
+  .who b{color:var(--color-ink);font-size:14px}
+
+  .board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start;margin-bottom:20px}
+  .col{display:flex;flex-direction:column;gap:10px;min-height:120px}
+  .col-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;
+            border-radius:var(--radius-md);background:var(--color-surface);border:1px solid var(--color-line)}
+  .col-head h2{font-family:var(--font-display);font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .count{font-size:12px;font-weight:700;background:var(--color-bg);border-radius:999px;padding:2px 9px;color:var(--color-muted)}
+  .col.problem .col-head{border:2px solid var(--color-ink)}
+  .col.problem .count{background:var(--color-ink);color:var(--color-surface)}
+  .col-head h2::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--color-line)}
+  .col.done .col-head h2::before{background:var(--status-ok)}
+  .col.problem .col-head h2::before{background:var(--status-danger)}
+  .col.todo .col-head h2::before{background:var(--color-line)}
+
+  .step{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);
+        padding:10px 12px;font-size:12.5px;box-shadow:var(--shadow)}
+  .step .label{font-weight:650;font-size:13.5px}
+  .step .when{color:var(--color-muted);margin-top:2px}
+  .step.next{border:1.5px solid var(--color-primary)}
+  .step.missing{border:2px solid var(--status-danger);background:var(--tint-danger)}
+  .step .pill{display:inline-block;margin-top:6px;font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px}
+  .step .pill.red{background:var(--status-danger);color:var(--color-surface)}
+  .step .amount{font-size:12px;color:var(--color-muted);margin-top:4px}
+  .btn{font:inherit;font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:var(--radius-sm);
+       border:1px solid var(--color-line);background:var(--color-bg);color:var(--color-ink);cursor:pointer;margin-top:8px}
+  .btn.primary{background:var(--status-danger);border-color:var(--status-danger);color:var(--color-surface)}
+  .btn:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+
+  .panels{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .panel{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);padding:14px}
+  .panel h3{font-family:var(--font-display);font-size:13px;margin-bottom:10px}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--color-line);font-size:12.5px}
+  .row:first-of-type{border-top:none}
+  .row .state{color:var(--color-muted)}
+  .msg{padding:8px 0;border-top:1px solid var(--color-line);font-size:12.5px}
+  .msg:first-of-type{border-top:none}
+  .msg .meta{color:var(--color-muted);font-size:11.5px;margin-bottom:2px}
+
+  @media (max-width:900px){ .panels{grid-template-columns:1fr} }
+  @media (max-width:640px){
+    .shell{padding:14px}
+    header{flex-direction:column}
+    .who{text-align:left}
+    .board{grid-template-columns:minmax(0,1fr)}
+    .col.problem{order:-1}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <h1>Резервация · <span id="child"></span></h1>
+      <div class="sub" id="sub"></div>
+    </div>
+    <div class="who" id="who"></div>
+  </header>
+
+  <div class="board" id="board"></div>
+
+  <div class="panels">
+    <div class="panel">
+      <h3>Външни доставчици</h3>
+      <div id="providers"></div>
+    </div>
+    <div class="panel">
+      <h3>Съобщения до родителя</h3>
+      <div id="messages"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const D = window.PARTYFOX;
+const B = D.booking;
+const byId = id => document.getElementById(id);
+const bk = D.myParties.find(b=>b.id===B.id) || D.bookings.find(b=>b.id===B.id);
+
+byId("child").textContent = (bk ? bk.child : "");
+byId("sub").textContent = `Поръчка ${B.order} · ${bk ? bk.guests+" гости · "+bk.address : ""}`;
+byId("who").innerHTML = `<b>${B.parent}</b>${B.phone}<br>${B.email}`;
+
+const done = B.steps.filter(s=>s.state==="done");
+const problem = B.steps.filter(s=>s.state==="missing");
+const upNext = B.steps.filter(s=>s.state==="next"||s.state==="todo");
+
+function step(s){
+  const cls = ["step", s.state];
+  const pill = s.state==="missing" ? `<div class="pill red">Депозит липсва</div>` : "";
+  const note = s.state==="missing" ? `<div class="amount">${B.depositNote}</div>` : "";
+  const btn = s.state==="missing" ? `<button class="btn primary" data-booking="${B.id}">Отбележи депозит получен</button>` : "";
+  return `<div class="${cls.join(' ')}" data-order="${B.order}">
+    <div class="label">${s.label}</div>
+    <div class="when">${s.when || (s.state==="todo" ? "Предстои" : s.state==="next" ? "Следваща стъпка" : "")}</div>
+    ${pill}${note}${btn}
+  </div>`;
+}
+
+const cols = [
+  {id:"done", label:"Готово", cls:"done", items:done},
+  {id:"prob", label:"Проблем", cls:"problem", items:problem},
+  {id:"todo", label:"Предстои", cls:"todo", items:upNext},
+];
+
+byId("board").innerHTML = cols.map(c=>`
+  <section class="col ${c.cls}">
+    <div class="col-head"><h2>${c.label}</h2><span class="count">${c.items.length}</span></div>
+    ${c.items.map(step).join("")}
+  </section>`).join("");
+
+byId("providers").innerHTML = B.providers.map(p=>`
+  <div class="row"><span>${p.what} · ${p.who}</span><span class="state">${p.state}</span></div>`).join("");
+
+byId("messages").innerHTML = B.messages.map(m=>`
+  <div class="msg"><div class="meta">${m.when} · ${m.channel}</div>${m.text}</div>`).join("");
+</script>
+</body>
+</html>

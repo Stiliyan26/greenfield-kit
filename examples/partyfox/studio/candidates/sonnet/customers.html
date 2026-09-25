@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Клиенти — PartyFox</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--color-bg); color: var(--color-ink); font-family: var(--font-body); font-size: 15px; line-height: 1.4; -webkit-font-smoothing: antialiased; }
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+  .page { max-width: 1440px; margin: 0 auto; padding: clamp(16px, 2.4vw, 36px); }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: .02em; color: var(--color-primary); }
+  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-tertiary); }
+  .role { font-size: 12px; color: var(--color-muted); text-transform: uppercase; letter-spacing: .08em; }
+
+  .head-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; border-bottom: 4px double var(--color-ink); padding-bottom: 10px; margin-bottom: 16px; }
+  h1.heading { font-family: var(--font-display); font-weight: 700; font-size: clamp(24px, 2.6vw, 32px); margin: 0; }
+  .search { border: 1px solid var(--color-line); background: var(--color-surface); border-radius: var(--radius-pill); padding: 9px 16px; font-size: 13px; min-width: 220px; }
+  .search::placeholder { color: var(--color-muted); }
+
+  .layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: start; }
+
+  .chip { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 14px; border-radius: 0 var(--radius-pill) var(--radius-pill) 0; font-size: 11px; font-weight: 600; white-space: nowrap; border: 1px solid var(--color-line); background: var(--color-surface-2); color: var(--color-muted); }
+  .chip::before { content: ""; position: absolute; left: -1px; top: 50%; width: 7px; height: 7px; background: var(--color-bg); border-radius: 50%; transform: translate(-50%, -50%); border: 1px solid var(--color-line); }
+  .chip.repeat { background: color-mix(in oklab, var(--color-secondary) 16%, var(--color-surface)); color: var(--color-secondary); border-color: color-mix(in oklab, var(--color-secondary) 40%, var(--color-line)); }
+  .chip.large { background: color-mix(in oklab, var(--color-tertiary) 16%, var(--color-surface)); color: var(--color-tertiary); border-color: color-mix(in oklab, var(--color-tertiary) 40%, var(--color-line)); }
+  .chip.new { background: color-mix(in oklab, var(--color-primary) 14%, var(--color-surface)); color: var(--color-primary); border-color: color-mix(in oklab, var(--color-primary) 40%, var(--color-line)); }
+  .chip[data-status="danger"] { background: var(--status-danger); color: var(--color-surface); border-color: var(--status-danger); }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .card { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: 14px 16px; }
+  .card .who { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+  .card .contact { color: var(--color-muted); font-size: 12px; margin: 2px 0 8px; }
+  .card .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .card .kids { font-size: 12px; color: var(--color-ink); margin-bottom: 8px; }
+  .card .history { font-size: 12px; color: var(--color-muted); border-top: 1px solid var(--color-line); padding-top: 8px; }
+  .card .history div { display: flex; justify-content: space-between; padding: 2px 0; }
+  .card .empty { font-size: 12px; color: var(--color-muted); font-style: italic; }
+
+  aside .card { margin-bottom: 12px; }
+  aside h2 { font-family: var(--font-display); font-size: 14px; margin: 0 0 10px; padding-bottom: 8px; border-bottom: 2px solid var(--color-line); }
+  .bday { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 6px 0; border-bottom: 1px solid var(--color-line); }
+  .bday:last-child { border-bottom: none; }
+  .bday .name { font-weight: 600; }
+  .bday .date { color: var(--color-muted); font-size: 12px; }
+  .bday .unbooked { color: var(--status-warning); font-size: 11px; font-weight: 600; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: 1fr; }
+    .head-row { flex-direction: column; align-items: stretch; }
+    .search { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div class="brand"><span class="brand-dot"></span>PartyFox</div>
+    <span class="role">Собственик</span>
+  </div>
+  <div class="head-row">
+    <h1 class="heading">Клиенти</h1>
+    <input class="search" type="text" placeholder="Търси парти" data-field="search">
+  </div>
+
+  <div class="layout">
+    <div class="grid" id="customers" data-block="customers"></div>
+    <aside>
+      <div class="card">
+        <h2>Рождени дни, следващите 30 дни</h2>
+        <div id="birthdays" data-block="birthdays"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  const D = window.PARTYFOX;
+  const tagLabel = { repeat: "Стар клиент", large: "Голямо парти", "new": "Нов клиент" };
+
+  document.getElementById("customers").innerHTML = D.customers.map(c => {
+    const chips = c.tags.map(t => `<span class="chip ${t}">${tagLabel[t]}</span>`).join("");
+    const missingDeposit = c.history.some(h => h.depositMissing);
+    const kids = c.children.map(k => `${k.name} (${k.birthday})`).join(" · ");
+    const history = c.history.length
+      ? c.history.slice(0, 3).map(h => `<div><span>${h.date} · ${h.child}, ${h.package}</span><span>${h.guests} гости</span></div>`).join("")
+      : `<div class="empty">Все още без история.</div>`;
+    return `<article class="card" data-customer="${c.id}">
+      <div class="who">${c.family}</div>
+      <div class="contact">${c.parent} · ${c.phone}</div>
+      <div class="chips">${chips}${missingDeposit ? `<span class="chip" data-status="danger">Депозит липсва</span>` : ""}</div>
+      <div class="kids">Деца: ${kids}</div>
+      <div class="history">${history}</div>
+    </article>`;
+  }).join("");
+
+  document.getElementById("birthdays").innerHTML = D.birthdays.map(b => `
+    <div class="bday" data-birthday="${b.customer}">
+      <div>
+        <div class="name">${b.child}</div>
+        <div class="date">${b.date} · навършва ${b.turns}</div>
+      </div>
+      ${b.booked ? `` : `<span class="unbooked">Без резервация</span>`}
+    </div>`).join("");
+</script>
+</body>
+</html>

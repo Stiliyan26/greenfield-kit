@@ -2,7 +2,8 @@
 
 The engine (this folder) is shared by every project. The project's studio/ folder
 holds only content: project.json, selection.json, comments.json, taste.md,
-candidates/, references/ and any data files the candidates load.
+candidates/<variant>/ (one folder per model: variant.json and one HTML file per
+screen), references/ and any data files the candidates load.
 """
 
 from datetime import datetime, timezone
@@ -21,13 +22,12 @@ import studio_export
 
 WEB = Path(__file__).resolve().parent / "web"
 MAX_BODY = 65536
-WIDTHS = {1440, 1024, 390}
+WIDTHS = {size["width"] for size in studio_export.SIZES}
 COMMENT_KINDS = {"note", "like", "reject"}
 PALETTES = WEB / "palettes.json"
 DEFAULT_SELECTION = {
-    "screen": None, "layout": None, "world": None, "width": 1440, "tuning": {}, "palette": {}, "shortlist": [],
-    "feedback": "", "status": "draft", "revision": 1, "approvedAt": None,
-    "layoutChoice": None, "exported": None,
+    "screen": None, "variant": None, "width": 1920, "tuning": {}, "palette": {}, "shortlist": [],
+    "feedback": "", "status": "draft", "revision": 1, "approvedAt": None, "exported": None,
 }
 LOCK = threading.Lock()
 
@@ -52,7 +52,11 @@ class Studio:
         self.root = content.parent
 
     def project(self):
-        return json.loads((self.content / "project.json").read_text(encoding="utf-8"))
+        """project.json plus the variants found in candidates/. Each variant's world is its look."""
+        project = json.loads((self.content / "project.json").read_text(encoding="utf-8"))
+        variants, problems = studio_export.load_variants(self.content)
+        project.update(variants=variants, worlds=[variant["world"] for variant in variants], _loadProblems=problems)
+        return project
 
     def selection(self):
         path = self.content / "selection.json"
@@ -61,6 +65,8 @@ class Studio:
         selection["tuning"] = self.clean_tuning(selection["tuning"])
         worlds = self.world_ids()
         selection["palette"] = {world: value for world, value in (selection.get("palette") or {}).items() if world in worlds}
+        if selection["width"] not in WIDTHS:
+            selection["width"] = DEFAULT_SELECTION["width"]
         return selection
 
     def world_ids(self):
@@ -101,7 +107,7 @@ class Studio:
             path.write_text("# Taste log\n\nThe studio appends likes and rejects here. Agents read this before every design round.\n\n## Log\n", encoding="utf-8")
         snippet = " ".join(comment["snippet"].split())[:60]
         text = " ".join(comment["text"].split())
-        line = (f"- {comment['createdAt'][:10]} {comment['kind']} · {comment['layout']} / {comment['world']}"
+        line = (f"- {comment['createdAt'][:10]} {comment['kind']} · {comment['variant']}"
                 f" · {comment['screen']} @ {comment['width']}px · “{snippet}” · {text}\n")
         with path.open("a", encoding="utf-8") as output:
             output.write(line)
@@ -148,13 +154,20 @@ class Handler(SimpleHTTPRequestHandler):
             try:
                 project = self.studio.project()
             except (OSError, ValueError) as error:
-                self.send_json({"name": "Studio", "screens": [], "layouts": [], "worlds": [], "status": {},
+                self.send_json({"name": "Studio", "screens": [], "variants": [], "worlds": [], "status": {}, "_sizes": studio_export.SIZES,
                                 "_problems": [f"project.json can't be read: {error}"],
                                 "_rules": {"contrastPairs": [], "hueGuard": {"degrees": 0, "chroma": 1}, "requiredTokens": []}})
                 return
+            problems = studio_export.validate_project(project, self.studio.content)
+            try:
+                missing = studio_export.missing_previews(project, self.studio.content)
+            except (AttributeError, KeyError, TypeError):
+                missing = {}
             self.send_json({
                 **project,
-                "_problems": studio_export.validate_project(project),
+                "_problems": problems,
+                "_missing": missing,
+                "_sizes": studio_export.SIZES,
                 "_rules": {
                     "contrastPairs": studio_export.CONTRAST_PAIRS,
                     "hueGuard": {"degrees": studio_export.HUE_GUARD_DEGREES, "chroma": studio_export.HUE_GUARD_CHROMA},
@@ -183,8 +196,6 @@ class Handler(SimpleHTTPRequestHandler):
                     result = self.update_selection(body)
                 elif path == "/api/approve":
                     result = self.approve(body)
-                elif path == "/api/choose-layout":
-                    result = self.choose_layout(body)
                 elif path == "/api/comments":
                     result = self.add_comment(body)
                 elif path == "/api/palettes":
@@ -221,18 +232,15 @@ class Handler(SimpleHTTPRequestHandler):
     def update_selection(self, body):
         project = self.studio.project()
         current = self.studio.selection()
-        layouts = {item["id"] for item in project["layouts"]}
         worlds = {item["id"]: item for item in project["worlds"]}
         screens = {item["id"] for item in project["screens"]} | {"specimen"}
-        allowed = {"screen", "layout", "world", "width", "tuning", "feedback", "palette", "shortlist"}
+        allowed = {"screen", "variant", "width", "tuning", "feedback", "palette", "shortlist"}
         unknown = set(body) - allowed
         if unknown:
             raise ValueError(f"The studio sets {', '.join(sorted(unknown))} itself")
         nxt = {**current, **body}
-        if nxt["layout"] not in layouts | {None}:
-            raise ValueError("Unknown layout")
-        if nxt["world"] not in set(worlds) | {None}:
-            raise ValueError("Unknown world")
+        if nxt["variant"] not in set(worlds) | {None}:
+            raise ValueError("Unknown variant")
         if nxt["screen"] not in screens | {None}:
             raise ValueError("Unknown screen")
         if nxt["width"] not in WIDTHS:
@@ -244,7 +252,7 @@ class Handler(SimpleHTTPRequestHandler):
         shortlist = nxt["shortlist"]
         if not isinstance(shortlist, list) or len(shortlist) > 300 or not all(isinstance(item, str) and len(item) <= 80 for item in shortlist):
             raise ValueError("Shortlist must be a list of palette ids")
-        design_changed = any(nxt[key] != current[key] for key in ("layout", "world", "tuning", "palette"))
+        design_changed = any(nxt[key] != current[key] for key in ("variant", "tuning", "palette"))
         if design_changed:
             nxt.update(status="draft", approvedAt=None, revision=current["revision"] + 1)
         self.studio.save_selection(nxt)
@@ -296,10 +304,10 @@ class Handler(SimpleHTTPRequestHandler):
         query = parse_qs(urlparse(self.path).query)
         project = self.studio.project()
         selection = self.studio.selection()
-        world_id = (query.get("world") or [selection["world"]])[0]
+        world_id = (query.get("world") or [selection["variant"]])[0]
         world = next((item for item in project["worlds"] if item["id"] == world_id), None) or (project["worlds"] or [None])[0]
         if world is None:
-            self.send_json({"error": "No worlds in project.json"}, 404)
+            self.send_json({"error": "No variants in studio/candidates yet"}, 404)
             return
         tuning = {} if (query.get("tuned") or ["1"])[0] == "0" else selection["tuning"]
         try:
@@ -309,32 +317,18 @@ class Handler(SimpleHTTPRequestHandler):
             return
         self.send_json({"world": world["id"], "tokens": tokens, "fonts": world.get("fonts", {})})
 
-    def choose_layout(self, body):
-        selection = self.studio.selection()
-        if body.get("revision") != selection["revision"] or not selection["layout"]:
-            raise PermissionError("The page is out of date. Reload and choose again.")
-        if body.get("undo"):
-            selection["layoutChoice"] = None
-            self.studio.save_selection(selection)
-            return selection
-        selection["layoutChoice"] = {"layout": selection["layout"], "revision": selection["revision"], "at": now()}
-        self.studio.save_selection(selection)
-        return selection
-
     def approve(self, body):
         project = self.studio.project()
         selection = self.studio.selection()
         if body.get("revision") != selection["revision"]:
             raise PermissionError("The page is out of date. Reload and approve again.")
-        problems = studio_export.validate_project(project)
+        problems = studio_export.validate_project(project, self.studio.content)
         if problems:
-            raise PermissionError("Fix project.json first: " + "; ".join(problems))
-        layout = next((item for item in project["layouts"] if item["id"] == selection["layout"]), None)
-        world = next((item for item in project["worlds"] if item["id"] == selection["world"]), None)
-        if not layout or not world:
-            raise PermissionError("Pick a layout and a world first")
-        if world.get("neutral"):
-            raise PermissionError("The neutral world is for choosing a layout. Approve a world from the identity round.")
+            raise PermissionError("Fix the studio first: " + "; ".join(problems))
+        variant = next((item for item in project["variants"] if item["id"] == selection["variant"]), None)
+        if not variant:
+            raise PermissionError("Pick a model's design first")
+        world = variant["world"]
         tokens = studio_export.effective_tokens(project, world, selection["tuning"])
         checks = studio_export.run_checks(tokens)
         failed = [check["label"] for check in checks if not check["pass"]]
@@ -342,7 +336,7 @@ class Handler(SimpleHTTPRequestHandler):
             raise PermissionError("Checks fail: " + "; ".join(failed))
         font_checks = self.font_checks(body.get("fontChecks"), world)
         palette = selection["palette"].get(world["id"])
-        files = studio_export.write_exports(self.studio.root, project, layout, world, tokens, checks, font_checks, selection["revision"], palette)
+        files = studio_export.write_exports(self.studio.root, project, variant, world, tokens, checks, font_checks, selection["revision"], palette)
         selection.update(status="approved", approvedAt=now(), exported={"revision": selection["revision"], "at": now(), "files": files})
         self.studio.save_selection(selection)
         return selection
@@ -380,8 +374,7 @@ class Handler(SimpleHTTPRequestHandler):
             "id": uuid.uuid4().hex[:8],
             "kind": body["kind"],
             "text": text.strip(),
-            "layout": str(body.get("layout", ""))[:60],
-            "world": str(body.get("world", ""))[:60],
+            "variant": str(body.get("variant", ""))[:60],
             "screen": str(body.get("screen", ""))[:60],
             "width": body.get("width") if body.get("width") in WIDTHS else None,
             "selector": str(body.get("selector", ""))[:400],

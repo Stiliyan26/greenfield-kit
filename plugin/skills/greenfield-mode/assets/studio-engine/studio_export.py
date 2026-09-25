@@ -22,6 +22,14 @@ EXTENDED_TOKENS = (
     "color-primary-soft", "color-secondary-soft", "color-tertiary-soft", "color-surface-2",
 )
 PALETTE_ROLES = ("primary", "secondary", "tertiary", "neutral")
+# One variant per model that designed the product. More than three is too many to compare.
+MAX_VARIANTS = 3
+# Every screen is shown at these three sizes: a Full HD monitor, a laptop and a phone.
+SIZES = (
+    {"id": "desktop", "label": "Desktop", "width": 1920, "height": 1080},
+    {"id": "laptop", "label": "Laptop", "width": 1440, "height": 900},
+    {"id": "phone", "label": "Phone", "width": 390, "height": 844},
+)
 
 # (foreground, background, minimum ratio, what the pair is used for)
 CONTRAST_PAIRS = (
@@ -137,49 +145,103 @@ def run_checks(tokens):
     return results
 
 
-def validate_project(project):
-    """Return a list of problems in project.json that the agent must fix."""
+def load_variants(content):
+    """Read every studio/candidates/<id>/variant.json: one per model that designed the product.
+
+    A variant's world (its look) takes the variant's id, so tuning and palettes key on it.
+    Returns (variants, problems).
+    """
+    variants, problems = [], []
+    folder = content / "candidates"
+    for path in sorted(folder.glob("*/variant.json")) if folder.is_dir() else []:
+        variant_id = path.parent.name
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as error:
+            problems.append(f"candidates/{variant_id}/variant.json can't be read: {error}")
+            continue
+        if not isinstance(data, dict) or not isinstance(data.get("world", {}), dict):
+            problems.append(f"candidates/{variant_id}/variant.json must be an object with a world object")
+            continue
+        world = {**data.get("world", {}), "id": variant_id}
+        world.setdefault("name", data.get("model") or variant_id)
+        variants.append({"id": variant_id, "model": str(data.get("model", "")), "summary": str(data.get("summary", "")),
+                         "order": data.get("order", 0), "world": world})
+    variants.sort(key=lambda item: (item["order"] if isinstance(item["order"], (int, float)) else 0, item["id"]))
+    return variants, problems
+
+
+def preview_path(variant_id, screen_id):
+    """Every variant keeps one file per screen in its own folder."""
+    return f"/candidates/{variant_id}/{screen_id}.html"
+
+
+def validate_project(project, content=None):
+    """Return a list of problems in project.json and the variant folders that the agent must fix.
+
+    With the studio folder as `content`, also check that every screen file exists.
+    """
     try:
-        return find_problems(project)
+        return find_problems(project, content)
     except (AttributeError, KeyError, TypeError) as error:
         return [f"project.json has the wrong shape: {type(error).__name__} {error}"]
 
 
-def find_problems(project):
-    problems = []
-    for key in ("name", "screens", "layouts", "worlds", "status"):
+def find_problems(project, content=None):
+    problems = list(project.get("_loadProblems", []))
+    for key in ("name", "screens", "status"):
         if key not in project:
             problems.append(f"project.json is missing '{key}'")
-    if problems:
+    if len(problems) > len(project.get("_loadProblems", [])):
         return problems
-    for key, what in (("screens", "screen the product needs"), ("layouts", "layout with a preview file per screen"), ("worlds", "world")):
-        if not project[key]:
-            problems.append(f"Add at least one {what} to project.json")
+    if not project["screens"]:
+        problems.append("Add one screen to project.json for every view the brief names")
+    variants = project.get("variants", [])
+    if not variants:
+        problems.append("Add one variant per model: studio/candidates/<id>/variant.json and one <screen>.html per screen")
+    if len(variants) > MAX_VARIANTS:
+        problems.append(f"Show at most {MAX_VARIANTS} variants, one per model; there are {len(variants)}")
     for name in STATUS_NAMES:
         try:
             studio_color.parse(project["status"].get(name, ""))
         except ValueError as error:
             problems.append(f"status.{name}: {error}")
-    screen_ids = {screen["id"] for screen in project["screens"]}
-    for layout in project["layouts"]:
-        missing = screen_ids - set(layout.get("previews", {}))
-        if missing:
-            problems.append(f"Layout '{layout.get('id')}' has no preview for: {', '.join(sorted(missing))}")
-    for world in project["worlds"]:
+    screen_ids = [screen["id"] for screen in project["screens"]]
+    repeated = sorted({screen for screen in screen_ids if screen_ids.count(screen) > 1})
+    if repeated:
+        problems.append(f"Screen ids must be unique: {', '.join(repeated)}")
+    if content is not None:
+        for variant_id, absent in missing_previews(project, content).items():
+            problems.append(f"Variant '{variant_id}' has no file yet for: {', '.join(absent)}")
+    for variant in variants:
+        if not variant["model"]:
+            problems.append(f"Variant '{variant['id']}' must name the model that built it in variant.json")
+        world = variant["world"]
         tokens = world.get("tokens", {})
         for name in REQUIRED_TOKENS:
             if name not in tokens:
-                problems.append(f"World '{world.get('id')}' is missing token {name}")
+                problems.append(f"Variant '{variant['id']}' world is missing token {name}")
         for name, value in tokens.items():
             if name.startswith("color-"):
                 try:
                     studio_color.parse(value)
                 except ValueError as error:
-                    problems.append(f"World '{world.get('id')}' {name}: {error}")
+                    problems.append(f"Variant '{variant['id']}' {name}: {error}")
         fonts = world.get("fonts", {})
         if not fonts.get("display") or not fonts.get("body"):
-            problems.append(f"World '{world.get('id')}' needs fonts.display and fonts.body")
+            problems.append(f"Variant '{variant['id']}' world needs fonts.display and fonts.body")
     return problems
+
+
+def missing_previews(project, content):
+    """Screens whose file isn't in a variant's folder yet, per variant id."""
+    missing = {}
+    for variant in project.get("variants", []):
+        absent = [screen["id"] for screen in project["screens"]
+                  if not (content / preview_path(variant["id"], screen["id"]).lstrip("/")).is_file()]
+        if absent:
+            missing[variant["id"]] = absent
+    return missing
 
 
 def family_name(stack):
@@ -209,7 +271,7 @@ def tokens_css(project, world, tokens, revision, stamp, palette=None):
     return "\n".join(lines) + "\n"
 
 
-def design_md(project, layout, world, tokens, checks, font_checks, revision, stamp, palette=None):
+def design_md(project, variant, world, tokens, checks, font_checks, revision, stamp, palette=None):
     fonts = world["fonts"]
     type_scale = {**DEFAULT_TYPE, **world.get("type", {})}
     colors = {name.removeprefix("color-"): studio_color.to_hex(value) for name, value in tokens.items() if name.startswith("color-")}
@@ -245,7 +307,8 @@ def design_md(project, layout, world, tokens, checks, font_checks, revision, sta
         "",
         f"Palette: {palette['name']} (primary {palette['seeds']['primary']}, secondary {palette['seeds']['secondary']}, tertiary {palette['seeds']['tertiary']}, neutral {palette['seeds']['neutral']})." if palette else "Palette: the world's own colors.",
         "",
-        f"Approved in the design studio at revision {revision} on {stamp}. Layout: {layout['name']} ({layout.get('summary', '')}).",
+        f"Approved in the design studio at revision {revision} on {stamp}. Designed by {variant['model'] or variant['id']}"
+        + (f": {variant['summary']}" if variant.get("summary") else "."),
         "Build with `design/tokens.css`. Do not copy raw colors or font names into components.",
         "",
         "## Colors", "",
@@ -282,9 +345,12 @@ def design_md(project, layout, world, tokens, checks, font_checks, revision, sta
     body += ["", "| Role | Font | Size | Weight | Line height |", "| --- | --- | --- | --- | --- |"]
     for role, spec in type_scale.items():
         body.append(f"| {role} | {spec.get('font', 'body')} | {spec.get('fontSize')} | {spec.get('fontWeight')} | {spec.get('lineHeight')} |")
-    body += ["", "## Layout", "", f"{layout['name']}: {layout.get('summary', '')}", "", "Approved screens, which are the visual reference for delivery:", ""]
+    sizes = ", ".join(f"{size['width']}×{size['height']}" for size in SIZES)
+    body += ["", "## Screens", "", f"Approved screens, which are the visual reference for delivery. Each works at {sizes}.", ""]
     for screen in project["screens"]:
-        body.append(f"- {screen['label']}: `studio{layout['previews'][screen['id']]}`")
+        role = f" ({screen['role']})" if screen.get("role") else ""
+        need = f" Answers: {screen['requirement']}" if screen.get("requirement") else ""
+        body.append(f"- {screen['label']}{role}: `studio{preview_path(variant['id'], screen['id'])}`.{need}")
     body += ["", "## Shapes", ""]
     for name, value in rounded.items():
         body.append(f"- `--radius-{name}`: {value}")
@@ -315,7 +381,7 @@ def yaml(value, indent=0):
     return "\n".join(lines) + "\n"
 
 
-def write_exports(project_root, project, layout, world, tokens, checks, font_checks, revision, palette=None):
+def write_exports(project_root, project, variant, world, tokens, checks, font_checks, revision, palette=None):
     """Write both files. Refuse to replace a DESIGN.md the studio did not write."""
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     design_path = project_root / "DESIGN.md"
@@ -324,7 +390,7 @@ def write_exports(project_root, project, layout, world, tokens, checks, font_che
         if path.exists() and marker not in path.read_text(encoding="utf-8"):
             raise PermissionError(f"{path.relative_to(project_root)} exists and was not written by the studio. Move it or merge it by hand first.")
     css_path.parent.mkdir(exist_ok=True)
-    design_path.write_text(design_md(project, layout, world, tokens, checks, font_checks, revision, stamp, palette), encoding="utf-8")
+    design_path.write_text(design_md(project, variant, world, tokens, checks, font_checks, revision, stamp, palette), encoding="utf-8")
     css_path.write_text(tokens_css(project, world, tokens, revision, stamp, palette), encoding="utf-8")
     return [str(design_path.relative_to(project_root)), str(css_path.relative_to(project_root))]
 

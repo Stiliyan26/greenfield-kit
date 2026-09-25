@@ -12,23 +12,17 @@
 </head>
 <body>
   <header class="topbar">
-    <button type="button" id="rail-toggle" class="icon-btn" aria-pressed="true" title="Show or hide layouts and worlds ([)"></button>
+    <button type="button" id="rail-toggle" class="icon-btn" aria-pressed="true" title="Show or hide screens and references ([)"></button>
     <div class="brand">
       <span class="brand-mark" aria-hidden="true"></span>
       <strong id="product-name">Studio</strong>
     </div>
-    <ol id="stepper" class="stepper" aria-label="Design rounds">
-      <li data-step="layout" data-label="Layout">Layout</li>
-      <li data-step="identity" data-label="Identity">Identity</li>
-      <li data-step="approved" data-label="Approved">Approved</li>
-    </ol>
     <div class="top-actions">
       <span id="export-label" class="meta"></span>
       <span id="revision-label" class="meta"></span>
       <span id="status-chip" class="chip"></span>
       <span id="save-status" class="meta" role="status">Loading…</span>
       <button id="shortcuts-button" type="button" class="icon-btn" title="Keyboard shortcuts (?)"></button>
-      <button id="choose-layout" type="button" class="btn btn-primary">Choose layout</button>
       <button id="approve-reason" type="button" class="btn btn-quiet btn-small" hidden title="Open the checks that block approval"></button>
       <button id="approve" type="button" class="btn btn-primary">Approve</button>
       <button type="button" id="inspector-toggle" class="icon-btn" aria-pressed="true" title="Show or hide colors, tune, checks and comments (])"></button>
@@ -36,33 +30,38 @@
   </header>
   <div id="problems" class="problems" role="alert" hidden></div>
 
-  <nav class="rail" aria-label="Layouts, worlds and references">
+  <nav class="rail" aria-label="Screens and references">
     <section class="rail-section">
-      <h2 class="section-title">Layouts</h2>
-      <div id="layout-choice" class="choice-note" hidden></div>
-      <div id="layout-options" class="option-list"></div>
-    </section>
-    <section class="rail-section">
-      <h2 class="section-title">Worlds</h2>
-      <div id="world-options" class="option-list"></div>
+      <h2 class="section-title">Screens <span id="screen-count" class="count"></span></h2>
+      <p class="rail-hint">Pick a screen to compare every model's version.</p>
+      <div id="screen-options" class="screen-list"></div>
     </section>
     <section class="rail-section">
       <h2 class="section-title">References <span id="reference-count" class="count"></span></h2>
       <div id="references" class="reference-grid"></div>
     </section>
-    <p id="round-label" class="rail-foot"></p>
   </nav>
 
   <main class="workspace">
+    <div id="model-tabs" class="model-tabs" role="tablist" aria-label="Design by model"></div>
     <div class="canvas-bar">
-      <div id="screen-tabs" class="segmented" role="tablist" aria-label="Screen"></div>
-      <div class="segmented" role="group" aria-label="View">
-        <button type="button" id="view-frame" class="icon-btn" aria-pressed="true" title="Frame (G)"></button>
-        <button type="button" id="view-grid" class="icon-btn" aria-pressed="false" title="Overview (G)"></button>
+      <button type="button" id="frame-back" class="btn btn-quiet" title="Back to the canvas (Esc)">Back</button>
+      <span id="view-title" class="view-title"></span>
+      <div id="screen-stepper" class="screen-stepper" role="group" aria-label="Screen">
+        <button type="button" id="screen-prev" class="icon-btn" title="Previous screen (K)"></button>
+        <label class="sr-only" for="screen-select">Screen</label>
+        <select id="screen-select" class="screen-select"></select>
+        <button type="button" id="screen-next" class="icon-btn" title="Next screen (J)"></button>
       </div>
-      <div class="segmented" role="group" aria-label="Frame width and zoom">
+      <div id="zoom-controls" class="segmented" role="group" aria-label="Canvas zoom">
+        <button type="button" id="zoom-out" title="Zoom out (-)">−</button>
+        <button type="button" id="zoom-level" title="Zoom to 100%">20%</button>
+        <button type="button" id="zoom-in" title="Zoom in (+)">+</button>
+        <button type="button" id="zoom-fit" title="Fit everything (0)">Fit</button>
+      </div>
+      <div id="width-group" class="segmented" role="group" aria-label="Screen size and zoom">
         <span id="width-options" class="seg-inner"></span>
-        <button id="zoom-toggle" type="button" aria-pressed="true" title="Fit to the space, or real size (F)">Fit</button>
+        <button id="zoom-toggle" type="button" aria-pressed="true" title="Fit the whole screen, or real size (F)">Fit</button>
       </div>
       <span class="bar-gap"></span>
       <div class="palette-stepper" aria-label="Browse palettes">
@@ -72,11 +71,12 @@
       </div>
       <button id="comment-toggle" type="button" class="btn btn-quiet" aria-pressed="false" title="Pin a comment (C)"></button>
     </div>
-    <p id="comment-hint" class="canvas-hint" hidden>Click any element in the frame to pin a comment. Esc cancels.</p>
+    <p id="comment-hint" class="canvas-hint" hidden>Click any element in a screen to pin a comment. Esc cancels.</p>
     <div id="canvas" class="canvas">
-      <div id="grid" class="grid" aria-label="Layouts by worlds" hidden></div>
-      <div id="stage" class="stage">
-        <div class="frame-label"><span id="preview-title"></span><a id="open-tab" target="_blank" rel="noopener" title="Open this frame alone in a new tab"></a></div>
+      <div id="board" class="board" aria-label="Screens canvas: drag to pan, Ctrl and scroll to zoom"><div id="board-world" class="board-world"></div></div>
+      <div id="stage" class="stage" hidden>
+        <div class="frame-label"><span id="preview-title"></span><a id="open-tab" target="_blank" rel="noopener" title="Open this screen in a new tab"></a></div>
+        <p id="preview-need" class="frame-need"></p>
         <div id="frame-holder" class="frame-holder"></div>
       </div>
     </div>
@@ -95,7 +95,7 @@
     <div class="panel" data-panel="tune" hidden>
       <div class="panel-head">
         <h2 class="section-title">Tokens</h2>
-        <button id="reset-tuning" type="button" class="btn btn-quiet btn-small">Reset world</button>
+        <button id="reset-tuning" type="button" class="btn btn-quiet btn-small">Restore model colors</button>
       </div>
       <p class="hint">Fine-tune any color after choosing a palette. Lightness, chroma and hue are OKLCH.</p>
       <div id="tuner"></div>
@@ -150,9 +150,14 @@
       <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous or next palette</dd>
       <dt><kbd>S</kbd></dt><dd>Star the current palette</dd>
       <dt><kbd>C</kbd></dt><dd>Pin a comment</dd>
-      <dt><kbd>G</kbd></dt><dd>Frame or overview</dd>
-      <dt><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></dt><dd>1440, 1024 or 390 px</dd>
-      <dt><kbd>F</kbd></dt><dd>Fit or real size</dd>
+      <dt><kbd>M</kbd></dt><dd>Arena: every model</dd>
+      <dt><kbd>A</kbd></dt><dd>The selected model's screens</dd>
+      <dt><kbd>J</kbd> <kbd>K</kbd></dt><dd>Next or previous screen</dd>
+      <dt><kbd>Enter</kbd></dt><dd>Open the selected screen alone</dd>
+      <dt><kbd>Esc</kbd></dt><dd>Back from one screen to the canvas</dd>
+      <dt><kbd>-</kbd> <kbd>+</kbd> <kbd>0</kbd></dt><dd>Zoom out, in, or fit everything</dd>
+      <dt><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></dt><dd>1920, 1440 or 390 for one screen</dd>
+      <dt><kbd>F</kbd></dt><dd>Fit one screen, or real size</dd>
       <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>Hide or show the left or right panel</dd>
       <dt><kbd>P</kbd></dt><dd>Hide or show both panels</dd>
       <dt><kbd>Esc</kbd></dt><dd>Close or cancel</dd>

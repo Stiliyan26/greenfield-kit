@@ -1,6 +1,6 @@
 # Visual quality gate
 
-Run this on rendered candidates before the user sees them, in both rounds.
+Run this on every model's rendered variant before the user sees it.
 It checks pixels, not intentions. Naming a skill doesn't make a design good,
 and neither does a passing check.
 
@@ -8,22 +8,21 @@ and neither does a passing check.
 
 ## Before building
 
-For each candidate, write down:
+Each model, for its own variant, writes down:
 
-- The task and the real content that decide the layout.
+- The task and the real content that decide each screen.
 - The references it learns from: link, what to adapt, what not to copy. Look
   at the images, not only the search results.
-- Round 1: the source idea, a composition sketch, and the closest generic
-  template plus the change that avoids it.
-- Round 2: the type pair, the ten tokens, the signature detail and where it
-  comes from.
+- The source idea, and the closest generic template plus the change that
+  avoids it.
+- The type pair, the tokens, the signature detail and where it comes from.
 
-Candidates must differ in structure (round 1) or in type, color use and
-surface (round 2). A hue change on one design is not a second candidate.
+Models design on their own from the same brief. Nobody assigns them a
+structure or a style, so the user sees how each model designs.
 
 ## Mechanical checks
 
-1. Start the studio and capture every candidate:
+1. Start the studio and capture every screen of every variant at the three sizes:
 
    ```
    node <studio-scripts>/capture.mjs --url <studio url> --out temp/verification/<run>
@@ -43,13 +42,13 @@ surface (round 2). A hue change on one design is not a second candidate.
    `.agents/skills/impeccable/scripts/impeccable detect studio/candidates`
    once, where that skill is installed. Fix anti-patterns you introduced.
 
-5. In the identity round, open each world's specimen. Status colors must keep
-   one meaning each. Approval stays blocked while any contrast, hue or font
-   check fails.
+5. Run `python3 <studio-scripts>/check_variant.py studio` and open each
+   variant's specimen. Status colors must keep one meaning each. Approval
+   stays blocked while any contrast, hue or font check fails.
 
 ## Critique by someone else
 
-The agent that built a candidate may not grade it. Ask the `design-critic`
+The agent that built a variant may not grade it. Ask the `design-critic`
 agent. Give it:
 
 - The capture folder, including `capture.md`.

@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Оперативен ден — PartyFox</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+  a, button { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  .page { max-width: 1680px; margin: 0 auto; padding: clamp(16px, 2.4vw, 36px); }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-display); font-weight: 700; font-size: 18px;
+    letter-spacing: .02em; color: var(--color-primary);
+  }
+  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-tertiary); }
+  .day-meta { text-align: right; }
+  .day-meta .role { display: block; font-size: 12px; color: var(--color-muted); text-transform: uppercase; letter-spacing: .08em; }
+  .day-meta .day { font-family: var(--font-display); font-weight: 700; font-size: 17px; }
+
+  h1.heading {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(24px, 2.6vw, 32px); margin: 0 0 4px;
+    border-bottom: 4px double var(--color-ink);
+    padding-bottom: 10px;
+  }
+  .sub { color: var(--color-muted); margin: 8px 0 18px; font-size: 14px; }
+
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+  .stat {
+    background: var(--color-surface); border: 1px solid var(--color-line);
+    border-radius: var(--radius-md); padding: 10px 16px; min-width: 124px;
+  }
+  .stat .n { font-family: var(--font-display); font-weight: 700; font-size: 22px; display: block; }
+  .stat .l { font-size: 12px; color: var(--color-muted); }
+  .stat[data-tone="danger"] .n { color: var(--status-danger); }
+  .stat[data-tone="warning"] .n { color: var(--status-warning); }
+
+  /* --- ledger-tab chip, the signature: a torn-tab notch on the left --- */
+  .chip {
+    position: relative; display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px 3px 14px; border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+    font-size: 12px; font-weight: 600; white-space: nowrap;
+    border: 1px solid var(--color-line); background: var(--color-surface-2); color: var(--color-muted);
+  }
+  .chip::before {
+    content: ""; position: absolute; left: -1px; top: 50%; width: 8px; height: 8px;
+    background: var(--color-bg); border-radius: 50%; transform: translate(-50%, -50%);
+    border: 1px solid var(--color-line);
+  }
+  .chip[data-status="ok"] {
+    background: color-mix(in oklab, var(--status-ok) 14%, var(--color-surface));
+    color: var(--status-ok); border-color: color-mix(in oklab, var(--status-ok) 40%, var(--color-line));
+  }
+  .chip[data-status="warning"] {
+    background: color-mix(in oklab, var(--status-warning) 16%, var(--color-surface));
+    color: var(--status-warning); border-color: color-mix(in oklab, var(--status-warning) 45%, var(--color-line));
+  }
+  .chip[data-status="danger"] {
+    background: var(--status-danger); color: var(--color-surface); border-color: var(--status-danger);
+    font-weight: 700;
+  }
+
+  /* --- desktop / laptop schedule grid --- */
+  .schedule {
+    background: var(--color-surface); border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg); overflow: hidden;
+  }
+  .schedule-grid {
+    display: grid;
+    grid-template-columns: 60px 1fr .55fr .55fr 1fr 1fr .85fr;
+    grid-auto-rows: 52px;
+  }
+  .g-head {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-family: var(--font-display); font-weight: 700; font-size: 13px;
+    padding: 10px 6px; border-bottom: 4px double var(--color-ink);
+    background: var(--color-surface-2);
+  }
+  .g-head .role { font-size: 11px; font-weight: 500; color: var(--color-muted); }
+  .g-time {
+    display: flex; align-items: flex-start; justify-content: flex-end;
+    font-size: 11px; color: var(--color-muted); padding: 2px 8px 0 0;
+    border-top: 1px solid var(--color-line); border-right: 1px solid var(--color-line);
+  }
+  .g-cell { border-top: 1px solid var(--color-line); border-right: 1px solid var(--color-line); }
+  .g-cell:last-child { border-right: none; }
+  .g-block {
+    margin: 2px 4px; padding: 6px 8px; border-radius: var(--radius-sm);
+    font-size: 12px; line-height: 1.25; overflow: hidden;
+    border: 1px solid var(--color-line); background: var(--color-surface);
+  }
+  .g-block .t { font-weight: 700; }
+  .g-block .p { color: var(--color-muted); }
+  .g-block[data-status="ok"] { background: color-mix(in oklab, var(--status-ok) 10%, var(--color-surface)); border-color: color-mix(in oklab, var(--status-ok) 35%, var(--color-line)); }
+  .g-block[data-status="warning"] { background: color-mix(in oklab, var(--status-warning) 14%, var(--color-surface)); border-color: color-mix(in oklab, var(--status-warning) 45%, var(--color-line)); }
+  .g-block[data-status="danger"] { background: var(--status-danger); color: var(--color-surface); border-color: var(--status-danger); }
+  .g-block[data-status="danger"] .p { color: color-mix(in oklab, var(--color-surface) 80%, transparent); }
+  .g-block[data-blocked] {
+    background: repeating-linear-gradient(135deg, var(--color-surface-2), var(--color-surface-2) 6px, var(--color-surface) 6px, var(--color-surface) 12px);
+    border-style: dashed; color: var(--color-muted);
+  }
+
+  .agenda { display: none; }
+
+  footer.hint { margin-top: 14px; font-size: 12px; color: var(--color-muted); }
+
+  @media (max-width: 900px) {
+    .schedule { display: none; }
+    .agenda { display: block; }
+    .agenda-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: var(--color-surface); border: 1px solid var(--color-line);
+      border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 10px;
+    }
+    .agenda-item .time { font-family: var(--font-display); font-weight: 700; min-width: 52px; }
+    .agenda-item .info { flex: 1; min-width: 0; }
+    .agenda-item .info .who { font-weight: 600; }
+    .agenda-item .info .meta { color: var(--color-muted); font-size: 13px; }
+    .stats { justify-content: space-between; }
+    .stat { flex: 1 1 40%; min-width: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div class="brand"><span class="brand-dot"></span>PartyFox</div>
+    <div class="day-meta">
+      <span class="role">Собственик</span>
+      <span class="day" data-field="day"></span>
+    </div>
+  </div>
+
+  <h1 class="heading">Оперативен ден</h1>
+  <p class="sub" data-field="subhead"></p>
+
+  <div class="stats" data-block="stats">
+    <div class="stat"><span class="n" data-field="parties"></span><span class="l">Партита днес</span></div>
+    <div class="stat" data-tone="warning"><span class="n" data-field="unassigned"></span><span class="l">Без аниматор</span></div>
+    <div class="stat" data-tone="danger"><span class="n" data-field="depositsMissing"></span><span class="l">Липсващ депозит</span></div>
+    <div class="stat" data-tone="warning"><span class="n" data-field="clashes"></span><span class="l">Застъпване</span></div>
+  </div>
+
+  <div class="schedule">
+    <div class="schedule-grid" id="grid" data-block="schedule-grid"></div>
+  </div>
+
+  <div class="agenda" id="agenda" data-block="agenda"></div>
+
+  <p class="hint">Часове 9:00–21:00 · плъзнете надолу в приложението за пълния ден</p>
+</div>
+
+<script>
+  const D = window.PARTYFOX;
+  document.querySelector('[data-field="day"]').textContent = D.day;
+  document.querySelector('[data-field="subhead"]').textContent =
+    `${D.bookings.length} партита · ${D.summary.unassigned} без аниматор · ${D.summary.depositsMissing} без депозит`;
+  document.querySelector('[data-field="parties"]').textContent = D.summary.parties;
+  document.querySelector('[data-field="unassigned"]').textContent = D.summary.unassigned;
+  document.querySelector('[data-field="depositsMissing"]').textContent = D.summary.depositsMissing;
+  document.querySelector('[data-field="clashes"]').textContent = D.summary.clashes;
+
+  const animatorById = Object.fromEntries(D.animators.map(a => [a.id, a]));
+  const START = D.hours.start, END = D.hours.end, ROWS = END - START;
+
+  // columns: 1 time-gutter, then one per animator (Ivan gets two sub-columns for the clash), then unassigned
+  const colOf = { ema: 2, ivan: 3, maya: 5, simo: 6 };
+  const clashIds = new Set(D.bookings.filter(b => b.clashWith).flatMap(b => [b.id, b.clashWith]));
+
+  const grid = document.getElementById("grid");
+  let html = "";
+  html += `<div class="g-head" style="grid-column:1"></div>`;
+  html += `<div class="g-head" style="grid-column:2">Ема<span class="role">Клоун / балони</span></div>`;
+  html += `<div class="g-head" style="grid-column:3/5">Иван<span class="role">Фокусник</span></div>`;
+  html += `<div class="g-head" style="grid-column:5">Мая<span class="role">Лицева рисунка</span></div>`;
+  html += `<div class="g-head" style="grid-column:6">Симо<span class="role">Пират / игри</span></div>`;
+  html += `<div class="g-head" style="grid-column:7">Без аниматор</div>`;
+
+  for (let h = 0; h < ROWS; h++) {
+    const row = h + 2; // row 1 is the header
+    html += `<div class="g-time" style="grid-row:${row}">${START + h}:00</div>`;
+    for (let c = 2; c <= 7; c++) html += `<div class="g-cell" style="grid-row:${row};grid-column:${c}"></div>`;
+  }
+
+  function rowSpan(b) { return `${b.start - START + 2} / ${b.end - START + 2}`; }
+  function block(b, col, status) {
+    const anim = b.animator ? animatorById[b.animator] : null;
+    return `<div class="g-block" data-status="${status}" data-booking="${b.id}"
+      style="grid-row:${rowSpan(b)};grid-column:${col}">
+      <div class="t">${b.start}:00–${b.end}:00</div>
+      <div class="p">${b.child}, ${b.age} г. · ${b.package}</div>
+    </div>`;
+  }
+
+  for (const b of D.bookings) {
+    let status = b.deposit ? "ok" : "danger";
+    if (clashIds.has(b.id) || b.state === "needs-animator") status = b.deposit ? "warning" : "danger";
+    if (!b.animator) { html += block(b, 7, "warning"); continue; }
+    let col = colOf[b.animator];
+    if (b.animator === "ivan" && b.id === "b4") col = 4; // second sub-column for the clash
+    html += block(b, col, status);
+  }
+
+  for (const lv of D.leave) {
+    html += `<div class="g-block" data-blocked data-leave="${lv.animator}"
+      style="grid-row:${lv.from - START + 2} / ${lv.to - START + 2};grid-column:${colOf[lv.animator]}">
+      <div class="t">Отпуск</div><div class="p">${lv.from}:00–${lv.to}:00</div>
+    </div>`;
+  }
+  grid.innerHTML = html;
+
+  // phone agenda: same bookings, time-sorted
+  const agenda = document.getElementById("agenda");
+  const sorted = [...D.bookings].sort((a, b) => a.start - b.start);
+  agenda.innerHTML = sorted.map(b => {
+    const anim = b.animator ? animatorById[b.animator].name : "Без аниматор";
+    let status = b.deposit ? "ok" : "danger";
+    if (clashIds.has(b.id) || !b.animator) status = b.deposit ? "warning" : "danger";
+    const label = !b.animator ? "Без аниматор" : (clashIds.has(b.id) ? "Застъпване" : (b.deposit ? "Депозит платен" : "Депозит липсва"));
+    return `<div class="agenda-item" data-booking="${b.id}">
+      <div class="time">${b.start}:00</div>
+      <div class="info">
+        <div class="who">${b.child}, ${b.age} г. · ${b.package}</div>
+        <div class="meta">${anim}</div>
+      </div>
+      <span class="chip" data-status="${status}">${label}</span>
+    </div>`;
+  }).join("");
+</script>
+</body>
+</html>

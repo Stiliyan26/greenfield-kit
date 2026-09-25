@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Operations day</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--color-bg);color:var(--color-ink);font-family:var(--font-body);font-size:14.5px;line-height:1.45;min-height:100vh}
+h1,h2,h3,h4{margin:0;font-family:var(--font-display);font-weight:700;line-height:1.15}
+p{margin:0}
+a{color:var(--color-primary)}
+button{font:inherit}
+.tnum{font-variant-numeric:tabular-nums}
+.muted{color:var(--color-muted)}
+.small{font-size:12.5px}
+.ellip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+:focus-visible{outline:3px solid var(--color-accent);outline-offset:2px;border-radius:var(--radius-sm)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* chrome */
+.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:22px;height:56px;padding:0 24px;background:var(--color-surface);border-bottom:1px solid var(--color-line)}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:800;font-size:23px;letter-spacing:.01em;color:var(--color-ink);text-decoration:none}
+.brand i{width:15px;height:18px;border-radius:50% 50% 50% 50% / 45% 45% 55% 55%;background:var(--color-accent);position:relative;display:inline-block}
+.brand i::after{content:"";position:absolute;left:6px;bottom:-5px;width:3px;height:6px;background:var(--color-accent);border-radius:1px;transform:rotate(-12deg)}
+.nav{display:flex;gap:2px}
+.nav a{padding:7px 12px;border-radius:var(--radius-pill);color:var(--color-muted);text-decoration:none;font-weight:500;font-size:14px}
+.nav a[aria-current=page]{background:var(--color-primary-soft);color:var(--color-primary);font-weight:600}
+.who{margin-left:auto;display:flex;align-items:center;gap:10px;color:var(--color-muted);font-size:13px;text-align:right}
+.who b{display:block;color:var(--color-ink);font-weight:600}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--color-secondary);color:var(--color-on-secondary);display:grid;place-items:center;font-weight:700;font-family:var(--font-display);font-size:15px;flex:none}
+.tabbar{display:none;position:fixed;left:0;right:0;bottom:0;height:62px;background:var(--color-surface);border-top:1px solid var(--color-line);z-index:6;padding:4px 6px 6px}
+.tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;color:var(--color-muted);text-decoration:none;font-weight:600;border-radius:var(--radius-sm)}
+.tabbar a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabbar a[aria-current=page]{color:var(--color-primary)}
+
+/* page */
+.page{padding:18px 24px 28px;max-width:1800px;margin:0 auto}
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.pagehead h1{font-size:30px;font-weight:800;line-height:1.02}
+.pagehead .sub{color:var(--color-muted);margin-top:3px}
+.crumb{font-size:12.5px;color:var(--color-muted);margin-bottom:6px}
+.crumb a{color:var(--color-muted);text-decoration:none}
+.crumb a:hover{color:var(--color-primary)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* cards */
+.card{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);min-width:0}
+.card>header{padding:10px 14px;border-bottom:1px solid var(--color-line);display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.card>header h2{font-size:17px}
+.card .pad{padding:12px 14px}
+.label{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted)}
+.kv{display:grid;grid-template-columns:minmax(90px,120px) 1fr;gap:6px 12px;font-size:14px}
+.kv dt{color:var(--color-muted)}
+.kv dd{margin:0;min-width:0}
+.unset{color:var(--color-muted);font-style:italic}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;line-height:1.5;white-space:nowrap;vertical-align:middle}
+.badge.danger{background:var(--status-danger);color:var(--color-on-status)}
+.badge.warning{background:color-mix(in oklab, var(--status-warning) 14%, var(--color-surface));color:var(--status-warning);border:1px solid color-mix(in oklab, var(--status-warning) 45%, var(--color-surface))}
+.badge.ok{background:color-mix(in oklab, var(--status-ok) 12%, var(--color-surface));color:var(--status-ok)}
+.badge.neutral{background:var(--color-surface-2);color:var(--color-muted)}
+.badge.primary{background:var(--color-primary-soft);color:var(--color-primary)}
+.badge.secondary{background:var(--color-secondary-soft);color:var(--color-secondary)}
+.badge.accent{background:var(--color-tertiary-soft);color:var(--color-accent)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block;flex:none}
+.count{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 8px;border-radius:var(--radius-pill);border:1px solid var(--color-line);background:var(--color-surface);font-size:13px;font-weight:600;color:var(--color-ink);text-decoration:none}
+.count b{font-family:var(--font-display);font-size:17px;font-weight:800;line-height:1;min-width:14px;text-align:center}
+.count.danger{border-color:var(--status-danger);color:var(--status-danger)}
+.count.warning{border-color:color-mix(in oklab, var(--status-warning) 60%, var(--color-surface));color:var(--status-warning)}
+.count.ok{color:var(--status-ok)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:var(--radius-sm);border:1px solid var(--color-line);background:var(--color-surface);color:var(--color-ink);font-weight:600;font-size:13.5px;cursor:pointer;white-space:nowrap;line-height:1.3;text-decoration:none}
+.btn:hover{border-color:var(--color-muted)}
+.btn.primary{background:var(--color-primary);color:var(--color-on-primary);border-color:transparent}
+.btn.primary:hover{background:color-mix(in oklab, var(--color-primary) 88%, var(--color-ink))}
+.btn.secondary{background:var(--color-secondary-soft);color:var(--color-secondary);border-color:transparent}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--color-primary)}
+.btn.sm{padding:5px 10px;font-size:12.5px}
+.btn.block{width:100%}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* inputs */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12.5px;font-weight:600;color:var(--color-muted)}
+.input{width:100%;padding:9px 11px;border:1px solid var(--color-line);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-ink);font:inherit;font-size:14px;min-height:38px}
+.input::placeholder{color:color-mix(in oklab, var(--color-muted) 70%, var(--color-surface))}
+.search{display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--color-line);border-radius:var(--radius-pill);background:var(--color-surface);height:38px;min-width:0}
+.search svg{width:16px;height:16px;stroke:var(--color-muted);fill:none;stroke-width:2;flex:none}
+.search input{border:0;outline:0;background:transparent;font:inherit;font-size:14px;width:100%;color:var(--color-ink);min-width:0}
+.search input:focus-visible{outline:none}
+.search:focus-within{border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft)}
+.seg{display:inline-flex;border:1px solid var(--color-line);border-radius:var(--radius-sm);overflow:hidden;background:var(--color-surface)}
+.seg button{border:0;background:transparent;padding:7px 12px;font-size:13px;font-weight:600;color:var(--color-muted);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--color-primary);color:var(--color-on-primary)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 11px;border-radius:var(--radius-pill);border:1px solid var(--color-line);background:var(--color-surface);font-size:12.5px;font-weight:600;color:var(--color-muted);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--color-ink);color:var(--color-surface);border-color:var(--color-ink)}
+.chip b{font-weight:700;color:inherit}
+
+/* the signature: a ticket with a perforated stub */
+.ticket{--stub:86px;position:relative;display:grid;grid-template-columns:var(--stub) minmax(0,1fr);background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);min-width:0;text-align:left;color:inherit;text-decoration:none}
+.ticket>.stub{position:relative;padding:10px 8px;border-right:2px dashed var(--color-line);display:flex;flex-direction:column;justify-content:center;gap:2px;font-family:var(--font-display);font-weight:700;font-variant-numeric:tabular-nums;border-radius:calc(var(--radius-md) - 1px) 0 0 calc(var(--radius-md) - 1px);min-width:0;text-align:center}
+.ticket>.stub .t{font-size:19px;line-height:1.02;font-weight:800;letter-spacing:.005em}
+.ticket>.stub .d{font-size:12px;font-weight:600;color:var(--color-muted);font-family:var(--font-body);line-height:1.25}
+.ticket>.body{padding:10px 12px;min-width:0;display:flex;flex-direction:column;gap:3px;justify-content:center}
+.ticket .title{font-family:var(--font-display);font-size:17px;font-weight:700;line-height:1.1}
+.ticket .meta{font-size:13px;color:var(--color-muted)}
+.ticket::before,.ticket::after{content:"";position:absolute;left:calc(var(--stub) - 1px);width:12px;height:12px;border-radius:50%;background:var(--color-bg);border:1px solid var(--color-line);transform:translateX(-50%);z-index:1;pointer-events:none}
+.ticket::before{top:-7px;clip-path:inset(6px 0 0 0)}
+.ticket::after{bottom:-7px;clip-path:inset(0 0 6px 0)}
+.ticket.danger{border-color:var(--status-danger)}
+.ticket.danger>.stub{background:var(--status-danger);color:var(--color-on-status);border-right-color:color-mix(in oklab, var(--status-danger) 55%, var(--color-surface))}
+.ticket.danger>.stub .d{color:color-mix(in oklab, var(--color-on-status) 80%, var(--status-danger))}
+.ticket.danger::before,.ticket.danger::after{border-color:var(--status-danger)}
+.ticket.warning>.stub{background:color-mix(in oklab, var(--status-warning) 16%, var(--color-surface));color:var(--status-warning);border-right-color:color-mix(in oklab, var(--status-warning) 45%, var(--color-surface))}
+.ticket.warning{border-color:color-mix(in oklab, var(--status-warning) 55%, var(--color-surface))}
+.ticket.warning>.stub .d{color:var(--status-warning)}
+.ticket.ok>.stub{background:color-mix(in oklab, var(--status-ok) 10%, var(--color-surface));color:var(--status-ok)}
+.ticket.leave>.stub{background:repeating-linear-gradient(135deg, var(--color-surface-2) 0 5px, var(--color-surface) 5px 10px);color:var(--color-muted)}
+.ticket.selected{box-shadow:0 0 0 2px var(--color-primary);border-color:var(--color-primary)}
+.ticket.sm{--stub:62px}
+.ticket.sm>.stub{padding:6px 5px}
+.ticket.sm>.stub .t{font-size:16px}
+.ticket.sm>.stub .d{font-size:11.5px}
+.ticket.sm>.body{padding:6px 9px;gap:1px}
+.ticket.sm .title{font-size:15px}
+.ticket.sm .meta{font-size:12px}
+.ticket.lg{--stub:112px}
+.ticket.lg>.stub .t{font-size:26px}
+.ticket.lg>.stub .d{font-size:13px}
+.ticket.lg>.body{padding:14px 16px;gap:6px}
+.ticket.lg .title{font-size:24px}
+.ticket.lg .meta{font-size:14px}
+
+/* status blocks */
+.note{padding:10px 12px;border-radius:var(--radius-sm);font-size:13.5px;line-height:1.4}
+.note.warning{background:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));color:var(--status-warning);border:1px solid color-mix(in oklab, var(--status-warning) 40%, var(--color-surface))}
+.note.danger{background:var(--status-danger);color:var(--color-on-status)}
+.note.ok{background:color-mix(in oklab, var(--status-ok) 10%, var(--color-surface));color:var(--status-ok)}
+.note.neutral{background:var(--color-surface-2);color:var(--color-muted)}
+.note.info{background:var(--color-primary-soft);color:var(--color-primary)}
+.note b{font-weight:700}
+
+.stack{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hidden{display:none !important}
+
+@media (max-width:720px){
+  .topbar{height:52px;padding:0 16px;gap:12px}
+  .nav{display:none}
+  .who span{display:none}
+  .tabbar{display:flex}
+  body{padding-bottom:70px}
+  .page{padding:12px 16px 20px}
+  .pagehead{margin-bottom:10px}
+  .pagehead h1{font-size:26px}
+  .kv{grid-template-columns:88px 1fr}
+}
+
+/* ops-day */
+.ops{display:grid;gap:14px}
+.counts{display:flex;gap:8px;flex-wrap:wrap}
+.sched{border:1px solid var(--color-line);border-radius:var(--radius-md);background:var(--color-surface);overflow:hidden}
+.sched .hdr,.sched .r{display:grid;grid-template-columns:170px minmax(0,1fr)}
+.sched .hdr{border-bottom:1px solid var(--color-line);background:var(--color-surface-2)}
+.sched .hdr .rh{padding:0 12px;line-height:30px}
+.sched .hours{position:relative;height:30px;overflow:hidden}
+.sched .hours span{position:absolute;top:0;transform:translateX(-50%);font-size:11.5px;color:var(--color-muted);line-height:30px;font-variant-numeric:tabular-nums;font-weight:600}
+.sched .hours span:first-child{transform:none;padding-left:6px}
+.sched .hours span:last-child{transform:translateX(-100%);padding-right:6px}
+.sched .rh{padding:10px 12px;border-right:1px solid var(--color-line);display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0}
+.sched .rh b{font-family:var(--font-display);font-size:18px;font-weight:700;line-height:1.1}
+.sched .rh span{font-size:12.5px;color:var(--color-muted)}
+.sched .r{border-bottom:1px solid var(--color-line)}
+.sched .r:last-child{border-bottom:0}
+.sched .lane{position:relative;min-height:72px;background-image:linear-gradient(90deg, var(--color-line) 1px, transparent 1px);background-size:calc(100%/12) 100%}
+.sched .r.open .lane{background-color:color-mix(in oklab, var(--status-warning) 6%, var(--color-surface))}
+.sched .r.open .rh{background:color-mix(in oklab, var(--status-warning) 10%, var(--color-surface))}
+.sched .r.open .rh b{color:var(--status-warning)}
+.sched .r.tall .lane{min-height:146px}
+.blk{position:absolute;top:6px;height:60px}
+.blk .ticket{height:100%}
+.blk.l2{top:72px}
+.band{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg, color-mix(in oklab, var(--status-warning) 22%, transparent) 0 5px, transparent 5px 10px);border-left:1px solid var(--status-warning);border-right:1px solid var(--status-warning)}
+.band .badge{position:absolute;left:50%;transform:translateX(-50%);bottom:-1px;z-index:2}
+.leaveblk{position:absolute;top:6px;height:60px;display:flex;align-items:center;padding:0 10px;border:1px dashed var(--color-line);border-radius:var(--radius-sm);background:repeating-linear-gradient(135deg, var(--color-surface-2) 0 5px, var(--color-surface) 5px 10px);color:var(--color-muted);font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden}
+.okmark{color:var(--status-ok);font-weight:600}
+.attn{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.attn .card{display:flex;flex-direction:column}
+.attn .card>header{padding:9px 14px}
+.attn .card .pad{display:flex;flex-direction:column;gap:6px;flex:1}
+.attn .card .pad .actions{margin-top:auto;padding-top:6px}
+.attn .t{font-family:var(--font-display);font-size:19px;font-weight:700;line-height:1.1}
+.attn .free{font-size:13px;color:var(--color-muted)}
+.attn .free b{color:var(--color-ink)}
+.phonelist{display:none}
+.phonelist .ticket .body{gap:4px}
+.phonelist .meta .badge{margin-right:6px}
+.phonelist .meta{white-space:normal}
+.h2{font-size:18px;font-weight:700;margin-bottom:8px}
+@media (max-width:1200px){.sched .hdr,.sched .r{grid-template-columns:130px minmax(0,1fr)}}
+@media (max-width:720px){
+  .sched{display:none}
+  .phonelist{display:flex;flex-direction:column;gap:10px}
+  .attn{grid-template-columns:1fr;gap:8px}
+  .attn .card>header{padding:8px 12px}
+  .attn .card .pad{padding:8px 12px 10px}
+  .attn .t{font-size:17px}
+  .counts{gap:6px}
+  .count{padding:4px 10px 4px 7px;font-size:12.5px}
+}
+
+</style>
+</head>
+<body data-screen="ops-day" data-role="owner">
+<header class="topbar" data-part="topbar"><a class="brand" href="ops-day.html?world=fable"><i aria-hidden="true"></i>PartyFox</a><nav class="nav" aria-label="Основна навигация"><a href="ops-day.html?world=fable" aria-current="page">Ден</a><a href="inbox.html?world=fable">Поръчки</a><a href="customers.html?world=fable">Клиенти</a><a href="leave-requests.html?world=fable">Отпуски</a></nav><div class="who"><span><b>Собственик</b>PartyFox София</span><div class="avatar" aria-hidden="true">С</div></div></header><nav class="tabbar" aria-label="Основна навигация" data-part="tabbar"><a href="ops-day.html?world=fable" aria-current="page"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Ден</a><a href="inbox.html?world=fable"><svg viewBox="0 0 24 24"><path d="M3 13l2.5-7h13L21 13v6H3z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></svg>Поръчки</a><a href="customers.html?world=fable"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5a5 5 0 016 5.5"/></svg>Клиенти</a><a href="leave-requests.html?world=fable"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Отпуски</a></nav>
+<main class="page ops" id="main">
+  <div class="pagehead" data-part="pagehead">
+    <div>
+      <h1 id="day">Оперативен ден</h1>
+      <p class="sub" id="daysub"></p>
+    </div>
+    <div class="counts" id="counts" data-part="counts" aria-label="Обобщение за деня"></div>
+  </div>
+
+  <section class="sched" id="sched" data-part="schedule" aria-label="График по аниматори"></section>
+
+  <section id="phonelist" class="phonelist" data-part="phone-list" aria-label="Партита по часове"></section>
+
+  <section data-part="attention">
+    <h2 class="h2">Нуждае се от решение</h2>
+    <div class="attn" id="attn"></div>
+  </section>
+</main>
+
+<script>
+const D = window.PARTYFOX;
+const A = Object.fromEntries(D.animators.map((a) => [a.id, a]));
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const hh = (h) => String(h).padStart(2, "0") + ":00";
+const span = (s, e) => hh(s) + "–" + hh(e);
+const $ = (sel, root = document) => root.querySelector(sel);
+const html = (target, markup) => { (typeof target === "string" ? $(target) : target).innerHTML = markup; };
+const isPhone = () => window.matchMedia("(max-width: 720px)").matches;
+// Animators free for a slot on the ops day (no party, no leave).
+const freeAt = (s, e, except) => D.animators.filter((a) => a.id !== except
+  && !D.bookings.some((b) => b.animator === a.id && b.start < e && b.end > s)
+  && !D.leave.some((l) => l.animator === a.id && l.from < e && l.to > s));
+const stateOf = (b) => (b.deposit === false ? "danger" : (b.state === "needs-animator" || b.clashWith || D.bookings.some((o) => o.clashWith === b.id)) ? "warning" : "ok");
+// A ticket: stub with the time, body with the facts. cls adds the status, sizes and data-* hooks.
+function ticket({ cls = "", stub, sub, title, meta, extra = "", data = "", tag = "div", attrs = "" }) {
+  return `<${tag} class="ticket ${cls}" ${data} ${attrs}>
+    <div class="stub"><span class="t">${stub}</span>${sub ? `<span class="d">${sub}</span>` : ""}</div>
+    <div class="body"><div class="title ellip" title="${esc(title)}">${title}</div>${meta ? `<div class="meta ellip" title="${esc(meta.replace(/<[^>]+>/g, ""))}">${meta}</div>` : ""}${extra}</div>
+  </${tag}>`;
+}
+const badge = (cls, text) => `<span class="badge ${cls}">${text}</span>`;
+const orderLabel = { new: ["secondary", "Нова"], "needs-info": ["warning", "Липсва адрес"], clash: ["warning", "Няма свободен аниматор"], scheduled: ["neutral", "Насрочена"] };
+const leaveLabel = { pending: ["secondary", "Чака отговор"], approved: ["neutral", "Одобрен"], declined: ["neutral", "Отказан"] };
+const tagLabel = { repeat: ["primary", "Редовни"], large: ["accent", "Големи партита"], new: ["neutral", "Нови"] };
+const byId = (list) => Object.fromEntries(list.map((x) => [x.id, x]));
+const ORDERS = byId(D.orders), CUSTOMERS = byId(D.customers), BOOKINGS = byId(D.bookings);
+
+const H0 = D.hours.start, H1 = D.hours.end, N = H1 - H0;
+const pct = (h) => ((h - H0) / N) * 100;
+const pos = (s, e) => `left:calc(${pct(s)}% + 3px);width:calc(${pct(e) - pct(s)}% - 6px)`;
+const addr = (a) => a.replace(/ — .*$/, "");
+
+html("#daysub", `${D.day} · ${D.summary.parties} партита · ${D.animators.length} аниматори`);
+html("#counts", [
+  `<span class="count ok"><b>${D.bookings.filter((b) => b.deposit).length}</b> с депозит</span>`,
+  `<span class="count warning" data-count="unassigned"><b>${D.summary.unassigned}</b> без аниматор</span>`,
+  `<span class="count warning" data-count="clashes"><b>${D.summary.clashes}</b> застъпване</span>`,
+  `<span class="count danger" data-count="deposits"><b>${D.summary.depositsMissing}</b> депозит липсва</span>`,
+].join(""));
+
+function block(b, extraCls = "", lane = "") {
+  const st = stateOf(b);
+  const meta = esc(b.package) + (b.deposit ? ` <span class="okmark" title="Депозит платен">✓</span>` : "");
+  return `<div class="blk ${lane}" style="${pos(b.start, b.end)}">${ticket({
+    cls: `sm ${st === "ok" ? "" : st} ${extraCls}`, stub: hh(b.start), sub: `до ${hh(b.end)}`,
+    title: `${esc(b.child)}, ${b.age} г.`, meta, data: `data-booking="${b.id}"`, tag: "a", attrs: `href="booking.html?world=fable"`,
+  })}</div>`;
+}
+const hours = Array.from({ length: N + 1 }, (_, i) => `<span style="left:${pct(H0 + i)}%">${hh(H0 + i)}</span>`).join("");
+const rows = [];
+const open = D.bookings.filter((b) => !b.animator);
+rows.push(`<div class="r open" data-animator="none"><div class="rh"><b>Без аниматор</b><span>${open.length} парти чака</span></div><div class="lane">${open.map((b) => block(b)).join("")}</div></div>`);
+for (const a of D.animators) {
+  const mine = D.bookings.filter((b) => b.animator === a.id).sort((x, y) => x.start - y.start);
+  const leave = D.leave.filter((l) => l.animator === a.id);
+  let inner = "", tall = false;
+  const placed = [];
+  for (const b of mine) {
+    const clash = placed.find((p) => p.start < b.end && p.end > b.start);
+    if (clash) {
+      tall = true;
+      const s = Math.max(b.start, clash.start), e = Math.min(b.end, clash.end);
+      inner += `<div class="band" style="left:${pct(s)}%;width:${pct(e) - pct(s)}%" data-clash="${clash.id}+${b.id}">${badge("warning", `Застъпване ${span(s, e)}`)}</div>`;
+      inner += block(b, "", "l2");
+    } else inner += block(b);
+    placed.push(b);
+  }
+  for (const l of leave) inner += `<div class="leaveblk" style="${pos(l.from, l.to)}" data-leave="${a.id}-${l.from}" title="${esc(l.note)}">${esc(l.note)}</div>`;
+  rows.push(`<div class="r ${tall ? "tall" : ""}" data-animator="${a.id}"><div class="rh"><b>${a.name}</b><span>${esc(a.role)}</span></div><div class="lane">${inner}</div></div>`);
+}
+html("#sched", `<div class="hdr"><div class="rh label">Аниматор</div><div class="hours">${hours}</div></div>${rows.join("")}`);
+
+// Phone: the same parties as a list by time, unassigned first.
+const byTime = [...D.bookings].sort((x, y) => (x.animator ? 1 : 0) - (y.animator ? 1 : 0) || x.start - y.start);
+html("#phonelist", byTime.map((b) => {
+  const st = stateOf(b);
+  const who = b.animator ? badge("primary", A[b.animator].name) : badge("warning", "Без аниматор");
+  const extra = st === "danger" ? `<div>${badge("danger", "Депозит липсва")}</div>` : (b.clashWith || D.bookings.some((o) => o.clashWith === b.id)) ? `<div>${badge("warning", "Застъпване 15:00–16:00")}</div>` : "";
+  return ticket({ cls: st === "ok" ? "" : st, stub: hh(b.start), sub: `до ${hh(b.end)}`, title: `${esc(b.child)}, ${b.age} г. · ${esc(b.package)}`,
+    meta: `${who}${esc(addr(b.address))}`, extra, data: `data-booking="${b.id}"`, tag: "a", attrs: `href="booking.html?world=fable"` });
+}).join(""));
+
+// Decisions for the owner: the three difficult states in the data.
+const b6 = open[0];
+const clashPair = D.bookings.filter((b) => b.clashWith).map((b) => [BOOKINGS[b.clashWith], b])[0];
+const b5 = D.bookings.find((b) => !b.deposit);
+const cards = [];
+if (b6) {
+  const free = freeAt(b6.start, b6.end);
+  cards.push(`<article class="card" data-decision="assign" data-booking="${b6.id}"><header>${badge("warning", "Без аниматор")}<span class="small muted tnum">${span(b6.start, b6.end)}</span></header>
+    <div class="pad"><div class="t">${esc(b6.child)}, ${b6.age} г. · ${esc(b6.package)}</div><div class="small muted">${esc(b6.address)}</div>
+    <div class="free">Свободни в този час: <b>${free.map((a) => a.name).join(", ")}</b></div>
+    <div class="actions">${free.map((a) => `<button class="btn sm ${a === free[0] ? "primary" : ""}" type="button">Назначи ${a.name}</button>`).join("")}</div></div></article>`);
+}
+if (clashPair) {
+  const [first, second] = clashPair;
+  const s = Math.max(first.start, second.start), e = Math.min(first.end, second.end);
+  const free = freeAt(second.start, second.end, second.animator);
+  cards.push(`<article class="card" data-decision="clash" data-booking="${second.id}"><header>${badge("warning", "Застъпване")}<span class="small muted tnum">${span(s, e)}</span></header>
+    <div class="pad"><div class="t">${A[first.animator].name}: ${esc(first.child)} ${span(first.start, first.end)} и ${esc(second.child)} ${span(second.start, second.end)}</div>
+    <div class="small muted">${esc(second.child)}, ${second.age} г. · ${esc(second.package)} · ${esc(addr(second.address))}</div>
+    <div class="free">Свободни за ${esc(second.child)}: <b>${free.map((a) => a.name).join(", ")}</b></div>
+    <div class="actions">${free.map((a) => `<button class="btn sm ${a === free[0] ? "primary" : ""}" type="button">Премести при ${a.name}</button>`).join("")}<button class="btn sm ghost" type="button">Друг час</button></div></div></article>`);
+}
+if (b5) {
+  const reminder = D.booking.id === b5.id ? D.booking.messages.filter((m) => /депозит/i.test(m.text)).pop() : null;
+  cards.push(`<article class="card" data-decision="deposit" data-booking="${b5.id}"><header>${badge("danger", "Депозит липсва")}<span class="small muted tnum">${span(b5.start, b5.end)}</span></header>
+    <div class="pad"><div class="t">${esc(b5.child)}, ${b5.age} г. · ${esc(b5.package)} · ${A[b5.animator].name}</div>
+    <div class="small muted">${esc(D.booking.parent)} · ${esc(D.booking.phone)}</div>
+    <div class="free">${reminder ? `Напомняне по ${reminder.channel.toLowerCase()} на <b>${esc(reminder.when)}</b>` : "Няма изпратено напомняне"} · ${esc(D.booking.depositNote)}</div>
+    <div class="actions"><button class="btn sm primary" type="button">Отбележи депозита като получен</button><button class="btn sm" type="button">Напомни отново</button><a class="btn sm ghost" href="booking.html?world=fable">Резервацията</a></div></div></article>`);
+}
+html("#attn", cards.join(""));
+
+</script>
+</body>
+</html>

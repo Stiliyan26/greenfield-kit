@@ -2,30 +2,7 @@
   "name": "New product",
   "language": "en",
   "scripts": ["latin"],
-  "round": "layout",
   "screens": [],
-  "layouts": [],
-  "worlds": [
-    {
-      "id": "neutral",
-      "name": "Neutral",
-      "neutral": true,
-      "summary": "Plain grey for the layout round, so only the arrangement is judged.",
-      "fonts": { "display": "system-ui, sans-serif", "body": "system-ui, sans-serif" },
-      "tokens": {
-        "color-bg": "oklch(0.975 0 0)",
-        "color-surface": "oklch(1 0 0)",
-        "color-ink": "oklch(0.24 0 0)",
-        "color-muted": "oklch(0.48 0 0)",
-        "color-line": "oklch(0.88 0 0)",
-        "color-primary": "oklch(0.32 0 0)",
-        "color-on-primary": "oklch(1 0 0)",
-        "color-accent": "oklch(0.5 0 0)",
-        "radius-sm": "4px",
-        "radius-md": "6px"
-      }
-    }
-  ],
   "status": {
     "danger": "oklch(0.52 0.19 27)",
     "warning": "oklch(0.52 0.12 70)",

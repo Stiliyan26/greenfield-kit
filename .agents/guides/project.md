@@ -22,6 +22,7 @@ All from the repo root. `G` is `plugin/skills/greenfield-mode`.
 | Test the studio engine end to end | `node $G/scripts/test_studio.mjs` |
 | Capture every candidate | `node $G/scripts/capture.mjs --url http://127.0.0.1:4173 --out temp/verification/<run> --studio` |
 | Check candidates use only tokens | `python3 $G/scripts/check_tokens.py --project examples/partyfox/studio/project.json examples/partyfox/studio/candidates` |
+| Check each model's variant (files, contrast, hue) | `python3 $G/scripts/check_variant.py examples/partyfox/studio` |
 | Validate the plugin and marketplace | `claude plugin validate ./plugin --strict` and `claude plugin validate . --strict` |
 | Check the three manifests agree, or bump the version | `python3 tools/check_manifests.py [--bump <version>]` |
 | Regenerate the Codex agents in `.codex/agents/` | `python3 plugin/skills/setup-project/scripts/codex_agents.py --project .` |
@@ -30,4 +31,4 @@ All from the repo root. `G` is `plugin/skills/greenfield-mode`.
 
 ## PartyFox rules
 
-Owner approves leave and marks a deposit received. Animators see only their own parties and pay, and the missing-deposit warning. Only a missing deposit may be solid red; a clash, an unassigned party or leave that needs cover uses the warning amber. Money figures stay unset until supplied. The user chose the Roster layout; PartyFox is in the identity round with the Rota, Ledger and Playroom worlds.
+Owner approves leave and marks a deposit received. Animators see only their own parties and pay, and the missing-deposit warning. Only a missing deposit may be solid red; a clash, an unassigned party or leave that needs cover uses the warning amber. Money figures stay unset until supplied. PartyFox's studio was rebuilt from its brief: Claude Opus 5.5, Sonnet 5 and Fable 5.1 each designed every screen and a look (`studio/candidates/opus`, `sonnet`, `fable`). The earlier Roster, Board and Agenda studio is archived in `temp/archive/partyfox-studio-v1/`.

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// Screenshot every layout × world × width of a running design studio, plus each
-// world's specimen, and record mechanical problems for the design critic.
+// Screenshot every screen × variant × size of a running design studio (the sizes are
+// 1920×1080, 1440×900 and 390×844), plus each variant's specimen, and record
+// mechanical problems for the design critic. Screenshots are the full page.
 //
 //   node <greenfield-mode>/scripts/capture.mjs --url http://127.0.0.1:4173 --out temp/verification/<run>
-//     [--widths 1440,390] [--layouts a,b] [--worlds x,y] [--screens s] [--studio]
+//     [--sizes desktop,laptop,phone] [--variants a,b] [--screens s] [--studio]
 //
 // Playwright is found by ./playwright.mjs.
 import { mkdir, writeFile } from "node:fs/promises"
@@ -12,39 +13,40 @@ import { loadPlaywright } from "./playwright.mjs"
 
 const args = parseArgs(process.argv.slice(2))
 if (!args.url || !args.out) {
-  console.error("Usage: capture.mjs --url <studio url> --out <folder> [--widths 1440,390] [--layouts ids] [--worlds ids] [--screens ids] [--studio]")
+  console.error("Usage: capture.mjs --url <studio url> --out <folder> [--sizes desktop,laptop,phone] [--variants ids] [--screens ids] [--studio]")
   process.exit(2)
 }
 const base = args.url.replace(/\/$/, "")
 const out = resolve(args.out)
-const widths = (args.widths || "1440,390").split(",").map(Number)
 const pick = (value) => (value ? new Set(value.split(",")) : null)
 
 const project = await fetch(`${base}/api/project`).then((response) => response.json())
-const layouts = project.layouts.filter((item) => !pick(args.layouts) || pick(args.layouts).has(item.id))
-const worlds = project.worlds.filter((item) => !pick(args.worlds) || pick(args.worlds).has(item.id))
+const sizes = project._sizes.filter((item) => !pick(args.sizes) || pick(args.sizes).has(item.id))
+const variants = project.variants.filter((item) => !pick(args.variants) || pick(args.variants).has(item.id))
 const screens = [...project.screens.map((item) => item.id), "specimen"].filter((id) => !pick(args.screens) || pick(args.screens).has(id))
 
 const jobs = []
+const skipped = []
 for (const screen of screens) {
-  for (const world of worlds) {
-    if (screen === "specimen") {
-      for (const width of widths) jobs.push({ name: `specimen__${world.id}__${width}`, path: `/_studio/specimen.html?world=${world.id}`, width, screen, world: world.id })
-      continue
-    }
-    for (const layout of layouts) {
-      for (const width of widths) jobs.push({ name: `${screen}__${layout.id}__${world.id}__${width}`, path: `${layout.previews[screen]}?world=${world.id}`, width, screen, layout: layout.id, world: world.id })
-    }
+  for (const variant of variants) {
+    const specimen = screen === "specimen"
+    if (!specimen && project._missing?.[variant.id]?.includes(screen)) { skipped.push(`${variant.id}/${screen}`); continue }
+    const path = specimen ? `/_studio/specimen.html?world=${variant.id}` : `/candidates/${variant.id}/${screen}.html?world=${variant.id}`
+    for (const size of specimen ? sizes.slice(0, 1) : sizes) jobs.push({ name: `${screen}__${variant.id}__${size.id}`, path, width: size.width, height: size.height, screen, variant: variant.id })
   }
 }
-if (args.studio) for (const width of widths) jobs.push({ name: `studio__${width}`, path: "/", width, studio: true })
+if (args.studio) {
+  for (const view of ["", "arena"]) jobs.push({ name: `studio${view ? `-${view}` : ""}__1440`, path: view ? `/?view=${view}` : "/", width: 1440, height: 900, studio: true })
+  jobs.push({ name: "studio__390", path: "/", width: 390, height: 844, studio: true })
+}
+if (skipped.length) console.log(`Not built yet, skipped: ${[...new Set(skipped)].join(", ")}`)
 
 const { chromium } = await loadPlaywright()
 const browser = await chromium.launch()
 await mkdir(out, { recursive: true })
 const report = []
 for (const job of jobs) {
-  const page = await browser.newPage({ viewport: { width: job.width, height: 900 }, deviceScaleFactor: 1 })
+  const page = await browser.newPage({ viewport: { width: job.width, height: job.height }, deviceScaleFactor: 1 })
   const problems = []
   page.on("console", (message) => { if (message.type() === "error") problems.push(`console: ${message.text()}`) })
   page.on("pageerror", (error) => problems.push(`page error: ${error.message}`))
@@ -73,7 +75,7 @@ for (const job of jobs) {
 }
 await browser.close()
 await writeFile(join(out, "capture.json"), JSON.stringify({ url: base, at: new Date().toISOString(), shots: report }, null, 2))
-const lines = ["# Capture report", "", `Studio: ${base}`, "", "| Shot | Height | Fonts loaded | Problems |", "| --- | --- | --- | --- |"]
+const lines = ["# Capture report", "", `Studio: ${base}`, "", ...(skipped.length ? [`Not built yet, so not captured: ${[...new Set(skipped)].join(", ")}`, ""] : []), "| Shot | Height | Fonts loaded | Problems |", "| --- | --- | --- | --- |"]
 for (const shot of report) lines.push(`| ${shot.file} | ${shot.height}px | ${shot.loadedFonts.join(", ") || "none"} | ${[...shot.problems, ...(shot.clipped.length ? [`clipped text: ${shot.clipped.join(" · ")}`] : [])].join("<br>") || "none"} |`)
 await writeFile(join(out, "capture.md"), lines.join("\n") + "\n")
 console.log(`Wrote ${report.length} screenshots and capture.md to ${out}`)

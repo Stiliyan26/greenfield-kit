@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Ростър · Клиенти</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<style>
+  /* Roster: families are rows, three years of parties run across; birthdays sit on a 30-day strip. */
+  :root{
+    --tint-warning:color-mix(in oklab, var(--status-warning) 12%, var(--color-surface));
+    --tint-danger:color-mix(in oklab, var(--status-danger) 10%, var(--color-surface));
+    --tint-booking:var(--color-primary-soft);
+    --edge-booking:color-mix(in oklab, var(--color-primary) 35%, var(--color-surface));
+    --weekend:color-mix(in oklab, var(--color-surface-2) 70%, var(--color-surface));
+    --shadow:0 1px 2px color-mix(in oklab, var(--color-ink) 12%, transparent);
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font-family:var(--font-body);color:var(--color-ink);background:var(--color-bg);
+       font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
+  .shell{max-width:1180px;margin:0 auto;padding:20px 22px}
+  :focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+  .eyebrow{font-size:12px;color:var(--color-muted);font-weight:600}
+  h1{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .day{color:var(--color-muted);font-size:13px;margin-top:2px}
+  .search{font:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--color-line);border-radius:var(--radius-sm);
+          background:var(--color-surface);color:var(--color-ink);width:300px;max-width:100%}
+  .search::placeholder{color:var(--color-muted)}
+
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .chip{font:inherit;background:var(--color-surface);border:1px solid var(--color-line);border-radius:999px;color:var(--color-ink);cursor:pointer;
+        padding:6px 13px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px;white-space:nowrap}
+  .chip b{font-family:var(--font-display);font-size:15px;line-height:1}
+  .chip[aria-pressed="true"]{background:var(--color-secondary);border-color:var(--color-secondary);color:var(--color-on-secondary)}
+
+  .btn{font:inherit;font-size:13px;font-weight:600;border-radius:var(--radius-sm);padding:8px 14px;cursor:pointer;
+       border:1px solid var(--color-line);background:var(--color-surface);color:var(--color-ink);white-space:nowrap}
+  .btn:hover{background:var(--color-surface-2)}
+  .btn.primary{background:var(--color-primary);color:var(--color-on-primary);border-color:transparent}
+  .btn.sm{padding:4px 9px;font-size:12px}
+
+  .card{background:var(--color-surface);border:1px solid var(--color-line);border-radius:var(--radius-md);overflow:hidden}
+  .card > h2{font-size:12px;font-weight:700;color:var(--color-muted);padding:10px 14px;background:var(--color-surface-2);border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;gap:10px}
+  .card > h2 span{font-weight:600}
+
+  /* Birthday strip: the next 30 days as columns. */
+  .bstrip{position:relative;margin:0 14px;height:126px}
+  .bdays{position:absolute;inset:0;display:grid;grid-template-columns:repeat(30,1fr)}
+  .bdays i{border-left:1px solid color-mix(in oklab, var(--color-line) 55%, transparent);position:relative}
+  .bdays i.we{background:var(--weekend)}
+  .bdays i b{position:absolute;top:4px;left:0;right:0;text-align:center;font-size:11px;font-weight:600;color:var(--color-muted);font-style:normal;font-variant-numeric:tabular-nums}
+  .bdays i.today b{color:var(--color-primary)}
+  .bdays i.today{box-shadow:inset 2px 0 0 var(--color-primary)}
+  .bpin{position:absolute;width:160px;white-space:nowrap;border-radius:var(--radius-sm);padding:4px 8px;font-size:12px;box-shadow:var(--shadow);
+        background:var(--tint-booking);border:1px solid var(--edge-booking);border-left-width:3px;line-height:1.3}
+  .bpin .n{font-weight:700}
+  .bpin .s{color:var(--color-muted);font-size:11.5px}
+  .bpin.free{background:var(--color-surface);border:1.5px solid var(--color-tertiary);border-left-width:3px}
+  .bpin.free .s{color:var(--color-ink);font-weight:600}
+  .blist{display:none;list-style:none;padding:0}
+  .blist li{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--color-line);font-size:13px}
+  .blist li:last-child{border-bottom:0}
+  .blist .dt{font-family:var(--font-body);font-weight:700;font-size:13px;line-height:1.15}
+  .blist .dt small{display:block;font-family:var(--font-body);font-weight:500;font-size:11px;color:var(--color-muted)}
+  .blist .s{font-size:12px;color:var(--color-muted)}
+  .blist .free .s{color:var(--color-ink);font-weight:600}
+
+  /* Families roster */
+  .fam{margin-top:16px}
+  .ruler,.row{display:grid;grid-template-columns:230px minmax(0,1fr) 160px 150px}
+  .ruler{background:var(--color-surface-2);border-bottom:1px solid var(--color-line);font-size:12px;color:var(--color-muted);font-weight:600}
+  .ruler > div{padding:8px 14px}
+  .ruler .tl{min-height:0;position:relative;padding:0;border-left:1px solid var(--color-line);border-right:1px solid var(--color-line)}
+  .ruler .tl span{position:absolute;top:8px;font-size:11.5px;padding-left:6px}
+  .ruler .tl .now{color:var(--color-primary);font-weight:700;transform:translateX(-100%);padding:0 5px 0 0}
+
+  .row{border-bottom:1px solid var(--color-line);cursor:pointer}
+  .row:hover{background:color-mix(in oklab, var(--color-surface-2) 55%, var(--color-surface))}
+  .row[aria-expanded="true"]{background:var(--color-surface-2);box-shadow:inset 3px 0 0 var(--color-primary)}
+  .row:focus-visible{outline-offset:-2px}
+  .who{padding:11px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+  .who .nm{font-weight:650}
+  .who .pr{font-size:12.5px;color:var(--color-muted)}
+  .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
+  .tag{font-size:11px;font-weight:600;border-radius:var(--radius-sm);padding:2px 7px;background:var(--color-surface-2);color:var(--color-muted)}
+  .tag.repeat{background:var(--color-secondary-soft);color:var(--color-secondary)}
+  .tag.large{background:var(--color-tertiary-soft);color:var(--color-secondary)}
+  .row[aria-expanded="true"] .tag{background:var(--color-surface)}
+
+  .tl{position:relative;border-left:1px solid var(--color-line);border-right:1px solid var(--color-line);min-height:64px}
+  .yr{position:absolute;top:0;bottom:0;width:1px;background:var(--color-line)}
+  .nowline{position:absolute;top:0;bottom:0;width:2px;background:var(--color-primary);opacity:.55}
+  .axis{position:absolute;left:8px;right:8px;top:50%;height:1px;background:color-mix(in oklab, var(--color-line) 70%, transparent)}
+  .pt{position:absolute;top:50%;transform:translate(-50%,-50%);border-radius:50%;display:flex;align-items:center;justify-content:center;
+      font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;background:var(--tint-booking);border:1.5px solid var(--edge-booking);color:var(--color-secondary);z-index:1}
+  .pt.big{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-on-primary)}
+  .pt.dep{background:var(--tint-danger);border:2px solid var(--status-danger);color:var(--status-danger)}
+  .none{position:absolute;left:12px;top:40%;transform:translateY(-50%);font-size:12px;color:var(--color-muted)}
+
+  .next,.open{padding:11px 14px;display:flex;flex-direction:column;justify-content:center;gap:2px;font-size:13px}
+  .next .d{font-weight:650}
+  .next .s,.open .s{font-size:12px;color:var(--color-muted)}
+  .free-note{font-size:12px;font-weight:600;color:var(--color-ink)}
+  .dep-chip{align-self:flex-start;font-size:11px;font-weight:700;background:var(--status-danger);color:var(--color-surface);border-radius:var(--radius-sm);padding:2px 7px}
+  .link{color:var(--color-primary);font-weight:600}
+
+  .detail{display:none;grid-column:1 / -1;border-bottom:1px solid var(--color-line);background:var(--color-surface);padding:14px 16px 16px;
+          grid-template-columns:220px minmax(0,1fr) auto;gap:18px}
+  .detail.on{display:grid}
+  .detail h3{font-size:12px;color:var(--color-muted);font-weight:700;margin-bottom:6px}
+  .detail ul{list-style:none;padding:0;font-size:13px;display:flex;flex-direction:column;gap:3px}
+  table{border-collapse:collapse;font-size:13px;width:100%}
+  th{text-align:left;font-size:11.5px;color:var(--color-muted);font-weight:600;padding:4px 10px 4px 0;border-bottom:1px solid var(--color-line)}
+  td{padding:5px 10px 5px 0;border-bottom:1px solid color-mix(in oklab, var(--color-line) 60%, transparent);font-variant-numeric:tabular-nums}
+  td.big{font-weight:700;color:var(--color-secondary)}
+  .dacts{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--color-muted)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .lg{width:14px;height:14px;border-radius:50%;display:inline-block}
+  .lg-p{background:var(--tint-booking);border:1.5px solid var(--edge-booking)}
+  .lg-big{background:var(--color-primary)}
+  .lg-dep{background:var(--status-danger)}
+  .empty{padding:18px 14px;color:var(--color-muted);font-size:13px;display:none}
+
+  @media (max-width:1100px){
+    .ruler,.row{grid-template-columns:200px minmax(0,1fr) 140px 120px}
+    .bpin{width:150px}
+  }
+  @media (max-width:760px){
+    .shell{padding:14px}
+    h1{font-size:20px}
+    header{align-items:stretch}
+    .search{width:100%}
+    .bstrip{display:none}
+    .blist{display:block}
+    .ruler{display:none}
+    .row{grid-template-columns:1fr 1fr;grid-template-areas:"who who" "tl tl" "next open"}
+    .who{grid-area:who;padding:12px 12px 6px}
+    .tl{grid-area:tl;margin:0 12px;border:1px solid var(--color-line);border-radius:var(--radius-sm);min-height:52px;background:var(--color-surface)}
+    .tl .ylab{display:block}
+    .next{grid-area:next;padding:8px 12px 12px}
+    .open{grid-area:open;padding:8px 12px 12px}
+    .detail{grid-template-columns:1fr;gap:14px;padding:12px}
+    .dacts{flex-direction:row;flex-wrap:wrap}
+    .dacts .btn{flex:1 1 auto}
+  }
+  .ylab{display:none;position:absolute;bottom:2px;font-size:11px;color:var(--color-muted);padding-left:4px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <div class="eyebrow">Собственик</div>
+      <h1>Клиенти</h1>
+      <div class="day" id="day"></div>
+    </div>
+    <input class="search" id="q" type="search" placeholder="Търси семейство, родител или дете" aria-label="Търси клиент">
+  </header>
+
+  <section class="card" aria-label="Рождени дни">
+    <h2>Рождени дни в следващите 30 дни <span id="bcount"></span></h2>
+    <div class="bstrip" id="bstrip"></div>
+    <ul class="blist" id="blist"></ul>
+  </section>
+
+  <section class="fam">
+    <div class="filters" id="filters" role="group" aria-label="Филтър"></div>
+    <div class="card" id="grid"></div>
+    <div class="legend">
+      <span><i class="lg lg-p"></i> Парти, числото е броят гости</span>
+      <span><i class="lg lg-big"></i> Голяма поръчка (30+ гости)</span>
+      <span><i class="lg lg-dep"></i> Депозит липсва</span>
+    </div>
+  </section>
+</div>
+
+<script>
+const D = window.PARTYFOX;
+const MONTHS = ["яну", "фев", "март", "апр", "май", "юни", "юли", "авг", "септ", "окт", "ное", "дек"];
+const START = 2023, SPAN = 36;                 // Jan 2023 … Dec 2025
+const TODAY = (2025 - START) * 12 + 8 + 27 / 30; // 27 Sept 2025
+const pos = m => (m / SPAN) * 100;
+function monthOf(text) {
+  if (text === "днес") return TODAY;
+  const [, mon, year] = text.match(/^(\S+?)\.?\s+(\d{4})$/);
+  return (year - START) * 12 + MONTHS.indexOf(mon) + 0.5;
+}
+const isBig = h => h.guests >= 30;
+
+// Birthdays: day offset from today (27 Sept), 30 days shown.
+const off = text => { const m = text.match(/(\d+)\s+(септ|окт)/); return m[2] === "септ" ? +m[1] - 27 : +m[1] + 3; };
+const WD = ["сб", "нд", "пн", "вт", "ср", "чт", "пт"];
+const dayNum = i => i < 4 ? 27 + i : i - 3;
+const refLabel = r => r.startsWith("o") ? `поръчка #${r.slice(1)}` : "насрочено";
+
+document.getElementById("day").textContent = `${D.customers.length} семейства · история на партитата и рождени дни`;
+document.getElementById("bcount").textContent = `${D.birthdays.filter(b => !b.booked).length} без поръчка`;
+
+// Strip: two tracks so neighbouring birthdays don't cover each other.
+const ends = [];
+const pins = D.birthdays.map(b => {
+  const i = off(b.date);
+  let t = ends.findIndex(e => e <= i); if (t < 0) { t = ends.length; ends.push(0); }
+  ends[t] = i + 5; return { ...b, i, t };
+});
+document.getElementById("bstrip").innerHTML = `<div class="bdays" aria-hidden="true">` +
+  Array.from({ length: 30 }, (_, i) => `<i class="${i % 7 < 2 ? "we" : ""}${i === 0 ? " today" : ""}"><b>${i % 7 === 0 || i === 4 ? dayNum(i) + (i === 4 ? " окт" : "") : ""}</b></i>`).join("") + `</div>` +
+  pins.map(p => `<div class="bpin${p.booked ? "" : " free"}" data-birthday="${p.customer}" style="left:calc(${(p.i / 30) * 100}% + 2px);top:${26 + p.t * 48}px">
+      <div class="n">${p.child} · навършва ${p.turns}</div>
+      <div class="s">${p.date.split(", ")[1]} · ${p.booked ? (p.booked.startsWith("o") ? "#" + p.booked.slice(1) : "насрочено") : "няма поръчка"}</div></div>`).join("");
+document.getElementById("blist").innerHTML = D.birthdays.map(b => {
+  const [wd, rest] = b.date.split(", ");
+  return `<li class="${b.booked ? "" : "free"}" data-birthday="${b.customer}"><span class="dt">${rest}<small>${wd}</small></span>
+    <span><b>${b.child}</b> · навършва ${b.turns}<br><span class="s">${b.booked ? refLabel(b.booked) : "никой не е поръчал"}</span></span>
+    ${b.booked ? "" : `<button class="btn sm">Предложи парти</button>`}</li>`;
+}).join("");
+
+const FILTERS = [
+  { id: "all", label: "Всички", test: () => true },
+  { id: "repeat", label: "Редовни", test: c => c.tags.includes("repeat") },
+  { id: "large", label: "Големи поръчки", test: c => c.tags.includes("large") || c.history.some(isBig) },
+  { id: "new", label: "Нови", test: c => c.tags.includes("new") },
+  { id: "bday", label: "Рожден ден до 30 дни", test: c => D.birthdays.some(b => b.customer === c.id) },
+];
+let filter = "all", query = "", open = "c4";
+
+function rowHtml(c) {
+  const bd = D.birthdays.find(b => b.customer === c.id);
+  const today = c.history.find(h => h.date === "днес");
+  const tags = [
+    c.tags.includes("repeat") && `<span class="tag repeat">Редовни · ${c.history.length} партита</span>`,
+    (c.tags.includes("large") || c.history.some(isBig)) && `<span class="tag large">Големи поръчки</span>`,
+    c.tags.includes("new") && `<span class="tag">Нов клиент</span>`,
+  ].filter(Boolean).join("");
+  const years = [1, 2].map(y => `<i class="yr" style="left:${pos(y * 12)}%"></i>`).join("") +
+    [0, 1, 2].map(y => `<span class="ylab" style="left:${pos(y * 12)}%">${START + y}</span>`).join("");
+  const dots = c.history.length ? c.history.map(h => {
+    const size = Math.round(20 + Math.min(h.guests, 45) / 45 * 10);
+    const cls = h.depositMissing ? " dep" : isBig(h) ? " big" : "";
+    return `<span class="pt${cls}" style="left:${pos(monthOf(h.date))}%;width:${size}px;height:${size}px" title="${h.date} · ${h.child} · ${h.package} · ${h.guests} гости">${h.guests}</span>`;
+  }).join("") : `<span class="none">Още няма партита</span>`;
+  const next = bd
+    ? `<span class="d">${bd.child} · ${bd.date.split(", ")[1]}</span><span class="${bd.booked ? "s" : "free-note"}">${bd.booked ? refLabel(bd.booked) : "никой не е поръчал"}</span>`
+    : `<span class="s">${c.children.map(k => `${k.name} · ${k.birthday}`).join("<br>")}</span>`;
+  const openCell = today && today.depositMissing
+    ? `<span class="s">Парти днес</span><span class="dep-chip">Депозит липсва</span>`
+    : today ? `<span class="s">Парти днес</span>` : c.open ? `<span class="link">#${c.open.slice(1)}</span><span class="s">отворена поръчка</span>` : `<span class="s">няма отворена</span>`;
+  return `<div class="row" role="button" tabindex="0" data-customer="${c.id}" aria-expanded="${c.id === open}">
+      <div class="who"><span class="nm">${c.family}</span><span class="pr">${c.parent} · ${c.phone}</span><span class="tags">${tags}</span></div>
+      <div class="tl"><i class="axis"></i>${years}<i class="nowline" style="left:${pos(TODAY)}%"></i>${dots}</div>
+      <div class="next">${next}</div>
+      <div class="open">${openCell}</div>
+    </div>
+    <div class="detail${c.id === open ? " on" : ""}" data-customer-detail="${c.id}">
+      <div><h3>Деца</h3><ul>${c.children.map(k => `<li><b>${k.name}</b> · рожден ден ${k.birthday}</li>`).join("")}</ul></div>
+      <div><h3>История</h3>${c.history.length ? `<table><thead><tr><th>Кога</th><th>Дете</th><th>Пакет</th><th>Гости</th></tr></thead><tbody>` +
+        c.history.map(h => `<tr><td>${h.date}</td><td>${h.child}</td><td>${h.package}</td><td class="${isBig(h) ? "big" : ""}">${h.guests}</td></tr>`).join("") +
+        `</tbody></table>` : `<p style="font-size:13px;color:var(--color-muted)">Първата им поръчка е #${(c.open || "").slice(1)}.</p>`}</div>
+      <div class="dacts"><button class="btn primary">Нова поръчка</button><button class="btn">Пиши на ${c.parent.split(" ")[0]}</button></div>
+    </div>`;
+}
+
+function render() {
+  document.getElementById("filters").innerHTML = FILTERS.map(f =>
+    `<button class="chip" data-filter="${f.id}" aria-pressed="${f.id === filter}"><b>${D.customers.filter(f.test).length}</b> ${f.label}</button>`).join("");
+  const f = FILTERS.find(x => x.id === filter);
+  const q = query.trim().toLowerCase();
+  const list = D.customers.filter(f.test).filter(c => !q ||
+    [c.family, c.parent, ...c.children.map(k => k.name)].some(s => s.toLowerCase().includes(q)));
+  const nowLeft = pos(TODAY);
+  document.getElementById("grid").innerHTML = `<div class="ruler" aria-hidden="true"><div>Семейство</div><div class="tl">` +
+    [0, 1, 2].map(y => `<span style="left:${pos(y * 12)}%">${START + y}</span>`).join("") +
+    `<span class="now" style="left:${nowLeft}%">днес</span></div><div>Следващ рожден ден</div><div>Поръчка</div></div>` +
+    (list.length ? list.map(rowHtml).join("") : `<div class="empty" style="display:block">Няма клиенти по това търсене.</div>`);
+  document.querySelectorAll("#filters .chip").forEach(b => b.addEventListener("click", () => { filter = b.dataset.filter; render(); }));
+  document.querySelectorAll(".row").forEach(r => {
+    const toggle = () => { open = open === r.dataset.customer ? null : r.dataset.customer; render();
+      document.querySelector(`.row[data-customer="${r.dataset.customer}"]`).focus(); };
+    r.addEventListener("click", toggle);
+    r.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+  });
+}
+document.getElementById("q").addEventListener("input", e => { query = e.target.value; render(); });
+render();
+</script>
+</body>
+</html>
