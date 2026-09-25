@@ -21,6 +21,7 @@ disable-model-invocation: true
    happened in this chat), the exact edit and the file. Change nothing until
    the user picks which to apply.
 5. **Apply the approved ones.** Update `.agents/README.md` if a skill or file
-   was added or renamed, then run `npm run agents:check`.
+   was added or renamed, and run whatever check the project has for its agent
+   setup.
 
 **Reply:** applied edits, one line each, and the ones dropped with the reason.

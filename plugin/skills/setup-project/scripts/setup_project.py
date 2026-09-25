@@ -32,7 +32,8 @@ def main():
         print("Skipped, already there (merge by hand if needed):")
         for item in skipped:
             print(f"  {item}")
-    print("Next: fill in .agents/guides/project.md and .agents/guides/verification.md.")
+    print("Next: fill in .agents/PROJECT.md — its facts, commands and checks.")
+    print("For a Node project, also run write-code/scripts/install_eslint.py to install the code rules as checks.")
 
 
 if __name__ == "__main__":

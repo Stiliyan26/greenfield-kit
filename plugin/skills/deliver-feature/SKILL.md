@@ -10,6 +10,10 @@ decision is missing, use `plan-feature` or `design-interface` for that part
 only. Don't redo work that's already approved. Follow any project-specific
 rules for retries, review and the final report.
 
+**Code.** Where code goes and how it's written is the `write-code` skill. Read
+it before the first file, and run its ESLint preset on the files you touched
+before you call a slice done.
+
 **Design.** If the project has `DESIGN.md`, read it before any UI task. Build
 screens from its approved screens and `design/tokens.css`: every color, font
 and radius is a `var(--…)` from that file. Don't invent a look, add a
@@ -27,17 +31,30 @@ design doesn't cover, stop that part and use `design-interface`.
    user or API call can observe. API tests can come before the code; unit and
    component tests can grow with it. A test that fails only because the code
    doesn't exist yet proves nothing.
-3. **Build in thin slices.** Each slice works end to end. Follow the project's
-   coding conventions when present. Run tasks in
-   parallel only when they don't depend on each other and don't touch the same
-   files.
+3. **Build in thin slices.** Each slice works end to end. Follow `write-code`
+   and the project's own rules in `.agents/PROJECT.md`. Run tasks in parallel
+   only when they don't depend on each other and don't touch the same files.
 4. **Check once, at the end.** Each helper runs its own small checks. Put all
-   the pieces together, then run the project's verification checks once.
-   For screens, capture desktop and phone and compare them with the approved
-   screens in `DESIGN.md`.
-   After any fix, run again the checks
-   it affects.
-5. **Review, then report** the feature as ready, blocked, or not checked.
+   the pieces together, then run the project's checks from `.agents/PROJECT.md`
+   once: type check, lint, unit tests.
+   - Look for an end-to-end suite before you say there isn't one: a `test:e2e`
+     script, an `e2e/` folder, `playwright.config.*`, `cypress.config.*`. If
+     one exists, run it and report its summary line.
+   - Drive the feature in a real browser the way a user would — the project's
+     `verify-<app>` skill if it has one, otherwise Playwright. Save the action
+     and the state it produced, not just the last screen, and check the side
+     effects (saved rows, sent messages) as well as the screen.
+   - For screens, capture desktop and phone and compare them with the approved
+     screens in `DESIGN.md`. Then ask the `design-critic` agent to score the
+     captures. You may not grade your own screens. Under 70, or any score of 1,
+     means fix it before the user sees it.
+   After any fix, run again the checks it affects. A check that was skipped,
+   failed, or couldn't run is not a pass; name it.
+5. **Review, then report.** Ask the `reviewer` agent to check the change
+   against the plan, the conventions and the real check output. It can't run
+   commands, so give it the results you got. Fix what it puts under "Act on";
+   for the rest, say what you're leaving and why. Then report the feature as
+   ready, blocked, or not checked.
 
 ## When you're stuck
 

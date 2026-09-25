@@ -5,7 +5,7 @@ sandbox_mode = "read-only"
 developer_instructions = """
 <!-- The checklist, sorting and blast-radius step are adapted from pstack's interrogate and blast-radius skills (github.com/cursor/plugins, MIT, (c) 2026 Lauren Tan). -->
 
-Read .agents/INSTRUCTIONS.md and .agents/guides/project.md first.
+Read .agents/INSTRUCTIONS.md and .agents/PROJECT.md first.
 
 ## What to review
 
@@ -26,10 +26,10 @@ Read .agents/INSTRUCTIONS.md and .agents/guides/project.md first.
 2. **Cause or symptom?** A guard, retry or cast that hides a deeper problem.
    A fix in one module that belongs in another. A written warning where a type
    or check could make the mistake impossible.
-3. **Access.** Who may see or change what, per `docs/role-permissions.md`.
+3. **Access.** Who may see or change what, per the roles in `.agents/PROJECT.md`.
    Refused and out-of-scope requests must be blocked on the server, not just
    hidden in the UI. Trace the input path before flagging a security issue.
-4. **Fits the code.** Per `.agents/guides/conventions.md`: checks at the edge,
+4. **Fits the code.** Per the `write-code` skill: checks at the edge,
    logic in the right module, reuse, one job per file. Bolted on, or built as
    if the design always had it? An old path kept alive next to the new one?
 5. **Too complex?** Wrappers that only pass the same arguments on, options

@@ -1,7 +1,7 @@
 # Working agreement
 
 These rules apply in every project. This project's facts, commands and paths
-are in `.agents/guides/project.md`.
+are in `.agents/PROJECT.md`.
 
 ## Talking to the user
 
@@ -37,8 +37,9 @@ the end, one short line each:
 
 - Look for what already exists, by name and by what it does. Read it and the
   places that use it before reusing it.
-- Follow `.agents/guides/conventions.md`. Keep the app's existing look; don't invent a
-  new visual style for an ordinary feature.
+- Follow the `write-code` skill for where code goes and how it's written, and
+  run its ESLint preset on the files you touched. Keep the app's existing look;
+  don't invent a new visual style for an ordinary feature.
 - Stay within what the user asked. If something else needs changing, say so
   instead of doing it. Every changed line should trace back to the request.
 - Remove imports and functions your own change left unused. Mention older dead
@@ -60,8 +61,16 @@ the end, one short line each:
 - Work in small steps that each work on their own.
 - Share code only when the pieces really mean the same thing, not just because
   they look alike.
-- Run the checks in `.agents/guides/verification.md`. A check that was skipped, failed,
-  or couldn't run is not a pass; say so.
+- Run the project's checks from `.agents/PROJECT.md`: type check, lint, unit
+  tests. A check that was skipped, failed, or couldn't run is not a pass; say
+  so.
+- Look for an end-to-end suite before you say there isn't one (`test:e2e`,
+  `e2e/`, `playwright.config.*`, `cypress.config.*`). If one exists and the
+  change could affect it, run it and report the summary line.
+- For a change to a screen or a flow, drive it in a real browser with
+  Playwright the way a user would, and save the screenshots. Code that
+  compiles, or one screenshot of one state, doesn't prove a feature works.
+  If the project has a `verify-<app>` skill, use it.
 - Keep screenshots and test output in the project's evidence folder until the
   user has seen them. Don't delete them when you finish.
 - If the same fix fails twice, stop. Explain what's blocking and show the

@@ -12,7 +12,7 @@ planning.
 ## Start
 
 1. **Read what exists.** In an existing project: the project profile
-   (`.agents/guides/project.md`), related code and tests, access rules, earlier plans.
+   (`.agents/PROJECT.md`), related code and tests, access rules, earlier plans.
    Fit what's there; don't re-ask questions already answered. If `DESIGN.md`
    exists, it settles the look; link it instead of asking about colors or
    fonts. In a new project:
@@ -23,7 +23,7 @@ planning.
 
 ## Mode: you propose
 
-1. Draft the plan (template below). For each real choice, give 2-3 options in
+1. Draft the plan, using [plan.md](references/plan.md). For each real choice, give 2-3 options in
    plain words, the tradeoff, and your recommendation with evidence.
 2. Walk the user through the decisions one at a time, biggest first. Change the
    plan as they answer.
@@ -68,45 +68,7 @@ planning.
 - If the code later needs something the plan doesn't say, update the plan and
   tell the user. Don't quietly drift from it.
 
-## Template
+## The plan itself
 
-Save to the plan folder named in the project profile, or `docs/plans/<feature>/plan.md`.
-
-```markdown
-# <Feature> plan
-
-Status: Draft | Approved (YYYY-MM-DD, by the user)
-Design: `DESIGN.md` at studio revision <n>, or "no approved design yet"
-
-## What it does
-Two or three sentences a user would understand.
-
-## Who can do what
-- <Role>: can <action>. Can't <action>.
-
-## Done when
-- D1: <someone does X> → <they see Y>
-- D2: <someone not allowed tries X> → <blocked, sees Z>
-- D3: <edge case> → <what happens>
-
-## Changes
-- Database: new or changed tables/columns; what happens to existing data.
-- API: each endpoint, who may call it, what goes in and out, errors. Show one
-  example call from the screen that uses it.
-- Screens: which screens and components, reused or new. Name the approved
-  studio screen each one follows. Don't restate colors or fonts; `DESIGN.md`
-  owns them.
-
-## Decisions
-- <Question>: <chosen option>. Why: <reason>. Evidence: <file, doc, test>.
-  Decided by: agreed | user (AI concern: <risk>)
-
-## Build order
-1. <smallest usable piece> (D1, D2)
-2. <next piece> (D3)
-
-## Open questions
-- <Question> (blocks step N)
-```
-
-Give each "Done when" line an ID. Tests and later tasks refer to these IDs.
+The shape of the plan, and where to save it, is in
+[plan.md](references/plan.md).

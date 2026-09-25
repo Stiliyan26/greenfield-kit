@@ -10,8 +10,8 @@ description: Write a project skill that starts the real app, drives it the way a
 Every project needs one scripted way to start the real app, use a feature the
 way a user would, and save proof. This skill writes that as
 `.agents/skills/verify-<app>/`. Write it for the next agent, who reads it cold
-in the middle of a task and has never seen the app. HRise's version is
-[verify-hrise](../verify-hrise/SKILL.md); use it as the example.
+in the middle of a task and has never seen the app. [example.md](references/example.md)
+shows a finished one — copy its shape, never its values.
 
 ## 1. Learn it from the repo, not the user
 

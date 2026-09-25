@@ -23,9 +23,8 @@ End with exactly one, and say which:
 
 Only the verify skill's own folder: its `SKILL.md`, `features/`, and the
 scripts it owns. Never product code. Some of those scripts may be shared with
-the test suite (for HRise, `e2e/scripts/run.mjs` also runs CI): after changing
-one, run the full suite too. When the app no longer does what the map
-says, decide which it is:
+the test suite: after changing one, run the full suite too. When the app no
+longer does what the map says, decide which it is:
 
 - The map is out of date: fix the map.
 - The app is broken: report it to the user, and keep the map as it was.

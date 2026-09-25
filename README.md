@@ -82,7 +82,7 @@ python3 <plugin>/skills/setup-project/scripts/sync_global.py --push
 
 Run it without `--push` to see what differs first.
 
-**For a team.** Run the `setup-project` skill in the project. It copies the working rules (`AGENTS.md`, `.agents/INSTRUCTIONS.md`, the guides) and adds a `.claude/settings.json` that enables the plugin for everyone who trusts the folder. It never overwrites a file that exists.
+**For a team.** Run the `setup-project` skill in the project. It copies the working rules (`AGENTS.md`, `.agents/INSTRUCTIONS.md`, `.agents/PROJECT.md`) and adds a `.claude/settings.json` that enables the plugin for everyone who trusts the folder. It never overwrites a file that exists. For a Node project it can also install the `write-code` ESLint preset.
 
 ## What's inside
 
@@ -93,6 +93,7 @@ Run it without `--push` to see what differs first.
 | `plan-feature` | Plans data, roles, API and screens with the user. Links the approved `DESIGN.md` instead of deciding the look again. |
 | `deliver-feature` | Builds from the plan in small, checked steps, using only `design/tokens.css` for colors, fonts and radius. |
 | `design-animations` | Purposeful motion: transitions, gestures, performance, reduced motion. |
+| `write-code` | Where code goes and how it's written: folder layers, TypeScript style, React, NestJS. Ships an ESLint preset so the mechanical rules are checked, not remembered. |
 | `refactor` | Structure changes that provably keep behavior. |
 | `create-verification-skill`, `maintain-verification-skill` | Write and keep up a project skill that drives the real app and saves proof. |
 | `reflect`, `bro` | Improve the setup after a bad task; restate the last answer plainly. You start both by typing them. |
@@ -242,7 +243,7 @@ Screens use only tokens: `var(--color-…)`, `var(--status-…)`, `var(--font-di
 - `.agents/skills/` and `.agents/agents/` link into `plugin/`, so this repo uses its own kit while you work on it.
 - `.codex/agents/*.toml` are generated from `plugin/agents/` by `codex_agents.py --project .`. Don't edit them by hand.
 - `examples/partyfox/` is the test bed: a fake kids-party agency tool with fake data only. Its studio has three variants, `opus`, `sonnet` and `fable`. Run `cd examples/partyfox && python3 studio/server.py --port 4173`.
-- Checks are in `.agents/guides/verification.md`. The main ones:
+- Checks are in `.agents/PROJECT.md`. The main ones:
 
 ```
 node plugin/skills/greenfield-mode/scripts/test_studio.mjs

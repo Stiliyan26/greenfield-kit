@@ -8,7 +8,8 @@ This repo is the greenfield-kit Claude Code plugin and its marketplace. It is de
 - Three marketplaces point at it: `.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json` (Codex), `.cursor-plugin/marketplace.json`.
 - `.codex/agents/*.toml` are generated from `plugin/agents/` by `codex_agents.py`. Never edit them by hand.
 - `.agents/skills/<name>` and `.agents/agents/<name>` are symlinks into `plugin/`, so Codex, Cursor and Claude Code in this repo use the same files. `.agents/skills/impeccable/` is a separately installed third-party skill, not part of the kit.
-- `.agents/INSTRUCTIONS.md` and `guides/conventions.md`, `guides/pagination.md` are symlinks to the `setup-project` templates. Editing them edits what new projects receive.
+- `.agents/INSTRUCTIONS.md` is a symlink to the `setup-project` template. Editing it edits what new projects receive. `.agents/PROJECT.md` is this repo's own copy, not a template.
+- How to write and place code is the `write-code` skill. Its ESLint preset lives in `plugin/skills/write-code/assets/eslint.config.mjs`; this repo has no JavaScript app of its own to run it on.
 - The studio engine is `plugin/skills/greenfield-mode/assets/studio-engine/`. A project's `studio/` holds content only.
 - `temp/verification/` keeps screenshots and test output until the user has seen them.
 
@@ -28,6 +29,33 @@ All from the repo root. `G` is `plugin/skills/greenfield-mode`.
 | Regenerate the Codex agents in `.codex/agents/` | `python3 plugin/skills/setup-project/scripts/codex_agents.py --project .` |
 | Design detector | `.agents/skills/impeccable/scripts/impeccable detect examples/partyfox/studio/candidates` |
 | Compare the kit with ~/.agents (Codex, Cursor) | `python3 plugin/skills/setup-project/scripts/sync_global.py` |
+
+## Checks
+
+Run the ones that match what you changed. A check that is missing, skipped or failing is not a pass — say which.
+
+### Studio engine or greenfield-mode scripts
+
+1. Check the syntax of every changed Python and JavaScript file.
+2. Run the end-to-end studio test. It must print `0 failed`.
+3. Start the PartyFox studio, capture it with `--studio`, and look at the captures at 1440, 1024 and 390.
+4. Ask the `design-critic` agent to score changed studio UI. Under 70 means revise first.
+
+### Studio content in examples/partyfox
+
+1. The token check prints `0 problems`.
+2. Capture every candidate and read `capture.md`: no sideways scroll, no console errors, fonts loaded.
+
+### Skills, agents and the plugin
+
+1. Read each changed skill as a future agent would: links, commands, paths and stage order must exist.
+2. Both `claude plugin validate` commands pass with `--strict`, and `python3 tools/check_manifests.py` prints `Manifests agree.`
+3. After changing an agent, regenerate `.codex/agents/` with `codex_agents.py --project .`.
+4. After changing a skill or agent, bump the version with `tools/check_manifests.py --bump <version>` so installed copies update.
+5. After changing the ESLint preset, run it against a throwaway project before claiming it works: `node --check` only proves it parses.
+6. To test Codex without touching your setup: `CODEX_HOME=<temp> codex plugin marketplace add .` then `codex plugin add greenfield-kit@greenfield-kit`.
+
+Keep screenshots and test output in `temp/verification/` until the user has seen them.
 
 ## PartyFox rules
 
