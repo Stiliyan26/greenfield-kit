@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "greenfield-kit",
-  "version": "0.1.0",
-  "description": "Design-to-delivery workflow: a local design studio with a palette library, layout and identity rounds, a separate design critic, DESIGN.md and tokens.css on approval, then planning and delivery that build with those tokens.",
+  "version": "0.3.0",
+  "description": "Design-to-delivery workflow: a local design studio where up to three models each design every screen at three sizes, a palette library, a separate design critic, DESIGN.md and tokens.css on approval, then planning and delivery that build with those tokens.",
   "author": {
     "name": "Stiliyan Nikolov"
   },
@@ -21,7 +21,7 @@
       "interface": {
         "displayName": "Greenfield kit",
         "shortDescription": "Design studio, palette library, design critic, and plan/delivery skills that build from the approved design.",
-        "longDescription": "Design-to-delivery workflow: a local design studio with a palette library, layout and identity rounds, a separate design critic, DESIGN.md and tokens.css on approval, then planning and delivery that build with those tokens.",
+        "longDescription": "Design-to-delivery workflow: a local design studio where up to three models each design every screen at three sizes, a palette library, a separate design critic, DESIGN.md and tokens.css on approval, then planning and delivery that build with those tokens.",
         "developerName": "Stiliyan Nikolov",
         "category": "Productivity"
       }
