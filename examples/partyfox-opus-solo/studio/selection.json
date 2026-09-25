@@ -1,11 +1,13 @@
 {
-  "screen": null,
-  "variant": null,
+  "screen": "inbox",
+  "variant": "opus",
   "width": 1920,
   "tuning": {},
+  "palette": {},
+  "shortlist": [],
   "feedback": "",
   "status": "draft",
-  "revision": 1,
+  "revision": 6,
   "approvedAt": null,
   "exported": null
 }

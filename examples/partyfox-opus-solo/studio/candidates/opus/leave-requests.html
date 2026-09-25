@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Отпуски</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<link rel="stylesheet" href="./pf.css">
+<script src="./pf.js"></script>
+<style>
+  .layout { display: grid; grid-template-columns: 380px minmax(0, 1fr) 560px; gap: 22px; align-items: start; }
+  .group-label { padding: 12px 16px 6px; display: flex; align-items: center; gap: 8px; }
+  .req { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; padding: 11px 16px; border-top: 1px solid var(--color-line); text-decoration: none; }
+  .req .avatar { grid-row: span 2; }
+  .req b { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .req .when { font-size: 13.5px; color: var(--color-muted); font-weight: 600; grid-column: 2; }
+  .req .tag { grid-row: span 2; }
+  .req[aria-current="true"] { background: var(--color-primary-soft); box-shadow: inset 4px 0 0 var(--color-primary); }
+  .req:last-child { border-radius: 0 0 var(--radius-md) var(--radius-md); }
+  .req.past { opacity: 0.85; }
+
+  .detail { display: grid; gap: 16px; }
+  .ticket { --stub: 170px; }
+  .ticket .stub { justify-content: center; }
+  .range { font-family: var(--font-display); font-weight: 800; font-size: 50px; line-height: 0.9; font-variant-numeric: tabular-nums; }
+  .range small { display: block; font-size: 22px; color: var(--color-muted); margin-top: 2px; }
+  .ticket .stub .len { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-muted); }
+  .person { display: flex; align-items: center; gap: 12px; }
+  .person .avatar { width: 44px; height: 44px; font-size: 16px; }
+  .person h2 { font-family: var(--font-display); font-weight: 800; font-size: 36px; line-height: 0.95; }
+  .person p { font-size: 13.5px; color: var(--color-muted); font-weight: 600; }
+  .reason { margin: 14px 0 0; font-size: 17px; line-height: 1.45; font-weight: 500; padding-left: 14px; border-left: 3px solid var(--color-accent); }
+
+  .conflicts { padding: 4px 18px 8px; }
+  .conflicts .issue { font-size: 15px; margin: 4px 0 8px; }
+  .cf { display: grid; grid-template-columns: 58px 76px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 0; border-top: 1px dashed var(--color-line); }
+  .cf .t { font-family: var(--font-display); font-weight: 800; font-size: 24px; font-variant-numeric: tabular-nums; line-height: 1; }
+  .cf .t small { display: block; font-family: var(--font-body); font-size: 12px; color: var(--color-muted); font-weight: 700; }
+  .cf b { display: block; font-size: 15px; }
+  .cf .meta { font-size: 13px; color: var(--color-muted); font-weight: 600; }
+  .cf .free { font-size: 13.5px; font-weight: 600; margin-top: 4px; }
+  .cf .free span { color: var(--color-muted); }
+  .cf .tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
+  .decide { padding: 14px 18px; border-top: 1.5px solid var(--color-ink); display: grid; gap: 12px; }
+  .decide .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .decide .row .spacer { flex: 1; }
+
+  .cover .panel-head { flex-wrap: wrap; }
+  .cover .panel-head p { font-size: 13px; color: var(--color-muted); font-weight: 600; width: 100%; }
+  .grid { display: grid; grid-template-columns: 136px repeat(7, minmax(0, 1fr)); margin: 4px 14px 14px; border: 1px solid var(--color-line); border-radius: var(--radius-sm); overflow: hidden; }
+  .grid > div { min-height: 50px; border-right: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); padding: 5px; font-size: 12px; min-width: 0; }
+  .grid > div:nth-child(8n) { border-right: 0; }
+  .grid .gh { min-height: 0; background: var(--color-surface-2); text-align: center; font-weight: 800; padding: 6px 2px; }
+  .grid .gh b { display: block; font-family: var(--font-display); font-size: 20px; line-height: 1; }
+  .grid .gh.today { color: var(--color-accent); }
+  .grid .name { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 13px; }
+  .grid .name span { min-width: 0; line-height: 1.1; }
+  .grid .cell.leave-pending { background: repeating-linear-gradient(135deg, color-mix(in oklab, var(--status-warning) 14%, var(--color-surface)) 0 6px, var(--color-surface) 6px 12px); }
+  .grid .cell.leave-ok { background: color-mix(in oklab, var(--status-ok) 10%, var(--color-surface)); }
+  .blk { display: block; border: 1.5px solid var(--color-ink); background: var(--color-surface); border-radius: 4px; padding: 2px 4px; font-weight: 800; font-size: 12px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .blk + .blk { margin-top: 3px; }
+  .blk.hit { border-color: var(--status-warning); color: var(--status-warning); border-style: dashed; }
+  .grid .cell .lv { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--status-warning); margin-bottom: 2px; }
+  .grid .cell.leave-ok .lv { color: var(--status-ok); }
+  .grid .gname { background: var(--color-surface); }
+  .key { display: flex; gap: 14px; flex-wrap: wrap; padding: 0 14px 14px; font-size: 13px; font-weight: 700; color: var(--color-muted); }
+  .key span { display: inline-flex; gap: 6px; align-items: center; }
+  .key i { width: 14px; height: 12px; border-radius: 3px; display: inline-block; }
+  .key .kp { background: repeating-linear-gradient(135deg, color-mix(in oklab, var(--status-warning) 30%, var(--color-surface)) 0 3px, var(--color-surface) 3px 6px); border: 1px solid var(--status-warning); }
+  .key .ko { background: color-mix(in oklab, var(--status-ok) 16%, var(--color-surface)); border: 1px solid var(--status-ok); }
+  .key .kb { border: 1.5px solid var(--color-ink); }
+
+  .mobile { display: none; }
+
+  @media (max-width: 1600px) {
+    .layout { grid-template-columns: 330px minmax(0, 1fr); gap: 18px; }
+    .cover { grid-column: 1 / -1; }
+    .page-head h1 { font-size: 44px; }
+    .ticket { --stub: 150px; }
+    .range { font-size: 44px; }
+    .person h2 { font-size: 32px; }
+    .reason { font-size: 16px; margin-top: 10px; }
+    .ticket > .body { padding: 14px 18px; }
+    .cf { padding: 7px 0; }
+    .decide { padding: 12px 18px; gap: 10px; }
+    .decide textarea { min-height: 44px; }
+  }
+  @media (max-width: 720px) {
+    .layout { display: none; }
+    .mobile { display: grid; gap: 14px; }
+    .m-group { display: grid; gap: 10px; }
+    .m-card { padding: 14px; display: grid; gap: 10px; }
+    .m-card .top { display: flex; gap: 10px; align-items: center; }
+    .m-card .top b { display: block; font-size: 16px; }
+    .m-card .top span { font-size: 13px; color: var(--color-muted); font-weight: 600; }
+    .m-card .top .range { font-size: 30px; margin-left: auto; text-align: right; }
+    .m-card .top .range small { font-size: 14px; }
+    .m-card .why { font-size: 14.5px; }
+    .m-card .acts { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; }
+    .m-card .hit { display: grid; gap: 4px; padding: 8px 10px; border: 1.5px dashed var(--status-warning); border-radius: var(--radius-sm); background: color-mix(in oklab, var(--status-warning) 7%, var(--color-surface)); }
+    .m-card .hit div { font-size: 13.5px; font-weight: 600; }
+    .m-past { padding: 4px 14px; }
+    .m-past .req { padding: 10px 0; }
+    .m-past .req:first-child { border-top: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1>Отпуски</h1>
+        <p data-summary></p>
+      </div>
+    </div>
+    <div class="layout">
+      <section class="panel" data-list aria-label="Заявки за отпуска"></section>
+      <section class="detail" data-detail aria-label="Избрана заявка"></section>
+      <section class="panel cover" data-cover aria-label="Кой е зает около тези дни"></section>
+    </div>
+    <div class="mobile" data-mobile></div>
+  </main>
+</div>
+<script>
+(() => {
+  const { D, esc, date, animator, booking, customer, prog, tag, chip, avatar, icon, dateTile, addDays, diff, fromToday, issues } = PF
+  PF.shell("owner", "leave-requests")
+  const SELECTED = "l1"
+
+  const pending = D.leave.filter((l) => l.status === "pending").sort((a, b) => a.from.localeCompare(b.from))
+  const decided = D.leave.filter((l) => l.status !== "pending").sort((a, b) => b.from.localeCompare(a.from))
+  const len = (l) => diff(l.from, l.to) + 1
+  const days = (n) => `${n} ${n === 1 ? "ден" : "дни"}`
+  const withConflicts = pending.filter((l) => l.conflicts.length)
+  document.querySelector("[data-summary]").textContent = `${pending.length} заявки чакат твоето решение. ${withConflicts.length ? `${withConflicts.length} от тях засяга${withConflicts.length === 1 ? "" : "т"} записани партита.` : ""}`
+
+  const stateTag = (l) => l.status === "pending"
+    ? (l.conflicts.length ? tag("warning", `${l.conflicts.length} партита`, "alert") : tag("neutral", "Чака", "clock"))
+    : l.status === "approved" ? tag("ok", "Одобрена", "check") : tag("neutral", "Отказана", "x")
+  const reqRow = (l) => `<a class="req ${fromToday(l.to) < 0 ? "past" : ""}" href="#" data-leave="${l.id}" data-status="${l.status}"${l.id === SELECTED ? ' aria-current="true"' : ""}>
+      ${avatar(l.animatorId)}<b>${esc(animator(l.animatorId).name)}</b>${stateTag(l)}
+      <span class="when">${date.range(l.from, l.to)} · ${days(len(l))} · ${esc(l.reason.length > 34 ? l.reason.slice(0, 32).trim() + "…" : l.reason)}</span></a>`
+  document.querySelector("[data-list]").innerHTML =
+    `<div class="panel-head"><h2>Заявки</h2></div>`
+    + `<div class="group-label label">Чакат решение · ${pending.length}</div>${pending.map(reqRow).join("")}`
+    + `<div class="group-label label" style="border-top:1.5px solid var(--color-ink);margin-top:-1px">Решени · ${decided.length}</div>${decided.map(reqRow).join("")}`
+
+  // Who else could take a party: knows the program, has no party then and no leave that day. Shown, not chosen.
+  const overlaps = (a, b) => a.date === b.date && a.start < b.end && b.start < a.end
+  const onLeave = (id, day) => D.leave.some((l) => l.animatorId === id && l.status !== "rejected" && l.from <= day && day <= l.to)
+  const freeFor = (b) => D.animators.filter((a) => a.programs.includes(b.program) && !b.animators.includes(a.id) && !onLeave(a.id, b.date)
+    && !D.bookings.some((x) => x.animators.includes(a.id) && overlaps(x, b)))
+
+  const l = D.leave.find((x) => x.id === SELECTED)
+  const who = animator(l.animatorId)
+  const hits = l.conflicts.map(booking)
+  const cfRow = (b) => {
+    const free = freeFor(b)
+    const dep = b.deposit.status === "missing" ? tag("danger", "Няма капаро", "coin") : ""
+    return `<div class="cf" data-booking="${b.id}">${dateTile(b.date)}<span class="t">${b.start}<small>до ${b.end}</small></span>
+      <div><b>${esc(b.child.name)}, ${b.child.age} г. · ${esc(b.program)}</b><span class="meta">${esc(b.address.district)} · ${b.children} деца · ${esc(customer(b.customerId).parent)}</span>
+      <div class="free"><span>Свободни и водят ${esc(b.program)}:</span> ${free.length ? free.map((a) => esc(a.short)).join(", ") : "никой"}</div>
+      ${dep ? `<div class="tags">${dep}</div>` : ""}</div></div>`
+  }
+  document.querySelector("[data-detail]").innerHTML = `
+    <article class="ticket" data-leave-detail="${l.id}">
+      <div class="stub"><span class="len">Отпуска</span><span class="range">${date.range(l.from, l.to).replace(/ (\S+)$/, "<small>$1</small>")}</span><span class="len">${days(len(l))} · ${date.wd(l.from)}–${date.wd(l.to)}</span></div>
+      <div class="body">
+        <div class="person">${avatar(l.animatorId)}<div><h2>${esc(who.name)}</h2><p>Поискано ${date.stamp(l.requestedAt)} · ${esc(who.programs.join(", "))}</p></div></div>
+        <p class="reason">${esc(l.reason)}</p>
+      </div>
+    </article>
+    <article class="panel" data-conflicts="${l.id}">
+      <div class="panel-head"><h2>Какво засяга</h2></div>
+      <div class="conflicts">
+        ${hits.length ? `<div class="issue warning">${icon("alert")}${esc(who.short)} е записана на ${hits.length} партита в тези дни. Ако одобриш, някой трябва да ги поеме.</div>${hits.map(cfRow).join("")}`
+          : `<div class="issue" style="color:var(--status-ok)">${icon("check")}Няма записани партита в тези дни.</div>`}
+      </div>
+      <div class="decide">
+        <label class="field"><span>Бележка до ${esc(who.short)} (по желание)</span><textarea class="input" rows="2" placeholder="Напр. кой ще поеме партитата"></textarea></label>
+        <div class="row">
+          <button class="btn primary" type="button" data-action="approve">${icon("check")}Одобри отпуската</button>
+          <button class="btn" type="button" data-action="reject">${icon("x")}Откажи</button>
+          <span class="spacer"></span>
+          <span class="muted" style="font-size:13px;font-weight:600">${esc(who.short)} ще види решението в „Отпуска“.</span>
+        </div>
+      </div>
+    </article>`
+
+  // Coverage around the leave: people down, days across. Parties as small blocks.
+  const start = addDays(l.from, -2)
+  const span = Array.from({ length: 7 }, (_, i) => addDays(start, i))
+  const head = `<div class="gh gname"></div>` + span.map((d) => `<div class="gh${d === D.today ? " today" : ""}">${date.wd(d)}<b>${date.day(d)}</b></div>`).join("")
+  const body = D.animators.map((a) => `<div class="name">${avatar(a.id, "sm")}<span>${esc(a.short)}</span></div>` + span.map((d) => {
+    const lv = D.leave.find((x) => x.animatorId === a.id && x.status !== "rejected" && x.from <= d && d <= x.to)
+    const parties = D.bookings.filter((b) => b.date === d && b.animators.includes(a.id)).sort((x, y) => x.start.localeCompare(y.start))
+    const cls = lv ? (lv.status === "pending" ? "leave-pending" : "leave-ok") : ""
+    return `<div class="cell ${cls}" data-cell="${a.id}-${d}">${lv ? `<span class="lv">${lv.status === "pending" ? "иска" : "отпуска"}</span>` : ""}${parties.map((b) => `<span class="blk${lv ? " hit" : ""}" data-booking="${b.id}" title="${esc(b.child.name)} · ${esc(b.program)}">${b.start}</span>`).join("")}</div>`
+  }).join("")).join("")
+  const unassigned = D.bookings.filter((b) => span.includes(b.date) && !b.animators.length)
+  document.querySelector("[data-cover]").innerHTML = `
+    <div class="panel-head"><h2>Кой е зает</h2><p>${date.dm(span[0])} – ${date.dm(span[6])}. Нахвърляните дни са отпуска; пунктирните часове са партита в отпуската.</p></div>
+    <div class="grid">${head}${body}</div>
+    <div class="key"><span><i class="kb"></i>парти</span><span><i class="kp"></i>иска отпуска</span><span><i class="ko"></i>одобрена отпуска</span>${unassigned.length ? `<span>${unassigned.length} без аниматор</span>` : ""}</div>`
+
+  // Phone: one card per pending request, decisions right there.
+  const mCard = (x) => {
+    const a = animator(x.animatorId)
+    const hs = x.conflicts.map(booking)
+    return `<article class="panel m-card" data-leave="${x.id}" data-status="${x.status}">
+      <div class="top">${avatar(x.animatorId)}<div><b>${esc(a.name)}</b><span>поискано ${date.stamp(x.requestedAt)}</span></div><span class="range">${date.range(x.from, x.to).replace(/ (\S+)$/, "<small>$1</small>")}</span></div>
+      <p class="why">${esc(x.reason)}</p>
+      ${hs.length ? `<div class="hit"><span class="issue warning">${icon("alert")}Засяга ${hs.length} партита</span>${hs.map((b) => `<div data-booking="${b.id}">${date.short(b.date)}, ${b.start} · ${esc(b.child.name)} · ${esc(b.address.district)}</div>`).join("")}</div>` : ""}
+      <div class="acts"><button class="btn" type="button" data-action="reject">${icon("x")}Откажи</button><button class="btn primary" type="button" data-action="approve">${icon("check")}Одобри</button></div>
+    </article>`
+  }
+  const order = [l, ...pending.filter((x) => x.id !== l.id)]
+  document.querySelector("[data-mobile]").innerHTML =
+    `<div class="label">Чакат решение · ${pending.length}</div><div class="m-group">${order.map(mCard).join("")}</div>`
+    + `<div class="label" style="margin-top:6px">Решени · ${decided.length}</div><div class="panel m-past">${decided.map(reqRow).join("")}</div>`
+})()
+</script>
+</body>
+</html>

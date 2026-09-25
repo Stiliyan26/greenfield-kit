@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PartyFox · Заплащане</title>
+<script src="/_studio/frame.js"></script>
+<script src="/data.js"></script>
+<link rel="stylesheet" href="./pf.css">
+<script src="./pf.js"></script>
+<style>
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 430px; gap: 24px; align-items: start; }
+  .sum { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 0; align-items: stretch; }
+  .sum > div { padding: 16px 22px; border-right: 1px solid var(--color-line); }
+  .sum > div:last-child { border-right: 0; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 6px; }
+  .big { font-family: var(--font-display); font-weight: 800; font-size: 64px; line-height: 0.88; font-variant-numeric: tabular-nums; }
+  .big small { font-size: 30px; margin-left: 2px; }
+  .sum .k { font-size: 12px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-muted); display: block; margin-bottom: 6px; }
+  .sum .s { font-size: 13.5px; color: var(--color-muted); font-weight: 600; margin-top: 6px; display: block; }
+  .sum .unset { font-size: 16px; padding: 5px 12px; }
+  .month-head { display: flex; align-items: center; gap: 12px; padding: 16px 22px 14px; border-bottom: 1.5px solid var(--color-ink); flex-wrap: wrap; }
+  .month-head h2 { font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1; }
+  .month-head .acts { margin-left: auto; display: flex; gap: 8px; }
+
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th { font-size: 12px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-muted); text-align: left; padding: 10px 12px 8px; border-bottom: 1px solid var(--color-line); }
+  th.r, td.r { text-align: right; }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--color-line); font-size: 14.5px; vertical-align: middle; }
+  th:first-child, td:first-child { padding-left: 22px; }
+  th:last-child, td:last-child { padding-right: 22px; }
+  td .d { font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+  td .d small { font-family: var(--font-body); font-size: 12px; font-weight: 700; color: var(--color-muted); margin-left: 4px; }
+  td b { font-weight: 700; }
+  td .m { color: var(--color-muted); font-weight: 600; font-size: 13px; }
+  td .note { display: flex; gap: 6px; align-items: center; margin-top: 3px; font-size: 13px; font-weight: 600; color: var(--color-muted); flex-wrap: wrap; }
+  td.h { font-weight: 800; font-size: 16px; }
+  tr.group td { background: var(--color-surface-2); font-weight: 800; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-ink); padding-top: 7px; padding-bottom: 7px; }
+  tr.subtotal td { font-weight: 800; border-bottom: 1.5px solid var(--color-ink); }
+  tr.subtotal td.h { font-size: 17px; }
+  tr.upcoming td { color: var(--color-muted); }
+  tr.upcoming td .d { color: var(--color-muted); }
+  tr.total td { font-weight: 800; font-size: 17px; border-bottom: 0; padding-top: 14px; padding-bottom: 16px; }
+  tr.total td.h { font-family: var(--font-display); font-size: 28px; }
+  tr.bonus td { font-weight: 700; }
+  .role { font-size: 13px; font-weight: 700; }
+
+  .side { display: grid; gap: 16px; }
+  .prev .m-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 12px 16px; border-top: 1px solid var(--color-line); }
+  .prev .m-row b { font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+  .prev .m-row .facts { font-size: 13.5px; color: var(--color-muted); font-weight: 600; grid-column: 1; }
+  .prev .m-row .tag { grid-row: 1; grid-column: 2; }
+  .prev .m-row .unset { grid-column: 2; grid-row: 2; justify-self: end; }
+  .prev .m-row:last-child { border-radius: 0 0 var(--radius-md) var(--radius-md); }
+  .rules { padding: 16px; display: grid; gap: 10px; }
+  .rules p { font-size: 14.5px; font-weight: 500; }
+  .rules .line { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; padding-top: 8px; border-top: 1px solid var(--color-line); }
+  .rules .line span { color: var(--color-muted); }
+
+  .phone-rows { display: none; }
+
+  @media (max-width: 1600px) {
+    .layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; }
+    .page-head h1 { font-size: 44px; }
+    .big { font-size: 52px; }
+    .sum > div { padding: 12px 18px; }
+    .month-head { padding: 12px 18px 10px; }
+    .month-head h2 { font-size: 30px; }
+    td { padding: 6px 12px; font-size: 14px; }
+    th:first-child, td:first-child { padding-left: 18px; }
+    th:last-child, td:last-child { padding-right: 18px; }
+    td .d { font-size: 18px; }
+    td .note { margin-top: 1px; }
+    tr.total td { padding-top: 10px; padding-bottom: 12px; }
+    .prev .m-row { padding: 10px 14px; }
+  }
+  @media (max-width: 720px) {
+    .layout { display: flex; flex-direction: column; gap: 16px; }
+    .layout > * { min-width: 0; }
+    .sum { grid-template-columns: 1fr 1fr; }
+    .sum > div:last-child { grid-column: 1 / -1; border-top: 1px solid var(--color-line); flex-direction: row; justify-content: space-between; align-items: center; }
+    .sum > div:nth-child(2) { border-right: 0; }
+    .sum > div:last-child .s { display: none; }
+    .big { font-size: 46px; }
+    .big small { font-size: 22px; }
+    .sum > div { padding: 12px 14px; }
+    .month-head { padding: 12px 14px; }
+    .month-head h2 { font-size: 28px; }
+    .month-head .acts { display: none; }
+    table { display: none; }
+    .phone-rows { display: block; }
+    .pr-group { padding: 7px 14px; background: var(--color-surface-2); font-size: 12.5px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; display: flex; justify-content: space-between; }
+    .pr { display: grid; grid-template-columns: 50px minmax(0, 1fr) auto; gap: 2px 10px; padding: 9px 14px; border-top: 1px solid var(--color-line); align-items: center; font-variant-numeric: tabular-nums; }
+    .pr .d { font-family: var(--font-display); font-weight: 800; font-size: 19px; line-height: 1; }
+    .pr .d small { display: block; font-family: var(--font-body); font-size: 11px; font-weight: 700; color: var(--color-muted); text-transform: uppercase; }
+    .pr b { font-size: 14.5px; display: block; }
+    .pr .m { font-size: 12.5px; color: var(--color-muted); font-weight: 600; }
+    .pr .h { font-weight: 800; font-size: 16px; text-align: right; }
+    .pr .note { grid-column: 2 / -1; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12.5px; color: var(--color-muted); font-weight: 600; }
+    .pr.upcoming { color: var(--color-muted); }
+    .pr-total { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-top: 1.5px solid var(--color-ink); font-weight: 800; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1>Заплащане</h1>
+        <p data-summary></p>
+      </div>
+    </div>
+    <div class="layout">
+      <section class="panel" data-month aria-label="Текущ месец"></section>
+      <aside class="side" data-side aria-label="Предишни месеци и правила"></aside>
+    </div>
+  </main>
+</div>
+<script>
+(() => {
+  const { D, esc, date, animator, booking, tag, unset, icon, hours } = PF
+  PF.shell("animator", "my-pay")
+  const me = animator(D.currentAnimator)
+  const months = D.pay[me.id].months
+  const cur = months.find((m) => m.status === "open")
+  const label = (ym) => `${date.month(`${ym}-01`)[0].toUpperCase()}${date.month(`${ym}-01`).slice(1)} ${ym.slice(0, 4)}`
+
+  const items = cur.items.map((it) => ({ ...it, b: booking(it.bookingId) })).sort((a, b) => (a.b.date + a.b.start).localeCompare(b.b.date + b.b.start))
+  const worked = items.filter((it) => !it.upcoming)
+  const coming = items.filter((it) => it.upcoming)
+  const sumH = (list) => list.reduce((n, it) => n + it.hours, 0)
+  const totalH = sumH(items)
+  document.querySelector("[data-summary]").textContent = `Провери всеки ред: дата, парти, роля и часове. Сумите се появяват, щом ${D.owner.short} въведе дела ти.`
+
+  const role = (r) => r === "lead" ? "Водеща" : "Помощник"
+  const noteOf = (it) => {
+    const parts = []
+    if (it.b.deposit.status === "missing") parts.push(tag("danger", "Няма капаро", "coin"))
+    if (it.note) parts.push(`<span>${esc(it.note)}</span>`)
+    return parts.length ? `<div class="note">${parts.join("")}</div>` : ""
+  }
+  const tr = (it) => `<tr class="${it.upcoming ? "upcoming" : ""}" data-pay-item="${it.bookingId}" data-booking="${it.bookingId}">
+      <td><span class="d">${date.day(it.b.date)} ${date.mon(it.b.date)}<small>${date.wd(it.b.date)}</small></span></td>
+      <td><b>${esc(it.b.child.name)}, ${it.b.child.age} г. · ${esc(it.b.program)}</b> <span class="m">${it.b.start}–${it.b.end} · ${esc(it.b.address.district)}</span>${noteOf(it)}</td>
+      <td><span class="role">${role(it.role)}</span></td>
+      <td class="r h">${hours(it.hours)}</td>
+      <td class="r">${it.amount == null ? unset() : it.amount}</td>
+    </tr>`
+  const phoneRow = (it) => `<div class="pr${it.upcoming ? " upcoming" : ""}" data-pay-item="${it.bookingId}"><span class="d">${date.day(it.b.date)}<small>${date.mon(it.b.date)}</small></span><div><b>${esc(it.b.child.name)} · ${esc(it.b.program)}</b><span class="m">${role(it.role)} · ${it.b.start}–${it.b.end}</span></div><span class="h">${hours(it.hours)} ч</span>${noteOf(it) ? `<div class="note">${noteOf(it).replace(/^<div class="note">|<\/div>$/g, "")}</div>` : ""}</div>`
+
+  document.querySelector("[data-month]").innerHTML = `
+    <div class="month-head"><h2>${label(cur.month)}</h2>${tag("primary", "Отворен месец", "clock")}
+      <div class="acts"><button class="btn sm" type="button" data-action="report">${icon("msg")}Има грешка</button><button class="btn sm primary" type="button" data-action="confirm">${icon("check")}Часовете са верни</button></div></div>
+    <div class="sum" data-summary-strip>
+      <div><span class="k">Партита</span><span class="big">${items.length}</span><span class="s">${worked.length} минали · ${coming.length} предстоят</span></div>
+      <div><span class="k">Часове</span><span class="big">${hours(totalH)}<small>ч</small></span><span class="s">${hours(sumH(worked))} ч изработени</span></div>
+      <div><span class="k">Сума за месеца</span>${unset()}<span class="s">Делът ти и бонусът още не са уточнени.</span></div>
+    </div>
+    <table data-pay-table>
+      <thead><tr><th>Дата</th><th>Парти</th><th>Роля</th><th class="r">Часове</th><th class="r">Сума</th></tr></thead>
+      <tbody>
+        <tr class="group"><td colspan="5">Изработени · ${worked.length}</td></tr>
+        ${worked.map(tr).join("")}
+        <tr class="subtotal"><td colspan="3">Изработени до днес</td><td class="r h">${hours(sumH(worked))}</td><td class="r">${unset()}</td></tr>
+        <tr class="group"><td colspan="5">Предстоят до края на месеца · ${coming.length}</td></tr>
+        ${coming.map(tr).join("")}
+        <tr class="subtotal"><td colspan="3">Предстоящи</td><td class="r h">${hours(sumH(coming))}</td><td class="r">${unset()}</td></tr>
+        <tr class="bonus"><td colspan="3">Бонус</td><td class="r"></td><td class="r">${cur.bonus == null ? unset() : cur.bonus}</td></tr>
+        <tr class="total"><td colspan="3">Общо за ${date.month(`${cur.month}-01`)}</td><td class="r h">${hours(totalH)}</td><td class="r">${cur.total == null ? unset() : cur.total}</td></tr>
+      </tbody>
+    </table>
+    <div class="phone-rows">
+      <div class="pr-group"><span>Изработени · ${worked.length}</span><span>${hours(sumH(worked))} ч</span></div>${worked.map(phoneRow).join("")}
+      <div class="pr-group"><span>Предстоят · ${coming.length}</span><span>${hours(sumH(coming))} ч</span></div>${coming.map(phoneRow).join("")}
+      <div class="pr-total"><span>Бонус</span>${unset()}</div>
+      <div class="pr-total" style="border-top-width:1px"><span>Общо ${hours(totalH)} ч</span>${unset()}</div>
+      <div style="padding:0 14px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn sm" type="button" data-action="report">Има грешка</button><button class="btn sm primary" type="button" data-action="confirm">Часовете са верни</button></div>
+    </div>`
+
+  const prev = months.filter((m) => m.status !== "open")
+  document.querySelector("[data-side]").innerHTML = `
+    <section class="panel prev" data-previous>
+      <div class="panel-head"><h2>Предишни месеци</h2></div>
+      ${prev.map((m) => `<div class="m-row" data-month="${m.month}"><b>${label(m.month)}</b>${tag("ok", `Проверен ${date.dm(m.checkedOn)}`, "check")}<span class="facts">${m.parties} партита · ${hours(m.hours)} ч${m.bonus == null ? " · бонус не е зададен" : ""}</span>${m.total == null ? unset() : m.total}</div>`).join("")}
+    </section>
+    <section class="panel rules" data-rules>
+      <h2 class="h2">Как се смята</h2>
+      <p>${esc(D.rules.note)}</p>
+      <div class="line"><span>Дял на аниматора</span>${D.rules.animatorCut == null ? unset() : esc(D.rules.animatorCut)}</div>
+      <div class="line"><span>Бонус</span>${D.rules.bonusFormula == null ? unset() : esc(D.rules.bonusFormula)}</div>
+      <div class="line"><span>Валута</span><b>${esc(D.currency)}</b></div>
+    </section>`
+})()
+</script>
+</body>
+</html>

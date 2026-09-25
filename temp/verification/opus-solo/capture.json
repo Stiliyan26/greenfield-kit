@@ -1,0 +1,452 @@
+{
+  "url": "http://127.0.0.1:4186",
+  "at": "2026-09-25T13:03:31.354Z",
+  "shots": [
+    {
+      "name": "inbox__opus__desktop",
+      "path": "/candidates/opus/inbox.html?world=opus",
+      "width": 1920,
+      "height": 1097,
+      "screen": "inbox",
+      "variant": "opus",
+      "file": "inbox__opus__desktop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "inbox__opus__laptop",
+      "path": "/candidates/opus/inbox.html?world=opus",
+      "width": 1440,
+      "height": 900,
+      "screen": "inbox",
+      "variant": "opus",
+      "file": "inbox__opus__laptop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "inbox__opus__phone",
+      "path": "/candidates/opus/inbox.html?world=opus",
+      "width": 390,
+      "height": 1065,
+      "screen": "inbox",
+      "variant": "opus",
+      "file": "inbox__opus__phone.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "bookings__opus__desktop",
+      "path": "/candidates/opus/bookings.html?world=opus",
+      "width": 1920,
+      "height": 1165,
+      "screen": "bookings",
+      "variant": "opus",
+      "file": "bookings__opus__desktop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "bookings__opus__laptop",
+      "path": "/candidates/opus/bookings.html?world=opus",
+      "width": 1440,
+      "height": 1145,
+      "screen": "bookings",
+      "variant": "opus",
+      "file": "bookings__opus__laptop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "bookings__opus__phone",
+      "path": "/candidates/opus/bookings.html?world=opus",
+      "width": 390,
+      "height": 2640,
+      "screen": "bookings",
+      "variant": "opus",
+      "file": "bookings__opus__phone.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "leave-requests__opus__desktop",
+      "path": "/candidates/opus/leave-requests.html?world=opus",
+      "width": 1920,
+      "height": 1080,
+      "screen": "leave-requests",
+      "variant": "opus",
+      "file": "leave-requests__opus__desktop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "leave-requests__opus__laptop",
+      "path": "/candidates/opus/leave-requests.html?world=opus",
+      "width": 1440,
+      "height": 1420,
+      "screen": "leave-requests",
+      "variant": "opus",
+      "file": "leave-requests__opus__laptop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "leave-requests__opus__phone",
+      "path": "/candidates/opus/leave-requests.html?world=opus",
+      "width": 390,
+      "height": 1185,
+      "screen": "leave-requests",
+      "variant": "opus",
+      "file": "leave-requests__opus__phone.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "customers__opus__desktop",
+      "path": "/candidates/opus/customers.html?world=opus",
+      "width": 1920,
+      "height": 1691,
+      "screen": "customers",
+      "variant": "opus",
+      "file": "customers__opus__desktop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "customers__opus__laptop",
+      "path": "/candidates/opus/customers.html?world=opus",
+      "width": 1440,
+      "height": 1316,
+      "screen": "customers",
+      "variant": "opus",
+      "file": "customers__opus__laptop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "customers__opus__phone",
+      "path": "/candidates/opus/customers.html?world=opus",
+      "width": 390,
+      "height": 1565,
+      "screen": "customers",
+      "variant": "opus",
+      "file": "customers__opus__phone.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "my-parties__opus__desktop",
+      "path": "/candidates/opus/my-parties.html?world=opus",
+      "width": 1920,
+      "height": 1080,
+      "screen": "my-parties",
+      "variant": "opus",
+      "file": "my-parties__opus__desktop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "my-parties__opus__laptop",
+      "path": "/candidates/opus/my-parties.html?world=opus",
+      "width": 1440,
+      "height": 944,
+      "screen": "my-parties",
+      "variant": "opus",
+      "file": "my-parties__opus__laptop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "my-parties__opus__phone",
+      "path": "/candidates/opus/my-parties.html?world=opus",
+      "width": 390,
+      "height": 1653,
+      "screen": "my-parties",
+      "variant": "opus",
+      "file": "my-parties__opus__phone.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "my-leave__opus__desktop",
+      "path": "/candidates/opus/my-leave.html?world=opus",
+      "width": 1920,
+      "height": 1080,
+      "screen": "my-leave",
+      "variant": "opus",
+      "file": "my-leave__opus__desktop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "my-leave__opus__laptop",
+      "path": "/candidates/opus/my-leave.html?world=opus",
+      "width": 1440,
+      "height": 900,
+      "screen": "my-leave",
+      "variant": "opus",
+      "file": "my-leave__opus__laptop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "my-leave__opus__phone",
+      "path": "/candidates/opus/my-leave.html?world=opus",
+      "width": 390,
+      "height": 1749,
+      "screen": "my-leave",
+      "variant": "opus",
+      "file": "my-leave__opus__phone.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "my-pay__opus__desktop",
+      "path": "/candidates/opus/my-pay.html?world=opus",
+      "width": 1920,
+      "height": 1314,
+      "screen": "my-pay",
+      "variant": "opus",
+      "file": "my-pay__opus__desktop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "my-pay__opus__laptop",
+      "path": "/candidates/opus/my-pay.html?world=opus",
+      "width": 1440,
+      "height": 1160,
+      "screen": "my-pay",
+      "variant": "opus",
+      "file": "my-pay__opus__laptop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "my-pay__opus__phone",
+      "path": "/candidates/opus/my-pay.html?world=opus",
+      "width": 390,
+      "height": 1957,
+      "screen": "my-pay",
+      "variant": "opus",
+      "file": "my-pay__opus__phone.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "specimen__opus__desktop",
+      "path": "/_studio/specimen.html?world=opus",
+      "width": 1920,
+      "height": 1280,
+      "screen": "specimen",
+      "variant": "opus",
+      "file": "specimen__opus__desktop.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Sofia Sans",
+        "Sofia Sans Extra Condensed"
+      ],
+      "tinyText": 0,
+      "clipped": [],
+      "problems": []
+    },
+    {
+      "name": "studio__1440",
+      "path": "/",
+      "width": 1440,
+      "height": 900,
+      "studio": true,
+      "file": "studio__1440.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Instrument Sans"
+      ],
+      "tinyText": 0,
+      "clipped": [
+        "Claude Opus 5.5's colors",
+        "Claude Opus 5.5\nEvery party is a ticket:",
+        "Order inbox",
+        "Bookings and deposits",
+        "Leave requests",
+        "Search palettes",
+        "Mood",
+        "Complementary of #2F5D8A"
+      ],
+      "problems": []
+    },
+    {
+      "name": "studio-arena__1440",
+      "path": "/?view=arena",
+      "width": 1440,
+      "height": 900,
+      "studio": true,
+      "file": "studio-arena__1440.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Instrument Sans"
+      ],
+      "tinyText": 0,
+      "clipped": [
+        "Claude Opus 5.5's colors",
+        "Claude Opus 5.5\nEvery party is a ticket:",
+        "Order inbox",
+        "Bookings and deposits",
+        "Leave requests",
+        "Search palettes",
+        "Mood",
+        "Complementary of #2F5D8A"
+      ],
+      "problems": []
+    },
+    {
+      "name": "studio__390",
+      "path": "/",
+      "width": 390,
+      "height": 4600,
+      "studio": true,
+      "file": "studio__390.png",
+      "overflowX": 0,
+      "loadedFonts": [
+        "Instrument Sans"
+      ],
+      "tinyText": 0,
+      "clipped": [
+        "Claude Opus 5.5's colors",
+        "Claude Opus 5.5\nEvery party is a ticket:",
+        "Order inbox",
+        "Bookings and deposits",
+        "Leave requests",
+        "Search palettes",
+        "Mood",
+        "Complementary of #2F5D8A"
+      ],
+      "problems": []
+    }
+  ]
+}
