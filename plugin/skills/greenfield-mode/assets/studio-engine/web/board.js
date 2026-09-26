@@ -18,6 +18,8 @@ export function createBoard(ctx) {
   let view = { x: PAD, y: PAD, z: 0.2 }
   let drag = null
   let mountTimer = null
+  let boardRect = null
+  let wheelZoom = null
 
   // --- drawing ---------------------------------------------------------------
 
@@ -62,6 +64,16 @@ export function createBoard(ctx) {
     const variant = variants.find((entry) => entry.id === store.selection.variant) || variants[0]
     return [heading("board-title", variant.model || variant.id, variant.summary),
       ...sizes.map((size) => group(size, screens.map((screen) => item(variant, screen, size, screen.label, screen.role))))]
+  }
+
+  // Reading layout (getBoundingClientRect etc.) forces the browser to flush any
+  // style change made since the last paint. Every zoom tick changes --zoom, and a
+  // lot of CSS below sizes itself off --zoom, so a naive read-every-tick zoom
+  // handler forces a full board layout on every wheel event. Cache the rect and
+  // only drop it when the board actually moves or resizes.
+  function getBoardRect() {
+    if (!boardRect) boardRect = board.getBoundingClientRect()
+    return boardRect
   }
 
   function note(text) { return Object.assign(document.createElement("p"), { className: "board-empty", textContent: text }) }

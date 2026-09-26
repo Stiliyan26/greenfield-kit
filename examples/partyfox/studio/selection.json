@@ -1,13 +1,13 @@
 {
   "screen": "ops-day",
-  "variant": "opus",
-  "width": 390,
+  "variant": "sonnet",
+  "width": 1920,
   "tuning": {},
   "palette": {},
   "shortlist": [],
   "feedback": "",
   "status": "draft",
-  "revision": 146,
+  "revision": 244,
   "approvedAt": null,
   "exported": null
 }
