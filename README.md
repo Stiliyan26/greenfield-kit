@@ -4,7 +4,7 @@ A plugin for Claude Code, Codex and Cursor that takes a product from a rough bri
 
 It ships a local design studio. Up to three models each design the whole product from the same brief. You compare their screens side by side at three sizes, try palettes on them, pin comments on exact elements, and approve one model's design. Approval writes `DESIGN.md`, with a table of the components to build, and the `design/` files: tokens, fonts and a shadcn/ui theme taken from the tokens. The planning and delivery skills build only from those files, so the look doesn't drift into generic UI.
 
-Version 0.7.3.
+Version 0.7.4.
 
 ## Contents
 

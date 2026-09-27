@@ -67,8 +67,9 @@ them.
 
 ## 2. Specialists
 
-Every reviewer is the same read-only agent, `code-reviewer`, pointed at a
-different lens file in [lenses/](lenses/). Only the lens file for each
+Every reviewer is the same read-only agent, `code-reviewer`
+([agents/code-reviewer.md](../../agents/code-reviewer.md) in the plugin),
+pointed at a different lens file in [lenses/](lenses/). Only the lens file for each
 reviewer gets loaded, and only during a review.
 
 | Reviewer in `triage.json` | Lens file | Model |
@@ -100,7 +101,7 @@ A reviewer that fails or times out is listed under "Not checked" in the report.
 Don't re-run it with a softer prompt.
 
 **No sub-agents?** (Some tools can't start them.) Run the lenses one after
-another yourself. Before each, read `agents/code-reviewer.md` and that lens file,
+another yourself. Before each, read [code-reviewer.md](../../agents/code-reviewer.md) and that lens file,
 and follow only them. Write each result to its file before you read the next
 lens. Say in the report that the review ran in this mode.
 
