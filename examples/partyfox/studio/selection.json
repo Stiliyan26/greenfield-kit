@@ -1,13 +1,13 @@
 {
   "screen": "ops-day",
-  "variant": "fable",
+  "variant": "opus",
   "width": 1920,
   "tuning": {},
   "palette": {},
   "shortlist": [],
   "feedback": "",
   "status": "draft",
-  "revision": 257,
+  "revision": 258,
   "approvedAt": null,
   "exported": {
     "revision": 247,

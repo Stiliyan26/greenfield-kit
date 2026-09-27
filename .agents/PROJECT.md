@@ -2,6 +2,14 @@
 
 This repo is the greenfield-kit Claude Code plugin and its marketplace. It is developed with its own workflow. `examples/partyfox/` is the test bed: a fake Bulgarian kids-party agency tool with fake data only.
 
+## Goal and where we are
+
+- The goal is one pipeline from a rough brief to a proven app: brief, studio designs, approve, shadcn components, plan, build, prove, maintain. We build it step by step.
+- The method: run the whole pipeline on PartyFox. Each gap it exposes gets a general fix in `plugin/`, proven with this repo's checks and logged in `temp/verification/pipeline-test/gaps.md`.
+- Where the run stands: the studio has three models' designs with parts lists and dark looks. Next the user approves one model. After that come the components stage (`plugin/skills/greenfield-mode/references/components.md`), then the plan in `examples/partyfox/docs/plans/partyfox/plan.md`, then the build.
+- Open gap: G6. The brief doesn't yet require a visible control for every action.
+- Later direction, not started: `DIRECTION.md`, a desktop app over Claude Code, Codex and Cursor.
+
 ## Layout
 
 - `plugin/` is the plugin for Claude Code, Codex and Cursor: three manifests (`.claude-plugin/plugin.json`, `plugin.json`, `.cursor-plugin/plugin.json`), `skills/`, `agents/`. Edit skills and agents here.
