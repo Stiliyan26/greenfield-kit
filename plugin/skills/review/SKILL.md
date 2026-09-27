@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review a branch, PR or diff with tools first and then a swarm of read-only specialist agents (correctness, access, contract, data, fit, tests, UI, scope), a blind-spot pass and a judge. Produces one report sorted by what to act on. Use before merging, when asked to "review", or in CI on a pull request. Also sets up the tools and CI a project needs for it.
+description: Review a branch, PR, diff or plan with tools first and then read-only reviewers, one per lens (correctness, access, contract, data, fit, tests, UI, scope), a blind-spot pass and a judge. Produces one report sorted by what to act on. Full mode for big or risky changes, quick mode for small ones, plan mode before code exists. Use before merging, when asked to "review", or in CI on a pull request. Also sets up the tools and CI a project needs for it.
 ---
 
 # Review a change
@@ -15,6 +15,18 @@ them, and you pass the results along exactly.
 diff ─► 0 tools ─► 1 triage ─► 2 specialists (parallel) ─► 3 blind spot ─► 4 judge ─► report
           │ fail = CI red
 ```
+
+## Modes
+
+| Mode | When | Steps |
+| --- | --- | --- |
+| Full (default) | A branch or PR; anything risky: access, data, API, many files | All steps below |
+| Quick | A small change: a few files, no access, data or API change | 0 tools; skip triage; lenses `correctness` and `fit` only; skip the blind spot; 4 judge |
+| Plan | A plan, API design or architecture before code exists | Skip tools and triage; the `plan` lens ([plan.md](lenses/plan.md)) on the plan files; 4 judge |
+
+Pick quick only when you can say why the change isn't risky; when unsure, run
+full. In plan mode, `goal.md` names the plan files and the request, and there
+is no diff.
 
 ## 0. Tools
 
@@ -126,5 +138,5 @@ returns the final report in that shape. Save it to
 - The reviewers can read and search files, nothing else. They can't run code,
   so anything that needs running goes under "Not checked" with the exact
   command.
-- For a quick look at a small change or a plan, the single `reviewer` agent is
-  enough.
+- Quick and plan mode trade coverage for speed. The report says which mode
+  ran, so nobody mistakes a quick review for a full one.

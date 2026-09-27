@@ -98,8 +98,8 @@ screen data needs, API contracts, error states, integrations and the smallest
 useful release. Mark client requirements, operator ideas and open questions
 separately. Save the plan under `docs/plans/<project>/`, with requirement IDs
 and links to `DESIGN.md` and the approved studio revision. The plan names
-which built components each screen uses. Ask a fresh
-`reviewer` agent to check risky architecture.
+which built components each screen uses. Run the `review` skill in plan mode
+on the plan to check risky architecture.
 
 ## 5. Deliver without visual drift
 

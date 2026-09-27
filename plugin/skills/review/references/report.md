@@ -7,6 +7,7 @@ The judge writes this. The main agent posts it unchanged.
 
 **Tools:** passed | failed: <check names>
 **Act on:** <n> · **Consider:** <n> · **Noted:** <n> · **Dismissed:** <n>
+**Mode:** full | quick | plan
 **Split:** ONE_PR | FE_AND_BE
 **Ran:** <reviewers>. **Skipped:** <reviewer (why)>.
 

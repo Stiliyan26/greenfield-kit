@@ -80,8 +80,8 @@ the end, one short line each:
   pass or fail. Each round, make one change, check it, keep it or undo it.
   Log each decision in `temp/verification/<run>/decisions.tsv` (time,
   decision, why, evidence, result). Never loosen the goal to finish.
-- For a big or risky change, run the `review` skill before merging. For a
-  small one, the `reviewer` agent is enough.
+- Before merging, run the `review` skill: full mode for a big or risky
+  change, quick mode for a small one.
 - Start helper agents yourself when it helps: for parts that don't depend on
   each other, or a big search. Keep work that needs the user in the chat.
 
