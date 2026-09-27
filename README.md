@@ -4,7 +4,7 @@ A plugin for Claude Code, Codex and Cursor that takes a product from a rough bri
 
 It ships a local design studio. Up to three models each design the whole product from the same brief. You compare their screens side by side at three sizes, try palettes on them, pin comments on exact elements, and approve one model's design. Approval writes `DESIGN.md`, with a table of the components to build, and the `design/` files: tokens, fonts and a shadcn/ui theme taken from the tokens. The planning and delivery skills build only from those files, so the look doesn't drift into generic UI.
 
-Version 0.6.0.
+Version 0.7.0.
 
 ## Contents
 
@@ -50,7 +50,7 @@ The repo is a plugin marketplace for Claude Code, Codex and Cursor. The repo is 
 /plugin install greenfield-kit@greenfield-kit
 ```
 
-Skills are then named `greenfield-kit:<skill>`, for example `/greenfield-kit:greenfield-mode`. The two agents (`design-critic`, `reviewer`) come with the plugin.
+Skills are then named `greenfield-kit:<skill>`, for example `/greenfield-kit:greenfield-mode`. The agents (`design-critic`, `reviewer` and the `review-*` agents) come with the plugin.
 
 **Codex**
 
@@ -59,7 +59,7 @@ codex plugin marketplace add Stiliyan26/greenfield-kit
 codex plugin add greenfield-kit@greenfield-kit
 ```
 
-Codex plugins carry skills but not agents. Add the two agents once, for every project or for one:
+Codex plugins carry skills but not agents. Add the agents once, for every project or for one:
 
 ```
 python3 <plugin>/skills/setup-project/scripts/codex_agents.py --global
@@ -102,7 +102,9 @@ Run it without `--push` to see what differs first.
 | `shadcn` | Work with shadcn/ui components and registries. |
 | `setup-project` | Copies the working rules into a project, enables the plugin for the team, or installs the kit globally for Codex and Cursor. |
 | `design-critic` agent | Read-only. Scores screenshots on originality (40), design quality (25), craft (20) and function (15). Under 70, or any score of 1, means "revise first". The agent that built a design may not grade it. |
-| `reviewer` agent | Read-only review of a change or plan, sorted by what to act on. |
+| `review` | Reviews a branch or PR: tool checks first, then read-only specialist agents picked by what changed (correctness, access, contract, data, fit, tests, UI, scope), a blind-spot pass and a judge. One report, sorted by what to act on. Sets up the tool checks and a CI workflow that comments on every PR. |
+| `review-*` agents | The specialists, blind-spot pass and judge the `review` skill starts. Read-only. |
+| `reviewer` agent | Read-only single-pass review of a small change or plan, sorted by what to act on. |
 
 `impeccable` and `frontend-design` are not bundled. The skills use them when they are installed.
 

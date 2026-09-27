@@ -1,0 +1,71 @@
+# Report shape
+
+The judge writes this. The main agent posts it unchanged.
+
+````markdown
+# Review: <branch or PR title>
+
+**Tools:** passed | failed: <check names>
+**Act on:** <n> · **Consider:** <n> · **Noted:** <n> · **Dismissed:** <n>
+**Split:** ONE_PR | FE_AND_BE
+**Ran:** <reviewers>. **Skipped:** <reviewer (why)>.
+
+## Act on
+
+### 1. <plain-language title: what goes wrong, for whom>
+
+- **Where:** `path/to/file.ts:88`
+- **Rule:** `.agents/review/roles.md` → Invoices (or `write-code` → <section>, or "general")
+- **Who notices:** <a person and what they see, in product words>
+- **Found by:** <reviewer> · confidence: said | found the line | ran it
+
+**Wrong**
+
+```ts
+// smallest snippet that shows it
+```
+
+**Right**
+
+```ts
+// smallest snippet of the fix
+```
+
+## Consider
+
+### <title>
+
+- **Where:** `path:line`
+- **Why wait:** <what fixing costs and why it can wait>
+
+<details><summary>Noted (n)</summary>
+
+- <one line each>
+
+</details>
+
+<details><summary>Dismissed (n)</summary>
+
+- <finding>: <one-line reason>
+
+</details>
+
+<details><summary>Already there before this change (n)</summary>
+
+- `path:line`: <one line each>
+
+</details>
+
+## Not checked
+
+- <what, and the exact command or screenshot that would check it>
+````
+
+Rules:
+
+- **Act on** is at most about 5. More means the judge isn't filtering hard enough.
+- Split `FE_AND_BE` when there's at least one Act on or Consider item in both
+  frontend and backend code; fixes then go in two PRs.
+- No score, no praise, no summary of the diff.
+- Empty sections are left out, except "Not checked", which says "nothing" when
+  everything was checked.
