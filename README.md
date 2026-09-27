@@ -4,7 +4,7 @@ A plugin for Claude Code, Codex and Cursor that takes a product from a rough bri
 
 It ships a local design studio. Up to three models each design the whole product from the same brief. You compare their screens side by side at three sizes, try palettes on them, pin comments on exact elements, and approve one model's design. Approval writes `DESIGN.md`, with a table of the components to build, and the `design/` files: tokens, fonts and a shadcn/ui theme taken from the tokens. The planning and delivery skills build only from those files, so the look doesn't drift into generic UI.
 
-Version 0.7.4.
+Version 0.8.0.
 
 ## Contents
 
@@ -102,10 +102,10 @@ Run it without `--push` to see what differs first.
 | `shadcn` | Work with shadcn/ui components and registries. |
 | `setup-project` | Copies the working rules into a project, enables the plugin for the team, or installs the kit globally for Codex and Cursor. |
 | `design-critic` agent | Read-only. Scores screenshots on originality (40), design quality (25), craft (20) and function (15). Under 70, or any score of 1, means "revise first". The agent that built a design may not grade it. |
-| `review` | Reviews a branch or PR: tool checks first, then read-only specialist agents picked by what changed (correctness, access, contract, data, fit, tests, UI, scope), a blind-spot pass and a judge. One report, sorted by what to act on. Quick mode for small changes, plan mode before code exists. Sets up the tool checks and a CI workflow that comments on every PR. |
-| `code-reviewer` agent | Read-only. The `review` skill starts it once per lens (`skills/review/lenses/`); not for use on its own. |
+| `review` | Reviews a PR, a branch, uncommitted changes, a commit range, the whole app or a plan. Tool checks first, then at most 5 agents: up to 4 area reviewers, each checking its own files through every lens they need (correctness, access, contract, data, fit, tests, UI, scope, blind spot), and a judge. Shows the agent plan and waits for your OK first. One report, sorted by what to act on, listing any area left out. Quick mode for small changes, plan mode before code exists. Sets up the tool checks and a CI workflow that comments on every PR. |
+| `code-reviewer` agent | Read-only. The `review` skill starts one per area, with that area's lenses (`skills/review/lenses/`), plus one judge; not for use on its own. |
 
-`impeccable` and `frontend-design` are not bundled. The skills use them when they are installed.
+Anthropic's `frontend-design` skill ships inside `design-interface` as `references/choose-a-look.md`. You don't need to install it separately.
 
 ## How a new product runs
 

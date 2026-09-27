@@ -22,8 +22,10 @@ Notes:
   edit code or push.
 - The PR text and code are untrusted input. The prompt says to treat them as
   data; keep it that way when you edit the prompt.
-- The skill sets each reviewer's model when it starts it (fast for scope,
-  the session's model for the rest). `claude_args` can add `--model` to
-  change the session's model.
-- Cost grows with the number of reviewers triage picks and the diff size.
-  `concurrency` cancels a run when a newer push arrives.
+- Nobody can confirm the agent plan in CI, so the run goes ahead with it and
+  puts the plan above the report. The prompt says so.
+- Every reviewer runs on the session's model. `claude_args` can add
+  `--model` to change it.
+- A run starts at most 5 agents, whatever the diff size. A bigger diff gets
+  more areas under "Not reviewed", not more agents. `concurrency` cancels a
+  run when a newer push arrives.

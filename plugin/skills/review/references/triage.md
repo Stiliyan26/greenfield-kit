@@ -1,47 +1,62 @@
 # Triage rules
 
-`scripts/triage.mjs` picks reviewers from the changed paths. It's a script, not
-an agent, so the same diff always gets the same reviewers.
+`scripts/triage.mjs` collects the target and plans the agents. It's a script,
+not an agent, so the same target always gets the same plan.
 
-| Reviewer | Runs when |
+## Areas
+
+1. The script drops lock files, generated files, binaries and anything under
+   `temp/` (they go under "skipped").
+2. It groups files by top folder. A folder too big for one reviewer is split
+   one level deeper, again and again, down to single files.
+3. If everything fits one reviewer (3,000 changed lines for a diff, 8,000
+   lines for `--app`), there is one area.
+4. Otherwise it sorts the groups by risk, then size, and fills up to 4 areas.
+   A group joins the first area it fits in, or opens a new one. When 4 areas
+   are full, the rest go under "not reviewed".
+
+Risk, highest first: access or data paths, then contract paths, then other
+source, then docs. A project rule counts as highest risk.
+
+## Lenses per area
+
+| Lens | Runs when the area has |
 | --- | --- |
-| `review-correctness` | always |
-| `review-fit` | always |
-| `review-scope` | always |
-| `review-access` | a path looks like a controller, guard, auth, policy, permission, access, role, middleware, service, repository, route or resolver file |
-| `review-contract` | a DTO, contract, OpenAPI, API paths, schema or enum file changed, or frontend and backend source changed together |
-| `review-data` | an entity, migration, repository, SQL, Prisma, seed or pagination file changed |
-| `review-ui` | a `.tsx`, `.jsx`, `.vue`, `.svelte` or style file, the tokens, or `DESIGN.md` changed |
-| `review-tests` | any source or test file changed |
+| `correctness`, `fit`, `scope` | any file |
+| `access` | a path that looks like a controller, guard, auth, policy, permission, access, role, middleware, service, repository, route or resolver file |
+| `data` | an entity, migration, repository, SQL, Prisma, seed or pagination file |
+| `contract` | a DTO, contract, OpenAPI, API paths, schema or enum file; or frontend or backend source, when both sides changed |
+| `ui` | a `.tsx`, `.jsx`, `.vue`, `.svelte` or style file, the tokens, or `DESIGN.md` |
+| `tests` | any source or test file |
+| `blind-spot` | any code file; always last |
 
-Docs-only changes get `review-scope` alone. Rules look at code paths only, so a
-Markdown file named `pagination.md` doesn't start `review-data`.
+An area of docs only gets `scope` alone. Rules look at code paths only, so a
+Markdown file named `pagination.md` doesn't start `data`. `--quick` gives
+every area `correctness` and `fit` only.
 
-## Project rules
+## Project rules (optional)
 
-`.agents/review/triage.json` adds to the defaults:
+Most projects need none. A project can add `.agents/review/triage.json`
+([template](../assets/project-rules/triage.json)):
 
 ```json
 {
   "rules": [
-    { "reviewer": "review-access", "why": "billing is money", "paths": ["^server/src/billing/"] }
+    { "lens": "access", "why": "billing is money", "paths": ["^server/src/billing/"] }
   ],
   "always": [],
   "never": [],
-  "chunkBy": 2,
-  "maxChunks": 4
+  "ignore": ["^server/src/legacy/"],
+  "linesPerAgent": { "diff": 3000, "app": 8000 },
+  "maxAgents": 5
 }
 ```
 
-- `rules[].paths` are regular expressions, matched case-insensitively.
-- `always` adds reviewers to every run; `never` removes them.
-- `chunkBy` is how many folder levels group files into chunks (default 1).
-  For a monorepo like `client/` + `server/`, use 2 or 3 so each chunk is one
-  module.
-- `maxChunks` caps the chunks (default 4). Small folders are packed together,
-  and a folder is never split.
-
-## Chunks
-
-Split only when the diff is over about 1,500 changed lines. Run every picked
-reviewer on every chunk; the judge merges findings across chunks.
+- `rules[].paths` are regular expressions, matched case-insensitively. A path
+  that matches also counts as highest risk.
+- `always` adds lenses to every area; `never` removes them. Use lens names:
+  `correctness`, `access`, `data`, `contract`, `ui`, `tests`, `fit`, `scope`,
+  `blind-spot`. The script stops with an error on any other name.
+- `ignore` leaves matching paths out of the review, like lock files.
+- `linesPerAgent` sets how much one reviewer gets.
+- `maxAgents` lowers the cap. It can't raise it above 5.

@@ -2,6 +2,7 @@
   "rules": [],
   "always": [],
   "never": [],
-  "chunkBy": 2,
-  "maxChunks": 4
+  "ignore": [],
+  "linesPerAgent": { "diff": 3000, "app": 8000 },
+  "maxAgents": 5
 }

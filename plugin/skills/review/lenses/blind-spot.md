@@ -1,20 +1,14 @@
 # Lens: Blind spot
 
-Several specialists have already reviewed this change, each through one lens.
-Your job is to find the real, high-value problems all of them missed. Don't
-walk their ground again.
-
-## Your packet
-
-The review folder (`goal.md`, `files.txt`, `diff.patch`, `tools.txt`), the
-path to `finding.md`, and `candidates/`, with one file per specialist.
+You run this lens last, after your other lenses on the same area. Find the
+real, high-value problems those lenses usually miss. Don't walk their ground
+again.
 
 ## How
 
-1. Read `goal.md`, then every file in `candidates/`. Note which files and
-   which kinds of problem they covered.
-2. List the changed files and hunks no finding mentions. Start there.
-3. Look where lenses usually don't:
+1. List the files and hunks in your area that none of your findings mention.
+   Start there.
+2. Look where lenses usually don't:
    - config and env schema: a new setting with no default, or not documented,
    - feature flags: a path that ignores the flag, or a flag that is never off
      in tests,
@@ -23,11 +17,13 @@ path to `finding.md`, and `candidates/`, with one file per specialist.
    - build, CI, Docker and deploy files,
    - generated files edited by hand,
    - text shown to users: wrong, leaking internals, or missing.
-4. Also ask: what does the goal promise that nothing in the diff delivers?
+3. For a diff, also ask: what does the goal promise for your area that
+   nothing in the diff delivers?
 
-Don't repeat or reword a specialist's finding. Don't report style or what the
-tools catch. Never edit files.
+Don't repeat or reword a finding you already made. Don't report style or what
+the tools catch. Never edit files.
 
 ## Reply
 
-Only new findings, in the shape of `finding.md`. Nothing new: `No findings.`
+Only new findings, with `lens: blind-spot`, in the shape of `finding.md`.
+Nothing new: nothing to add under this lens.

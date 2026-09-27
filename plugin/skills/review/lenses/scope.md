@@ -17,5 +17,8 @@ compare the diff with `goal.md` only, and say so under "Not checked".
 3. **Open decisions.** Code that settles something the scope doc lists as
    still open.
 
+In a whole-app review there is no diff: check only 1 and 3, against the
+scope file. No scope file there means nothing to check; say so.
+
 Quote the line of the scope doc each finding rests on. A finding here is
 usually "Consider", unless it ships something the user said not to build.

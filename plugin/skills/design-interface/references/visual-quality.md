@@ -38,11 +38,7 @@ structure or a style, so the user sees how each model designs.
    python3 <studio-scripts>/check_tokens.py --project studio/project.json studio/candidates
    ```
 
-4. If the impeccable hook is on, it checks each edit. If it isn't, run
-   `.agents/skills/impeccable/scripts/impeccable detect studio/candidates`
-   once, where that skill is installed. Fix anti-patterns you introduced.
-
-5. Run `python3 <studio-scripts>/check_variant.py studio` and open each
+4. Run `python3 <studio-scripts>/check_variant.py studio` and open each
    variant's specimen. Status colors must keep one meaning each. Approval
    stays blocked while any contrast, hue or font check fails.
 

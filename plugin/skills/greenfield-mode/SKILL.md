@@ -57,9 +57,10 @@ Use `design-interface` for the design work. Its order is required:
    and approves. The **Components** view (`T`) shows how each model builds
    every screen from its parts, and which parts it reuses.
 
-Use `frontend-design`, where it's installed, to challenge defaults. Use
-`impeccable` to critique rendered work. Naming a skill is not a check. Only
-captures, the checks and the critic count.
+Use `design-interface`'s
+[choose-a-look.md](../design-interface/references/choose-a-look.md) to
+challenge defaults. Naming a skill is not a check. Only captures, the checks
+and the critic count.
 
 One model gives one variant. For two or three, start one agent per model (for
 example with the Agent tool's `model` option), each with its own variant id

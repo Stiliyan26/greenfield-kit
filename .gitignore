@@ -1,4 +1,6 @@
 # macOS folder metadata
 .DS_Store
 
-.impeccable/
+# Python bytecode from running the studio scripts
+__pycache__/
+*.pyc
