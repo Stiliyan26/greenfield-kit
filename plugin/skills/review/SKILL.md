@@ -67,7 +67,7 @@ them.
 
 ## 2. Specialists
 
-Every reviewer is the same read-only agent, `review-lens`, pointed at a
+Every reviewer is the same read-only agent, `code-reviewer`, pointed at a
 different lens file in [lenses/](lenses/). Only the lens file for each
 reviewer gets loaded, and only during a review.
 
@@ -82,7 +82,7 @@ reviewer gets loaded, and only during a review.
 | `review-ui` | [ui.md](lenses/ui.md) | session's |
 | `review-scope` | [scope.md](lenses/scope.md) | fast (for example `haiku`) |
 
-Start one `review-lens` agent per reviewer, all at the same time. Set the model
+Start one `code-reviewer` agent per reviewer, all at the same time. Set the model
 from the table when you start it. Give each one:
 
 - the path to its lens file,
@@ -100,18 +100,18 @@ A reviewer that fails or times out is listed under "Not checked" in the report.
 Don't re-run it with a softer prompt.
 
 **No sub-agents?** (Some tools can't start them.) Run the lenses one after
-another yourself. Before each, read `agents/review-lens.md` and that lens file,
+another yourself. Before each, read `agents/code-reviewer.md` and that lens file,
 and follow only them. Write each result to its file before you read the next
 lens. Say in the report that the review ran in this mode.
 
 ## 3. Blind spot
 
-Start `review-lens` with [blind-spot.md](lenses/blind-spot.md), the packet and
+Start `code-reviewer` with [blind-spot.md](lenses/blind-spot.md), the packet and
 the `candidates/` folder. Save its reply to `candidates/blind-spot.md`.
 
 ## 4. Judge
 
-Start `review-lens` with [judge.md](lenses/judge.md), the packet, the whole
+Start `code-reviewer` with [judge.md](lenses/judge.md), the packet, the whole
 `candidates/` folder and the path to [report.md](references/report.md). It
 returns the final report in that shape. Save it to
 `temp/review/<run>/report.md`.

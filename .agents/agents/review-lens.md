@@ -1,1 +1,0 @@
-../../plugin/agents/review-lens.md
