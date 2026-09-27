@@ -2,13 +2,14 @@ import { checkFonts, effectiveTokens } from "./checks.js"
 import { createBoard } from "./board.js"
 import { createCanvas, screenGroups, VIEWS } from "./canvas.js"
 import { createComments } from "./comments.js"
+import { createComponentMap } from "./components.js"
 import { icon } from "./icons.js"
 import { createInspector } from "./inspector.js"
 import { createPalettes } from "./palettes.js"
 import { byId, escapeHtml, getJson, isTyping, postJson } from "./util.js"
 
 const store = {
-  project: null, selection: null, fonts: {}, blocking: 0,
+  project: null, selection: null, fonts: {}, blocking: 0, theme: readTheme(),
   saveTimer: null, saving: Promise.resolve(), view: "model", tab: "colors",
 }
 // Each variant is one model's design; its look (world) has the variant's id.
@@ -16,7 +17,8 @@ const ctx = {
   store,
   currentVariant: () => store.project.variants.find((item) => item.id === store.selection.variant),
   currentWorld: () => ctx.currentVariant()?.world,
-  currentTokens: () => effectiveTokens(store.project, ctx.currentWorld(), store.selection.tuning),
+  currentTokens: (theme = store.theme) => effectiveTokens(store.project, ctx.currentWorld(), store.selection.tuning, theme),
+  setTheme,
   change, queueSave, save, renderAll, renderFooter, renderRail,
   designChanged() {
     store.selection.status = "draft"
@@ -39,6 +41,7 @@ async function start() {
     store.selection = selection
     ctx.canvas = createCanvas(ctx)
     ctx.board = createBoard(ctx)
+    ctx.componentMap = createComponentMap(ctx)
     // ?view=model, arena, screen or frame opens that view, so a link or a capture can
     // land on it. Otherwise the page reopens on the view this viewer last used.
     const view = new URLSearchParams(location.search).get("view") || readSaved("studio-view")
@@ -79,9 +82,12 @@ function decorate() {
   byId("palette-next").innerHTML = icon("right")
   byId("comment-toggle").innerHTML = `${icon("comment")}<span>Comment</span>`
   byId("comment-toggle").setAttribute("aria-label", "Comment")
+  byId("components-toggle").innerHTML = `${icon("tree")}<span>Components</span>`
+  byId("components-toggle").setAttribute("aria-label", "Components")
   byId("open-tab").innerHTML = `${icon("external", { size: 14 })}Open in a tab`
   byId("shortcuts-button").innerHTML = icon("keyboard")
   byId("rail-toggle").innerHTML = icon("panelLeft")
+  applyTheme()
   byId("inspector-toggle").innerHTML = icon("panelRight")
   const wide = innerWidth >= 1280
   setPanel("rail", readPanel("rail", wide))
@@ -162,6 +168,7 @@ function renderFooter() {
   const reasons = []
   if ((project._problems || []).length) reasons.push("fix the problems listed at the top")
   if (!variant) reasons.push("no model has delivered a design yet")
+  if (variant && project._components?.[variant.id]) reasons.push(`${name} hasn't listed its components in variant.json; ask the agent to add them`)
   if (store.blocking) reasons.push(`${store.blocking} check${store.blocking > 1 ? "s" : ""} failing`)
   if (world && !store.fonts[world.id]) reasons.push("the font check is still running")
   approve.disabled = approved || reasons.length > 0
@@ -175,7 +182,7 @@ function renderFooter() {
 
   let hint = ""
   if (approved) hint = "Approved. Any change returns this to a draft."
-  else hint = reasons.length ? `Can't approve yet: ${reasons.join("; ")}.` : `Approve writes DESIGN.md and design/tokens.css from ${name}'s design and colors.`
+  else hint = reasons.length ? `Can't approve yet: ${reasons.join("; ")}.` : `Approve writes DESIGN.md and the design/ files from ${name}'s design and colors.`
   byId("approve-hint").textContent = hint
 }
 
@@ -242,6 +249,7 @@ function listen() {
   byId("shortcuts-button").addEventListener("click", () => byId("shortcuts-dialog").showModal())
   byId("approve-reason").addEventListener("click", () => { setPanel("inspector", true); ctx.inspector.setTab("checks") })
   byId("rail-toggle").addEventListener("click", () => togglePanel("rail"))
+  byId("theme-toggle").addEventListener("click", () => setTheme(store.theme === "dark" ? "light" : "dark"))
   byId("inspector-toggle").addEventListener("click", () => togglePanel("inspector"))
 
   byId("approve").addEventListener("click", async () => {
@@ -249,7 +257,7 @@ function listen() {
     try {
       const saved = await postJson("/api/approve", { revision: store.selection.revision, fontChecks: store.fonts[store.selection.variant] || {} })
       for (const key of ["status", "revision", "approvedAt", "exported"]) store.selection[key] = saved[key]
-      setStatus(`Approved. Wrote ${saved.exported.files.join(" and ")}`)
+      setStatus(`Approved. Wrote ${saved.exported.files.join(", ")}`)
     } catch (error) { setStatus(error.message) }
     renderFooter()
   })
@@ -257,10 +265,15 @@ function listen() {
   document.addEventListener("keydown", (event) => {
     if (event.metaKey || event.ctrlKey || event.altKey || isTyping(event)) return
     const key = event.key
-    const canvas = store.view !== "frame"
+    const canvas = store.view !== "frame" && !store.components
     if (key === "ArrowRight" || key === "ArrowLeft") { event.preventDefault(); ctx.palettes.step(key === "ArrowRight" ? 1 : -1) }
     else if (key === "s" || key === "S") ctx.palettes.toggleStar()
     else if (key === "c" || key === "C") ctx.comments.toggle()
+    else if (key === "t" || key === "T") ctx.componentMap.toggle()
+    else if (key === "d" || key === "D") setTheme(store.theme === "dark" ? "light" : "dark")
+    // Esc undoes the innermost thing first: comment mode, then a pick, then the components view.
+    else if (key === "Escape" && ctx.comments.isOn()) ctx.comments.cancel()
+    else if (key === "Escape" && store.components && !document.querySelector("dialog[open]")) { if (!ctx.componentMap.clearPick()) ctx.componentMap.toggle() }
     else if (key === "m" || key === "M") pickModel("")
     else if (key === "a" || key === "A") pickModel(store.selection.variant)
     else if (key === "j" || key === "J") stepScreen(1)
@@ -322,6 +335,31 @@ function readSaved(name) {
 
 // Side panels are a per-viewer preference, so they live in localStorage.
 // First visit below 1280 px starts with the left rail hidden, so the canvas gets the width.
+// Light or dark, for the studio and every screen in it. Starts light, the models'
+// main look; D switches, and the choice is remembered.
+function readTheme() {
+  try {
+    if (localStorage.getItem("studio-theme") === "dark") return "dark"
+  } catch { /* private window: start light */ }
+  return "light"
+}
+
+function applyTheme() {
+  document.documentElement.dataset.theme = store.theme
+  const toggle = byId("theme-toggle")
+  toggle.innerHTML = icon(store.theme === "dark" ? "sun" : "moon")
+  toggle.setAttribute("aria-pressed", String(store.theme === "dark"))
+  toggle.title = store.theme === "dark" ? "Show the light look (D)" : "Show the dark look (D)"
+}
+
+function setTheme(theme) {
+  store.theme = theme
+  try { localStorage.setItem("studio-theme", theme) } catch { /* private window: keep it for this visit */ }
+  applyTheme()
+  renderAll()
+  ctx.canvas.broadcastTokens()
+}
+
 function readPanel(name, fallback) {
   try {
     const stored = localStorage.getItem(`studio-${name}`)

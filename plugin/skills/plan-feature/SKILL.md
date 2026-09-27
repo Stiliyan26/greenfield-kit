@@ -53,6 +53,12 @@ planning.
   current way can't do the job, and say why.
 - For every action, say which roles may do it. A missing rule is an open
   question, not a yes.
+- With approved screens, walk each one: every action and every piece of data
+  it shows needs an endpoint and a role rule in the plan. Then write, per
+  endpoint, what each role gets back. A role must never receive a field its
+  screens don't show.
+- When times are stored in UTC but shown in local time, say where a local
+  day, week and month start and end.
 - Start with the smallest version someone can actually use.
 - For a new API, module or shared helper, write how the caller will use it
   first (the call and what comes back), then the types and files behind it.

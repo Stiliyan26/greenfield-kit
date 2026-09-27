@@ -22,6 +22,7 @@
       <span id="revision-label" class="meta"></span>
       <span id="status-chip" class="chip"></span>
       <span id="save-status" class="meta" role="status">Loading…</span>
+      <button id="theme-toggle" type="button" class="icon-btn" aria-pressed="false" aria-label="Dark look"></button>
       <button id="shortcuts-button" type="button" class="icon-btn" title="Keyboard shortcuts (?)"></button>
       <button id="approve-reason" type="button" class="btn btn-quiet btn-small" hidden title="Open the checks that block approval"></button>
       <button id="approve" type="button" class="btn btn-primary">Approve</button>
@@ -69,6 +70,7 @@
         <span id="palette-now" class="palette-now"></span>
         <button type="button" id="palette-next" class="icon-btn" title="Next palette (→)"></button>
       </div>
+      <button id="components-toggle" type="button" class="btn btn-quiet" aria-pressed="false" title="Show or hide the components this screen is built from (T)"></button>
       <button id="comment-toggle" type="button" class="btn btn-quiet" aria-pressed="false" title="Pin a comment (C)"></button>
     </div>
     <p id="comment-hint" class="canvas-hint" hidden>Click any element in a screen to pin a comment. Esc cancels.</p>
@@ -79,6 +81,39 @@
         <p id="preview-need" class="frame-need"></p>
         <div id="frame-holder" class="frame-holder"></div>
       </div>
+      <section id="component-map" class="cmap" aria-label="Components" hidden>
+        <div class="cmap-bar">
+          <div class="segmented" role="group" aria-label="Components view">
+            <button type="button" data-cmap-mode="screen" aria-pressed="true">Screen</button>
+            <button type="button" data-cmap-mode="parts" aria-pressed="false">Parts</button>
+            <button type="button" data-cmap-mode="grid" aria-pressed="false">Reuse</button>
+          </div>
+          <label class="cmap-switch"><input type="checkbox" id="cmap-outlines" checked> Outlines</label>
+          <label class="cmap-switch"><input type="checkbox" id="cmap-code"> Code details</label>
+          <span class="cmap-key" aria-label="Key">
+            <span><span class="cmap-kind custom">custom</span> built by hand</span>
+            <span><span class="cmap-kind shadcn">button</span> from shadcn</span>
+            <span><span class="cmap-kind repeat">not listed</span> drawn more than once, not a part yet</span>
+          </span>
+        </div>
+        <p id="cmap-empty" class="cmap-empty" hidden></p>
+        <div id="cmap-body" class="cmap-body">
+          <div class="cmap-stage-wrap">
+            <div id="cmap-focus" class="cmap-focus" hidden></div>
+            <div id="cmap-stage" class="cmap-stage"><div id="cmap-box" class="cmap-box"><iframe id="cmap-frame" title="Screen with its components outlined"></iframe></div></div>
+          </div>
+          <div class="cmap-side">
+            <div class="cmap-side-head"><h2 class="cmap-side-title">Composition</h2><span id="cmap-tree-meta" class="meta"></span></div>
+            <div id="cmap-tree" class="cmap-tree" role="tree"></div>
+          </div>
+        </div>
+        <div id="cmap-parts" class="cmap-parts" hidden></div>
+        <div id="cmap-grid" class="cmap-grid" hidden>
+          <p class="hint">How often each part appears on each screen at this size. Click a cell to open that screen with the part picked.</p>
+          <div class="cmap-grid-scroll"><table id="cmap-grid-table"></table></div>
+        </div>
+        <div id="cmap-scanner" class="cmap-scanner" aria-hidden="true"></div>
+      </section>
     </div>
   </main>
 
@@ -150,6 +185,8 @@
       <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous or next palette</dd>
       <dt><kbd>S</kbd></dt><dd>Star the current palette</dd>
       <dt><kbd>C</kbd></dt><dd>Pin a comment</dd>
+      <dt><kbd>T</kbd></dt><dd>Show or hide the components view</dd>
+      <dt><kbd>D</kbd></dt><dd>Light or dark look</dd>
       <dt><kbd>M</kbd></dt><dd>Arena: every model</dd>
       <dt><kbd>A</kbd></dt><dd>The selected model's screens</dd>
       <dt><kbd>J</kbd> <kbd>K</kbd></dt><dd>Next or previous screen</dd>

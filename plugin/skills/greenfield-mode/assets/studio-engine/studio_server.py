@@ -67,7 +67,22 @@ class Studio:
         selection["palette"] = {world: value for world, value in (selection.get("palette") or {}).items() if world in worlds}
         if selection["width"] not in WIDTHS:
             selection["width"] = DEFAULT_SELECTION["width"]
+        if selection["status"] == "approved" and self.changed_since_approval(selection):
+            # The approved model's files changed on disk, so DESIGN.md no longer matches them.
+            selection.update(status="draft", approvedAt=None, revision=selection["revision"] + 1)
+            self.save_selection(selection)
         return selection
+
+    def changed_since_approval(self, selection):
+        """True when project.json or a file in the approved model's folder is newer than the approval."""
+        try:
+            approved_at = datetime.fromisoformat(selection["exported"]["at"]).timestamp()
+        except (KeyError, TypeError, ValueError):
+            return False
+        folder = self.content / "candidates" / selection["variant"]
+        paths = [self.content / "project.json", *(folder.iterdir() if folder.is_dir() else [])]
+        # The approval time is stored to the second; allow that second.
+        return any(path.is_file() and path.stat().st_mtime > approved_at + 1 for path in paths)
 
     def world_ids(self):
         try:
@@ -163,11 +178,16 @@ class Handler(SimpleHTTPRequestHandler):
                 missing = studio_export.missing_previews(project, self.studio.content)
             except (AttributeError, KeyError, TypeError):
                 missing = {}
+            screen_ids = [screen["id"] for screen in project.get("screens", [])]
             self.send_json({
                 **project,
                 "_problems": problems,
                 "_missing": missing,
+                # Per model: why its components list can't be approved. Only the chosen model's list blocks Approve.
+                "_components": {variant["id"]: found for variant in project.get("variants", [])
+                                if (found := studio_export.component_problems(variant, screen_ids))},
                 "_sizes": studio_export.SIZES,
+                "_themes": studio_export.themes(project),
                 "_rules": {
                     "contrastPairs": studio_export.CONTRAST_PAIRS,
                     "hueGuard": {"degrees": studio_export.HUE_GUARD_DEGREES, "chroma": studio_export.HUE_GUARD_CHROMA},
@@ -310,12 +330,13 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_json({"error": "No variants in studio/candidates yet"}, 404)
             return
         tuning = {} if (query.get("tuned") or ["1"])[0] == "0" else selection["tuning"]
+        theme = "dark" if (query.get("theme") or ["light"])[0] == "dark" and world.get("dark") else "light"
         try:
-            tokens = studio_export.effective_tokens(project, world, tuning)
+            tokens = studio_export.effective_tokens(project, world, tuning, theme)
         except (KeyError, ValueError) as error:
             self.send_json({"error": f"World '{world['id']}' can't be built: {error}"}, 400)
             return
-        self.send_json({"world": world["id"], "tokens": tokens, "fonts": world.get("fonts", {})})
+        self.send_json({"world": world["id"], "theme": theme, "tokens": tokens, "fonts": world.get("fonts", {})})
 
     def approve(self, body):
         project = self.studio.project()
@@ -328,15 +349,26 @@ class Handler(SimpleHTTPRequestHandler):
         variant = next((item for item in project["variants"] if item["id"] == selection["variant"]), None)
         if not variant:
             raise PermissionError("Pick a model's design first")
+        missing = studio_export.component_problems(variant, [screen["id"] for screen in project["screens"]])
+        missing += studio_export.dark_problems(project, variant, required=True)
+        if missing:
+            raise PermissionError("Fix the studio first: " + "; ".join(missing))
         world = variant["world"]
         tokens = studio_export.effective_tokens(project, world, selection["tuning"])
         checks = studio_export.run_checks(tokens)
         failed = [check["label"] for check in checks if not check["pass"]]
         if failed:
             raise PermissionError("Checks fail: " + "; ".join(failed))
+        dark = dark_checks = None
+        if "dark" in studio_export.themes(project):
+            dark = studio_export.effective_tokens(project, world, {}, "dark")
+            dark_checks = studio_export.run_checks(dark)
+            failed = [check["label"] for check in dark_checks if not check["pass"]]
+            if failed:
+                raise PermissionError("Dark checks fail: " + "; ".join(failed))
         font_checks = self.font_checks(body.get("fontChecks"), world)
         palette = selection["palette"].get(world["id"])
-        files = studio_export.write_exports(self.studio.root, project, variant, world, tokens, checks, font_checks, selection["revision"], palette)
+        files = studio_export.write_exports(self.studio.root, project, variant, world, tokens, checks, font_checks, selection["revision"], palette, dark, dark_checks)
         selection.update(status="approved", approvedAt=now(), exported={"revision": selection["revision"], "at": now(), "files": files})
         self.studio.save_selection(selection)
         return selection

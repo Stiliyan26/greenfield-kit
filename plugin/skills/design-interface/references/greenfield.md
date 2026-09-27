@@ -28,12 +28,15 @@ an approved candidate or world, tell the user and ask for a new approval.
 
 ## After approval
 
-Approval writes `DESIGN.md` at the project root and `design/tokens.css`. They
-record the colors, both typefaces, the type scale, radius, contrast results,
-status meanings and the approved screens. Extract components from those
-screens. Build later screens with the same tokens. Return to the studio when a
+Approval writes `DESIGN.md` (with its Components table), `design/fonts.css`, `design/tokens.css` and `design/shadcn.css`. They record the colors, both typefaces, the type
+scale, radius, contrast results, status meanings, the approved screens and
+the components to build, each marked shadcn or custom. The next stage builds
+those components and shows them on a gallery page
+(`greenfield-mode/references/components.md`), before any planning. Build
+later screens with the same tokens and components. Return to the studio when a
 new requirement changes the look.
 
 The studio is an exploration tool; its sample data and interactions are not a
-product. The real app uses the stack chosen in the approved plan. Don't
-install a framework just to show options.
+product. After approval, the components stage sets the frontend up with
+React, Tailwind and shadcn/ui; the approved plan chooses the rest of the
+stack. Don't install a framework just to show options.

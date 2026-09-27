@@ -49,7 +49,8 @@ What a linter can't judge is below.
   every caller and delete the old one in the same change. No re-export shims,
   no old path kept alive next to the new one.
 - **Don't invent a look.** Colors, fonts and radius come from
-  `design/tokens.css` as `var(--…)`. If the approved design doesn't cover what
+  `design/tokens.css` as `var(--…)`, or through shadcn's class names
+  (`bg-primary`), which `design/shadcn.css` points at the same tokens. If the approved design doesn't cover what
   you need, stop and use `design-interface`.
 
 ## Where to read more

@@ -16,8 +16,13 @@ before you call a slice done.
 
 **Design.** If the project has `DESIGN.md`, read it before any UI task. Build
 screens from its approved screens and `design/tokens.css`: every color, font
-and radius is a `var(--…)` from that file. Don't invent a look, add a
-component kit's theme, or copy raw values. Before a UI task is done, run
+and radius is a `var(--…)` from that file. Build screens from the
+components already made from its Components table (shadcn/ui parts themed by
+`design/shadcn.css`, and custom parts). If they don't exist yet, build them
+first with `greenfield-mode`'s
+[components.md](../greenfield-mode/references/components.md) and let the user
+check the gallery. Don't invent a look, use a component
+kit's own theme, or copy raw values. Before a UI task is done, run
 `python3 <greenfield-mode>/scripts/check_tokens.py --tokens design/tokens.css <changed files>`
 and fix what it prints. `<greenfield-mode>` is that skill's folder, in
 `.agents/skills/` or `~/.agents/skills/`. If a task needs a look the approved

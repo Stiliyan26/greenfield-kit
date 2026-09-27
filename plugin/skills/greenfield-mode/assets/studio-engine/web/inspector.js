@@ -101,10 +101,18 @@ export function createInspector(ctx) {
   function renderChecks() {
     const world = ctx.currentWorld()
     if (!world) return
-    const results = runChecks(store.project, ctx.currentTokens())
     const row = (state, label, value = "") => `<li data-state="${state}">${icon(state === "pass" ? "check" : state === "fail" ? "x" : "alert", { size: 15 })}<span>${escapeHtml(label)}</span><b>${escapeHtml(value)}</b></li>`
-    const contrast = results.filter((check) => check.kind === "contrast").map((check) => row(check.pass ? "pass" : "fail", check.label, `${check.ratio.toFixed(2)} / ${check.minimum}`))
-    const hue = results.filter((check) => check.kind !== "contrast").map((check) => row(check.pass ? (check.warning ? "warn" : "pass") : "fail", check.label, check.kind === "hue" ? `${Math.round(check.distance)}°` : ""))
+    // Approval checks every theme the product has, so the panel does too.
+    const wantsDark = (store.project._themes || ["light"]).includes("dark")
+    const looks = [["", runChecks(store.project, ctx.currentTokens("light"))]]
+    if (wantsDark && world.dark) looks.push([" (dark)", runChecks(store.project, ctx.currentTokens("dark"))])
+    const results = looks.flatMap(([, list]) => list)
+    const groups = looks.map(([suffix, list]) => {
+      const contrast = list.filter((check) => check.kind === "contrast").map((check) => row(check.pass ? "pass" : "fail", check.label, `${check.ratio.toFixed(2)} / ${check.minimum}`))
+      const hue = list.filter((check) => check.kind !== "contrast").map((check) => row(check.pass ? (check.warning ? "warn" : "pass") : "fail", check.label, check.kind === "hue" ? `${Math.round(check.distance)}°` : ""))
+      return `<li class="group">Contrast${suffix}</li>${contrast.join("")}<li class="group">Status colors stay distinct${suffix}</li>${hue.join("")}`
+    }).join("")
+    const noDark = wantsDark && !world.dark ? 1 : 0
     const fonts = store.fonts[world.id]
     let fontFailures = 0
     const fontRows = fonts ? Object.entries(fonts).map(([family, result]) => {
@@ -112,9 +120,10 @@ export function createInspector(ctx) {
       if (state === "fail") fontFailures += 1
       return row(state, `${family}: ${result === "ok" ? `covers ${(store.project.scripts || ["latin"]).join(", ")}` : result}`)
     }) : [row("warn", `Checking fonts for ${(store.project.scripts || ["latin"]).join(", ")}`)]
-    byId("checks").innerHTML = `<li class="group">Contrast</li>${contrast.join("")}<li class="group">Status colors stay distinct</li>${hue.join("")}<li class="group">Fonts</li>${fontRows.join("")}`
-    store.blocking = results.filter((check) => !check.pass).length + fontFailures
-    const total = results.length + (fonts ? Object.keys(fonts).length : 0)
+    const darkRow = noDark ? `<li class="group">Dark look</li>${row("fail", `${world.name || world.id} has no dark look yet (world.dark in variant.json)`)}` : ""
+    byId("checks").innerHTML = `${groups}${darkRow}<li class="group">Fonts</li>${fontRows.join("")}`
+    store.blocking = results.filter((check) => !check.pass).length + fontFailures + noDark
+    const total = results.length + (fonts ? Object.keys(fonts).length : 0) + noDark
     const summary = byId("check-summary")
     summary.dataset.state = store.blocking ? "fail" : "pass"
     summary.innerHTML = store.blocking ? `${icon("x")}${store.blocking} of ${total} checks fail` : `${icon("check")}All ${total} checks pass`

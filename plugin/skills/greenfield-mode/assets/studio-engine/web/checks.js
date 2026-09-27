@@ -2,10 +2,18 @@
 // which runs the same contrast and hue checks again before it writes any file.
 import { contrast, hueDistance, inGamut, mix, onColor, parse } from "./color.js"
 
-export function effectiveTokens(project, world, tuning) {
-  const tokens = deriveExtended({ ...world.tokens, ...(tuning?.[world.id] || {}) })
+// Twin of effective_tokens in studio_export.py. Dark takes the world's non-color
+// tokens and its `dark` colors; tuning and palettes change the light look only.
+export function effectiveTokens(project, world, tuning, theme = "light") {
+  if (theme === "dark" && world.dark) {
+    const base = Object.fromEntries(Object.entries(world.tokens || {}).filter(([name]) => !name.startsWith("color-")))
+    const tokens = { ...base, ...Object.fromEntries(Object.entries(world.dark).filter(([name]) => name.startsWith("color-"))) }
+    for (const [name, value] of Object.entries(project.statusDark || project.status || {})) tokens[`status-${name}`] = value
+    return deriveExtended(tokens)
+  }
+  const tokens = { ...world.tokens, ...(tuning?.[world.id] || {}) }
   for (const [name, value] of Object.entries(project.status || {})) tokens[`status-${name}`] = value
-  return tokens
+  return deriveExtended(tokens)
 }
 
 // Fill palette tokens a world doesn't set. Twin of derive_extended in studio_export.py.
@@ -19,6 +27,8 @@ export function deriveExtended(tokens) {
   set("color-secondary-soft", () => mix(tokens["color-secondary"], tokens["color-surface"], 0.14))
   set("color-tertiary-soft", () => mix(tokens["color-tertiary"], tokens["color-surface"], 0.16))
   set("color-surface-2", () => mix(tokens["color-ink"], tokens["color-surface"], 0.05))
+  // Text on a solid status fill, such as a danger banner. White fails on a light dark-mode red.
+  if ("status-danger" in tokens) set("color-on-status", () => onColor(tokens["status-danger"]))
   return tokens
 }
 

@@ -120,6 +120,8 @@ export function createComments(ctx) {
     load(value) { list = value },
     render,
     toggle() { setMode(!mode) },
+    isOn: () => mode,
+    cancel() { if (mode) setMode(false) },
     frameReady(frame) {
       if (frame === ctx.canvas.previewFrame()) missing = new Set()
       sendPins(frame)

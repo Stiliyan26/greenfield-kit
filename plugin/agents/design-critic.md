@@ -46,8 +46,8 @@ Score each from 1 to 5. Weighted total out of 100.
 | Function | 15 | Every state the task needs is visible and readable; product rules hold | A required state is missing, hidden, or misleading |
 
 Score from the pixels. Name the evidence for every score: the file and where
-on it ("roster__neutral__1440.png, top right: clash label covers Ivan's second
-booking").
+on it ("orders__paper__1440.png, top right: the overdue label covers the
+second invoice").
 
 ## Output
 

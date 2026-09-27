@@ -75,12 +75,15 @@ every real screen at three sizes, not on one sample page.
    `comments.json` and `taste.md` after the user works in the page. Handle
    each open comment, then mark it done. Only `status: "approved"` counts.
    If the user approves in chat, ask them to press **Approve** in the studio.
-   Only that button writes `DESIGN.md` and `design/tokens.css`. Never call
+   Only that button writes `DESIGN.md` and the `design/` files. Never call
    the approve API yourself, and never write those files by hand.
 
-7. **Hand over.** List the components to extract, the data each screen needs,
-   and the open questions for `plan-feature` and `deliver-feature`. Link the
-   approved revision and `DESIGN.md`.
+7. **Hand over.** `DESIGN.md`'s Components table lists the parts to build,
+   each marked shadcn or custom. Check it against the approved screens and
+   send gaps back to the model that designed them. In `greenfield-mode` the
+   components are built next, before planning. List the data each screen
+   needs and the open questions for `plan-feature` and `deliver-feature`.
+   Link the approved revision and `DESIGN.md`.
 
 Include loaded, empty, long-content, loading, save or error, and permission
 states where they matter. Give keyboard focus a visible style. Design the

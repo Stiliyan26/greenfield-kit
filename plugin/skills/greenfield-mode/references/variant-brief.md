@@ -33,8 +33,28 @@ Your variant id is `{variant}` and you are `{model}`.
 1. `variant.json` with your model name, a one-line summary of your design
    idea, and your own look (`world`): a real Google Fonts pair that covers
    `{scripts}`, all required tokens with colors in `oklch()`, a radius scale,
-   and one signature detail. The format is in `studio.md`.
-2. One `<screen id>.html` for every screen in `project.json`.
+   and one signature detail. Design a dark look too, in `world.dark`: the same
+   color roles for a dark screen, as considered as the light one, not an
+   inverted copy. The format is in `studio.md`.
+2. In the same `variant.json`, a `components` list: every part your screens
+   are built from, one entry per part. Mark each with the shadcn/ui component
+   it should be built from (`button`, `input`, `select`, `dialog`, `popover`,
+   `tabs`, `toggle-group`, `table`, `badge`, `card`, `sonner`, …), or `null`
+   when shadcn has nothing like it and it must be built by hand. A developer
+   builds the product in React from this list, so split your screens the way
+   `{skill-root}/../write-code/references/react.md`, section "Splitting a
+   screen into components", says:
+   - A list and its item are two parts: the customer list and the customer
+     row in it, the step list and one step.
+   - When two screens show the same thing (a person, an order, an invoice),
+     use one part with its looks, not two drawings.
+   - The page shell and the page header are parts when every screen has them.
+   - Include the dialogs, menus and pickers your actions open, even if the
+     screen only shows the button.
+   Something drawn more than once that is truly not a part (a plain layout
+   row) goes in `notComponents` with a reason. The format is in `studio.md`,
+   section "Variant folder".
+3. One `<screen id>.html` for every screen in `project.json`.
 
 ## Rules for every screen
 
@@ -47,6 +67,9 @@ Your variant id is `{variant}` and you are `{model}`.
   exactly that first screenful, so the screen's main job must be visible
   without scrolling at each size. Design the phone as its own arrangement,
   not a squeezed desktop. No sideways scroll, no text under 11 px.
+- Every screen works in both looks: the studio's `D` key switches it. Use
+  only tokens, so dark comes from the tokens alone; `color-mix()` with a token,
+  never with white or black.
 - Status colors keep the meanings in `statusMeaning`, on every screen. Keep
   your primary, secondary and accent colors at least 30° of hue away from the
   danger color and 20° away from the warning color.
@@ -70,11 +93,16 @@ Your variant id is `{variant}` and you are `{model}`.
    what looks broken, crowded or empty.
 4. `python3 {skill-root}/scripts/check_tokens.py --project {studio}/project.json {studio}/candidates/{variant}`
    must print `0 problems`.
-5. Stop your server.
+5. `node {skill-root}/scripts/check_components.mjs --url http://127.0.0.1:{port} --variant {variant}`
+   must print `0 problems`. It finds each listed part in your screens and
+   lists what you drew more than once but didn't list. Open the studio's
+   **Components** view (`T`) to see your screens as trees of parts.
+6. Stop your server.
 
 ## Report back, briefly
 
 - Your look in one line, and its signature detail.
+- Your components: how many, and which ones are custom.
 - One line per screen: what it shows, the main design decision, and which
   reference it borrows from (or why none fits).
 - The output of each check, and what you couldn't check.

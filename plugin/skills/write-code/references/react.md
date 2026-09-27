@@ -60,6 +60,38 @@ const runBulk = async (action) => {
 Ask: reading only the hook body, do you see the screen's wiring, or an
 implementation? If the latter, extract.
 
+## Splitting a screen into components
+
+Start from the screen and its data, the way react.dev's "Thinking in React"
+does: *"Separate your UI into components, where each component matches one
+piece of your data model."* Draw the tree before writing code.
+
+1. **One piece of data, one component.** An order is an `OrderCard`, a
+   customer is a `CustomerRow`, an invoice line is an `InvoiceLine`. If a
+   thing has a name in the data, it has a component.
+2. **A list and its item are two components.** `CustomerList` renders
+   `CustomerRow` for each customer; `StepList` renders `Step`. React's own
+   example: `ProductTable` → `ProductCategoryRow`, `ProductRow`.
+3. **The same thing on two screens is one component.** An order on the
+   dashboard and in "My orders" is one `OrderCard` with a `size` prop, not two
+   drawings. Different looks of one thing are props (`status="overdue"`,
+   `size="compact"`), typed as closed unions, not new components.
+4. **Layout takes children.** The page shell, page header, section and card
+   are components that take `children` (or named slots) and know nothing about
+   the content: `<PageShell><PageHeader title actions />…</PageShell>`.
+5. **Small shared pieces get a name when they repeat across parts:** a status
+   tag, a date range, a money amount, a person's avatar and name. One
+   component, used everywhere, so a change lands once.
+6. **Pages wire, parts render.** A page component loads data and passes it
+   down; it holds no markup beyond the layout components.
+7. **Stop at one job.** Split when a component owns two regions or its name
+   needs "and". Don't wrap a single styled element that appears once and has
+   no behavior; a class is enough.
+
+For a greenfield design, the model's `components` list in `variant.json` is
+this tree, and `check_components.mjs` fails on a structure drawn more than
+once that no component covers.
+
 ## One job per component
 
 Split large components. Move data fetching out of the component body into hooks
@@ -227,5 +259,6 @@ pure renames and moves.
 ## Design
 
 If the design isn't settled, use `design-interface`; for motion, use
-`design-animations`. Don't invent a new look while coding, and don't pull in a
-component kit's theme.
+`design-animations`. Don't invent a new look while coding. With an approved
+`DESIGN.md`, use shadcn/ui for the parts its Components table marks `shadcn`,
+themed only by `design/shadcn.css`, never shadcn's own theme.

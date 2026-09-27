@@ -54,7 +54,7 @@ agent. Give it:
 - The capture folder, including `capture.md`.
 - The contracts and the reference notes.
 - `studio/taste.md` and the product brief.
-- The product's hard rules, such as "only a missing deposit is red".
+- The product's hard rules, such as "only an overdue invoice is red".
 
 It scores Originality (weight 40), Design quality (25), Craft (20) and
 Function (15), with evidence from each capture. A total under 70, or any score

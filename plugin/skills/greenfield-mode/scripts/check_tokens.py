@@ -4,7 +4,8 @@
     python3 check_tokens.py [--tokens design/tokens.css | --project studio/project.json] PATH...
 
 PATH can be files or folders. It flags raw hex, rgb(), hsl(), oklch() and similar
-values, common named colors, and font-family or font values that name a font
+values, common named colors, Tailwind's own palette classes (bg-red-500,
+text-white, font-mono), and font-family or font values that name a font
 instead of var(--font-…). With --tokens or --project it also flags var(--…)
 names that the tokens do not define. Add the comment `tokens-ignore` on a line
 to skip it, and say why next to it.
@@ -28,6 +29,16 @@ NAMED = re.compile(
     r"|(?<![\w])(?:backgroundColor|borderColor|textColor))\s*:\s*[\"'`]?([^;{}\"'`\n]*)"
 )
 NAMED_COLORS = re.compile(r"(?<![\w-])(white|black|red|green|blue|gray|grey|orange|yellow|purple|pink|brown|navy|teal|silver|gold)(?![\w-])", re.I)
+# Tailwind's built-in palette and font stacks skip the tokens. shadcn classes
+# (bg-primary, text-muted-foreground) and bg-(--color-surface) point at them.
+TAILWIND_COLOR = re.compile(
+    r"(?<![\w-])(?:bg|text|border(?:-[trblxyse])?|ring|ring-offset|inset-ring|outline|fill|stroke|from|via|to|decoration|divide|accent|caret"
+    r"|shadow|inset-shadow|drop-shadow|text-shadow|placeholder)"
+    r"-(?:(?:slate|gray|zinc|neutral|stone|mauve|olive|mist|taupe|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple"
+    r"|fuchsia|pink|rose)-\d{2,3}|white|black)"
+    r"(?:/\d+)?(?![\w-])"
+)
+TAILWIND_FONT = re.compile(r"(?<![\w-])font-(?:serif|mono)(?![\w-])")
 FONT_FAMILY = re.compile(r"(?:(?<![\w-])font-family|(?<![\w])fontFamily)\s*:\s*(?:([\"'`])(.*?)\1|([^;{}\n]+))")
 FONT_SHORTHAND = re.compile(r"(?<![\w-])font\s*:\s*([^;{}\n]+)")
 VAR = re.compile(r"var\(\s*--((?:color|font|radius|status|space|shadow)-[a-z0-9-]+)")
@@ -36,6 +47,7 @@ DEFINED = re.compile(r"--([a-z0-9-]+)\s*:")
 PALETTE_TOKENS = {
     "color-secondary", "color-on-secondary", "color-tertiary", "color-on-tertiary",
     "color-primary-soft", "color-secondary-soft", "color-tertiary-soft", "color-surface-2",
+    "color-on-status",
 }
 
 
@@ -68,6 +80,10 @@ def check_file(path, defined):
         for match in NAMED.finditer(line):
             for color in NAMED_COLORS.finditer(match.group(1)):
                 findings.append((number, "named-color", color.group(1)))
+        for match in TAILWIND_COLOR.finditer(line):
+            findings.append((number, "tailwind-color", match.group(0)))
+        for match in TAILWIND_FONT.finditer(line):
+            findings.append((number, "tailwind-font", match.group(0)))
         for match in FONT_FAMILY.finditer(line):
             value = match.group(2) if match.group(1) else match.group(3)
             if not only_tokens(value):

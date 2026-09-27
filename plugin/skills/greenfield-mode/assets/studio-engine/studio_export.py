@@ -1,10 +1,11 @@
-"""Check a world's tokens and write DESIGN.md and design/tokens.css on approval.
+"""Check a world's tokens and write DESIGN.md and the design/ files on approval.
 
 DESIGN.md follows https://raw.githubusercontent.com/google-labs-code/design.md/main/docs/spec.md
 """
 
 from datetime import datetime, timezone
 import json
+import re
 
 import studio_color
 
@@ -46,6 +47,7 @@ CONTRAST_PAIRS = (
     ("status-danger", "color-surface", 4.5, "Danger text on surfaces"),
     ("status-warning", "color-surface", 4.5, "Warning text on surfaces"),
     ("status-ok", "color-surface", 4.5, "OK text on surfaces"),
+    ("color-on-status", "status-danger", 4.5, "Text on a solid danger fill"),
 )
 HUE_GUARD_DEGREES = 30
 HUE_GUARD_CHROMA = 0.06
@@ -61,14 +63,31 @@ DEFAULT_TYPE = {
 }
 
 
-def effective_tokens(project, world, tuning):
-    """Tokens a candidate sees: world tokens, the user's tuning, derived extras, locked status colors."""
+def themes(project):
+    """The looks every model designs. Dark is on unless project.json sets "themes": ["light"]."""
+    return project.get("themes", ["light", "dark"])
+
+
+def effective_tokens(project, world, tuning, theme="light"):
+    """Tokens a candidate sees: world tokens, the user's tuning, derived extras, locked status colors.
+
+    Dark takes the world's non-color tokens (radius, space) and its `dark` colors. Tuning
+    and palettes change the light look only. Status colors keep their meaning; dark uses
+    project.json `statusDark` (lighter, same hue) when set.
+    """
+    if theme == "dark":
+        dark = world.get("dark") or {}
+        tokens = {name: value for name, value in world.get("tokens", {}).items() if not name.startswith("color-")}
+        tokens.update({name: value for name, value in dark.items() if name.startswith("color-")})
+        status = project.get("statusDark") or project["status"]
+        for name in STATUS_NAMES:
+            tokens[f"status-{name}"] = status[name]
+        return derive_extended(tokens)
     tokens = dict(world.get("tokens", {}))
     tokens.update(tuning.get(world["id"], {}))
-    derive_extended(tokens)
     for name in STATUS_NAMES:
         tokens[f"status-{name}"] = project["status"][name]
-    return tokens
+    return derive_extended(tokens)
 
 
 def derive_extended(tokens):
@@ -82,6 +101,9 @@ def derive_extended(tokens):
     tokens.setdefault("color-secondary-soft", mix(tokens["color-secondary"], tokens["color-surface"], 0.14))
     tokens.setdefault("color-tertiary-soft", mix(tokens["color-tertiary"], tokens["color-surface"], 0.16))
     tokens.setdefault("color-surface-2", mix(tokens["color-ink"], tokens["color-surface"], 0.05))
+    # Text on a solid status fill, such as a danger banner. White fails on a light dark-mode red.
+    if "status-danger" in tokens:
+        tokens.setdefault("color-on-status", studio_color.on_color(tokens["status-danger"]))
     return tokens
 
 
@@ -166,7 +188,8 @@ def load_variants(content):
         world = {**data.get("world", {}), "id": variant_id}
         world.setdefault("name", data.get("model") or variant_id)
         variants.append({"id": variant_id, "model": str(data.get("model", "")), "summary": str(data.get("summary", "")),
-                         "order": data.get("order", 0), "world": world})
+                         "order": data.get("order", 0), "world": world, "components": data.get("components"),
+                         "notComponents": data.get("notComponents")})
     variants.sort(key=lambda item: (item["order"] if isinstance(item["order"], (int, float)) else 0, item["id"]))
     return variants, problems
 
@@ -206,6 +229,11 @@ def find_problems(project, content=None):
             studio_color.parse(project["status"].get(name, ""))
         except ValueError as error:
             problems.append(f"status.{name}: {error}")
+        if project.get("statusDark") is not None:
+            try:
+                studio_color.parse(project["statusDark"].get(name, ""))
+            except (AttributeError, ValueError) as error:
+                problems.append(f"statusDark.{name}: {error}")
     screen_ids = [screen["id"] for screen in project["screens"]]
     repeated = sorted({screen for screen in screen_ids if screen_ids.count(screen) > 1})
     if repeated:
@@ -230,6 +258,79 @@ def find_problems(project, content=None):
         fonts = world.get("fonts", {})
         if not fonts.get("display") or not fonts.get("body"):
             problems.append(f"Variant '{variant['id']}' world needs fonts.display and fonts.body")
+        if variant.get("components") is not None:
+            problems += component_problems(variant, screen_ids)
+        problems += not_component_problems(variant)
+        problems += dark_problems(project, variant, required=False)
+    return problems
+
+
+def dark_problems(project, variant, required):
+    """Problems in a variant's dark look. With `required`, a missing one is a problem too."""
+    if "dark" not in themes(project):
+        return []
+    label = f"Variant '{variant['id']}'"
+    dark = variant["world"].get("dark")
+    if dark is None:
+        return [f"{label} has no dark look: add world.dark to variant.json"] if required else []
+    if not isinstance(dark, dict):
+        return [f"{label} world.dark must be an object of color tokens"]
+    problems = [f"{label} world.dark is missing {name}" for name in REQUIRED_TOKENS if name.startswith("color-") and name not in dark]
+    for name, value in dark.items():
+        try:
+            studio_color.parse(value)
+        except ValueError as error:
+            problems.append(f"{label} world.dark {name}: {error}")
+    return problems
+
+
+def not_component_problems(variant):
+    """`notComponents` lists repeated structures the model decided are not parts, each with a reason."""
+    items = variant.get("notComponents")
+    if items is None:
+        return []
+    label = f"Variant '{variant['id']}'"
+    if not isinstance(items, list):
+        return [f"{label} notComponents must be a list of {{selector, why}}"]
+    problems = []
+    for index, item in enumerate(items, 1):
+        if not isinstance(item, dict) or not str(item.get("selector", "")).strip() or not str(item.get("why", "")).strip():
+            problems.append(f"{label} notComponents {index} needs a selector and a why")
+    return problems
+
+
+def component_problems(variant, screen_ids):
+    """Problems in a variant's components list. A missing list is a problem too:
+    approval turns it into DESIGN.md's Components section."""
+    label = f"Variant '{variant['id']}'"
+    components = variant.get("components")
+    if not isinstance(components, list) or not components:
+        return [f"{label} lists no components in variant.json"]
+    problems, names = [], []
+    for index, item in enumerate(components, 1):
+        if not isinstance(item, dict) or not str(item.get("name", "")).strip():
+            problems.append(f"{label} component {index} needs a name")
+            continue
+        name = item["name"]
+        names.append(name)
+        for key in ("name", "what", "selector"):
+            if any(mark in str(item.get(key) or "") for mark in ("\n", "`")):
+                problems.append(f"{label} component {name}: '{key}' must be one line without backticks")
+        if not str(item.get("what", "")).strip():
+            problems.append(f"{label} component {name} needs 'what'")
+        screens = item.get("screens")
+        if not isinstance(screens, list) or not screens:
+            problems.append(f"{label} component {name} needs the screens it appears on")
+        else:
+            unknown = [screen for screen in screens if screen not in screen_ids]
+            if unknown:
+                problems.append(f"{label} component {name} names unknown screens: {', '.join(map(str, unknown))}")
+        base = item.get("shadcn")
+        if base is not None and not (isinstance(base, str) and re.fullmatch(r"[a-z][a-z0-9-]*", base)):
+            problems.append(f"{label} component {name}: 'shadcn' is a component name such as \"dialog\", or null for a custom one")
+    repeated = sorted({name for name in names if names.count(name) > 1})
+    if repeated:
+        problems.append(f"{label} component names repeat: {', '.join(repeated)}")
     return problems
 
 
@@ -252,12 +353,23 @@ def font_stack(value):
     return value if "," in value else f"{value}, system-ui, sans-serif"
 
 
-def tokens_css(project, world, tokens, revision, stamp, palette=None):
+def fonts_css(project, world, revision, stamp):
+    """The font import on its own. A CSS @import only works before every other rule,
+    so an app imports this file first and tokens.css after its framework."""
+    google = world["fonts"].get("google")
+    lines = [CSS_MARKER, f"/* {project['name']} · world {world['name']} · revision {revision} · {stamp} */",
+             "/* Import this file before anything else, including Tailwind. */"]
+    lines.append(f'@import url("https://fonts.googleapis.com/css2?{google}&display=swap");' if google
+                 else "/* The approved fonts are not on Google Fonts; load them in the app. */")
+    return "\n".join(lines) + "\n"
+
+
+def tokens_css(project, world, tokens, revision, stamp, palette=None, dark=None):
     fonts = world["fonts"]
-    lines = [CSS_MARKER, f"/* {project['name']} · world {world['name']} · revision {revision} · {stamp} */"]
-    if fonts.get("google"):
-        lines.append(f'@import url("https://fonts.googleapis.com/css2?{fonts["google"]}&display=swap");')
+    lines = [CSS_MARKER, f"/* {project['name']} · world {world['name']} · revision {revision} · {stamp} */",
+             "/* Fonts load from design/fonts.css. Dark applies under .dark or [data-theme=dark] on <html>. */"]
     lines.append(":root {")
+    lines.append("  color-scheme: light;")
     for name, value in tokens.items():
         lines.append(f"  --{name}: {value};")
     lines.append(f"  --font-display: {font_stack(fonts['display'])};")
@@ -268,10 +380,70 @@ def tokens_css(project, world, tokens, revision, stamp, palette=None):
             for step, value in studio_color.tonal_scale(palette["seeds"][role]).items():
                 lines.append(f"  --{role}-{step}: {value};")
     lines.append("}")
+    if dark:
+        lines.append(".dark, [data-theme=\"dark\"] {")
+        lines.append("  color-scheme: dark;")
+        for name, value in dark.items():
+            if name.startswith(("color-", "status-")):
+                lines.append(f"  --{name}: {value};")
+        lines.append("}")
     return "\n".join(lines) + "\n"
 
 
-def design_md(project, variant, world, tokens, checks, font_checks, revision, stamp, palette=None):
+# shadcn's theme variable → the approved token it takes. shadcn's "secondary" and
+# "accent" are quiet fills (a plain button, a hovered menu item), not the look's own
+# secondary and accent colors, so they map to quiet tokens.
+SHADCN_COLORS = (
+    ("background", "color-bg"), ("foreground", "color-ink"),
+    ("card", "color-surface"), ("card-foreground", "color-ink"),
+    ("popover", "color-surface"), ("popover-foreground", "color-ink"),
+    ("primary", "color-primary"), ("primary-foreground", "color-on-primary"),
+    ("secondary", "color-surface-2"), ("secondary-foreground", "color-ink"),
+    ("muted", "color-surface-2"), ("muted-foreground", "color-muted"),
+    ("accent", "color-primary-soft"), ("accent-foreground", "color-ink"),
+    ("destructive", "status-danger"),
+    ("border", "color-line"), ("input", "color-line"), ("ring", "color-primary"),
+    ("chart-1", "color-primary"), ("chart-2", "color-secondary"), ("chart-3", "color-tertiary"),
+    ("chart-4", "color-accent"), ("chart-5", "color-muted"),
+    ("sidebar", "color-surface"), ("sidebar-foreground", "color-ink"),
+    ("sidebar-primary", "color-primary"), ("sidebar-primary-foreground", "color-on-primary"),
+    ("sidebar-accent", "color-primary-soft"), ("sidebar-accent-foreground", "color-ink"),
+    ("sidebar-border", "color-line"), ("sidebar-ring", "color-primary"),
+)
+# shadcn components use rounded-lg for controls, rounded-xl and up for cards and
+# dialogs, rounded-4xl for badges, rounded-md and rounded-sm for small inner parts.
+SHADCN_RADII = (("sm", "sm"), ("md", "sm"), ("lg", "md"), ("xl", "lg"), ("2xl", "lg"), ("3xl", "lg"), ("4xl", "pill"))
+
+
+def shadcn_css(project, world, tokens, revision, stamp, dark=None):
+    """Point shadcn's theme at the approved tokens.
+
+    shadcn's own theme reuses names such as --color-primary and --radius-md, so
+    this file replaces the @theme inline, :root and .dark blocks `shadcn init`
+    writes. Values are copied from the tokens, never shadcn's defaults. Colors are
+    copied rather than linked with var(), so the two files can't form a loop.
+    """
+    fonts = world["fonts"]
+    radius = {name.removeprefix("radius-"): value for name, value in tokens.items() if name.startswith("radius-")}
+    radius.setdefault("lg", radius["md"])
+    radius.setdefault("pill", "999px")
+    lines = [CSS_MARKER, f"/* {project['name']} · world {world['name']} · revision {revision} · {stamp} */",
+             "/* shadcn/ui theme from the approved tokens. Import it right after design/tokens.css, in place of",
+             "   the @theme inline, :root and .dark blocks that `shadcn init` writes. */",
+             "@theme inline {",
+             f"  --font-sans: {font_stack(fonts['body'])};",
+             f"  --font-heading: {font_stack(fonts['display'])};"]
+    lines += [f"  --color-{name}: var(--{name});" for name, _ in SHADCN_COLORS]
+    lines += [f"  --radius-{step}: {radius[source]};" for step, source in SHADCN_RADII]
+    lines += ["}", ":root {"]
+    lines += [f"  --{name}: {tokens[source]};" for name, source in SHADCN_COLORS]
+    lines += [f"  --radius: {radius['md']};", "}"]
+    if dark:
+        lines += [".dark, [data-theme=\"dark\"] {"] + [f"  --{name}: {dark[source]};" for name, source in SHADCN_COLORS] + ["}"]
+    return "\n".join(lines) + "\n"
+
+
+def design_md(project, variant, world, tokens, checks, font_checks, revision, stamp, palette=None, dark=None, dark_checks=None):
     fonts = world["fonts"]
     type_scale = {**DEFAULT_TYPE, **world.get("type", {})}
     colors = {name.removeprefix("color-"): studio_color.to_hex(value) for name, value in tokens.items() if name.startswith("color-")}
@@ -311,6 +483,10 @@ def design_md(project, variant, world, tokens, checks, font_checks, revision, st
         + (f": {variant['summary']}" if variant.get("summary") else "."),
         "Build with `design/tokens.css`. Do not copy raw colors or font names into components.",
         "",
+        "Files written with this one: `design/fonts.css` (the font import; load it first), "
+        "`design/tokens.css` (every token as a CSS variable) and `design/shadcn.css` "
+        "(shadcn/ui's theme, taken from the tokens).",
+        "",
         "## Colors", "",
         "| Role | Token | Value | sRGB |", "| --- | --- | --- | --- |",
     ]
@@ -332,11 +508,22 @@ def design_md(project, variant, world, tokens, checks, font_checks, revision, st
     for check in checks:
         if check["kind"] == "contrast":
             body.append(f"| {check['id']} | {check['label']} | {check['ratio']}:1 | {check['minimum']}:1 |")
+    if dark:
+        body += ["", "### Dark theme", "",
+                 "The same roles under `.dark` or `[data-theme=\"dark\"]` on `<html>`. Status colors keep their meaning.", "",
+                 "| Role | Token | Value | sRGB |", "| --- | --- | --- | --- |"]
+        for name, value in dark.items():
+            if name.startswith(("color-", "status-")):
+                body.append(f"| {name.split('-', 1)[1]} | `--{name}` | `{value}` | `{studio_color.to_hex(value)}` |")
+        body += ["", "Contrast in the dark theme (WCAG 2):", "", "| Pair | Use | Ratio | Minimum |", "| --- | --- | --- | --- |"]
+        for check in dark_checks or []:
+            if check["kind"] == "contrast":
+                body.append(f"| {check['id']} | {check['label']} | {check['ratio']}:1 | {check['minimum']}:1 |")
     body += ["", "## Typography", "",
              f"- Display: {font_stack(fonts['display'])}",
              f"- Body: {font_stack(fonts['body'])}"]
     if fonts.get("google"):
-        body.append(f"- Loaded from Google Fonts: `{fonts['google']}`")
+        body.append(f"- Loaded from Google Fonts by `design/fonts.css`: `{fonts['google']}`")
     scripts = ", ".join(project.get("scripts", [])) or "latin"
     if not font_checks:
         body.append(f"- Script coverage ({scripts}): not checked at approval")
@@ -354,16 +541,32 @@ def design_md(project, variant, world, tokens, checks, font_checks, revision, st
     body += ["", "## Shapes", ""]
     for name, value in rounded.items():
         body.append(f"- `--radius-{name}`: {value}")
-    body += ["", "## Components", "",
-             "Extract components from the approved screens above. The frontmatter lists the base roles.", "",
-             "## Do's and Don'ts", "",
-             "- Do use `var(--…)` tokens from `design/tokens.css` for every color, font, and radius.",
+    body += ["", *components_md(variant), "", "## Do's and Don'ts", "",
+             "- Do use `var(--…)` tokens from `design/tokens.css` for every color, font, and radius, or shadcn's class names (`bg-primary`), which `design/shadcn.css` maps to the same tokens.",
              "- Do keep each status color for its one meaning only.",
              "- Don't add raw hex, rgb, hsl, or oklch values, or font names, in components. `check_tokens.py` fails on them.",
              "- Don't change the look while building a feature. Return to the studio for a new revision instead."]
     for rule in world.get("rules", []):
         body.append(f"- {rule}")
     return "\n".join(body) + "\n"
+
+
+def components_md(variant):
+    """The Components section: every part the approved model named, where it shows, and how to build it."""
+    lines = ["## Components", "",
+             f"The parts {variant['model'] or variant['id']} named for this design. Build each one to match the screens listed.",
+             "",
+             "- `shadcn` rows: add them with the `shadcn` skill (`npx shadcn@latest add <name>`). "
+             "`design/shadcn.css` gives them this design's colors, fonts and radius. Change layout and variants, never colors.",
+             "- `custom` rows: build them by hand from the named screens, with `var(--…)` tokens only.",
+             "- \"Find it\" is a CSS selector in the approved screen files.",
+             "", "| Component | What it is | Screens | Find it | Build from |", "| --- | --- | --- | --- | --- |"]
+    for item in variant.get("components") or []:
+        base = f"shadcn `{item['shadcn']}`" if item.get("shadcn") else "custom"
+        where = f"`{item['selector']}`" if item.get("selector") else ""
+        cells = [item["name"], item.get("what", ""), ", ".join(item.get("screens", [])), where, base]
+        lines.append("| " + " | ".join(str(cell).replace("|", "\\|") for cell in cells) + " |")
+    return lines
 
 
 def yaml(value, indent=0):
@@ -381,16 +584,20 @@ def yaml(value, indent=0):
     return "\n".join(lines) + "\n"
 
 
-def write_exports(project_root, project, variant, world, tokens, checks, font_checks, revision, palette=None):
-    """Write both files. Refuse to replace a DESIGN.md the studio did not write."""
+def write_exports(project_root, project, variant, world, tokens, checks, font_checks, revision, palette=None, dark=None, dark_checks=None):
+    """Write DESIGN.md and the three design/ files. Refuse to replace one the studio did not write."""
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    design_path = project_root / "DESIGN.md"
-    css_path = project_root / "design" / "tokens.css"
-    for path, marker in ((design_path, MARKER), (css_path, CSS_MARKER)):
+    files = {
+        project_root / "DESIGN.md": (MARKER, design_md(project, variant, world, tokens, checks, font_checks, revision, stamp, palette, dark, dark_checks)),
+        project_root / "design" / "fonts.css": (CSS_MARKER, fonts_css(project, world, revision, stamp)),
+        project_root / "design" / "tokens.css": (CSS_MARKER, tokens_css(project, world, tokens, revision, stamp, palette, dark)),
+        project_root / "design" / "shadcn.css": (CSS_MARKER, shadcn_css(project, world, tokens, revision, stamp, dark)),
+    }
+    for path, (marker, _) in files.items():
         if path.exists() and marker not in path.read_text(encoding="utf-8"):
             raise PermissionError(f"{path.relative_to(project_root)} exists and was not written by the studio. Move it or merge it by hand first.")
-    css_path.parent.mkdir(exist_ok=True)
-    design_path.write_text(design_md(project, variant, world, tokens, checks, font_checks, revision, stamp, palette), encoding="utf-8")
-    css_path.write_text(tokens_css(project, world, tokens, revision, stamp, palette), encoding="utf-8")
-    return [str(design_path.relative_to(project_root)), str(css_path.relative_to(project_root))]
+    (project_root / "design").mkdir(exist_ok=True)
+    for path, (_, text) in files.items():
+        path.write_text(text, encoding="utf-8")
+    return [str(path.relative_to(project_root)) for path in files]
 
