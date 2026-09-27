@@ -15,7 +15,7 @@ This repo is the greenfield-kit Claude Code plugin and its marketplace. It is de
 - `plugin/` is the plugin for Claude Code, Codex and Cursor: three manifests (`.claude-plugin/plugin.json`, `plugin.json`, `.cursor-plugin/plugin.json`), `skills/`, `agents/`. Edit skills and agents here.
 - Three marketplaces point at it: `.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json` (Codex), `.cursor-plugin/marketplace.json`.
 - `.codex/agents/*.toml` are generated from `plugin/agents/` by `codex_agents.py`. Never edit them by hand.
-- `.agents/skills/<name>` and `.agents/agents/<name>` are symlinks into `plugin/`, so Codex, Cursor and Claude Code in this repo use the same files. `.agents/skills/impeccable/` is a separately installed third-party skill, not part of the kit.
+- `.agents/skills/<name>` and `.agents/agents/<name>` are symlinks into `plugin/`, so Codex, Cursor and Claude Code in this repo use the same files.
 - `.agents/INSTRUCTIONS.md` is a symlink to the `setup-project` template. Editing it edits what new projects receive. `.agents/PROJECT.md` is this repo's own copy, not a template.
 - How to write and place code is the `write-code` skill. Its ESLint preset lives in `plugin/skills/write-code/assets/eslint.config.mjs`; this repo has no JavaScript app of its own to run it on.
 - The studio engine is `plugin/skills/greenfield-mode/assets/studio-engine/`. A project's `studio/` holds content only.
@@ -41,7 +41,6 @@ All from the repo root. `G` is `plugin/skills/greenfield-mode`.
 | Check the three manifests agree, or bump the version | `python3 tools/check_manifests.py [--bump <version>]` |
 | Check the plugin has no PartyFox words | `python3 tools/check_agnostic.py` |
 | Regenerate the Codex agents in `.codex/agents/` | `python3 plugin/skills/setup-project/scripts/codex_agents.py --project .` |
-| Design detector | `.agents/skills/impeccable/scripts/impeccable detect examples/partyfox/studio/candidates` |
 | Compare the kit with ~/.agents (Codex, Cursor) | `python3 plugin/skills/setup-project/scripts/sync_global.py` |
 
 ## Checks

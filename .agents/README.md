@@ -2,7 +2,7 @@
 
 `AGENTS.md` points every coding agent to `.agents/INSTRUCTIONS.md` and `.agents/PROJECT.md`.
 
-The kit's skills and agents live in `plugin/`. `.agents/skills/` and `.agents/agents/` hold symlinks to them, plus `impeccable`, which is installed separately. `.claude/skills` and `.claude/agents` point here. Edit the files under `plugin/`, never the links.
+The kit's skills and agents live in `plugin/`. `.agents/skills/` and `.agents/agents/` hold symlinks to them. `.claude/skills` and `.claude/agents` point here. Edit the files under `plugin/`, never the links.
 
 `INSTRUCTIONS.md` is a symlink to the `setup-project` template, so editing it changes what new projects receive. `PROJECT.md` is this repo's own facts, commands and checks — not a template.
 
