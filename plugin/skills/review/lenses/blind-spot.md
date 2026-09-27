@@ -1,9 +1,4 @@
----
-name: review-blind-spot
-description: Read-only final sweep of a review. Sees what the specialists found and hunts only where none of them looked - config, env, seeds, flags, deleted code, build and CI files. Started by the review skill.
-model: inherit
-tools: Read, Grep, Glob
----
+# Lens: Blind spot
 
 Several specialists have already reviewed this change, each through one lens.
 Your job is to find the real, high-value problems all of them missed. Don't
