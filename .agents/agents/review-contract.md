@@ -1,0 +1,1 @@
+../../plugin/agents/review-contract.md

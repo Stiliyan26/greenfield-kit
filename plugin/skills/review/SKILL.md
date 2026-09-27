@@ -1,0 +1,116 @@
+---
+name: review
+description: Review a branch, PR or diff with tools first and then a swarm of read-only specialist agents (correctness, access, contract, data, fit, tests, UI, scope), a blind-spot pass and a judge. Produces one report sorted by what to act on. Use before merging, when asked to "review", or in CI on a pull request. Also sets up the tools and CI a project needs for it.
+---
+
+# Review a change
+
+`<skill-root>` is the folder that holds this `SKILL.md`.
+
+You run the review. You don't review the code yourself and you never fix
+anything during a review. The specialists find problems, the judge filters
+them, and you pass the results along exactly.
+
+```
+diff ─► 0 tools ─► 1 triage ─► 2 specialists (parallel) ─► 3 blind spot ─► 4 judge ─► report
+          │ fail = CI red
+```
+
+## 0. Tools
+
+Run the project's gate command from `.agents/PROJECT.md` (for example
+`npm run gates`). Save its output to `temp/review/<run>/tools.txt`. If a check
+fails, the review still runs, but the report says which check failed.
+
+If the project has no size, import, copied-code or dead-code checks yet, say
+so in the report and offer [tools.md](references/tools.md). A tool catches
+those problems the same way every time, for free. An agent should never report
+them.
+
+## 1. Triage
+
+1. Find the base: the PR's base branch, or the branch the user names, or
+   `main`. Collect the change:
+
+   ```
+   git diff --name-only <base>...HEAD > temp/review/<run>/files.txt
+   git diff <base>...HEAD > temp/review/<run>/diff.patch
+   ```
+
+2. Pick the specialists:
+
+   ```
+   node <skill-root>/scripts/triage.mjs temp/review/<run>/files.txt > temp/review/<run>/triage.json
+   ```
+
+   It matches changed paths to reviewers by fixed rules
+   ([triage.md](references/triage.md)). A project can add rules in
+   `.agents/review/triage.json`. Keep its choice; add a reviewer only with a
+   reason you write down.
+3. Write the change's goal in one paragraph in `temp/review/<run>/goal.md`,
+   from the request, the PR text, the commits and any plan in `docs/plans/`.
+   Every reviewer judges the change against this.
+4. Diffs over about 1,500 changed lines: split by top folder or module, as
+   `triage.json` lists in `chunks`. Run step 2 once per chunk.
+
+## 2. Specialists
+
+Start every reviewer in `triage.json` at the same time, as separate
+sub-agents: `review-correctness`, `review-access`, `review-contract`,
+`review-data`, `review-fit`, `review-tests`, `review-ui`, `review-scope`.
+Give each one the same packet and nothing else:
+
+- the path to `temp/review/<run>/` (goal, files, diff, tool report),
+- the path to [finding.md](references/finding.md), the shape every finding
+  comes back in,
+- the chunk it reviews, if any,
+- for `review-fit`: the path to the `write-code` skill's `SKILL.md`,
+- for `review-ui`: the screenshot folder, or "no screenshots".
+
+They must not see each other's findings. Save each reply as-is to
+`temp/review/<run>/candidates/<reviewer>.md`.
+
+A reviewer that fails or times out is listed under "Not checked" in the report.
+Don't re-run it with a softer prompt.
+
+**No sub-agents?** (Some tools can't start them.) Run the reviewers one after
+another yourself. Before each, read that agent's file in the plugin's
+`agents/` folder and follow only it. Write each result to its file before you
+read the next agent. Say in the report that the review ran in this mode.
+
+## 3. Blind spot
+
+Start `review-blind-spot` with the packet and the `candidates/` folder. Save
+its reply to `candidates/blind-spot.md`.
+
+## 4. Judge
+
+Start `review-judge` with the packet, the whole `candidates/` folder and the
+path to [report.md](references/report.md). It returns the final report in that
+shape.
+Save it to `temp/review/<run>/report.md`.
+
+## Hand it over
+
+- **Locally:** show the report as it is. Offer to fix the "Act on" items; the
+  user picks. Don't fix anything they didn't pick.
+- **On a PR:** post the report as one comment. Update that comment on the next
+  run; don't add a new one each time. The review never blocks the merge; only
+  the tools do.
+- Keep `temp/review/<run>/` until the user has seen the report.
+
+## Set up a project
+
+| Need | Read |
+| --- | --- |
+| Tool checks (size, nesting, cycles, layers, copied and dead code) | [tools.md](references/tools.md) |
+| The project's own rules files in `.agents/review/` | [project-rules.md](references/project-rules.md) |
+| Run the review on every pull request | [ci.md](references/ci.md) |
+
+## Limits
+
+- The reviewers can read and search files, nothing else. They can't run code,
+  so anything that needs running goes under "Not checked" with the exact
+  command.
+- For a quick look at a small change or a plan, the single `reviewer` agent is
+  enough.
