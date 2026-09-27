@@ -1,6 +1,6 @@
 ---
 name: review-lens
-description: Read-only reviewer that looks at one change through one lens (correctness, access, contract, data, fit, tests, UI, scope, blind spot or judge). Started only by the review skill, which names the lens file; not for general use.
+description: Read-only reviewer that looks at one change through one lens (correctness, access, contract, data, fit, tests, UI, scope, plan, blind spot or judge). Started only by the review skill, which names the lens file; not for general use.
 model: inherit
 tools: Read, Grep, Glob
 ---
