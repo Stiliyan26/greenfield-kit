@@ -1,6 +1,6 @@
 ---
 name: greenfield-mode
-description: Run a new product from rough brief through competing local designs, user choice, architecture, and verified feature delivery. Use for a new product or a full restart of its design.
+description: Run a new product from rough brief through competing local designs, user choice, shadcn components built from the chosen design, architecture, and verified feature delivery. Use for a new product or a full restart of its design.
 mode: true
 icon: rocket
 color: green
@@ -54,7 +54,8 @@ Use `design-interface` for the design work. Its order is required:
 4. Before the user sees it: capture, fix what the capture report and checks
    find, and get a score from the `design-critic` agent.
 5. The user compares the models in the studio, picks one, tunes its colors
-   and approves.
+   and approves. The **Components** view (`T`) shows how each model builds
+   every screen from its parts, and which parts it reuses.
 
 Use `frontend-design`, where it's installed, to challenge defaults. Use
 `impeccable` to critique rendered work. Naming a skill is not a check. Only
@@ -75,24 +76,36 @@ in it. Don't guess their choice from chat.
 Only **Approve** in the studio counts. If the user approves in chat, ask them
 to press it; the button runs the final checks and writes the files. A draft is
 feedback. If the user calls the work generic, ask the model to change the
-structure or the look itself; shadows and accents won't fix it. Approval writes `DESIGN.md` and
-`design/tokens.css`. It doesn't allow publishing or writing to outside
-systems.
+structure or the look itself; shadows and accents won't fix it. Approval writes
+`DESIGN.md` (with its Components table), `design/fonts.css`, `design/tokens.css` and `design/shadcn.css`. It doesn't allow publishing or writing to outside systems.
 
-## 3. Define the system after the choice
+## 3. Build the components
 
-Use `plan-feature` on the approved design. Define roles and permissions, data,
+Right after approval, before planning, turn the approved design into real
+components with the `shadcn` skill. Follow
+[references/components.md](references/components.md): set up shadcn with the
+theme from `design/shadcn.css`, add every part the Components table marks
+`shadcn`, build the custom parts from the approved screens, and show all of
+them on one gallery page. Check the gallery with the token check, captures
+and the `design-critic` agent, then give the user its URL. Move on only after
+the user accepts it. This fixes the frontend as React, Tailwind and
+shadcn/ui; the backend is still open for the plan.
+
+## 4. Define the system after the choice
+
+Use `plan-feature` on the approved design and its components. Define roles and permissions, data,
 screen data needs, API contracts, error states, integrations and the smallest
 useful release. Mark client requirements, operator ideas and open questions
 separately. Save the plan under `docs/plans/<project>/`, with requirement IDs
-and links to `DESIGN.md` and the approved studio revision. Ask a fresh
+and links to `DESIGN.md` and the approved studio revision. The plan names
+which built components each screen uses. Ask a fresh
 `reviewer` agent to check risky architecture.
 
-## 4. Deliver without visual drift
+## 5. Deliver without visual drift
 
 Use `deliver-feature` to turn requirement IDs into small working tasks. Every
-task builds with `design/tokens.css` and the approved screens. It doesn't
-invent colors, fonts or a component kit. Run `check_tokens.py --tokens
+task builds screens from the components of stage 3, `design/tokens.css` and
+the approved screens. It doesn't invent colors, fonts or components. Run `check_tokens.py --tokens
 design/tokens.css` on changed UI files. If a new requirement changes the look,
 send that part back to the studio for a new revision. Check real desktop and
 phone behavior, interaction and saved data before calling a task done.

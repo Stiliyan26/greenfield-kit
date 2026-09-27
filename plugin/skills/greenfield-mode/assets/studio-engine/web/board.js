@@ -158,22 +158,56 @@ export function createBoard(ctx) {
 
   // --- pan and zoom ----------------------------------------------------------
 
+  // Moving the canvas is split in two. Each frame only moves the world as one
+  // layer (cheap, like moving a picture). When the gesture stops, the zoom-sized
+  // labels and borders are recomputed and nearby frames load: those touch every
+  // frame on the board, so doing them per wheel event is what made zoom lag.
+  let frameQueued = false
+  let settleTimer = 0
+  let settledZoom = null
+
   function apply() {
+    if (!frameQueued) {
+      frameQueued = true
+      requestAnimationFrame(() => { frameQueued = false; paintView() })
+    }
+    board.classList.add("board-moving")
+    clearTimeout(settleTimer)
+    settleTimer = setTimeout(settle, 140)
+  }
+
+  function paintView() {
     world.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.z})`
-    board.style.setProperty("--zoom", String(view.z))
     // Keep the dots at least 12 px apart at any zoom, so they never turn into noise.
     let dots = 24 * view.z
     while (dots < 12) dots *= 4
     board.style.backgroundSize = `${dots}px ${dots}px`
     board.style.backgroundPosition = `${view.x}px ${view.y}px`
     byId("zoom-level").textContent = `${Math.round(view.z * 100)}%`
+  }
+
+  // Fit and reveal measure right after moving, so they apply at once.
+  function applyNow() {
+    clearTimeout(settleTimer)
+    paintView()
+    settle()
+  }
+
+  function settle() {
+    board.classList.remove("board-moving")
+    if (settledZoom !== view.z) {
+      settledZoom = view.z
+      board.style.setProperty("--zoom", String(view.z))
+    }
     scheduleMount()
   }
 
-  function zoomAt(z, cx = board.clientWidth / 2, cy = board.clientHeight / 2) {
+  // A wheel or pinch zooms as a gesture; a button or key is one step and lands at once.
+  function zoomAt(z, cx = board.clientWidth / 2, cy = board.clientHeight / 2, gesture = false) {
     const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z))
     view = { x: cx - ((cx - view.x) * next) / view.z, y: cy - ((cy - view.y) * next) / view.z, z: next }
-    apply()
+    if (gesture) apply()
+    else applyNow()
   }
 
   // Top left, zoomed so a desktop frame takes about 40% of the width. The screen
@@ -182,7 +216,7 @@ export function createBoard(ctx) {
     if (!board.clientWidth) return
     if (store.view === "screen") { fit(); return }
     view = { x: PAD, y: PAD, z: Math.min(1, Math.max(0.08, (board.clientWidth * 0.4) / store.project._sizes[0].width)) }
-    apply()
+    applyNow()
   }
 
   // Labels keep their screen size, so the canvas size depends on the zoom: measure twice.
@@ -194,7 +228,7 @@ export function createBoard(ctx) {
       const z = Math.min(1, Math.max(MIN_ZOOM, Math.min((board.clientWidth - PAD * 2) / width, (board.clientHeight - PAD * 2) / height)))
       const x = width * z < board.clientWidth - PAD * 2 ? (board.clientWidth - width * z) / 2 : PAD
       view = { x, y: PAD, z }
-      apply()
+      applyNow()
     }
   }
 
@@ -202,18 +236,19 @@ export function createBoard(ctx) {
   function reveal() {
     const target = world.querySelector(".board-item[aria-current=true]")
     if (!target) return
+    paintView()
     const box = target.getBoundingClientRect()
     const frame = board.getBoundingClientRect()
     view.x += frame.left + frame.width / 2 - (box.left + box.width / 2)
     view.y += frame.top + PAD * 2 - box.top
-    apply()
+    applyNow()
   }
 
   board.addEventListener("wheel", (event) => {
     event.preventDefault()
     if (event.ctrlKey || event.metaKey) {
       const frame = board.getBoundingClientRect()
-      zoomAt(view.z * Math.exp(-event.deltaY * 0.01), event.clientX - frame.left, event.clientY - frame.top)
+      zoomAt(view.z * Math.exp(-event.deltaY * 0.01), event.clientX - frame.left, event.clientY - frame.top, true)
     } else {
       view.x -= event.shiftKey && !event.deltaX ? event.deltaY : event.deltaX
       view.y -= event.shiftKey && !event.deltaX ? 0 : event.deltaY

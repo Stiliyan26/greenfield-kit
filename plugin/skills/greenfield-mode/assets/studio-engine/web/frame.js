@@ -11,6 +11,7 @@
   const chromeStyle = document.createElement("style")
   let base = null
   let worldId = params.get("world")
+  let theme = params.get("theme") === "dark" ? "dark" : "light"
   let liveTokens = null
   let commentMode = false
   let pins = []
@@ -39,8 +40,12 @@
     const fonts = base.fonts || {}
     tokens["font-display"] = stack(fonts.display || "system-ui")
     tokens["font-body"] = stack(fonts.body || "system-ui")
-    tokenStyle.textContent = `:root{${Object.entries(tokens).map(([name, value]) => `--${name}:${value}`).join(";")}}`
+    tokenStyle.textContent = `:root{color-scheme:${theme};${Object.entries(tokens).map(([name, value]) => `--${name}:${value}`).join(";")}}`
     root.dataset.studioWorld = worldId
+    root.dataset.theme = theme
+    root.classList.toggle("dark", theme === "dark")
+    // Inline, so a screen's own `color-scheme` can't hold it on light.
+    root.style.colorScheme = theme
     const href = fonts.google ? `https://fonts.googleapis.com/css2?${fonts.google}&display=swap` : ""
     if (fontLink.getAttribute("href") !== href) {
       if (href) fontLink.href = href
@@ -168,7 +173,7 @@
   window.addEventListener("message", (event) => {
     if (event.origin !== location.origin || event.source !== window.parent) return
     const message = event.data || {}
-    if (message.type === "tokens" && message.world === worldId) { liveTokens = message.tokens; apply() }
+    if (message.type === "tokens" && message.world === worldId) { liveTokens = message.tokens; theme = message.theme || theme; apply() }
     if (message.type === "comment-mode") setCommentMode(Boolean(message.on))
     if (message.type === "pins") { pins = message.pins || []; placePins() }
     if (message.type === "focus-pin") focusPin(message.id)
@@ -181,6 +186,7 @@
   const query = new URLSearchParams()
   if (worldId) query.set("world", worldId)
   if (params.get("tuned") === "0") query.set("tuned", "0")
+  if (theme === "dark") query.set("theme", "dark")
   fetch(`/api/tokens?${query}`)
     .then((response) => response.json().then((value) => {
       if (!response.ok) throw new Error(value.error || `tokens answered ${response.status}`)
@@ -189,6 +195,7 @@
     .then((value) => {
       base = value
       worldId = value.world
+      theme = value.theme || theme
       apply()
       return markReady()
     })

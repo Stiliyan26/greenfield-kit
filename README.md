@@ -2,9 +2,9 @@
 
 A plugin for Claude Code, Codex and Cursor that takes a product from a rough brief to an approved design, and then keeps that design intact through planning and delivery.
 
-It ships a local design studio. Up to three models each design the whole product from the same brief. You compare their screens side by side at three sizes, try palettes on them, pin comments on exact elements, and approve one model's design. Approval writes `DESIGN.md` and `design/tokens.css`. The planning and delivery skills build only from those two files, so the look doesn't drift into generic UI.
+It ships a local design studio. Up to three models each design the whole product from the same brief. You compare their screens side by side at three sizes, try palettes on them, pin comments on exact elements, and approve one model's design. Approval writes `DESIGN.md`, with a table of the components to build, and the `design/` files: tokens, fonts and a shadcn/ui theme taken from the tokens. The planning and delivery skills build only from those files, so the look doesn't drift into generic UI.
 
-Version 0.3.0.
+Version 0.6.0.
 
 ## Contents
 
@@ -32,9 +32,11 @@ Version 0.3.0.
 ```
 brief ──► studio/ (project.json, shared data, references)
       ──► up to 3 models, same brief ──► candidates/<model>/ (variant.json + one HTML per screen)
-      ──► quality gate (check_variant, capture, check_tokens, design-critic)
+      ──► quality gate (check_variant, check_components, capture, check_tokens, design-critic)
       ──► you compare, tune colors, comment ──► Approve
-      ──► DESIGN.md + design/tokens.css ──► plan-feature ──► deliver-feature
+      ──► DESIGN.md (with components) + design/{fonts,tokens,shadcn}.css
+      ──► components: shadcn + custom parts on a gallery page ──► you accept
+      ──► plan-feature ──► deliver-feature
 ```
 
 ## Install
@@ -88,10 +90,10 @@ Run it without `--push` to see what differs first.
 
 | Skill or agent | What it does |
 | --- | --- |
-| `greenfield-mode` | Runs a new product end to end: brief, studio, approval, plan, delivery. Owns the studio engine and its scripts. |
+| `greenfield-mode` | Runs a new product end to end: brief, studio, approval, components, plan, delivery. Owns the studio engine and its scripts. |
 | `design-interface` | The design process: two-pass research, the product facts, one design per model, the quality gate, and the user's choice in the studio. Small changes in an approved design reuse its tokens. |
 | `plan-feature` | Plans data, roles, API and screens with the user. Links the approved `DESIGN.md` instead of deciding the look again. |
-| `deliver-feature` | Builds from the plan in small, checked steps, using only `design/tokens.css` for colors, fonts and radius. |
+| `deliver-feature` | Builds from the plan in small, checked steps, with the components built after approval. Colors, fonts and radius come only from `design/tokens.css` and `design/shadcn.css`. |
 | `design-animations` | Purposeful motion: transitions, gestures, performance, reduced motion. |
 | `write-code` | Where code goes and how it's written: folder layers, TypeScript style, React, NestJS. Ships an ESLint preset so the mechanical rules are checked, not remembered. |
 | `refactor` | Structure changes that provably keep behavior. |
@@ -114,7 +116,8 @@ The `greenfield-mode` skill drives these steps:
 4. **Models design.** Up to three models each get the same brief, filled in from `references/variant-brief.md`. Only the variant id, the model name and the port differ. Each model designs every screen and its own look, freely. Nobody assigns structures or styles.
 5. **Quality gate.** Before you see anything, the agent runs the checks and captures, fixes what they find, and asks the `design-critic` agent for a score. A failing variant goes back to the model that made it.
 6. **You choose.** You compare the models in the studio, pick one, tune its colors, comment, and press **Approve**.
-7. **Plan and deliver.** `plan-feature` plans the system on the approved design. `deliver-feature` builds it with `design/tokens.css`. A new requirement that changes the look goes back to the studio.
+7. **Build the components.** Right after approval, the agent sets up shadcn/ui with the approved theme, adds every shadcn part the Components table names, and builds the custom parts from the approved screens. A gallery page shows every part in every state. You check it before any planning (`greenfield-mode/references/components.md`).
+8. **Plan and deliver.** `plan-feature` plans the system on the approved design and its components. `deliver-feature` builds the screens from those components and uses only the tokens. A new requirement that changes the look goes back to the studio.
 
 Only the **Approve** button counts as approval. If you approve in chat, the agent asks you to press it.
 
@@ -146,6 +149,11 @@ The canvas shows exact-size frames, scaled down to fit. Drag or scroll to pan. C
 - **Arena.** One row per model. In each row the three size boxes sit side by side. It appears when there are two or more models.
 - **A screen from the left rail.** That one screen from every model: models across, sizes down. The rail groups screens by role, shows "2/3" when a model hasn't built a screen yet, and lists the references for that screen.
 - **One screen alone.** Double-click a frame, press its **Open** button, or press `Enter`. It shows one screen from one model at 1920, 1440 or 390, fitted or at real size. **Open in a tab** opens the raw page. **Back** returns to the canvas.
+- **Components.** Press `T` or the **Components** button; press it again to hide. It shows how the selected model builds its screens from parts, in three modes:
+  - **Screen:** the screen beside its tree of parts, like `OrdersPage → CustomerList → CustomerRow ×6`, each marked `custom` or with its shadcn name. Hover a line to outline it in the screen, or the screen to find the line. Click a part to spotlight it: the rest dims, `‹ 2 of 6 ›` steps through its instances, **Zoom in** brings one close, and the card lists its looks and every screen that reuses it. **×**, `Esc` or a click on empty space clears the pick.
+  - **Parts:** a catalog with a live crop of every part, grouped into built by hand, from shadcn, and not listed yet. Click a card to see it on its screen.
+  - **Reuse:** every part against every screen.
+  Structures a model drew more than once but never listed show in amber as **not listed** in all three, so a shallow list is visible at a glance.
 
 A link like `/?view=arena` (or `model`, `screen`, `frame`) opens that view directly. Otherwise the page reopens on the view you last used.
 
@@ -156,13 +164,15 @@ A link like `/?view=arena` (or `model`, `screen`, `frame`) opens that view direc
 | `←` `→` | Previous or next palette |
 | `S` | Star the current palette |
 | `C` | Pin a comment |
+| `T` | Show or hide the components view |
+| `D` | Light or dark look, for the studio and every screen |
 | `M` | Arena: every model |
 | `A` | The selected model's screens |
 | `J` `K` | Next or previous screen |
 | `Enter` | Open the selected screen alone |
-| `Esc` | Back from one screen to the canvas; close or cancel |
+| `Esc` | Back from one screen to the canvas; in the components view, clear the pick, then hide it; close or cancel |
 | `-` `+` `0` | Zoom out, in, or fit everything (canvas) |
-| `1` `2` `3` | 1920, 1440 or 390 (one screen alone) |
+| `1` `2` `3` | 1920, 1440 or 390 (one screen alone, or the components view) |
 | `F` | Fit one screen, or real size |
 | `[` `]` | Hide or show the left or right panel |
 | `P` | Hide or show both panels |
@@ -206,12 +216,14 @@ The rail's "Fonts and colors" entry is each model's specimen page. It shows the 
 
 ### Approve
 
-**Approve** approves the selected model's design at the current revision. It writes two files at the project root:
+**Approve** approves the selected model's design at the current revision. It writes four files in the project:
 
-- `DESIGN.md`, in the google-labs-code DESIGN.md format: colors, both typefaces, the type scale, radius, contrast results, status meanings, the palette and its tonal scales, and the approved screens.
-- `design/tokens.css`: every token as a CSS variable, the font stacks and Google Fonts import, and `--primary-0` to `--neutral-100` when a palette was applied.
+- `DESIGN.md`, in the google-labs-code DESIGN.md format: colors, both typefaces, the type scale, radius, contrast results, status meanings, the palette and its tonal scales, the approved screens, and the Components table. Each row is one part the model drew: what it is, the screens that show it, a selector to find it, and whether to build it from a shadcn/ui component or by hand.
+- `design/fonts.css`: the Google Fonts import alone. A CSS `@import` is dropped unless it comes first, so an app imports this file before Tailwind.
+- `design/tokens.css`: every token as a CSS variable, the font stacks, and `--primary-0` to `--neutral-100` when a palette was applied. The dark look follows under `.dark` and `[data-theme="dark"]`.
+- `design/shadcn.css`: shadcn/ui's theme variables, filled in from the tokens. It replaces the theme `shadcn init` writes, so shadcn parts come out in the approved colors, fonts and radius.
 
-A change after approval returns the revision to draft, and the top bar marks `DESIGN.md` as outdated. Approval refuses to overwrite a `DESIGN.md` or `tokens.css` that the studio didn't write.
+Every model designs a light and a dark look (`world.dark`); `D` switches the studio and every screen between them, and approval checks both. Approval refuses a model's design whose `variant.json` has no `components` list or no dark look. A tune after approval, or a change on disk to `project.json` or the approved model's folder, returns the revision to draft, and the top bar marks `DESIGN.md` as outdated. Approval refuses to overwrite any of the four files that the studio didn't write.
 
 ## Quality gate
 
@@ -219,8 +231,9 @@ The agent runs these before you see a design. `G` is `plugin/skills/greenfield-m
 
 | Check | What it does |
 | --- | --- |
-| `python3 $G/scripts/check_variant.py studio [--variant <id>]` | Lists problems in `project.json` and `variant.json`, screens without a file, and failing contrast and hue checks. |
-| `python3 $G/scripts/check_tokens.py --project studio/project.json studio/candidates` | Fails on raw hex, rgb, hsl, oklch or font names, and on token names the project doesn't define. Delivery runs it with `--tokens design/tokens.css` on changed UI files. |
+| `python3 $G/scripts/check_variant.py studio [--variant <id>]` | Lists problems in `project.json` and `variant.json` (including a missing or broken `components` list), screens without a file, and failing contrast and hue checks. |
+| `node $G/scripts/check_components.mjs --url <studio url> [--variant <id>]` | Opens every screen at 1440 and 390 and reads it against the model's `components` list, the same way the Components view does. Fails on a listed part its selector can't find, and on a structure drawn more than once that no part covers and `notComponents` doesn't excuse. |
+| `python3 $G/scripts/check_tokens.py --project studio/project.json studio/candidates` | Fails on raw hex, rgb, hsl, oklch or font names, Tailwind's own palette classes (`bg-red-500`, `text-white`, `font-mono`), and token names the project doesn't define. Delivery runs it with `--tokens design/tokens.css` on changed UI files. |
 | `node $G/scripts/capture.mjs --url <studio url> --out temp/verification/<run>` | Screenshots every screen × model × size, plus each specimen. Writes `capture.md` with loaded fonts, sideways scroll, clipped text and console errors. `--studio` also captures the studio page and Arena. `--variants`, `--sizes`, `--screens` narrow it. |
 | `node $G/scripts/test_studio.mjs` | End-to-end test of the engine in a throwaway project. Run it after changing the engine. |
 | `design-critic` agent | Scores the captures. Under 70 means revise first. |

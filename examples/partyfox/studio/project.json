@@ -89,6 +89,7 @@
     "warning": "oklch(0.52 0.12 70)",
     "ok": "oklch(0.5 0.12 150)"
   },
+  "statusDark": {"danger": "oklch(0.7 0.17 27)", "warning": "oklch(0.78 0.13 70)", "ok": "oklch(0.74 0.13 150)"},
   "statusMeaning": {
     "danger": "Only a missing deposit. Nothing else on any screen may be solid red.",
     "warning": "An animator clash, an unassigned party, or leave that needs cover.",

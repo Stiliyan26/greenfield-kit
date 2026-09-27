@@ -29,9 +29,10 @@ export function createCanvas(ctx) {
   // A screen's address, or null when that variant has no file for it yet.
   function frameSrc(variantId, screenId) {
     const world = encodeURIComponent(variantId)
-    if (screenId === "specimen") return `/_studio/specimen.html?world=${world}`
+    const theme = store.theme === "dark" ? "&theme=dark" : ""
+    if (screenId === "specimen") return `/_studio/specimen.html?world=${world}${theme}`
     if ((store.project._missing?.[variantId] || []).includes(screenId)) return null
-    return `/candidates/${encodeURIComponent(variantId)}/${encodeURIComponent(screenId)}.html?world=${world}`
+    return `/candidates/${encodeURIComponent(variantId)}/${encodeURIComponent(screenId)}.html?world=${world}${theme}`
   }
 
   function sizes() { return store.project._sizes || [] }
@@ -50,17 +51,24 @@ export function createCanvas(ctx) {
     const { project, selection } = store
     try { localStorage.setItem("studio-view", store.view) } catch { /* private window: forget it */ }
     renderTabs()
-    const frame = store.view === "frame"
-    byId("board").hidden = frame
+    // The components view replaces the canvas for the selected model, screen and size.
+    const components = Boolean(store.components)
+    const frame = store.view === "frame" && !components
+    byId("board").hidden = frame || components
     byId("stage").hidden = !frame
-    byId("zoom-controls").hidden = frame
-    for (const id of ["frame-back", "screen-stepper", "width-group"]) byId(id).hidden = !frame
+    byId("component-map").hidden = !components
+    byId("zoom-controls").hidden = frame || components
+    byId("frame-back").hidden = !frame
+    byId("zoom-toggle").hidden = components
+    for (const id of ["screen-stepper", "width-group"]) byId(id).hidden = !frame && !components
     const option = (screen) => `<option value="${escapeHtml(screen.id)}"${selection.screen === screen.id ? " selected" : ""}>${escapeHtml(screen.label)}</option>`
     byId("screen-select").innerHTML = [...screenGroups(project)].map(([role, screens]) =>
       role ? `<optgroup label="${escapeHtml(role)}">${screens.map(option).join("")}</optgroup>` : screens.map(option).join("")).join("") +
       option({ id: "specimen", label: "Specimen" })
     byId("width-options").innerHTML = sizes().map((size) => `<button type="button" data-width="${size.width}" aria-pressed="${selection.width === size.width}" title="${escapeHtml(size.label)} ${size.width} × ${size.height}">${size.width}</button>`).join("")
-    byId("view-title").textContent = viewTitle()
+    byId("view-title").textContent = components ? "Components" : viewTitle()
+    ctx.componentMap.render()
+    if (components) return
     if (frame) renderPreview()
     else ctx.board.render()
   }
@@ -136,12 +144,15 @@ export function createCanvas(ctx) {
   // Send a model's current tokens to its frames (default: the selected model).
   function broadcastTokens(world = ctx.currentWorld()) {
     if (!world) return
-    const message = { type: "tokens", world: world.id, tokens: effectiveTokens(store.project, world, store.selection.tuning) }
+    const theme = store.theme === "dark" && world.dark ? "dark" : "light"
+    const message = { type: "tokens", world: world.id, theme, tokens: effectiveTokens(store.project, world, store.selection.tuning, theme) }
     document.querySelectorAll("iframe").forEach((frame) => frame.contentWindow?.postMessage(message, location.origin))
   }
 
   function setView(view) {
     const next = VIEWS.includes(view) ? view : "model"
+    // The components view shows one model's screen; Arena and one screen alone replace it.
+    if (store.components && (next === "arena" || next === "frame")) ctx.componentMap.close()
     if (next === "frame" && store.view !== "frame") store.back = store.view
     store.view = next
     render()

@@ -28,15 +28,16 @@ sample data. The studio engine lives in this skill and serves any project's
    variant id, the model name and the port differ. Start one agent per model,
    up to three, in parallel. With one model, one variant is the whole round.
 8. When they report, run the quality gate on all variants:
-   `check_variant.py`, `capture.mjs`, `check_tokens.py`, then the
+   `check_variant.py`, `check_components.mjs`, `capture.mjs`, `check_tokens.py`, then the
    `design-critic` agent. Send failures back to the model that made them.
 9. Start `python3 studio/server.py` and give the user the URL. Say what each
    tab shows: one model's screens at three sizes; **Arena** shows every
    model; a screen in the left rail shows that screen from every model.
 10. The user picks a model, tunes its colors and presses **Approve**.
-    Approval writes `DESIGN.md` and `design/tokens.css`. A later tune makes a
-    new draft and marks the export outdated. If a variant changes after
-    approval, tell the user and ask for a new approval. Move to architecture
+    Approval writes `DESIGN.md` (with its Components table), `design/fonts.css`, `design/tokens.css` and `design/shadcn.css`. It refuses a variant without a
+    `components` list. A later tune makes a
+    new draft and marks the export outdated. So does a change to the approved
+    variant's files; tell the user why and ask for a new approval. Move to architecture
     only after an approval.
 
 If the browser or Playwright isn't available, say that visual quality is

@@ -3,8 +3,7 @@
 The studio is a local page where the user sees every screen the brief names,
 as designed by up to three models, at three screen sizes. The user compares
 the models, picks one, tunes its colors, pins comments, and approves. Approval
-writes `DESIGN.md` and `design/tokens.css`, which every later skill builds
-from.
+writes `DESIGN.md` (with its Components table), `design/fonts.css`, `design/tokens.css` and `design/shadcn.css`, which every later skill builds from.
 
 `<skill-root>` below means the `greenfield-mode` folder.
 
@@ -60,6 +59,18 @@ fit. Drag or scroll to pan; Ctrl-scroll or pinch to zoom; `-`, `+` and `0`
 - **One screen alone**: double-click a frame, press **Open** or `Enter`. It
   shows one screen from one model at 1920, 1440 or 390, fitted or at real
   size, and scrolls. **Back** returns to the canvas.
+- **Components** (`T` or the **Components** button, again to hide): how the
+  selected model builds its screens from parts. **Screen** shows the screen
+  beside its tree of parts (`OrdersPage → CustomerList → CustomerRow ×6`),
+  each line `custom` or its shadcn name, "opens" for the dialogs and menus a
+  part opens. Hover links the line and the screen both ways. A click
+  spotlights a part: the rest dims, `‹ 2 of 6 ›` steps through its
+  instances, **Zoom in** brings one close, and the card shows its looks and
+  the screens that reuse it. **×**, `Esc` or a click on empty space clears
+  it. **Parts** is a catalog with a live crop of every part. **Reuse** shows
+  every part against every screen. Structures drawn more than once that no
+  part covers show in amber as **not listed**. The view reads the screens
+  with `web/component-scan.js`, the same reader `check_components.mjs` uses.
 
 Click a frame to select it; the Colors, Tune and Checks tabs work on the
 selected model's look. Comments work everywhere: press `C`, then click an
@@ -113,12 +124,12 @@ The lead agent writes it. It holds product facts only, no designs:
                 "rows": [["10:00", "item", "ok"]], "statusLabels": { "ok": "...", "warning": "...", "danger": "..." },
                 "parts": "/specimen-parts.html" },
   "screens": [
-    { "id": "ops-day", "label": "Operations day", "role": "Owner", "requirement": "The owner assigns animators to the day's parties." },
-    { "id": "my-pay", "label": "My pay", "role": "Animator", "requirement": "Animators see their own pay." }
+    { "id": "orders", "label": "Orders", "role": "Staff", "requirement": "Staff see today's orders and which are late." },
+    { "id": "my-invoices", "label": "My invoices", "role": "Customer", "requirement": "Customers see their own invoices." }
   ],
   "status": { "danger": "oklch(0.52 0.19 27)", "warning": "oklch(0.52 0.12 70)", "ok": "oklch(0.5 0.12 150)" },
-  "statusMeaning": { "danger": "Only a missing deposit", "warning": "...", "ok": "..." },
-  "references": [{ "app": "Deputy", "title": "...", "url": "https://mobbin.com/screens/...", "image": "/references/deputy.webp", "note": "what to learn", "screens": ["ops-day"] }]
+  "statusMeaning": { "danger": "Only an overdue invoice", "warning": "...", "ok": "..." },
+  "references": [{ "app": "Linear", "title": "...", "url": "https://mobbin.com/screens/...", "image": "/references/linear.webp", "note": "what to learn", "screens": ["orders"] }]
 }
 ```
 
@@ -135,7 +146,7 @@ The lead agent writes it. It holds product facts only, no designs:
   `rows` are table rows of time, item and status (`ok`, `warning` or
   `danger`); `statusLabels` names those statuses in the product's language.
   `parts` is optional: an HTML fragment in `studio/`, such as
-  `/specimen-parts.html`, with a few of the product's own parts (a booking
+  `/specimen-parts.html`, with a few of the product's own parts (an order
   card, a status tag). The lead agent writes it with tokens only, like a
   screen, so every model's look shows on it.
 - The page lists anything missing or wrong in the red box: in `project.json`,
@@ -165,7 +176,13 @@ or `fable`.
     },
     "type": { "display": { "font": "display", "fontSize": "36px", "fontWeight": 700, "lineHeight": 1.05 } },
     "rules": ["Do ... / Don't ..."]
-  }
+  },
+  "components": [
+    { "name": "Order card", "what": "One order: number, customer, note, one action.",
+      "screens": ["orders", "returns"], "selector": ".order", "shadcn": null },
+    { "name": "Confirm dialog", "what": "Asks before an order is cancelled.",
+      "screens": ["orders"], "selector": "[data-dialog=cancel]", "shadcn": "dialog" }
+  ]
 }
 ```
 
@@ -177,10 +194,31 @@ or `fable`.
   `color-tertiary`, `color-on-tertiary`, `color-primary-soft`,
   `color-secondary-soft`, `color-tertiary-soft` and `color-surface-2`. A
   palette sets them; otherwise the engine derives them from the core tokens.
-  Screens may use them.
+  Screens may use them. `color-on-status` is the text color on a solid
+  danger fill, derived for each look (white on a deep red, dark on a light
+  dark-mode red); approval checks its contrast.
 - Write colors as `oklch(L C H)` or `#rrggbb`. The tuner edits only `color-*`
   tokens.
-- Check a variant with `python3 <skill-root>/scripts/check_variant.py studio --variant <id>`.
+- `components` lists every part the screens are built from, one entry per
+  part, not per use. `name` and `what` say what it is; `screens` are screen
+  ids from `project.json`; `selector` finds it in the screen files. `shadcn`
+  names the shadcn/ui component it should be built from (`button`, `dialog`,
+  `select`, `tabs`, `table`, …), or `null` for a part the product needs built
+  by hand. A dialog, menu or picker an action needs belongs here even when the
+  mock-up only shows the button. Approval refuses a variant without this list
+  and writes it into `DESIGN.md`. List a list and its item as two parts, and
+  use one part when two screens show the same thing.
+- `world.dark` holds the dark look: the same `color-*` roles as `tokens` (the
+  eight core colors are required), for a dark screen. The world's radius and
+  other tokens carry over. Tuning and palettes change the light look only.
+  `project.json` may set `statusDark`: the status colors for dark surfaces,
+  same hues, lighter. `"themes": ["light"]` in `project.json` turns dark off
+  for a product.
+- `notComponents` (optional) lists structures drawn more than once that are
+  not parts, each `{ "selector": ".row", "why": "plain layout row" }`. The
+  components check and the Components view skip them.
+- Check a variant with `python3 <skill-root>/scripts/check_variant.py studio --variant <id>`,
+  then its parts with `node <skill-root>/scripts/check_components.mjs --url <studio url> --variant <id>`.
 
 ## Candidate files
 
@@ -210,7 +248,7 @@ height, and handles comment pins. So a screen:
   first screenful at each size.
 - Opens alone at `/candidates/<variant>/<screen>.html?world=<variant>`. Add
   `&tuned=0` to ignore the user's tuning.
-- Sets `data-*` attributes on meaningful elements, like `data-booking="b4"`.
+- Sets `data-*` attributes on meaningful elements, like `data-order="o4"`.
   Comment pins use them, so pins survive later edits to the markup.
 
 Check screens with:
@@ -231,10 +269,25 @@ python3 <skill-root>/scripts/check_tokens.py --project studio/project.json studi
 - **Approve** approves the selected model's design. It stays disabled while
   any check fails. The server runs the contrast and hue checks again before it
   writes anything.
-- A tune after approval returns the revision to draft. The top bar then marks
-  the export as outdated.
-- Approval refuses to overwrite a `DESIGN.md` or `tokens.css` that the studio
-  did not write.
+- A tune after approval returns the revision to draft. So does a change on
+  disk to `project.json` or the approved model's folder. The top bar then marks
+  the export as outdated, and the user approves again.
+- Approval writes four files. `DESIGN.md` holds the rules, the approved
+  screens and the Components table. `design/fonts.css` holds only the font
+  import, because a CSS `@import` is dropped unless it comes first.
+  `design/tokens.css` holds every token. `design/shadcn.css` fills shadcn/ui's
+  theme variables from the tokens and replaces the theme `shadcn init` writes.
+- `D` or the moon button switches the studio and every screen to the dark
+  look. The Checks tab lists the contrast and hue checks for both looks, and
+  approval runs both. Approval writes the dark look under `.dark` and
+  `[data-theme="dark"]` in `tokens.css` and `shadcn.css`, and a dark table in
+  `DESIGN.md`.
+- Approval refuses a variant without a `components` list or a dark look, and refuses to
+  overwrite any of the four files that the studio did not write. The page
+  says when the chosen model's list is missing and keeps Approve disabled.
+- A project approved before `design/fonts.css` existed has the font import in
+  `tokens.css`. Re-approval moves it; an app then needs `design/fonts.css`
+  imported first (`references/components.md`).
 
 ## What the agent reads back
 

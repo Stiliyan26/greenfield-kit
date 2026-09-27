@@ -21,14 +21,24 @@ Two or three sentences a user would understand.
 - D1: <someone does X> → <they see Y>
 - D2: <someone not allowed tries X> → <blocked, sees Z>
 - D3: <edge case> → <what happens>
+- D4: <someone not logged in tries X> → <blocked, sees Z>
 
 ## Changes
 - Database: new or changed tables/columns; what happens to existing data.
-- API: each endpoint, who may call it, what goes in and out, errors. Show one
+- API: each endpoint, who may call it, what goes in, errors. Show one
   example call from the screen that uses it.
-- Screens: which screens and components, reused or new. Name the approved
-  studio screen each one follows. Don't restate colors or fonts; `DESIGN.md`
-  owns them.
+- Responses: for each endpoint, the fields each role gets back. Never a
+  database row as it is.
+- Screen actions: every button, link, filter and search on each approved
+  screen, and the endpoint and role rule behind it. An action without an
+  endpoint is a gap to close or a line under "Out of this release".
+- Screens: which screens, reused or new. Name the approved studio screen each
+  one follows. Don't restate colors or fonts; `DESIGN.md` owns them.
+- Components: which built components (the gallery from `DESIGN.md`'s
+  Components table) each screen uses. A screen that needs a part the gallery
+  doesn't have goes back to design first.
+- Dates and times: the timezone, how times are stored, and where a day, week
+  and month start and end.
 
 ## Decisions
 - <Question>: <chosen option>. Why: <reason>. Evidence: <file, doc, test>.
