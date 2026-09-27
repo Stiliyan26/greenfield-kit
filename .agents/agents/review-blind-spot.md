@@ -1,1 +1,0 @@
-../../plugin/agents/review-blind-spot.md

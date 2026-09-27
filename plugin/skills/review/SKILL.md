@@ -55,17 +55,31 @@ them.
 
 ## 2. Specialists
 
-Start every reviewer in `triage.json` at the same time, as separate
-sub-agents: `review-correctness`, `review-access`, `review-contract`,
-`review-data`, `review-fit`, `review-tests`, `review-ui`, `review-scope`.
-Give each one the same packet and nothing else:
+Every reviewer is the same read-only agent, `review-lens`, pointed at a
+different lens file in [lenses/](lenses/). Only the lens file for each
+reviewer gets loaded, and only during a review.
 
+| Reviewer in `triage.json` | Lens file | Model |
+| --- | --- | --- |
+| `review-correctness` | [correctness.md](lenses/correctness.md) | session's |
+| `review-access` | [access.md](lenses/access.md) | session's |
+| `review-contract` | [contract.md](lenses/contract.md) | session's |
+| `review-data` | [data.md](lenses/data.md) | session's |
+| `review-fit` | [fit.md](lenses/fit.md) | session's |
+| `review-tests` | [tests.md](lenses/tests.md) | session's |
+| `review-ui` | [ui.md](lenses/ui.md) | session's |
+| `review-scope` | [scope.md](lenses/scope.md) | fast (for example `haiku`) |
+
+Start one `review-lens` agent per reviewer, all at the same time. Set the model
+from the table when you start it. Give each one:
+
+- the path to its lens file,
 - the path to `temp/review/<run>/` (goal, files, diff, tool report),
 - the path to [finding.md](references/finding.md), the shape every finding
   comes back in,
 - the chunk it reviews, if any,
-- for `review-fit`: the path to the `write-code` skill's `SKILL.md`,
-- for `review-ui`: the screenshot folder, or "no screenshots".
+- for the fit lens: the path to the `write-code` skill's `SKILL.md`,
+- for the UI lens: the screenshot folder, or "no screenshots".
 
 They must not see each other's findings. Save each reply as-is to
 `temp/review/<run>/candidates/<reviewer>.md`.
@@ -73,22 +87,22 @@ They must not see each other's findings. Save each reply as-is to
 A reviewer that fails or times out is listed under "Not checked" in the report.
 Don't re-run it with a softer prompt.
 
-**No sub-agents?** (Some tools can't start them.) Run the reviewers one after
-another yourself. Before each, read that agent's file in the plugin's
-`agents/` folder and follow only it. Write each result to its file before you
-read the next agent. Say in the report that the review ran in this mode.
+**No sub-agents?** (Some tools can't start them.) Run the lenses one after
+another yourself. Before each, read `agents/review-lens.md` and that lens file,
+and follow only them. Write each result to its file before you read the next
+lens. Say in the report that the review ran in this mode.
 
 ## 3. Blind spot
 
-Start `review-blind-spot` with the packet and the `candidates/` folder. Save
-its reply to `candidates/blind-spot.md`.
+Start `review-lens` with [blind-spot.md](lenses/blind-spot.md), the packet and
+the `candidates/` folder. Save its reply to `candidates/blind-spot.md`.
 
 ## 4. Judge
 
-Start `review-judge` with the packet, the whole `candidates/` folder and the
-path to [report.md](references/report.md). It returns the final report in that
-shape.
-Save it to `temp/review/<run>/report.md`.
+Start `review-lens` with [judge.md](lenses/judge.md), the packet, the whole
+`candidates/` folder and the path to [report.md](references/report.md). It
+returns the final report in that shape. Save it to
+`temp/review/<run>/report.md`.
 
 ## Hand it over
 

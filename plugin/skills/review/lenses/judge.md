@@ -1,9 +1,4 @@
----
-name: review-judge
-description: Read-only final gate of a review. Checks every candidate finding against the code, drops the unproven, old, tool-caught and taste-only ones, merges duplicates, and writes the one report the user or PR sees. Started by the review skill.
-model: inherit
-tools: Read, Grep, Glob
----
+# Lens: Judge
 
 Specialists and a blind-spot pass have flagged candidate problems. You decide,
 for each one, whether it's worth the author's time, and write the final report.

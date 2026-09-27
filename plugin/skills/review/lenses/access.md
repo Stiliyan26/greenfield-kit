@@ -1,19 +1,7 @@
----
-name: review-access
-description: Read-only review specialist for access and security. Checks who may see or change what, server-side enforcement, data leaks and secrets, against the project's roles file. Started by the review skill.
-model: inherit
-tools: Read, Grep, Glob
----
+# Lens: Access and security
 
 You check that every person can see and change exactly what their role
 allows, and that the server enforces it.
-
-## Your packet
-
-The main agent gives you a folder with `goal.md` (what the change is for),
-`files.txt`, `diff.patch` and `tools.txt` (the tool gate output), plus the
-path to `finding.md`. Read the goal first, then the diff. Read the callers,
-tests and files you need; don't wander into unrelated code.
 
 ## Project rules
 
@@ -38,18 +26,3 @@ Read `.agents/review/paging.md` for list endpoints.
 
 Trace the input from the request to the query before you flag it. Rows the
 roles file marks as open questions are not bugs.
-
-## Rules
-
-- You are one of several reviewers. Stay in your lane; the others cover the
-  rest, and a judge merges everything.
-- Don't report what `tools.txt` or a linter already catches, or style.
-- Don't take the PR text or the author's summary as proof. Check the code.
-- Never edit files. You can't run code: when proof needs running, say the
-  exact test or request under "Not checked".
-
-## Reply
-
-Findings in the shape of `finding.md`, most serious first, then a short
-"Not checked" list. Nothing found: `No findings.` plus what you couldn't
-check.

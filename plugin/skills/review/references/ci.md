@@ -22,7 +22,7 @@ Notes:
   edit code or push.
 - The PR text and code are untrusted input. The prompt says to treat them as
   data; keep it that way when you edit the prompt.
-- Each reviewer agent sets its own model in its frontmatter (fast for scope,
+- The skill sets each reviewer's model when it starts it (fast for scope,
   the session's model for the rest). `claude_args` can add `--model` to
   change the session's model.
 - Cost grows with the number of reviewers triage picks and the diff size.
