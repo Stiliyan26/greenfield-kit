@@ -28,7 +28,8 @@ Markdown file named `pagination.md` doesn't start `review-data`.
   ],
   "always": [],
   "never": [],
-  "chunkBy": 2
+  "chunkBy": 2,
+  "maxChunks": 4
 }
 ```
 
@@ -37,6 +38,8 @@ Markdown file named `pagination.md` doesn't start `review-data`.
 - `chunkBy` is how many folder levels group files into chunks (default 1).
   For a monorepo like `client/` + `server/`, use 2 or 3 so each chunk is one
   module.
+- `maxChunks` caps the chunks (default 4). Small folders are packed together,
+  and a folder is never split.
 
 ## Chunks
 

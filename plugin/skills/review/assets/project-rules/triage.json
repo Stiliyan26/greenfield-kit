@@ -2,5 +2,6 @@
   "rules": [],
   "always": [],
   "never": [],
-  "chunkBy": 2
+  "chunkBy": 2,
+  "maxChunks": 4
 }

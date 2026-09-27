@@ -7,7 +7,7 @@
 // Prints JSON: { reviewers, reasons, chunks, changedLines? }.
 // A project adds rules in <root>/.agents/review/triage.json:
 //   { "rules": [{ "reviewer": "review-access", "paths": ["^src/billing/"] }],
-//     "always": ["review-scope"], "never": ["review-ui"], "chunkBy": 1 }
+//     "always": ["review-scope"], "never": ["review-ui"], "chunkBy": 1, "maxChunks": 4 }
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -104,7 +104,9 @@ export function triage(files, project = {}) {
     delete reasons[reviewer];
   }
 
-  return { reviewers: Object.keys(reasons), reasons, chunks: chunks(files, project.chunkBy ?? 1) };
+  const groups = chunks(files, project.chunkBy ?? 1);
+
+  return { reviewers: Object.keys(reasons), reasons, chunks: pack(groups, project.maxChunks ?? 4) };
 }
 
 function projectRules(project) {
@@ -126,6 +128,26 @@ function chunks(files, depth) {
   }
 
   return Object.entries(groups).map(([name, list]) => ({ name, files: list }));
+}
+
+// Pack folder groups into at most <max> chunks of similar size, keeping each
+// folder whole, so a big diff costs max × reviewers agents, not one per folder.
+function pack(groups, max) {
+  if (groups.length <= max) {
+    return groups;
+  }
+
+  const bins = Array.from({ length: max }, () => ({ names: [], files: [] }));
+  const bySize = [...groups].sort((a, b) => b.files.length - a.files.length);
+
+  for (const group of bySize) {
+    const smallest = bins.reduce((min, bin) => (bin.files.length < min.files.length ? bin : min));
+
+    smallest.names.push(group.name);
+    smallest.files.push(...group.files);
+  }
+
+  return bins.map((bin) => ({ name: bin.names.sort().join(', '), files: bin.files.sort() }));
 }
 
 function topFolder(file) {
