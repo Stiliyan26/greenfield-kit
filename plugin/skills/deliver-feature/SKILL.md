@@ -55,11 +55,11 @@ design doesn't cover, stop that part and use `design-interface`.
      means fix it before the user sees it.
    After any fix, run again the checks it affects. A check that was skipped,
    failed, or couldn't run is not a pass; name it.
-5. **Review, then report.** Ask the `reviewer` agent to check the change
-   against the plan, the conventions and the real check output. It can't run
-   commands, so give it the results you got. Fix what it puts under "Act on";
-   for the rest, say what you're leaving and why. Then report the feature as
-   ready, blocked, or not checked.
+5. **Review, then report.** Run the `review` skill on the branch. For a
+   small change, the single `reviewer` agent is enough; it can't run
+   commands, so give it the check results you got. Fix what the review puts
+   under "Act on"; for the rest, say what you're leaving and why. Then report
+   the feature as ready, blocked, or not checked.
 
 ## When you're stuck
 
