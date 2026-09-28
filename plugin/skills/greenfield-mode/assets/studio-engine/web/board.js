@@ -13,6 +13,9 @@ export function createBoard(ctx) {
   const { store } = ctx
   const board = byId("board")
   const world = byId("board-world")
+  const dotsLayer = byId("board-dots")
+  let dotsSize = 0
+  let zoomLabel = ""
   let key = ""
   let placeKey = ""
   let view = { x: PAD, y: PAD, z: 0.2 }
@@ -181,9 +184,12 @@ export function createBoard(ctx) {
     // Keep the dots at least 12 px apart at any zoom, so they never turn into noise.
     let dots = 24 * view.z
     while (dots < 12) dots *= 4
-    board.style.backgroundSize = `${dots}px ${dots}px`
-    board.style.backgroundPosition = `${view.x}px ${view.y}px`
-    byId("zoom-level").textContent = `${Math.round(view.z * 100)}%`
+    // Only a zoom repaints the dots; a pan just slides their layer by less than one step.
+    if (dots !== dotsSize) { dotsSize = dots; dotsLayer.style.backgroundSize = `${dots}px ${dots}px` }
+    const shift = (value) => ((value % dots) + dots) % dots - dots
+    dotsLayer.style.transform = `translate(${shift(view.x)}px, ${shift(view.y)}px)`
+    const label = `${Math.round(view.z * 100)}%`
+    if (label !== zoomLabel) { zoomLabel = label; byId("zoom-level").textContent = label }
   }
 
   // Fit and reveal measure right after moving, so they apply at once.
