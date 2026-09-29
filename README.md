@@ -4,7 +4,7 @@ A plugin for Claude Code, Codex and Cursor that takes a product from a brief to 
 
 The look never drifts: the code you approve in the studio is the front end, and every later screen is built from its parts and tokens.
 
-Version 0.10.3.
+Version 0.10.4.
 
 ## Contents
 
@@ -98,6 +98,7 @@ Run it without `--push` to see what differs first.
 | `shadcn` | shadcn/ui in React: composition, forms, styling, icons, base vs radix, the CLI. |
 | `setup-project` | Copies the working rules into a project, enables the plugin for the team, or installs the kit globally for Codex and Cursor. |
 | `reflect` | Only on `/reflect`. Three parallel reviewers (judgment, tooling, divergent) read the session transcripts, a synthesizer sorts findings into Accepted / Rejected / Backlog, and nothing is applied to a skill until you approve. Ask it a focus question such as why a build was slow. Adapted from pstack. |
+| `bro` | Restates the last message in plain human language, with no jargon. |
 | `design-critic` agent | Read-only. Scores screenshots on originality (40), design quality (25), craft (20) and function (15). Under 70, or any score of 1, means "revise first". The agent that built a design may not grade it. |
 | `review` | Reviews a PR, a branch, uncommitted changes, a commit range, the whole app or a plan. Runs the project's gates, asks what worries you, then proposes one reviewer per feature (with its model) and waits for your OK. Reviewers may run code (tests, curl, e2e, Playwright) to prove a finding, never edit. Writes `reviews/<date>-<target>/`: a README with a summary table and a suggested order, and one file per feature with every problem in full. You tick fix now / later / not a problem; fix agents then work from the ticks, and the reviewer re-proves each fix. |
 | `code-reviewer` agent | Read-only apart from running proof commands. The `review` skill starts one per feature; not for use on its own. |
