@@ -29,7 +29,9 @@ with the user, while the approved front end is promoted in the background.
    plain words, the tradeoff, and your recommendation with evidence.
 2. Walk the user through the decisions one at a time, biggest first. Change the
    plan as they answer.
-3. Mark the plan **Approved** only when the user says so.
+3. Run the `review` skill in plan mode on the plan, the contract and the
+   feature files; act on what it puts under "Act on".
+4. Mark the plan **Approved** only when the user says so.
 
 ## Mode: I lead
 
@@ -44,6 +46,8 @@ with the user, while the approved front end is promoted in the background.
 4. If the user answers the problem or brings better evidence, agree. If you
    still disagree, allow one more round at most. Then record both views and let
    the user decide; it's their call. Never repeat an objection without new evidence.
+5. Before the user approves, run the `review` skill in plan mode on the
+   plan, the contract and the feature files; act on what it puts under "Act on".
 
 ## What the user decides, in order
 

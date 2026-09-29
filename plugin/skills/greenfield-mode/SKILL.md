@@ -30,11 +30,11 @@ produces. Ask nothing the brief, the evidence or the code already answers.
 | **1 Frame** | you + user, `design-interface` steps 1–3 | Roles, first device, brand or examples liked and disliked, language and scripts; only if the brief raises it: sensitive data, integrations, multi-tenant later | `studio/project.json` (every screen a confirmed requirement names, with role and requirement), `studio/app/src/data.ts`, references |
 | **2 Design** | `design-interface` steps 4–6 | How many models design and which ones; then only studio actions: pick, tune, comment, **Approve** | `DESIGN.md`, `design/*.css`, the approved variant's code |
 | **3A Promote** | a background agent, `design-interface` [promote.md](../design-interface/references/promote.md) | Nothing | `web/`: one route per approved screen, the pixel comparison, motion added; the user accepts it when 3B is done |
-| **3B Plan** | you + user, `plan-feature` | Mode (you lead or the AI proposes); then one decision at a time, biggest first: data model, storage, auth and roles, API shape, external services, timezone, v1 scope; per screen: how data loads, what is optimistic, validation and errors, empty and denied states, route guards; each real choice with 2–3 options and a recommendation | `docs/plans/<project>/plan.md` (approved by the user), the API contract, `features/*.md` |
+| **3B Plan** | you + user, `plan-feature` | Mode (you lead or the AI proposes); then one decision at a time, biggest first: data model, storage, auth and roles, API shape, external services, timezone, v1 scope; per screen: how data loads, what is optimistic, validation and errors, empty and denied states, route guards; each real choice with 2–3 options and a recommendation | `docs/plans/<project>/plan.md`, the API contract, `features/*.md`; the `review` skill in plan mode runs on them before the user approves |
 | **3C Fan-out setup** | you, [features.md](references/features.md) + [coordination.md](references/coordination.md) | Accept the feature split; model per agent; full-stack or FE+BE per feature; how many agents at once; which runtime | Waves and owners in the feature files |
 | **4 Foundation** | you, alone, sequential | Nothing, unless a contract conflict appears | Schema, auth, the API skeleton from the contract, `shared/` with `INDEX.md`, the app shell = the promoted `web/` |
 | **5 Features** | one agent per feature, `deliver-feature`; you merge | Only blockers: a request you can't answer from the plan, a done-when line that turned out impossible | Merged features, each with green scenarios, tests and a review |
-| **6 Prove** | `verify` | Which features to demo; accept, or send named done-when lines back | Every feature's scenarios green on the merged app, evidence saved, the client demo |
+| **6 Prove** | `review` full on the merged app, then `verify` | Which features to demo; accept, or send named done-when lines back | One review report acted on; every feature's scenarios green on the merged app, evidence saved, the client demo |
 | **7 Loop** | you | — | New evidence becomes a new feature file and re-enters at 3; a screen change re-enters at 2 |
 
 ## The fork after Approve
@@ -59,6 +59,10 @@ promotion accepted. Then 3C.
 - Building asks the user almost nothing. A question during a feature means
   the plan was incomplete: update the plan, then continue.
 - A part or a look the approved design doesn't have goes back to the studio.
+- The `review` skill runs four times: plan mode on the plan before approval,
+  quick by each feature agent, at every merge by you (its fit lens is the
+  duplication check), and full on the merged app before proof. The design
+  critic is the review of stage 2.
 
 ## Small changes
 
