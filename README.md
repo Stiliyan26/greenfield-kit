@@ -97,7 +97,7 @@ Run it without `--push` to see what differs first.
 | `design-animations` | Purposeful motion: transitions, gestures, performance, reduced motion. |
 | `write-code` | Where code goes and how it's written: folder layers, TypeScript style, React, NestJS. Ships an ESLint preset so the mechanical rules are checked, not remembered. |
 | `refactor` | Structure changes that provably keep behavior. |
-| `create-verification-skill`, `maintain-verification-skill` | Write and keep up a project skill that drives the real app and saves proof. |
+| `verify` | Writes the project's verify skill once, drives every feature file's scenarios on the real app and saves proof, and keeps the map true as the app changes. |
 | `shadcn` | Work with shadcn/ui components and registries. |
 | `setup-project` | Copies the working rules into a project, enables the plugin for the team, or installs the kit globally for Codex and Cursor. |
 | `design-critic` agent | Read-only. Scores screenshots on originality (40), design quality (25), craft (20) and function (15). Under 70, or any score of 1, means "revise first". The agent that built a design may not grade it. |

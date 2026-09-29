@@ -85,6 +85,29 @@ the end, one short line each:
 - Start helper agents yourself when it helps: for parts that don't depend on
   each other, or a big search. Keep work that needs the user in the chat.
 
+## Keeping the user in the picture
+
+The user reads AI output all day; reading is the cost, not writing. So:
+
+- Every reply: a digest of two to five lines first (what changed, what's
+  next, what you need from them), then details under a heading they can skip.
+- During a long task, keep `STATUS.md` at the project root current and say
+  one line in chat per finished step, nothing between steps:
+
+  ```
+  | Stage | State |
+  | 3 Plan | now — decision 4 of 9 (storage) waiting on you |
+  Blocked: nothing. Waiting on you: storage choice.
+  ## Trace
+  - 2: research Mobbin ×6 → project.json + data.ts → 1 model designed 10 screens → capture 31 shots, critic 76 → 4 rows fixed → approved rev 54
+  ```
+
+- The trace is what you did, in phases, one line each: which tools ran
+  (Playwright, npm, a script), which agents you started and what they
+  returned, which checks passed or failed, how long. Not your reasoning.
+  Every agent appends its own trace line to the feature file or `STATUS.md`
+  it worked on.
+
 ## Finish
 
 After a task that changed files, end with a report readable in under a minute:

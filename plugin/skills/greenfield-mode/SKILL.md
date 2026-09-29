@@ -1,115 +1,67 @@
 ---
 name: greenfield-mode
-description: Run a new product from rough brief through competing local designs, user choice, shadcn components built from the chosen design, architecture, and verified feature delivery. Use for a new product or a full restart of its design.
-mode: true
-icon: rocket
-color: green
+description: Run a new product end to end - brief, studio design in React + shadcn, approval, then the plan with the user while the approved front end is promoted, then foundation, features built in parallel by agents in their own worktrees, and proof. Use for a new product or a full restart of its design.
 ---
 
 # Greenfield mode
 
-`<skill-root>` below means the folder that holds this `SKILL.md`.
-
-You own the whole project across turns. A request to build lets you prepare
-and iterate. It doesn't choose a look for the user. Keep the current stage and
-the next action visible in the conversation. Keep working on independent
-parts while the user makes product and taste decisions.
-
-## 1. Ground the work
-
-Read the brief and any project instructions or product facts. Separate
-confirmed requirements, suggestions and unknowns. List every view the
-confirmed requirements name; each becomes a screen in the studio, so the user
-sees the whole product, not one sample page. Ask only about gaps that
-would change a design or feature a lot. Ask whether a brand, logo, or examples
-the user likes or dislikes exist. Don't make the user name fonts or colors;
-the models propose them. Read `studio/taste.md` if it exists. Do a short
-feasibility pass on data, privacy, permissions and integrations. Leave
-detailed architecture until after the design is chosen.
-
-## 2. Design in the studio
-
-Read [references/studio.md](references/studio.md) for the studio's format,
-views and scripts. In a project without `studio/`, run:
+You lead the whole pipeline across turns. The user gives the evidence in chat:
+client calls, notes, or their own words. You keep `STATUS.md` at the project
+root current (the working agreement says how) and report in digests. Each
+stage below names the skill that runs it, what the user is asked, and what it
+produces. Ask nothing the brief, the evidence or the code already answers.
 
 ```
-python3 <skill-root>/scripts/init_studio.py <project-root> --name "<product name>"
+0 Evidence ─► 1 Frame ─► 2 Design ═══ APPROVE ═══╦═► 3A Promote (background)
+                                                  ╚═► 3B Plan (with the user)
+                                                            │  join: both done
+                                              3C Fan-out setup ─► 4 Foundation
+                                                            │
+                                    5 Features, in waves, one agent each
+                                                            │
+                                            6 Prove ─► 7 Loop (back to 3, or 2)
 ```
 
-It creates only the content folder. The engine stays in this skill and is
-shared by every project. Then follow [references/new-project.md](references/new-project.md).
+## Stages
 
-Use `design-interface` for the design work. Its order is required:
+| Stage | Runs it | The user is asked | Produces |
+| --- | --- | --- | --- |
+| **0 Evidence → brief** | you | Which calls, notes or messages are in scope; keep or drop an item with no evidence | `BRIEF.md`: confirmed lines each citing their source (a call and timestamp, a message), suggested lines (yours), unknowns |
+| **1 Frame** | you + user, `design-interface` steps 1–3 | Roles, first device, brand or examples liked and disliked, language and scripts; only if the brief raises it: sensitive data, integrations, multi-tenant later | `studio/project.json` (every screen a confirmed requirement names, with role and requirement), `studio/app/src/data.ts`, references |
+| **2 Design** | `design-interface` steps 4–6 | How many models design and which ones; then only studio actions: pick, tune, comment, **Approve** | `DESIGN.md`, `design/*.css`, the approved variant's code |
+| **3A Promote** | a background agent, `design-interface` [promote.md](../design-interface/references/promote.md) | Nothing | `web/`: one route per approved screen, the pixel comparison, motion added; the user accepts it when 3B is done |
+| **3B Plan** | you + user, `plan-feature` | Mode (you lead or the AI proposes); then one decision at a time, biggest first: data model, storage, auth and roles, API shape, external services, timezone, v1 scope; per screen: how data loads, what is optimistic, validation and errors, empty and denied states, route guards; each real choice with 2–3 options and a recommendation | `docs/plans/<project>/plan.md` (approved by the user), the API contract, `features/*.md` |
+| **3C Fan-out setup** | you, [features.md](references/features.md) + [coordination.md](references/coordination.md) | Accept the feature split; model per agent; full-stack or FE+BE per feature; how many agents at once; which runtime | Waves and owners in the feature files |
+| **4 Foundation** | you, alone, sequential | Nothing, unless a contract conflict appears | Schema, auth, the API skeleton from the contract, `shared/` with `INDEX.md`, the app shell = the promoted `web/` |
+| **5 Features** | one agent per feature, `deliver-feature`; you merge | Only blockers: a request you can't answer from the plan, a done-when line that turned out impossible | Merged features, each with green scenarios, tests and a review |
+| **6 Prove** | `verify` | Which features to demo; accept, or send named done-when lines back | Every feature's scenarios green on the merged app, evidence saved, the client demo |
+| **7 Loop** | you | — | New evidence becomes a new feature file and re-enters at 3; a screen change re-enters at 2 |
 
-1. Research in two passes: the task pattern, then polished products from other
-   categories. Save the images and notes in `studio/references/` and
-   `project.json`.
-2. You write the product facts: `project.json` with every screen, and one
-   shared data file. You design nothing yourself.
-3. Each model that runs, up to three, designs the whole product on its own:
-   every screen at 1920×1080, 1440×900 and 390×844, plus its own look. Every
-   model gets the same brief, filled in from
-   [references/variant-brief.md](references/variant-brief.md). Don't assign
-   structures or styles; the user compares how models design.
-4. Before the user sees it: capture, fix what the capture report and checks
-   find, and get a score from the `design-critic` agent.
-5. The user compares the models in the studio, picks one, tunes its colors
-   and approves. The **Components** view (`T`) shows how each model builds
-   every screen from its parts, and which parts it reuses.
+## The fork after Approve
 
-Use `design-interface`'s
-[choose-a-look.md](../design-interface/references/choose-a-look.md) to
-challenge defaults. Naming a skill is not a check. Only captures, the checks
-and the critic count.
+Approval is the fork. 3A needs no decisions, so it runs in the background
+while 3B runs with the user in chat. A screen change during planning goes
+back through the studio: re-approve, and 3A promotes the changed screens
+again. It never goes straight into `web/`. The join is: plan approved and
+promotion accepted. Then 3C.
 
-One model gives one variant. For two or three, start one agent per model (for
-example with the Agent tool's `model` option), each with its own variant id
-and folder, `studio/candidates/<variant>/`. Each writes `variant.json` with
-the model that actually ran. Say which models ran. You check facts and
-quality on real captures before showing anything. You never choose or merge
-variants for the user. If a variant fails its checks, send it back to the
-model that made it.
+## Fixed rules
 
-Start the page with `python3 studio/server.py` and give the user the URL it
-prints. Read `selection.json`, `comments.json` and `taste.md` after they work
-in it. Don't guess their choice from chat.
+- Worktrees for every agent that writes code. One shared checkout only for
+  read-only agents (reviewers, the critic).
+- Coordination is files and git: the feature files, the ownership lists, the
+  `requests/` folder and the merge order. A runtime's task list or messaging
+  is an extra on top, never what the flow depends on.
+- Feature agents never edit `shared/`, the schema or the contract; they write
+  a request. You never write features; you answer requests and merge.
+- End-to-end scenarios are written in the plan, made green per feature, and
+  run all together on the merged app at the end.
+- Building asks the user almost nothing. A question during a feature means
+  the plan was incomplete: update the plan, then continue.
+- A part or a look the approved design doesn't have goes back to the studio.
 
-Only **Approve** in the studio counts. If the user approves in chat, ask them
-to press it; the button runs the final checks and writes the files. A draft is
-feedback. If the user calls the work generic, ask the model to change the
-structure or the look itself; shadows and accents won't fix it. Approval writes
-`DESIGN.md` (with its Components table), `design/fonts.css`, `design/tokens.css` and `design/shadcn.css`. It doesn't allow publishing or writing to outside systems.
+## Small changes
 
-## 3. Build the components
-
-Right after approval, before planning, turn the approved design into real
-components with the `shadcn` skill. Follow
-[references/components.md](references/components.md): set up shadcn with the
-theme from `design/shadcn.css`, add every part the Components table marks
-`shadcn`, build the custom parts from the approved screens, and show all of
-them on one gallery page. Check the gallery with the token check, captures
-and the `design-critic` agent, then give the user its URL. Move on only after
-the user accepts it. This fixes the frontend as React, Tailwind and
-shadcn/ui; the backend is still open for the plan.
-
-## 4. Define the system after the choice
-
-Use `plan-feature` on the approved design and its components. Define roles and permissions, data,
-screen data needs, API contracts, error states, integrations and the smallest
-useful release. Mark client requirements, operator ideas and open questions
-separately. Save the plan under `docs/plans/<project>/`, with requirement IDs
-and links to `DESIGN.md` and the approved studio revision. The plan names
-which built components each screen uses. Run the `review` skill in plan mode
-on the plan to check risky architecture.
-
-## 5. Deliver without visual drift
-
-Use `deliver-feature` to turn requirement IDs into small working tasks. Every
-task builds screens from the components of stage 3, `design/tokens.css` and
-the approved screens. It doesn't invent colors, fonts or components. Run `check_tokens.py --tokens
-design/tokens.css` on changed UI files. If a new requirement changes the look,
-send that part back to the studio for a new revision. Check real desktop and
-phone behavior, interaction and saved data before calling a task done.
-
-An existing project may already have a studio. Inspect it before running the
-initializer, which refuses to overwrite one.
+Not everything re-enters the whole loop. A new screen or a look change goes
+to `design-interface`. A data or API change updates the plan and its contract.
+A wiring-only fix goes straight to `deliver-feature`.
