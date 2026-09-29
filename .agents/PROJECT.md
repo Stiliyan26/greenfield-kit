@@ -5,7 +5,7 @@ This repo is the greenfield-kit Claude Code / Codex / Cursor plugin and its mark
 ## Goal and where we are
 
 - The goal is one pipeline from a rough brief to a proven app: evidence, frame, studio design in React + shadcn, approval, then the plan with the user while the approved front end is promoted, foundation, features built in parallel by agents in their own worktrees, proof. `plugin/skills/greenfield-mode/SKILL.md` is the pipeline; each stage has its skill.
-- Where it stands (2026-09-29, version 0.10.2): the design stage, promotion and the pixel check are built and tested end to end (`test_app.mjs`). The plan, feature-file, coordination and verify stages are written as skills and not yet run on a real project. The first real run is Call OS (in Business-Freedom-OS); gaps it exposes get a general fix here.
+- Where it stands (2026-09-29, version 0.10.3): the design stage, promotion and the pixel check are built and tested end to end (`test_app.mjs`). The plan, feature-file, coordination and verify stages are written as skills and not yet run on a real project. The first real run is Call OS (in Business-Freedom-OS); gaps it exposes get a general fix here.
 - Later direction, not started: `DIRECTION.md`, a desktop app over Claude Code, Codex and Cursor that shows the pipeline, its agents and their traces.
 
 ## Layout

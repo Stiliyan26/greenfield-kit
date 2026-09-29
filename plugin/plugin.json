@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "greenfield-kit",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "From a brief to a proven app: a local studio where a model designs every screen in React + shadcn, your approval, the plan made with you while the approved front end is promoted, then features built in parallel by agents and proved on the merged app.",
   "author": {
     "name": "Stiliyan Nikolov"

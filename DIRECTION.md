@@ -120,7 +120,7 @@ answers. Planning asks one decision at a time; building asks almost nothing.
 | **Review: one reviewer per feature that proves by running; the report is files the user ticks; fix agents from the ticks.** | The HRise review used 15 agents, paraphrased the snippets, asked nothing and ran nothing; the user rewrote it by hand. One reviewer per feature can read a feature end to end and run it; a file per feature with the real code, options and tick boxes lets the user decide, and the ticks tell the fix agents what to do. |
 | **Kept:** `design-animations` (a motion pass on the promoted screens), `shadcn` trimmed to React needs, `review`, `write-code`, `refactor`, `setup-project`, PartyFox example. **Removed:** `bro`, `reflect`, the components gallery, shadcn chat/registry/MCP/evals. | Keep what a stage uses. |
 
-## What the kit is now (0.10.2)
+## What the kit is now (0.10.3)
 
 - `design-interface`: the studio engine, the studio app template (Vite +
   React + Tailwind 4 + shadcn, every part installed), the scripts
