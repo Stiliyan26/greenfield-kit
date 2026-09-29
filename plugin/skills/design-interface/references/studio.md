@@ -14,8 +14,9 @@ writes `DESIGN.md` (with its Components table), `design/fonts.css`, `design/toke
   `studio_color.py`), and the page (`web/`). It holds nothing about any one
   product. Never copy it into a project.
 - **Content**, one per project: `studio/`. The lead agent writes
-  `project.json`, the shared data file and `references/`. Each model writes
-  its own `candidates/<variant>/` folder. The page writes `selection.json`,
+  `project.json`, the shared data in `app/src/data.ts` and `references/`.
+  Each model writes its own `app/src/variants/<id>/` folder, and its build
+  writes `candidates/<id>/`. The page writes `selection.json`,
   `comments.json` and `taste.md`.
 
 `studio/server.py` is a small stub. It finds the engine in this order: the
@@ -153,13 +154,43 @@ The lead agent writes it. It holds product facts only, no designs:
   in a `variant.json`, a screen without a file, or a fourth variant.
   `GET /api/project` returns the same list as `_problems`.
 
-## Variant folder
+## The studio app
 
-Each model writes only its own folder, `studio/candidates/<variant>/`, so
-parallel models never touch the same file. The folder holds `variant.json` and
-one `<screen id>.html` per screen. The engine finds variants by these folders;
-nothing lists them in `project.json`. Use short ids such as `opus`, `sonnet`
-or `fable`.
+`studio/app/` is one Vite + React + Tailwind 4 + shadcn/ui app for every
+model's design. `init_studio.py` creates it and installs every shadcn part into
+`src/components/ui/`. The lead agent writes the shared sample data in
+`src/data.ts`. Each model writes only its own folder, `src/variants/<id>/`, so
+parallel models never touch the same file. Use short ids such as `opus`,
+`sonnet` or `fable`.
+
+```text
+studio/app/src/
+  data.ts                         # shared sample data, typed; the lead writes it
+  components/ui/*.tsx             # every shadcn part, installed once; nobody edits
+  studio-theme.css                # shadcn's variables → the studio's live tokens
+  variants/<id>/
+    variant.json                  # the look, the custom parts, notComponents
+    screens/<screen id>.tsx       # one per screen in project.json; default export
+    parts/*.tsx                   # the custom parts the screens are built from
+```
+
+`npm run build` in `studio/app` type-checks, then writes
+`studio/candidates/<id>/<screen>.html` for every screen and variant, the
+shared `studio/candidates/assets/`, and `studio/candidates/<id>/variant.json`:
+the model's `variant.json` plus one entry for every shadcn part its screens
+import (`Button`, `Card`, `Tabs`, …, found later by `data-slot`). The engine
+reads only `candidates/`; nothing lists variants in `project.json`.
+
+`npm run dev` serves the same pages at `/<id>/<screen>.html?world=<id>` with
+the studio's tokens through a proxy; the studio server must be running
+(`STUDIO_URL`, default `http://127.0.0.1:4173`).
+
+A studio made with `--no-app` holds hand-written HTML candidates instead:
+`studio/candidates/<id>/variant.json` and one `<screen id>.html` per screen,
+each loading `/_studio/frame.js` first and using only `var(--…)` tokens.
+Older studios work that way and still open.
+
+## variant.json
 
 ```json
 {
@@ -174,14 +205,15 @@ or `fable`.
       "color-muted": "...", "color-line": "...", "color-primary": "...",
       "color-on-primary": "...", "color-accent": "...", "radius-sm": "3px", "radius-md": "6px"
     },
+    "dark": { "color-bg": "oklch(0.18 0.01 260)", "...": "..." },
     "type": { "display": { "font": "display", "fontSize": "36px", "fontWeight": 700, "lineHeight": 1.05 } },
     "rules": ["Do ... / Don't ..."]
   },
   "components": [
     { "name": "Order card", "what": "One order: number, customer, note, one action.",
-      "screens": ["orders", "returns"], "selector": ".order", "shadcn": null },
+      "screens": ["orders", "returns"], "selector": "[data-part=order-card]", "shadcn": null },
     { "name": "Confirm dialog", "what": "Asks before an order is cancelled.",
-      "screens": ["orders"], "selector": "[data-dialog=cancel]", "shadcn": "dialog" }
+      "screens": ["orders"], "selector": "[data-part=cancel]", "shadcn": "dialog" }
   ]
 }
 ```
@@ -195,19 +227,19 @@ or `fable`.
   `color-secondary-soft`, `color-tertiary-soft` and `color-surface-2`. A
   palette sets them; otherwise the engine derives them from the core tokens.
   Screens may use them. `color-on-status` is the text color on a solid
-  danger fill, derived for each look (white on a deep red, dark on a light
-  dark-mode red); approval checks its contrast.
+  danger fill, derived for each look; approval checks its contrast.
 - Write colors as `oklch(L C H)` or `#rrggbb`. The tuner edits only `color-*`
   tokens.
-- `components` lists every part the screens are built from, one entry per
-  part, not per use. `name` and `what` say what it is; `screens` are screen
-  ids from `project.json`; `selector` finds it in the screen files. `shadcn`
-  names the shadcn/ui component it should be built from (`button`, `dialog`,
-  `select`, `tabs`, `table`, …), or `null` for a part the product needs built
-  by hand. A dialog, menu or picker an action needs belongs here even when the
-  mock-up only shows the button. Approval refuses a variant without this list
-  and writes it into `DESIGN.md`. List a list and its item as two parts, and
-  use one part when two screens show the same thing.
+- `components` lists the **custom** parts, one entry per part, not per use:
+  what the screens are built from that shadcn doesn't have (an order card, a
+  timeline, a page shell). `name` and `what` say what it is; `screens` are
+  screen ids; `selector` finds it in the built page, best a `data-part`
+  attribute the part sets on its root. `shadcn` is `null` for a custom part.
+  A shadcn overlay the screen only shows the trigger for (a dialog, a menu)
+  is listed too, with `shadcn` set and a selector on its trigger. The build
+  adds every other shadcn part from the imports. List a list and its item as
+  two parts, and use one part when two screens show the same thing.
+  Approval refuses a variant without this list and writes it into `DESIGN.md`.
 - `world.dark` holds the dark look: the same `color-*` roles as `tokens` (the
   eight core colors are required), for a dark screen. The world's radius and
   other tokens carry over. Tuning and palettes change the light look only.
@@ -220,41 +252,43 @@ or `fable`.
 - Check a variant with `python3 <skill-root>/scripts/check_variant.py studio --variant <id>`,
   then its parts with `node <skill-root>/scripts/check_components.mjs --url <studio url> --variant <id>`.
 
-## Candidate files
+## Screens
 
-Each screen file is a plain HTML page that loads the frame script first, then
-the shared data file:
+A screen is a React component that default-exports from
+`src/variants/<id>/screens/<screen id>.tsx`, takes no props and reads what it
+shows from `@/data`. It is built from the shadcn parts in `@/components/ui/*`
+and the variant's own parts in `../parts/*`.
 
-```html
-<script src="/_studio/frame.js"></script>
-<script src="/data.js"></script>
-```
+The built page loads `/_studio/frame.js` first. The frame asks
+`GET /api/tokens?world=<variant>` for the finished tokens (the variant's look,
+tuning, derived palette tokens and status colors), sets them as CSS variables
+on `:root`, loads the look's Google Fonts, reports the page height, and
+handles comment pins. `studio-theme.css` points shadcn's variables at those
+tokens, so `bg-primary`, `text-muted-foreground`, `border-border` and
+`rounded-lg` follow every palette, tune and the dark switch live. So a screen:
 
-Shared fake data lives in one file, such as `studio/data.js`, loaded as
-`/data.js`, so every variant shows the same content.
-
-The frame script asks `GET /api/tokens?world=<variant>` for the finished
-tokens (the variant's look, tuning, derived palette tokens and status colors),
-sets them as CSS variables, loads the look's Google Fonts, reports the page
-height, and handles comment pins. So a screen:
-
-- Uses only `var(--color-…)`, `var(--status-…)`, `var(--font-display)`,
-  `var(--font-body)` and `var(--radius-…)`. No hex, rgb, hsl, oklch or font
-  names.
+- Colors with shadcn's names (`bg-primary`, `text-muted-foreground`,
+  `border-border`, `bg-destructive` only for danger) or `var(--color-…)`,
+  `var(--status-…)`, `var(--radius-…)`. Fonts with `font-sans` (body) and
+  `font-heading` (display). Never Tailwind's own palette (`bg-red-500`,
+  `text-white`), raw hex, rgb, hsl, oklch or font names.
 - Mixes tints with `color-mix(in oklab, var(--status-warning) 12%, var(--color-surface))`.
   Use oklab, not oklch. A grey or white has hue 0 in oklch, so an oklch mix
   drifts toward red.
 - Works at 1920×1080, 1440×900 and 390×844, with its main job visible in the
-  first screenful at each size.
+  first screenful at each size, and in both looks (the studio's `D` key).
+- Shows every state the data holds; a dialog or menu the design needs is
+  rendered open on a screen or listed with its trigger.
 - Opens alone at `/candidates/<variant>/<screen>.html?world=<variant>`. Add
-  `&tuned=0` to ignore the user's tuning.
-- Sets `data-*` attributes on meaningful elements, like `data-order="o4"`.
-  Comment pins use them, so pins survive later edits to the markup.
+  `&tuned=0` to ignore the user's tuning, `&theme=dark` for the dark look.
+- Sets `data-part` on each custom part's root and `data-*` attributes on
+  meaningful elements, like `data-order="o4"`. Comment pins and the
+  components check use them, so they survive later edits.
 
 Check screens with:
 
 ```
-python3 <skill-root>/scripts/check_tokens.py --project studio/project.json studio/candidates
+python3 <skill-root>/scripts/check_tokens.py --project studio/project.json studio/app/src/variants
 ```
 
 ## What the page enforces
@@ -287,7 +321,7 @@ python3 <skill-root>/scripts/check_tokens.py --project studio/project.json studi
   says when the chosen model's list is missing and keeps Approve disabled.
 - A project approved before `design/fonts.css` existed has the font import in
   `tokens.css`. Re-approval moves it; an app then needs `design/fonts.css`
-  imported first (`references/components.md`).
+  imported first (`references/promote.md`).
 
 ## What the agent reads back
 
@@ -307,13 +341,17 @@ python3 <skill-root>/scripts/check_tokens.py --project studio/project.json studi
 
 | Script | What it does |
 | --- | --- |
-| `scripts/init_studio.py <root> --name "<product>"` | Creates `studio/` content. Refuses to overwrite. |
+| `scripts/init_studio.py <root> --name "<product>" [--no-app]` | Creates `studio/` and `studio/app/` (npm install + every shadcn part). Refuses to overwrite. `--no-app` for hand-written HTML candidates. |
 | `python3 scripts/check_variant.py studio [--variant <id>]` | Lists problems in `project.json` and `variant.json`, screens without a file, and failing contrast and hue checks. |
-| `node scripts/capture.mjs --url <studio url> --out temp/verification/<run>` | Screenshots every screen × variant × size, full page, and each variant's specimen. Skips screens not built yet and says so. Writes `capture.md` with loaded fonts, sideways scroll, clipped text and console errors. Add `--studio` to capture the page itself and its Arena. Narrow with `--variants`, `--sizes`, `--screens`. |
-| `python3 scripts/check_tokens.py …` | Fails on raw colors and font names. |
-| `node scripts/test_studio.mjs` | End-to-end test of the engine in a throwaway project. Run it after changing the engine. |
+| `node scripts/check_components.mjs --url <studio url> [--variant <id>]` | Finds each listed part in the built screens (custom by selector, shadcn by `data-slot`) and lists what is drawn more than once but not listed. |
+| `python3 scripts/check_tokens.py …` | Fails on raw colors, Tailwind's own palette classes and font names. |
+| `node scripts/capture.mjs --url <studio url> --out temp/verification/<run>` | Screenshots every screen × variant × size, full page, and each variant's specimen. Writes `capture.md` with loaded fonts, sideways scroll, clipped text and console errors. Add `--studio` to capture the page itself and its Arena. Narrow with `--variants`, `--sizes`, `--screens`. |
+| `python3 scripts/promote_variant.py <root> [--check --studio-url <url>]` | After approval: copies the studio app with only the approved variant to `web/`, one route per screen, the approved `design/` files in place of the live theme; installs and builds. `--check` runs the comparison below. |
+| `node scripts/compare_screens.mjs --app web --studio-url <url> --variant <id>` | Captures every route of the promoted app next to the studio's page at three sizes, light and dark, and reports the share of pixels that differ (threshold 1%). Writes `compare.md`. |
+| `node scripts/test_studio.mjs` | End-to-end test of the engine in a throwaway project with HTML candidates. Run it after changing the engine. |
+| `node scripts/test_app.mjs` | End-to-end test of the app flow: init, a React variant, build, checks, approval, promotion, comparison. Installs packages twice, so it takes minutes. |
 
-`capture.mjs` and `test_studio.mjs` need Playwright with Chromium. They find
+`capture.mjs`, `compare_screens.mjs` and the tests need Playwright with Chromium. They find
 it through `STUDIO_PLAYWRIGHT`, a normal import, or the npx cache. If none
 works, they print how to install it.
 

@@ -63,24 +63,43 @@ export function scanDocument(doc, parts, screenId, ignore = []) {
 }
 
 // Structures the screen repeats that no listed part covers: a row drawn five times
-// inside a list, a header on every screen. Grouped by tag and first class, which is
-// how hand-written screens name a base style (`class="who is-busy"` → div.who).
+// inside a list, a header on every screen. A hand-written screen names a base style
+// (`class="who is-busy"` → div.who); a Tailwind screen carries only utilities, so its
+// whole class list is the name, and a data-part attribute names it best of all.
+const UTILITY = /[:[/]/
+const UTILITY_PREFIX = /^-?(?:m|p|mx|my|mt|mb|ml|mr|px|py|pt|pb|pl|pr|gap|w|h|min-w|min-h|max-w|max-h|text|font|bg|border|rounded|flex|grid|items|justify|space|leading|tracking|shadow|opacity|overflow|z|inset|top|left|right|bottom|size|basis|grow|shrink|ring|outline|transition|duration|cursor|whitespace|list|divide|col|row|place|self|aspect|sr|order)-/
+const UTILITY_WORD = /^(?:flex|grid|block|inline|hidden|relative|absolute|fixed|sticky|truncate|uppercase|lowercase|capitalize|underline|italic|contents|isolate|container|group|peer|antialiased)$/
+const isUtility = (name) => UTILITY.test(name) || UTILITY_PREFIX.test(name) || UTILITY_WORD.test(name)
+
+// What to group an element by, and the selector that finds the group.
+export function signatureOf(el) {
+  const tag = el.tagName.toLowerCase()
+  if (el.dataset.part) return { signature: `[data-part=${el.dataset.part}]`, selector: `[data-part="${cssEscape(el.dataset.part)}"]` }
+  const classes = [...el.classList].filter((name) => !name.startsWith("__"))
+  if (!classes.length) return null
+  if (classes.some(isUtility)) {
+    const sorted = [...classes].sort()
+    return { signature: `${tag}.${sorted.join(".")}`, selector: sorted.map((name) => `.${cssEscape(name)}`).join("") }
+  }
+  return { signature: `${tag}.${classes[0]}`, selector: `.${cssEscape(classes[0])}` }
+}
+
 function findUnlisted(doc, entries, hostOf, ignore) {
   const partEls = [...entries.keys()]
   const ignored = (el) => ignore.some((selector) => { try { return el.matches(selector) } catch { return false } })
   const groups = new Map()
   for (const el of doc.body.querySelectorAll("[class]")) {
     if (entries.has(el) || !isVisible(el) || isStudio(el) || isIcon(el)) continue
-    const base = el.classList[0]
-    if (!base || base.startsWith("__") || ignored(el)) continue
+    const named = signatureOf(el)
+    if (!named || ignored(el)) continue
     const size = area(el)
     if (size < MIN_AREA || !(el.childElementCount >= 2 || INTERACTIVE.has(el.tagName))) continue
     // A wrapper that is mostly one listed part is that part; one that only holds a
     // run of the same thing is the list, and the repeated item is what matters.
     if (partEls.some((part) => el.contains(part) && area(part) >= 0.8 * size)) continue
     if (isListWrapper(el, entries)) continue
-    const signature = `${el.tagName.toLowerCase()}.${base}`
-    if (!groups.has(signature)) groups.set(signature, { signature, selector: `.${cssEscape(base)}`, elements: [] })
+    const { signature, selector } = named
+    if (!groups.has(signature)) groups.set(signature, { signature, selector, elements: [] })
     groups.get(signature).elements.push(el)
   }
   const list = [...groups.values()].filter((group) => {
@@ -162,7 +181,7 @@ function isStudio(el) {
 function isListWrapper(el, entries) {
   const children = [...el.children].filter(isVisible)
   if (children.length < 2) return false
-  const key = (child) => entries.get(child)?.part?.name ?? `${child.tagName}.${child.classList[0] || ""}`
+  const key = (child) => entries.get(child)?.part?.name ?? signatureOf(child)?.signature ?? child.tagName
   return children.every((child) => key(child) === key(children[0]))
 }
 

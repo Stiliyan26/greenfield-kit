@@ -1,0 +1,25 @@
+/* The studio app's stylesheet. shadcn's theme is not here: studio-theme.css points
+   shadcn's variables at the studio's live tokens, so palettes, tuning and dark mode
+   change every screen without a rebuild. Approval writes design/shadcn.css with the
+   same mapping and the approved values, and promotion swaps the import. */
+@import "tailwindcss";
+/* Vite's root is entries/, so tell Tailwind where the classes are. */
+@source "../src";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "./studio-theme.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+    margin: 0;
+  }
+}

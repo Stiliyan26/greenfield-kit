@@ -443,6 +443,25 @@ def shadcn_css(project, world, tokens, revision, stamp, dark=None):
     return "\n".join(lines) + "\n"
 
 
+def studio_theme_css():
+    """The studio app's shadcn theme: the same mapping as shadcn_css(), but every
+    value is a var() to the studio's live tokens, which frame.js sets on :root.
+    So a palette, a tune or the dark switch recolors shadcn parts with no rebuild.
+    """
+    lines = ["/* Written by init_studio.py. shadcn's theme variables point at the studio's live tokens. */",
+             "/* Promotion replaces this import with design/tokens.css and design/shadcn.css. */",
+             "@theme inline {",
+             "  --font-sans: var(--font-body);",
+             "  --font-heading: var(--font-display);"]
+    lines += [f"  --color-{name}: var(--{name});" for name, _ in SHADCN_COLORS]
+    lines += [f"  --radius-{step}: var(--r-{source});" for step, source in SHADCN_RADII]
+    lines += ["}", ":root {"]
+    lines += [f"  --{name}: var(--{source});" for name, source in SHADCN_COLORS]
+    lines += ["  --r-sm: var(--radius-sm);", "  --r-md: var(--radius-md);", "  --r-lg: var(--radius-lg, var(--radius-md));",
+              "  --r-pill: 999px;", "  --radius: var(--radius-md);", "}"]
+    return "\n".join(lines) + "\n"
+
+
 def design_md(project, variant, world, tokens, checks, font_checks, revision, stamp, palette=None, dark=None, dark_checks=None):
     fonts = world["fonts"]
     type_scale = {**DEFAULT_TYPE, **world.get("type", {})}

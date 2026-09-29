@@ -30,13 +30,13 @@ an approved candidate or world, tell the user and ask for a new approval.
 
 Approval writes `DESIGN.md` (with its Components table), `design/fonts.css`, `design/tokens.css` and `design/shadcn.css`. They record the colors, both typefaces, the type
 scale, radius, contrast results, status meanings, the approved screens and
-the components to build, each marked shadcn or custom. The next stage builds
-those components and shows them on a gallery page
-(`references/components.md`), before any planning. Build
-later screens with the same tokens and components. Return to the studio when a
-new requirement changes the look.
+every part, custom or shadcn. The approved variant is React + shadcn code, so
+the next stage promotes it into the app and proves every route matches the
+studio (`references/promote.md`); that runs in the background while the plan
+is made with the user. Build later screens with the same parts and tokens.
+Return to the studio when a new requirement changes the look.
 
 The studio is an exploration tool; its sample data and interactions are not a
-product. After approval, the components stage sets the frontend up with
-React, Tailwind and shadcn/ui; the approved plan chooses the rest of the
-stack. Don't install a framework just to show options.
+product. The promoted app shows sample data until the plan's API exists; the
+approved plan chooses the rest of the stack. Don't install a framework just to
+show options.
