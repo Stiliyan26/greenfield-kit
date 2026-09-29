@@ -13,8 +13,8 @@ and don't invent a new look. For a new product or a full redesign, follow
 choices. The client brief wins over both references.
 
 The local studio is the place to show and approve work. Its format, views and
-scripts are in `greenfield-mode`'s [studio.md](../greenfield-mode/references/studio.md).
-Below, `<studio-scripts>` means that skill's `scripts/` folder.
+scripts are in [studio.md](references/studio.md).
+Below, `<studio-scripts>` means this skill's `scripts/` folder.
 
 ## Small change in an approved system
 

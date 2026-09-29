@@ -90,7 +90,7 @@ Run it without `--push` to see what differs first.
 
 | Skill or agent | What it does |
 | --- | --- |
-| `greenfield-mode` | Runs a new product end to end: brief, studio, approval, components, plan, delivery. Owns the studio engine and its scripts. |
+| `greenfield-mode` | Runs a new product end to end: brief, studio, approval, plan, delivery. |
 | `design-interface` | The design process: two-pass research, the product facts, one design per model, the quality gate, and the user's choice in the studio. Small changes in an approved design reuse its tokens. |
 | `plan-feature` | Plans data, roles, API and screens with the user. Links the approved `DESIGN.md` instead of deciding the look again. |
 | `deliver-feature` | Builds from the plan in small, checked steps, with the components built after approval. Colors, fonts and radius come only from `design/tokens.css` and `design/shadcn.css`. |
@@ -116,7 +116,7 @@ The `greenfield-mode` skill drives these steps:
 4. **Models design.** Up to three models each get the same brief, filled in from `references/variant-brief.md`. Only the variant id, the model name and the port differ. Each model designs every screen and its own look, freely. Nobody assigns structures or styles.
 5. **Quality gate.** Before you see anything, the agent runs the checks and captures, fixes what they find, and asks the `design-critic` agent for a score. A failing variant goes back to the model that made it.
 6. **You choose.** You compare the models in the studio, pick one, tune its colors, comment, and press **Approve**.
-7. **Build the components.** Right after approval, the agent sets up shadcn/ui with the approved theme, adds every shadcn part the Components table names, and builds the custom parts from the approved screens. A gallery page shows every part in every state. You check it before any planning (`greenfield-mode/references/components.md`).
+7. **Build the components.** Right after approval, the agent sets up shadcn/ui with the approved theme, adds every shadcn part the Components table names, and builds the custom parts from the approved screens. A gallery page shows every part in every state. You check it before any planning (`design-interface/references/components.md`).
 8. **Plan and deliver.** `plan-feature` plans the system on the approved design and its components. `deliver-feature` builds the screens from those components and uses only the tokens. A new requirement that changes the look goes back to the studio.
 
 Only the **Approve** button counts as approval. If you approve in chat, the agent asks you to press it.
@@ -125,7 +125,7 @@ Only the **Approve** button counts as approval. If you approve in chat, the agen
 
 ### One engine, one content folder per project
 
-- The engine lives once, in the skill: `plugin/skills/greenfield-mode/assets/studio-engine/`. It holds the server (`studio_server.py`), the checks and export (`studio_export.py`, `studio_color.py`) and the page (`web/`). It knows nothing about any one product.
+- The engine lives once, in the skill: `plugin/skills/design-interface/assets/studio-engine/`. It holds the server (`studio_server.py`), the checks and export (`studio_export.py`, `studio_color.py`) and the page (`web/`). It knows nothing about any one product.
 - A project gets only `studio/`, from `python3 <skill>/scripts/init_studio.py <project-root> --name "<product>"`. It holds `project.json`, `candidates/`, `references/`, the shared data file, and the files the page writes.
 - `studio/server.py` is a small stub that finds the engine. It looks in this order: the `STUDIO_ENGINE` variable, `studio/.engine-path` (written by `init_studio.py`, kept out of git), a `plugin/` or `.agents/` folder in any parent directory, `~/.agents/skills/`, then the Claude Code, Codex and Cursor plugin caches, newest first.
 - Start it from the project root with `python3 studio/server.py`. It prints its URL. Add `--port 4173` for a fixed port.
@@ -227,7 +227,7 @@ Every model designs a light and a dark look (`world.dark`); `D` switches the stu
 
 ## Quality gate
 
-The agent runs these before you see a design. `G` is `plugin/skills/greenfield-mode` (or the installed skill folder).
+The agent runs these before you see a design. `G` is `plugin/skills/design-interface` (or the installed skill folder).
 
 | Check | What it does |
 | --- | --- |
@@ -259,7 +259,7 @@ Screens use only tokens: `var(--color-…)`, `var(--status-…)`, `var(--font-di
 - Checks are in `.agents/PROJECT.md`. The main ones:
 
 ```
-node plugin/skills/greenfield-mode/scripts/test_studio.mjs
+node plugin/skills/design-interface/scripts/test_studio.mjs
 claude plugin validate ./plugin --strict
 claude plugin validate . --strict
 python3 tools/check_manifests.py

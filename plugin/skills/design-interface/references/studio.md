@@ -5,7 +5,7 @@ as designed by up to three models, at three screen sizes. The user compares
 the models, picks one, tunes its colors, pins comments, and approves. Approval
 writes `DESIGN.md` (with its Components table), `design/fonts.css`, `design/tokens.css` and `design/shadcn.css`, which every later skill builds from.
 
-`<skill-root>` below means the `greenfield-mode` folder.
+`<skill-root>` below means the `design-interface` folder.
 
 ## Two parts
 

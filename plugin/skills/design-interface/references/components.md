@@ -7,7 +7,7 @@ gallery page. Planning and delivery then build every screen from these
 components.
 
 It needs a React app with Tailwind CSS 4. If the project already has a
-frontend, set up in it. Otherwise create one in `web/`. `<greenfield-mode>`
+frontend, set up in it. Otherwise create one in `web/`. `<design-interface>`
 below is that skill's folder, in `.agents/skills/` or `~/.agents/skills/`.
 
 ## What approval gave you
@@ -60,7 +60,7 @@ layout that takes children.
    the Components table's "Build from" column that says `shadcn`, in one
    command.
 4. **Check the added files.**
-   `python3 <greenfield-mode>/scripts/check_tokens.py --tokens design/tokens.css src/components/ui`
+   `python3 <design-interface>/scripts/check_tokens.py --tokens design/tokens.css src/components/ui`
    must print `0 problems`. shadcn sometimes uses Tailwind's own colors, for
    example `bg-black/10` behind a dialog. Replace each one with the shadcn
    name that fits (`bg-foreground/10`), not a raw value.

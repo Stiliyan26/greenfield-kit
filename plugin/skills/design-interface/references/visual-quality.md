@@ -4,7 +4,7 @@ Run this on every model's rendered variant before the user sees it.
 It checks pixels, not intentions. Naming a skill doesn't make a design good,
 and neither does a passing check.
 
-`<studio-scripts>` means `greenfield-mode`'s `scripts/` folder.
+`<studio-scripts>` means this skill's `scripts/` folder.
 
 ## Before building
 

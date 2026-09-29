@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Check each model's components list against its rendered screens, with the same
 // reader the studio's Components view uses (web/component-scan.js).
-//   node <greenfield-mode>/scripts/check_components.mjs --url http://127.0.0.1:4173 [--variant <id>] [--widths 1440,390]
+//   node <design-interface>/scripts/check_components.mjs --url http://127.0.0.1:4173 [--variant <id>] [--widths 1440,390]
 // A problem is a listed part its selector can't find on a screen it names, or a
 // structure drawn more than once (on one screen or across screens) that no part
 // covers and notComponents doesn't excuse. Exits 1 when there is any.

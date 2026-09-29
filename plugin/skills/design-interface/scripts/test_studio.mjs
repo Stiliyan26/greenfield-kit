@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // End-to-end test of the studio engine. Builds a throwaway project in a temp
 // folder, starts the real server, and drives the page in Chromium.
-//   node <greenfield-mode>/scripts/test_studio.mjs [--keep] [--shots <folder>]
+//   node <design-interface>/scripts/test_studio.mjs [--keep] [--shots <folder>]
 import { spawn } from "node:child_process"
 import { cp, mkdir, mkdtemp, readFile, rm, symlink, utimes, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
@@ -18,8 +18,8 @@ const check = (name, pass, detail = "") => { results.push({ name, pass, detail }
 
 const root = await mkdtemp(join(tmpdir(), "studio-test-"))
 const studio = join(root, "studio")
-await mkdir(join(root, ".agents/skills/greenfield-mode/assets"), { recursive: true })
-await symlink(join(skill, "assets/studio-engine"), join(root, ".agents/skills/greenfield-mode/assets/studio-engine"))
+await mkdir(join(root, ".agents/skills/design-interface/assets"), { recursive: true })
+await symlink(join(skill, "assets/studio-engine"), join(root, ".agents/skills/design-interface/assets/studio-engine"))
 await cp(join(skill, "assets/studio-content"), studio, { recursive: true })
 await mkdir(join(studio, "candidates"))
 

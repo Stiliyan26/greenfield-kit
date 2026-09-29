@@ -2,7 +2,7 @@
 
 The lead agent fills in every `{placeholder}` and sends the same text to each
 model. Only `{variant}`, `{model}` and `{port}` differ between models. Paths
-are absolute. `{skill-root}` is the `greenfield-mode` folder.
+are absolute. `{skill-root}` is the `design-interface` folder.
 
 ---
 
@@ -26,7 +26,7 @@ Your variant id is `{variant}` and you are `{model}`.
   note in `project.json`. The notes alone are not enough.
 - `{skill-root}/references/studio.md`, sections "Variant folder" and
   "Candidate files".
-- `{skill-root}/../design-interface/references/visual-quality.md`.
+- `{skill-root}/references/visual-quality.md`.
 
 ## Deliver, only in `{studio}/candidates/{variant}/`
 

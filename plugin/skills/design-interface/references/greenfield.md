@@ -32,7 +32,7 @@ Approval writes `DESIGN.md` (with its Components table), `design/fonts.css`, `de
 scale, radius, contrast results, status meanings, the approved screens and
 the components to build, each marked shadcn or custom. The next stage builds
 those components and shows them on a gallery page
-(`greenfield-mode/references/components.md`), before any planning. Build
+(`references/components.md`), before any planning. Build
 later screens with the same tokens and components. Return to the studio when a
 new requirement changes the look.
 

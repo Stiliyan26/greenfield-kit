@@ -20,11 +20,11 @@ and radius is a `var(--…)` from that file. Build screens from the
 components already made from its Components table (shadcn/ui parts themed by
 `design/shadcn.css`, and custom parts). If they don't exist yet, build them
 first with `greenfield-mode`'s
-[components.md](../greenfield-mode/references/components.md) and let the user
+[components.md](../design-interface/references/components.md) and let the user
 check the gallery. Don't invent a look, use a component
 kit's own theme, or copy raw values. Before a UI task is done, run
-`python3 <greenfield-mode>/scripts/check_tokens.py --tokens design/tokens.css <changed files>`
-and fix what it prints. `<greenfield-mode>` is that skill's folder, in
+`python3 <design-interface>/scripts/check_tokens.py --tokens design/tokens.css <changed files>`
+and fix what it prints. `<design-interface>` is that skill's folder, in
 `.agents/skills/` or `~/.agents/skills/`. If a task needs a look the approved
 design doesn't cover, stop that part and use `design-interface`.
 

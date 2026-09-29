@@ -3,7 +3,7 @@
 // 1920×1080, 1440×900 and 390×844), plus each variant's specimen, and record
 // mechanical problems for the design critic. Screenshots are the full page.
 //
-//   node <greenfield-mode>/scripts/capture.mjs --url http://127.0.0.1:4173 --out temp/verification/<run>
+//   node <design-interface>/scripts/capture.mjs --url http://127.0.0.1:4173 --out temp/verification/<run>
 //     [--sizes desktop,laptop,phone] [--variants a,b] [--screens s] [--studio]
 //
 // Playwright is found by ./playwright.mjs.

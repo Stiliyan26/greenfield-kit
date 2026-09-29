@@ -6,7 +6,7 @@ This repo is the greenfield-kit Claude Code plugin and its marketplace. It is de
 
 - The goal is one pipeline from a rough brief to a proven app: brief, studio designs, approve, shadcn components, plan, build, prove, maintain. We build it step by step.
 - The method: run the whole pipeline on PartyFox. Each gap it exposes gets a general fix in `plugin/`, proven with this repo's checks and logged in `temp/verification/pipeline-test/gaps.md`.
-- Where the run stands: the studio has three models' designs with parts lists and dark looks. Next the user approves one model. After that come the components stage (`plugin/skills/greenfield-mode/references/components.md`), then the plan in `examples/partyfox/docs/plans/partyfox/plan.md`, then the build.
+- Where the run stands: the studio has three models' designs with parts lists and dark looks. Next the user approves one model. After that come the components stage (`plugin/skills/design-interface/references/components.md`), then the plan in `examples/partyfox/docs/plans/partyfox/plan.md`, then the build.
 - Open gap: G6. The brief doesn't yet require a visible control for every action.
 - Later direction, not started: `DIRECTION.md`, a desktop app over Claude Code, Codex and Cursor.
 
@@ -18,7 +18,7 @@ This repo is the greenfield-kit Claude Code plugin and its marketplace. It is de
 - `.agents/skills/<name>` and `.agents/agents/<name>` are symlinks into `plugin/`, so Codex, Cursor and Claude Code in this repo use the same files.
 - `.agents/INSTRUCTIONS.md` is a symlink to the `setup-project` template. Editing it edits what new projects receive. `.agents/PROJECT.md` is this repo's own copy, not a template.
 - How to write and place code is the `write-code` skill. Its ESLint preset lives in `plugin/skills/write-code/assets/eslint.config.mjs`; this repo has no JavaScript app of its own to run it on.
-- The studio engine is `plugin/skills/greenfield-mode/assets/studio-engine/`. A project's `studio/` holds content only.
+- The studio engine is `plugin/skills/design-interface/assets/studio-engine/`. A project's `studio/` holds content only.
 - `temp/verification/` keeps screenshots and test output until the user has seen them.
 
 ## The plugin stays project-agnostic
@@ -27,7 +27,7 @@ Everything in `plugin/` serves any project. PartyFox is only the test bed: a gap
 
 ## Commands
 
-All from the repo root. `G` is `plugin/skills/greenfield-mode`.
+All from the repo root. `G` is `plugin/skills/design-interface`.
 
 | Purpose | Command |
 | --- | --- |
@@ -47,7 +47,7 @@ All from the repo root. `G` is `plugin/skills/greenfield-mode`.
 
 Run the ones that match what you changed. A check that is missing, skipped or failing is not a pass — say which.
 
-### Studio engine or greenfield-mode scripts
+### Studio engine or design-interface scripts
 
 1. Check the syntax of every changed Python and JavaScript file.
 2. Run the end-to-end studio test. It must print `0 failed`.
