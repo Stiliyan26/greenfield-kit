@@ -1,0 +1,8 @@
+{
+  "reviewerModel": "opus",
+  "fixModel": "sonnet",
+  "mayRunApp": true,
+  "depth": "full",
+  "maxReviewers": 4,
+  "maxFixAgents": 4
+}

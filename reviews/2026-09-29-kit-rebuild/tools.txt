@@ -1,0 +1,27 @@
+## check_manifests
+Manifests agree. greenfield-kit 0.10.0
+## check_agnostic
+No project-specific words in plugin/.
+## plugin validate
+Validating plugin manifest: /Users/stiliyan26/projects/greenfield-kit/plugin/.claude-plugin/plugin.json
+
+✔ Validation passed
+Validating marketplace manifest: /Users/stiliyan26/projects/greenfield-kit/.claude-plugin/marketplace.json
+
+✔ Validation passed
+## test_studio
+✓ notComponents excuses a repeat with a reason  (0 problems in 1 variant (paper).)
+✓ studio page has no sideways scroll at 390px  (0px)
+✓ no console or page errors
+
+97 passed, 0 failed
+## test_app
+✓ the dark switch recolors shadcn parts with no rebuild
+✓ approve writes DESIGN.md and design/
+✓ DESIGN.md's Components table lists the shadcn parts
+✓ promote_variant.py builds web/ from the approved variant
+✓ the promoted app imports the approved design files, not the live theme
+✓ every route matches the studio within the threshold
+
+17 passed, 0 failed
+## done

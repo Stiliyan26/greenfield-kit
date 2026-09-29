@@ -1,0 +1,712 @@
+{
+  "target": {
+    "kind": "range",
+    "range": "8efdbaf..HEAD"
+  },
+  "totalLines": 11311,
+  "features": [
+    {
+      "name": "plugin/skills/design-interface/assets/studio-engine/web",
+      "source": "path",
+      "lines": 4519,
+      "files": [
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/app.js",
+          "lines": 400
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/board.js",
+          "lines": 318
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/canvas.js",
+          "lines": 175
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/checks.js",
+          "lines": 109
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/color.js",
+          "lines": 150
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/comments.js",
+          "lines": 147
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/component-scan.js",
+          "lines": 230
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/components-catalog.js",
+          "lines": 104
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/components.js",
+          "lines": 542
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/frame.js",
+          "lines": 207
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/icons.js",
+          "lines": 41
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/index.html",
+          "lines": 205
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/inspector.js",
+          "lines": 151
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/palettes.js",
+          "lines": 358
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/palettes.json",
+          "lines": 643
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/specimen.html",
+          "lines": 101
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/specimen.js",
+          "lines": 53
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/styles.css",
+          "lines": 564
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/web/util.js",
+          "lines": 21
+        }
+      ]
+    },
+    {
+      "name": "plugin/skills/design-interface/scripts",
+      "source": "path",
+      "lines": 1440,
+      "files": [
+        {
+          "path": "plugin/skills/design-interface/scripts/capture.mjs",
+          "lines": 91
+        },
+        {
+          "path": "plugin/skills/design-interface/scripts/check_components.mjs",
+          "lines": 79
+        },
+        {
+          "path": "plugin/skills/design-interface/scripts/check_tokens.py",
+          "lines": 149
+        },
+        {
+          "path": "plugin/skills/design-interface/scripts/check_variant.py",
+          "lines": 67
+        },
+        {
+          "path": "plugin/skills/design-interface/scripts/compare_screens.mjs",
+          "lines": 111
+        },
+        {
+          "path": "plugin/skills/design-interface/scripts/init_studio.py",
+          "lines": 78
+        },
+        {
+          "path": "plugin/skills/design-interface/scripts/playwright.mjs",
+          "lines": 36
+        },
+        {
+          "path": "plugin/skills/design-interface/scripts/promote_variant.py",
+          "lines": 161
+        },
+        {
+          "path": "plugin/skills/design-interface/scripts/test_app.mjs",
+          "lines": 213
+        },
+        {
+          "path": "plugin/skills/design-interface/scripts/test_studio.mjs",
+          "lines": 455
+        }
+      ]
+    },
+    {
+      "name": "plugin/skills/review",
+      "source": "path",
+      "lines": 1278,
+      "files": [
+        {
+          "path": "plugin/skills/review/assets/project-rules/triage.json",
+          "lines": 7
+        },
+        {
+          "path": "plugin/skills/review/references/checklist.md",
+          "lines": 165
+        },
+        {
+          "path": "plugin/skills/review/references/config.md",
+          "lines": 78
+        },
+        {
+          "path": "plugin/skills/review/references/project-rules.md",
+          "lines": 30
+        },
+        {
+          "path": "plugin/skills/review/references/report.md",
+          "lines": 188
+        },
+        {
+          "path": "plugin/skills/review/references/triage.md",
+          "lines": 102
+        },
+        {
+          "path": "plugin/skills/review/scripts/triage.mjs",
+          "lines": 416
+        },
+        {
+          "path": "plugin/skills/review/SKILL.md",
+          "lines": 292
+        }
+      ]
+    },
+    {
+      "name": "plugin/skills/design-interface/assets/studio-engine",
+      "source": "path",
+      "lines": 1245,
+      "files": [
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/studio_color.py",
+          "lines": 164
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/studio_export.py",
+          "lines": 622
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-engine/studio_server.py",
+          "lines": 459
+        }
+      ]
+    },
+    {
+      "name": "plugin/skills/design-interface",
+      "source": "path",
+      "lines": 1136,
+      "files": [
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/.gitignore",
+          "lines": 3
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/components.json",
+          "lines": 25
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/package.json",
+          "lines": 43
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/src/data.ts",
+          "lines": 9
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/src/index.css",
+          "lines": 25
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/src/lib/utils.ts",
+          "lines": 1
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/src/mount.tsx",
+          "lines": 25
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/src/vite-env.d.ts",
+          "lines": 1
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/studio-build.ts",
+          "lines": 159
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/tsconfig.app.json",
+          "lines": 31
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/tsconfig.json",
+          "lines": 7
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/tsconfig.node.json",
+          "lines": 21
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-app/vite.config.ts",
+          "lines": 30
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-content/.gitignore",
+          "lines": 1
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-content/comments.json",
+          "lines": 1
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-content/project.json",
+          "lines": 17
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-content/selection.json",
+          "lines": 11
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-content/server.py",
+          "lines": 46
+        },
+        {
+          "path": "plugin/skills/design-interface/assets/studio-content/taste.md",
+          "lines": 7
+        },
+        {
+          "path": "plugin/skills/design-interface/references/greenfield.md",
+          "lines": 16
+        },
+        {
+          "path": "plugin/skills/design-interface/references/new-project.md",
+          "lines": 53
+        },
+        {
+          "path": "plugin/skills/design-interface/references/promote.md",
+          "lines": 66
+        },
+        {
+          "path": "plugin/skills/design-interface/references/studio.md",
+          "lines": 358
+        },
+        {
+          "path": "plugin/skills/design-interface/references/variant-brief.md",
+          "lines": 116
+        },
+        {
+          "path": "plugin/skills/design-interface/references/visual-quality.md",
+          "lines": 2
+        },
+        {
+          "path": "plugin/skills/design-interface/SKILL.md",
+          "lines": 62
+        }
+      ]
+    },
+    {
+      "name": "other",
+      "source": "path",
+      "lines": 879,
+      "files": [
+        {
+          "path": ".agents/plugins/marketplace.json",
+          "lines": 3
+        },
+        {
+          "path": ".agents/PROJECT.md",
+          "lines": 65
+        },
+        {
+          "path": ".agents/skills/verify",
+          "lines": 1
+        },
+        {
+          "path": ".claude-plugin/marketplace.json",
+          "lines": 4
+        },
+        {
+          "path": ".cursor-plugin/marketplace.json",
+          "lines": 2
+        },
+        {
+          "path": ".vscode/settings.json",
+          "lines": 8
+        },
+        {
+          "path": "DIRECTION.md",
+          "lines": 204
+        },
+        {
+          "path": "docs/plans/design-in-shadcn/plan.md",
+          "lines": 145
+        },
+        {
+          "path": "docs/plans/review-v2/plan.md",
+          "lines": 89
+        },
+        {
+          "path": "examples/partyfox/studio/server.py",
+          "lines": 6
+        },
+        {
+          "path": "plugin/.claude-plugin/plugin.json",
+          "lines": 4
+        },
+        {
+          "path": "plugin/.cursor-plugin/plugin.json",
+          "lines": 4
+        },
+        {
+          "path": "plugin/agents/code-reviewer.md",
+          "lines": 116
+        },
+        {
+          "path": "plugin/plugin.json",
+          "lines": 8
+        },
+        {
+          "path": "README.md",
+          "lines": 220
+        }
+      ]
+    },
+    {
+      "name": "plugin/skills",
+      "source": "path",
+      "lines": 814,
+      "files": [
+        {
+          "path": "plugin/skills/deliver-feature/SKILL.md",
+          "lines": 115
+        },
+        {
+          "path": "plugin/skills/greenfield-mode/references/coordination.md",
+          "lines": 69
+        },
+        {
+          "path": "plugin/skills/greenfield-mode/references/features.md",
+          "lines": 77
+        },
+        {
+          "path": "plugin/skills/greenfield-mode/SKILL.md",
+          "lines": 168
+        },
+        {
+          "path": "plugin/skills/plan-feature/references/plan.md",
+          "lines": 42
+        },
+        {
+          "path": "plugin/skills/plan-feature/SKILL.md",
+          "lines": 50
+        },
+        {
+          "path": "plugin/skills/setup-project/templates/.agents/INSTRUCTIONS.md",
+          "lines": 27
+        },
+        {
+          "path": "plugin/skills/shadcn/agents/openai.yml",
+          "lines": 2
+        },
+        {
+          "path": "plugin/skills/shadcn/cli.md",
+          "lines": 2
+        },
+        {
+          "path": "plugin/skills/shadcn/rules/composition.md",
+          "lines": 6
+        },
+        {
+          "path": "plugin/skills/shadcn/SKILL.md",
+          "lines": 11
+        },
+        {
+          "path": "plugin/skills/verify/references/example.md",
+          "lines": 157
+        },
+        {
+          "path": "plugin/skills/verify/SKILL.md",
+          "lines": 88
+        }
+      ]
+    }
+  ],
+  "skipped": [
+    {
+      "path": ".agents/skills/bro",
+      "why": "deleted"
+    },
+    {
+      "path": ".agents/skills/create-verification-skill",
+      "why": "deleted"
+    },
+    {
+      "path": ".agents/skills/maintain-verification-skill",
+      "why": "deleted"
+    },
+    {
+      "path": ".agents/skills/reflect",
+      "why": "deleted"
+    },
+    {
+      "path": "STATUS.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/bro/SKILL.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/create-verification-skill/SKILL.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/create-verification-skill/references/example.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-content/.gitignore",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-content/comments.json",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-content/project.json",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-content/selection.json",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-content/server.py",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-content/taste.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/studio_color.py",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/studio_export.py",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/studio_server.py",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/app.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/board.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/canvas.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/checks.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/color.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/comments.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/component-scan.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/components-catalog.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/components.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/frame.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/icons.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/index.html",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/inspector.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/palettes.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/palettes.json",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/specimen.html",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/specimen.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/styles.css",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/assets/studio-engine/web/util.js",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/references/components.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/references/new-project.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/references/studio.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/references/variant-brief.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/scripts/capture.mjs",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/scripts/check_components.mjs",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/scripts/check_tokens.py",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/scripts/check_variant.py",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/scripts/init_studio.py",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/scripts/playwright.mjs",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/greenfield-mode/scripts/test_studio.mjs",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/maintain-verification-skill/SKILL.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/reflect/SKILL.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/assets/review.yml",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/lenses/access.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/lenses/blind-spot.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/lenses/contract.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/lenses/correctness.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/lenses/data.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/lenses/fit.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/lenses/judge.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/lenses/plan.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/lenses/scope.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/lenses/tests.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/lenses/ui.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/references/ci.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/review/references/finding.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/shadcn/assets/shadcn-small.png",
+      "why": "binary"
+    },
+    {
+      "path": "plugin/skills/shadcn/assets/shadcn.png",
+      "why": "binary"
+    },
+    {
+      "path": "plugin/skills/shadcn/evals/evals.json",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/shadcn/mcp.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/shadcn/registry.md",
+      "why": "deleted"
+    },
+    {
+      "path": "plugin/skills/shadcn/rules/chat.md",
+      "why": "deleted"
+    }
+  ]
+}
