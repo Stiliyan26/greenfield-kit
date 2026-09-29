@@ -27,7 +27,7 @@ review and groups it by feature. One reviewer per feature, no cap.
    plan drew them.
 
 ## Skipped
-Lock files, generated output (`dist/`, `*.map`, `*.snap`, ...), binaries, `temp/`
+Files a diff deleted (nothing left to review), lock files, generated output (`dist/`, `*.map`, `*.snap`, ...), binaries, `temp/`
 and the `--out` folder. `--app` keeps only source files and `DESIGN.md`.
 
 ## Output in `<dir>`

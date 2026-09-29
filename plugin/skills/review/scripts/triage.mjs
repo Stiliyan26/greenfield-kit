@@ -40,9 +40,10 @@ function main() {
   for (const file of collected.files.filter((f) => !isOutput(f.path))) {
     const skip = SKIP.find(([pattern]) => pattern.test(file.path));
     const ignored = ignore.some((pattern) => pattern.test(file.path));
+    const deleted = collected.patch !== undefined && !existsSync(join(root, file.path));
 
-    if (skip || ignored) {
-      skipped.push({ path: file.path, why: skip ? skip[1] : 'project ignore rule' });
+    if (skip || ignored || deleted) {
+      skipped.push({ path: file.path, why: skip ? skip[1] : ignored ? 'project ignore rule' : 'deleted' });
     } else {
       files.push(file);
     }
@@ -228,13 +229,19 @@ function deriveName(path) {
 // Small path-derived features (under MIN_LINES) merge into their parent
 // folder's feature ("plugin/skills/bro" → "plugin/skills"), or into "other"
 // when they have no parent, so a reviewer never gets a 7-line feature.
+function depth(name) {
+  return name.split('/').length;
+}
+
+// Deepest first, so a parent collects all its small children before it is
+// judged itself.
 function mergeSmall(features) {
   const byName = new Map(features.map((f) => [f.name, f]));
 
   for (;;) {
     const small = [...byName.values()]
       .filter((f) => f.source === 'path' && f.name !== 'other' && sum(f.files) < MIN_LINES)
-      .sort((a, b) => sum(a.files) - sum(b.files))[0];
+      .sort((a, b) => depth(b.name) - depth(a.name) || sum(a.files) - sum(b.files))[0];
 
     if (!small) {
       break;
