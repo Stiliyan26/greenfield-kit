@@ -10,7 +10,7 @@ LEAD (you): owns shared/, entities, schema, contract, app shell; merges one feat
    ├── feature B (worktree, own branch)   reads shared/INDEX.md before writing any helper or part
    └── feature C (worktree, own branch)   needs something shared → requests/<feature>-<name>.md
                                           → the lead adds it to shared/, pushes → the agent rebases
-   merge queue: rebase → all tests → review (fit lens catches duplicates) → merge → next
+   merge queue: rebase → all tests → review → merge → next
 ```
 
 ## Before the fan-out (stage 4, Foundation)
@@ -37,8 +37,8 @@ The lead's only jobs are answering requests and merging.
 - **The lead** reads `requests/`, adds the item to `shared/` and `INDEX.md`,
   pushes, marks the request answered, and tells the agent to rebase.
 - **Merge, one feature at a time,** in the wave's order: rebase on main, run
-  every test and scenario, run the `review` skill (its fit lens is the
-  duplication check), then merge. A diff that touches files outside the
+  every test and scenario, run the `review` skill on the diff (it checks
+  for duplicates against `INDEX.md`), then merge. A diff that touches files outside the
   feature's Owns list, or adds a helper `INDEX.md` already covers, is sent
   back, not merged.
 - **Waves.** Features with no dependency run in wave 1. A feature that needs

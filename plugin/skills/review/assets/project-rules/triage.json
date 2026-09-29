@@ -1,8 +1,3 @@
 {
-  "rules": [],
-  "always": [],
-  "never": [],
-  "ignore": [],
-  "linesPerAgent": { "diff": 3000, "app": 8000 },
-  "maxAgents": 5
+  "ignore": ["^server/src/legacy/"]
 }

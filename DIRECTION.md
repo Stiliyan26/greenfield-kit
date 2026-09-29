@@ -62,11 +62,11 @@ the user gives the evidence in chat when starting `greenfield-mode`.
                  the app shell = the promoted web/
                         │
  5  FEATURES     waves, one agent per feature file, own worktree and branch each
-                 agent: read INDEX → scenarios fail first → tests + code → green → review quick → report
+                 agent: read INDEX → scenarios fail first → tests + code → green → review → report
                  missing shared thing → requests/<feature>-<name>.md → lead adds, pushes → agent rebases
-                 lead: answers requests; merges one at a time: rebase → all tests → review (fit lens) → merge
+                 lead: answers requests; merges one at a time: rebase → all tests → review → merge
                         │
- 6  PROVE        review full on the merged app → verify drives every feature's scenarios → evidence
+ 6  PROVE        review on the whole app → verify drives every feature's scenarios → evidence
                  done-when ticked · client demo
                         │
  7  LOOP         delivery call → /process-call → new feature lock → new feature file → back to 3
@@ -96,8 +96,8 @@ answers. Planning asks one decision at a time; building asks almost nothing.
 | --- | --- |
 | 2 Design | the design critic (scores captures; under 70 or any 1 means revise first) |
 | 3B Plan | `review` in plan mode on plan + contract + feature files, before the user approves |
-| 5 Features | `review` quick by the feature agent; `review` at every merge by the lead, its fit lens is the duplication check |
-| 6 Prove | `review` full on the merged app, before `verify` and the demo |
+| 5 Features | `review` by the feature agent on its own diff before it reports done; `review` at every merge by the lead |
+| 6 Prove | `review` on the whole app, before `verify` and the demo |
 
 ## The decisions behind it, and why
 
@@ -117,9 +117,10 @@ answers. Planning asks one decision at a time; building asks almost nothing.
 | **Shared code: the lead defines, agents look up, gaps go through requests.** `INDEX.md` before any helper; never a local copy; a merge that duplicates is refused. | Duplication happens when two agents are allowed to write the same kind of code. Ownership prevents it; messaging only helps with the leftovers. |
 | **E2E: written before, green per feature, run together after.** | Scenarios come from done-when lines in the plan, so the agent never defines its own done. Running them all on the merged app catches feature A breaking feature B. |
 | **Reporting: digest first, `STATUS.md`, a trace.** | The user reads AI all day; reading is the cost. They want to see what an agent did (tools, Playwright, agents spawned, tests run), not its reasoning. |
+| **Review: one reviewer per feature that proves by running; the report is files the user ticks; fix agents from the ticks.** | The HRise review used 15 agents, paraphrased the snippets, asked nothing and ran nothing; the user rewrote it by hand. One reviewer per feature can read a feature end to end and run it; a file per feature with the real code, options and tick boxes lets the user decide, and the ticks tell the fix agents what to do. |
 | **Kept:** `design-animations` (a motion pass on the promoted screens), `shadcn` trimmed to React needs, `review`, `write-code`, `refactor`, `setup-project`, PartyFox example. **Removed:** `bro`, `reflect`, the components gallery, shadcn chat/registry/MCP/evals. | Keep what a stage uses. |
 
-## What the kit is now (0.9.0)
+## What the kit is now (0.10.0)
 
 - `design-interface`: the studio engine, the studio app template (Vite +
   React + Tailwind 4 + shadcn, every part installed), the scripts
@@ -134,6 +135,9 @@ answers. Planning asks one decision at a time; building asks almost nothing.
   files; asks the per-screen behaviour questions; plan-mode review before
   approval.
 - `deliver-feature`: the feature agent's brief.
+- `review`: gates, then one reviewer per feature that proves by running; writes
+  `reviews/<date>-<target>/` (README plus a file per feature) for the user to
+  tick; fix agents work from the ticks; the reviewer re-proves each fix.
 - `verify`: create the project's verify skill once, run every feature's
   scenarios, maintain the map.
 - `setup-project`: the working agreement (digest-first replies, `STATUS.md`,

@@ -30,7 +30,8 @@ with the user, while the approved front end is promoted in the background.
 2. Walk the user through the decisions one at a time, biggest first. Change the
    plan as they answer.
 3. Run the `review` skill in plan mode on the plan, the contract and the
-   feature files; act on what it puts under "Act on".
+   feature files. It writes `reviews/<date>-plan/`; the user ticks each
+   problem, then fix what is ticked.
 4. Mark the plan **Approved** only when the user says so.
 
 ## Mode: I lead
@@ -47,7 +48,8 @@ with the user, while the approved front end is promoted in the background.
    still disagree, allow one more round at most. Then record both views and let
    the user decide; it's their call. Never repeat an objection without new evidence.
 5. Before the user approves, run the `review` skill in plan mode on the
-   plan, the contract and the feature files; act on what it puts under "Act on".
+   plan, the contract and the feature files. It writes `reviews/<date>-plan/`;
+   the user ticks each problem, then fix what is ticked.
 
 ## What the user decides, in order
 

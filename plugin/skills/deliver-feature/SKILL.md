@@ -67,8 +67,9 @@ back to the studio.
 5. **Fill in the feature file.** Write its Driving section (preconditions,
    each user action with its exact command and what you should see) and any
    Gotchas, so `verify` can run it later. Set Status to review.
-6. **Review, then report.** Run the `review` skill in quick mode on your
-   branch. Fix what it puts under "Act on"; say what you're leaving and why.
+6. **Review, then report.** Run the `review` skill on your own diff. It
+   writes `reviews/<date>-<feature>/`. You own the feature, so you tick and fix
+   the problems yourself, test first; say what you're leaving and why.
    Report: ready, blocked, or not checked, with the trace of what you ran.
 
 ## When you're stuck
