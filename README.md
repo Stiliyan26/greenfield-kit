@@ -4,7 +4,7 @@ A plugin for Claude Code, Codex and Cursor that takes a product from a brief to 
 
 The look never drifts: the code you approve in the studio is the front end, and every later screen is built from its parts and tokens.
 
-Version 0.10.0.
+Version 0.10.1.
 
 ## Contents
 
