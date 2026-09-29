@@ -243,8 +243,6 @@ npx shadcn@latest build [registry] [options]
 
 Builds `registry.json` into individual JSON files for distribution. Default input: `./registry.json`, default output: `./public/r`.
 
-For authoring rules, `include`, item definitions, `registryDependencies`, and
-GitHub registry behavior, see [registry.md](./registry.md).
 
 | Flag              | Short | Description       | Default      |
 | ----------------- | ----- | ----------------- | ------------ |
