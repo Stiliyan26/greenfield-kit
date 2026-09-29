@@ -1,6 +1,6 @@
 {
   "name": "greenfield-kit",
-  "description": "The greenfield-kit plugin: design studio, palette library, design critic, and the plan and delivery skills that build from the approved design.",
+  "description": "The greenfield-kit plugin: from a brief to a proven app: a local studio where a model designs every screen in React + shadcn, your approval, the plan made with you while the approved front end is promoted, then features built in parallel by agents and proved on the merged app.",
   "owner": {
     "name": "Stiliyan Nikolov"
   },
@@ -8,7 +8,7 @@
     {
       "name": "greenfield-kit",
       "source": "./plugin",
-      "description": "Design-to-delivery workflow with a local design studio, palette library, design critic and token handoff."
+      "description": "From a brief to a proven app: a local studio where a model designs every screen in React + shadcn, your approval, the plan made with you while the approved front end is promoted, then features built in parallel by agents and proved on the merged app."
     }
   ]
 }

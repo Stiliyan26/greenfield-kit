@@ -1,6 +1,6 @@
 # Design in shadcn plan
 
-Status: Draft
+Status: Built (2026-09-29, version 0.9.0). Differences from the draft: the build lists shadcn parts from the screens' imports (not a DOM scan by data-slot; the scan still finds them by data-slot); D6 (edits outside the variant folder) is a rule in the brief, not a script; the components gallery is gone, replaced by promote.md's pixel check; the parallel plan/promote fork, feature files, coordination and the merged verify skill were added after the user's workflow decisions.
 Design: no approved design; this changes the kit's design and components stages
 
 ## What it does

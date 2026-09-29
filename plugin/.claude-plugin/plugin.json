@@ -1,8 +1,8 @@
 {
   "name": "greenfield-kit",
   "displayName": "Greenfield kit",
-  "description": "Design-to-delivery workflow: a local design studio where up to three models each design every screen at three sizes, a palette library, a separate design critic, DESIGN.md and tokens.css on approval, then planning and delivery that build with those tokens.",
-  "version": "0.8.0",
+  "description": "From a brief to a proven app: a local studio where a model designs every screen in React + shadcn, your approval, the plan made with you while the approved front end is promoted, then features built in parallel by agents and proved on the merged app.",
+  "version": "0.9.0",
   "author": {
     "name": "Stiliyan Nikolov"
   },

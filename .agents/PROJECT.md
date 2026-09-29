@@ -1,75 +1,62 @@
 # greenfield-kit repository
 
-This repo is the greenfield-kit Claude Code plugin and its marketplace. It is developed with its own workflow. `examples/partyfox/` is the test bed: a fake Bulgarian kids-party agency tool with fake data only.
+This repo is the greenfield-kit Claude Code / Codex / Cursor plugin and its marketplace. It is developed with its own workflow.
 
 ## Goal and where we are
 
-- The goal is one pipeline from a rough brief to a proven app: brief, studio designs, approve, shadcn components, plan, build, prove, maintain. We build it step by step.
-- The method: run the whole pipeline on PartyFox. Each gap it exposes gets a general fix in `plugin/`, proven with this repo's checks and logged in `temp/verification/pipeline-test/gaps.md`.
-- Where the run stands: the studio has three models' designs with parts lists and dark looks. Next the user approves one model. After that come the components stage (`plugin/skills/design-interface/references/components.md`), then the plan in `examples/partyfox/docs/plans/partyfox/plan.md`, then the build.
-- Open gap: G6. The brief doesn't yet require a visible control for every action.
-- Later direction, not started: `DIRECTION.md`, a desktop app over Claude Code, Codex and Cursor.
+- The goal is one pipeline from a rough brief to a proven app: evidence, frame, studio design in React + shadcn, approval, then the plan with the user while the approved front end is promoted, foundation, features built in parallel by agents in their own worktrees, proof. `plugin/skills/greenfield-mode/SKILL.md` is the pipeline; each stage has its skill.
+- Where it stands (2026-09-29, version 0.9.0): the design stage, promotion and the pixel check are built and tested end to end (`test_app.mjs`). The plan, feature-file, coordination and verify stages are written as skills and not yet run on a real project. The first real run is Call OS (in Business-Freedom-OS); gaps it exposes get a general fix here.
+- Later direction, not started: `DIRECTION.md`, a desktop app over Claude Code, Codex and Cursor that shows the pipeline, its agents and their traces.
 
 ## Layout
 
-- `plugin/` is the plugin for Claude Code, Codex and Cursor: three manifests (`.claude-plugin/plugin.json`, `plugin.json`, `.cursor-plugin/plugin.json`), `skills/`, `agents/`. Edit skills and agents here.
+- `plugin/` is the plugin: three manifests (`.claude-plugin/plugin.json`, `plugin.json`, `.cursor-plugin/plugin.json`), `skills/`, `agents/`. Edit skills and agents here.
 - Three marketplaces point at it: `.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json` (Codex), `.cursor-plugin/marketplace.json`.
 - `.codex/agents/*.toml` are generated from `plugin/agents/` by `codex_agents.py`. Never edit them by hand.
 - `.agents/skills/<name>` and `.agents/agents/<name>` are symlinks into `plugin/`, so Codex, Cursor and Claude Code in this repo use the same files.
 - `.agents/INSTRUCTIONS.md` is a symlink to the `setup-project` template. Editing it edits what new projects receive. `.agents/PROJECT.md` is this repo's own copy, not a template.
 - How to write and place code is the `write-code` skill. Its ESLint preset lives in `plugin/skills/write-code/assets/eslint.config.mjs`; this repo has no JavaScript app of its own to run it on.
-- The studio engine is `plugin/skills/design-interface/assets/studio-engine/`. A project's `studio/` holds content only.
+- The studio is the `design-interface` skill: engine `assets/studio-engine/`, app template `assets/studio-app/`, content template `assets/studio-content/`, scripts `scripts/`. A project's `studio/` holds content and its own `app/`.
+- `examples/partyfox/` is a studio with three hand-written HTML variants from before the app flow. It still opens; it is not the current test bed.
+- `docs/plans/` holds this repo's own plans. `STATUS.md` tracks the current rebuild.
 - `temp/verification/` keeps screenshots and test output until the user has seen them.
 
 ## The plugin stays project-agnostic
 
-Everything in `plugin/` serves any project. PartyFox is only the test bed: a gap found on PartyFox gets a general fix in the plugin, and PartyFox's own names, roles, data, screen ids and rules stay in `examples/partyfox/`. Examples in skills, agents, scripts and the studio use a neutral domain (orders, customers, invoices). `python3 tools/check_agnostic.py` fails on PartyFox words in `plugin/`.
+Everything in `plugin/` serves any project. Examples in skills, agents, scripts and the studio use a neutral domain (orders, customers, invoices). `python3 tools/check_agnostic.py` fails on project words in `plugin/`.
 
 ## Commands
 
-All from the repo root. `G` is `plugin/skills/design-interface`.
+All from the repo root. `D` is `plugin/skills/design-interface`.
 
 | Purpose | Command |
 | --- | --- |
+| Test the studio engine end to end (HTML candidates, ~1 min) | `node $D/scripts/test_studio.mjs` |
+| Test the app flow end to end (init, React variant, build, checks, approve, promote, compare; ~5 min) | `node $D/scripts/test_app.mjs [--keep]` |
 | Open the PartyFox studio | `cd examples/partyfox && python3 studio/server.py --port 4173` |
-| Test the studio engine end to end | `node $G/scripts/test_studio.mjs` |
-| Capture every candidate | `node $G/scripts/capture.mjs --url http://127.0.0.1:4173 --out temp/verification/<run> --studio` |
-| Check candidates use only tokens | `python3 $G/scripts/check_tokens.py --project examples/partyfox/studio/project.json examples/partyfox/studio/candidates` |
-| Check each model's variant (files, contrast, hue) | `python3 $G/scripts/check_variant.py examples/partyfox/studio` |
-| Check each model's components list against its screens | `node $G/scripts/check_components.mjs --url http://127.0.0.1:4173` |
+| Capture every candidate | `node $D/scripts/capture.mjs --url http://127.0.0.1:4173 --out temp/verification/<run> --studio` |
+| Check a studio's variants (files, contrast, hue) | `python3 $D/scripts/check_variant.py <project>/studio` |
+| Check each model's parts against its screens | `node $D/scripts/check_components.mjs --url <studio url>` |
+| Check screens use only tokens | `python3 $D/scripts/check_tokens.py --project <project>/studio/project.json <project>/studio/app/src/variants` |
+| Promote an approved variant and pixel-check it | `python3 $D/scripts/promote_variant.py <project> --check --studio-url <studio url>` |
 | Validate the plugin and marketplace | `claude plugin validate ./plugin --strict` and `claude plugin validate . --strict` |
 | Check the three manifests agree, or bump the version | `python3 tools/check_manifests.py [--bump <version>]` |
-| Check the plugin has no PartyFox words | `python3 tools/check_agnostic.py` |
+| Check the plugin has no project words | `python3 tools/check_agnostic.py` |
 | Regenerate the Codex agents in `.codex/agents/` | `python3 plugin/skills/setup-project/scripts/codex_agents.py --project .` |
 | Compare the kit with ~/.agents (Codex, Cursor) | `python3 plugin/skills/setup-project/scripts/sync_global.py` |
 
 ## Checks
 
-Run the ones that match what you changed. A check that is missing, skipped or failing is not a pass — say which.
+Run the ones that match what you changed. A check that is missing, skipped or failing is not a pass; say which.
 
-### Studio engine or design-interface scripts
+### Studio engine, app template or design-interface scripts
 
 1. Check the syntax of every changed Python and JavaScript file.
-2. Run the end-to-end studio test. It must print `0 failed`.
-3. Start the PartyFox studio, capture it with `--studio`, and look at the captures at 1440, 1024 and 390.
-4. Ask the `design-critic` agent to score changed studio UI. Under 70 means revise first.
+2. `test_studio.mjs` must print `0 failed`. After a change to the app template, `init_studio.py`, `studio-build.ts`, `promote_variant.py` or `compare_screens.mjs`, `test_app.mjs` must too.
+3. For a change to the studio page, start the PartyFox studio, capture it with `--studio`, look at the captures at 1440, 1024 and 390, and ask the `design-critic` agent to score them. Under 70 means revise first.
 
-### Studio content in examples/partyfox
+### Skills, agents, manifests
 
-1. The token check prints `0 problems`.
-2. Capture every candidate and read `capture.md`: no sideways scroll, no console errors, fonts loaded.
-
-### Skills, agents and the plugin
-
-1. Read each changed skill as a future agent would: links, commands, paths and stage order must exist.
-2. Both `claude plugin validate` commands pass with `--strict`, `python3 tools/check_manifests.py` prints `Manifests agree.`, and `python3 tools/check_agnostic.py` prints `No project-specific words in plugin/.`
-3. After changing an agent, regenerate `.codex/agents/` with `codex_agents.py --project .`.
-4. After changing a skill or agent, bump the version with `tools/check_manifests.py --bump <version>` so installed copies update.
-5. After changing the ESLint preset, run it against a throwaway project before claiming it works: `node --check` only proves it parses.
-6. To test Codex without touching your setup: `CODEX_HOME=<temp> codex plugin marketplace add .` then `codex plugin add greenfield-kit@greenfield-kit`.
-
-Keep screenshots and test output in `temp/verification/` until the user has seen them.
-
-## PartyFox rules
-
-Owner approves leave and marks a deposit received. Animators see only their own parties and pay, and the missing-deposit warning. Only a missing deposit may be solid red; a clash, an unassigned party or leave that needs cover uses the warning amber. Money figures stay unset until supplied. PartyFox's studio was rebuilt from its brief: Claude Opus 5.5, Sonnet 5 and Fable 5.1 each designed every screen and a look (`studio/candidates/opus`, `sonnet`, `fable`). The earlier Roster, Board and Agenda studio has been deleted.
+1. `claude plugin validate ./plugin --strict` and `claude plugin validate . --strict`.
+2. `python3 tools/check_manifests.py` and `python3 tools/check_agnostic.py`.
+3. A skill that names a file or script: the path exists. A skill that was removed or renamed: no other file names it, the `.agents/skills/` symlink follows, and the README table follows.
