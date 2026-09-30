@@ -34,19 +34,19 @@ If no path resolves, write a tight digest of the session and pass that instead.
 
 One message, three `Agent` calls, `subagent_type: general-purpose`, with `model` set as below. Reviewers need MCP access for context lookups (tickets, chat threads, observability traces referenced in the transcript).
 
-Each reviewer and the synthesizer name a role line in the `pstack-models.mdc` rule if the project has one, and a default. Set `model` to that line's value, or to the default if the rule or the line is missing. If the Agent tool rejects a value, use the default and say so.
+Set `model` as in the table. If the Agent tool rejects a value, use the session's default model and say so.
 
-| Lens      | Role line                                  | Default `model` | Prompt template                    |
-| --------- | ------------------------------------------ | --------------- | ---------------------------------- |
-| Judgment  | `reflect judgment, divergent, synthesizer` | `opus`          | `references/judgment-reviewer.md`  |
-| Tooling   | `reflect tooling`                          | `sonnet`        | `references/tooling-reviewer.md`   |
-| Divergent | `reflect judgment, divergent, synthesizer` | `opus`          | `references/divergent-reviewer.md` |
+| Lens      | `model`  | Prompt template                    |
+| --------- | -------- | ---------------------------------- |
+| Judgment  | `opus`   | `references/judgment-reviewer.md`  |
+| Tooling   | `sonnet` | `references/tooling-reviewer.md`   |
+| Divergent | `opus`   | `references/divergent-reviewer.md` |
 
 Pass each template verbatim, substituting the transcript path or digest where marked, and adding any focus line and the transcript-format note (Claude Code JSONL, where skills live). A prompt that says "read the template file at <path> and follow it exactly" works when inlining is impractical. Reviewers return findings in the `Agent` result.
 
 ### 3. Synthesize
 
-One `Agent` call, `subagent_type: general-purpose`, with `model` from the `reflect judgment, divergent, synthesizer` line (default `opus`). The synthesizer's quality check includes spot-verifying citations, which can require MCP access. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
+One `Agent` call, `subagent_type: general-purpose`, with `model: opus`. The synthesizer's quality check includes spot-verifying citations, which can require MCP access. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
 
 ### 4. Structural enforcement check
 
@@ -61,9 +61,9 @@ Backlog items go to whatever backlog the project uses (issue tracker, `docs/`, a
 For each approved Accepted item, follow the Routing field exactly:
 
 - Trivial existing-skill edit (a one-line bullet, a tightened sentence, a stale fact corrected): parent does directly.
-- Substantive existing-skill edit (a new section, a new pattern table, more than ~10 lines): hand to the `skill-creator` skill and run its draft / test / iterate loop.
-- `tune description: <skill path>` (the skill exists but didn't trigger when it should have): hand to `skill-creator` and run its description-optimization loop.
-- `new skill via create-skill: <kebab-name>`: hand creation to `skill-creator`. Do not invent the shape ad hoc.
+- Substantive existing-skill edit (a new section, a new pattern table, more than ~10 lines): parent drafts it, re-reads the whole skill afterwards and checks it still reads as one piece.
+- `tune description: <skill path>` (the skill exists but didn't trigger when it should have): parent rewrites the `description` line so it names the trigger that was missed.
+- `new skill: <kebab-name>`: write `plugin/skills/<kebab-name>/SKILL.md` in the shape of an existing skill in this plugin. Do not invent the shape ad hoc.
 
 If the project ships a SKILL.md validator, run it on every touched skill before declaring done. In a plugin repo, bump the plugin version when skill files change: the plugin manager serves the cached copy otherwise.
 

@@ -175,7 +175,7 @@ function group(files, featureFiles) {
 
 // A path-derived feature over SPLIT_LINES that has subfolders is split one
 // level deeper, so one reviewer never gets a whole package: "plugin" becomes
-// "plugin/skills/review", "plugin/skills/verify", ... Feature-file features
+// "plugin/skills/review", "plugin/skills/shadcn", ... Feature-file features
 // are never split; the plan drew them.
 function split(entry, depth = 0) {
   if (entry.source !== 'path' || entry.name === 'other' || sum(entry.files) <= SPLIT_LINES || depth > 4) {

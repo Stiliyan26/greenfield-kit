@@ -66,7 +66,7 @@ the user gives the evidence in chat when starting `greenfield-mode`.
                  missing shared thing → requests/<feature>-<name>.md → lead adds, pushes → agent rebases
                  lead: answers requests; merges one at a time: rebase → all tests → review → merge
                         │
- 6  PROVE        review on the whole app → verify drives every feature's scenarios → evidence
+ 6  PROVE        review on the whole app → the verification skill drives every feature's scenarios → evidence
                  done-when ticked · client demo
                         │
  7  LOOP         delivery call → /process-call → new feature lock → new feature file → back to 3
@@ -97,7 +97,7 @@ answers. Planning asks one decision at a time; building asks almost nothing.
 | 2 Design | the design critic (scores captures; under 70 or any 1 means revise first) |
 | 3B Plan | `review` in plan mode on plan + contract + feature files, before the user approves |
 | 5 Features | `review` by the feature agent on its own diff before it reports done; `review` at every merge by the lead |
-| 6 Prove | `review` on the whole app, before `verify` and the demo |
+| 6 Prove | `review` on the whole app, before the verification run and the demo |
 
 ## The decisions behind it, and why
 
@@ -138,21 +138,21 @@ answers. Planning asks one decision at a time; building asks almost nothing.
 - `review`: gates, then one reviewer per feature that proves by running; writes
   `reviews/<date>-<target>/` (README plus a file per feature) for the user to
   tick; fix agents work from the ticks; the reviewer re-proves each fix.
-- `verify`: create the project's verify skill once, run every feature's
-  scenarios, maintain the map.
+- `create-verification-skill` / `maintain-verification-skill`: create the
+  project's verify skill once; later audit it against the code and keep the map true.
 - `setup-project`: the working agreement (digest-first replies, `STATUS.md`,
   the trace) and the Codex/Cursor install.
 - Tested end to end: the engine (`test_studio.mjs`, 97 checks) and the app
   flow (`test_app.mjs`, 17 checks: init, a React variant, build, checks,
   approve, promote, compare). Not yet run on a real project: the plan with
-  feature files, the fan-out, requests, verify.
+  feature files, the fan-out, requests, the verification skills.
 
 ## Next
 
 1. **Run it for real on Call OS** (`Business-Freedom-OS/call-os/README.md`
    has the order). Every gap becomes a general fix here, proven by the
    checks. Expected gaps: the plan-mode review on feature files, the first
-   fan-out with agent teams, the request loop, `verify` reading feature
+   fan-out with agent teams, the request loop, the verification skills reading feature
    files, the ownership check at merge (today a rule the lead applies by
    reading the diff; may become a script).
 2. **Speed without losing quality.** The lead (a strong model) writes briefs,

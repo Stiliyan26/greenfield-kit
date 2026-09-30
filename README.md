@@ -30,7 +30,7 @@ Version 0.10.4.
 4 Foundation the lead alone: schema, auth, API skeleton, shared/ + INDEX.md
 5 Features   waves of agents, one per feature file, each in its own worktree
              scenarios fail first ──► tests + code ──► green ──► review ──► the lead merges one at a time
-6 Prove      verify drives every feature's scenarios on the merged app ──► demo
+6 Prove      the verification skill drives every feature's scenarios on the merged app ──► demo
 7 Loop       new evidence ──► a new feature file ──► back to 3 (or 2 for a screen change)
 ```
 
@@ -94,7 +94,8 @@ Run it without `--push` to see what differs first.
 | `design-animations` | Purposeful motion on the promoted screens: transitions, gestures, performance, reduced motion. |
 | `write-code` | Where code goes and how it's written: folder layers, TypeScript style, React, NestJS. Ships an ESLint preset so the mechanical rules are checked, not remembered. |
 | `refactor` | Structure changes that provably keep behavior. |
-| `verify` | Writes the project's verify skill once, drives every feature file's scenarios on the real app and saves proof, and keeps the map true as the app changes. |
+| `create-verification-skill` | Only on `/create-verification-skill`. Writes the project's verify skill once (launch, doctor, drive, evidence, cleanup) and a feature map, then proves it on one feature. Adapted from pstack. |
+| `maintain-verification-skill` | Only on `/maintain-verification-skill`. The upkeep pass: one source reader per feature, one live run driving every feature, then one set of proven corrections. Adapted from pstack. |
 | `shadcn` | shadcn/ui in React: composition, forms, styling, icons, base vs radix, the CLI. |
 | `setup-project` | Copies the working rules into a project, enables the plugin for the team, or installs the kit globally for Codex and Cursor. |
 | `reflect` | Only on `/reflect`. Three parallel reviewers (judgment, tooling, divergent) read the session transcripts, a synthesizer sorts findings into Accepted / Rejected / Backlog, and nothing is applied to a skill until you approve. Ask it a focus question such as why a build was slow. Adapted from pstack. |
