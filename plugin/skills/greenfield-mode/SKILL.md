@@ -1,41 +1,39 @@
 ---
 name: greenfield-mode
-description: Run a new product end to end - brief, studio design in React + shadcn, approval, then the plan with the user while the approved front end is promoted, then foundation, features built in parallel by agents in their own worktrees, and proof. Use for a new product or a full restart of its design.
+description: Run a new project end to end with the user - from the brief to the interface, components, system design, API endpoints and data model, to a working production-grade app. Use when starting a new project or restarting its design.
 ---
 
 # Greenfield mode
 
-You lead the whole pipeline across turns. The user gives the evidence in chat:
-client calls, notes, or their own words. You keep `STATUS.md` at the project
-root current (the working agreement says how) and report in digests. Each
-stage below names the skill that runs it, what the user is asked, and what it
-produces. Ask nothing the brief, the evidence or the code already answers.
-
-```
-0 Evidence ─► 1 Frame ─► 2 Design ═══ APPROVE ═══╦═► 3A Promote (background)
-                                                  ╚═► 3B Plan (with the user)
-                                                            │  join: both done
-                                              3C Fan-out setup ─► 4 Foundation
-                                                            │
-                                    5 Features, in waves, one agent each
-                                                            │
-                                            6 Prove ─► 7 Loop (back to 3, or 2)
-```
+You lead the whole pipeline across turns and move each step forward. The user gives the information
+and says where it comes from: client calls, notes, or their own words. You go through the proejct together:
+you guide, ask and check; the user decides.
 
 ## Stages
 
-| Stage | Runs it | The user is asked | Produces |
-| --- | --- | --- | --- |
-| **0 Evidence → brief** | you | Which calls, notes or messages are in scope; keep or drop an item with no evidence | `BRIEF.md`: confirmed lines each citing their source (a call and timestamp, a message), suggested lines (yours), unknowns |
-| **1 Frame** | you + user, `design-interface` steps 1–3 | Roles, first device, brand or examples liked and disliked, language and scripts; only if the brief raises it: sensitive data, integrations, multi-tenant later | `studio/project.json` (every screen a confirmed requirement names, with role and requirement), `studio/app/src/data.ts`, references |
-| **2 Design** | `design-interface` steps 4–6 | How many models design and which ones; then only studio actions: pick, tune, comment, **Approve** | `DESIGN.md`, `design/*.css`, the approved variant's code |
-| **3A Promote** | a background agent, `design-interface` [promote.md](../design-interface/references/promote.md) | Nothing | `web/`: one route per approved screen, the pixel comparison, motion added; the user accepts it when 3B is done |
-| **3B Plan** | you + user, `plan-feature` | Mode (you lead or the AI proposes); then one decision at a time, biggest first: data model, storage, auth and roles, API shape, external services, timezone, v1 scope; per screen: how data loads, what is optimistic, validation and errors, empty and denied states, route guards; each real choice with 2–3 options and a recommendation | `docs/plans/<project>/plan.md`, the API contract, `features/*.md`; the `review` skill on the plan files writes `reviews/<date>-plan/`; the user ticks it before approving |
-| **3C Fan-out setup** | you, [features.md](references/features.md) + [coordination.md](references/coordination.md) | Accept the feature split; model per agent; full-stack or FE+BE per feature; how many agents at once; which runtime | Waves and owners in the feature files |
-| **4 Foundation** | you, alone, sequential | Nothing, unless a contract conflict appears | Schema, auth, the API skeleton from the contract, `shared/` with `INDEX.md`, the app shell = the promoted `web/` |
-| **5 Features** | one agent per feature, `deliver-feature`; you merge | Only blockers: a request you can't answer from the plan, a done-when line that turned out impossible | Merged features, each with green scenarios, tests and a review of its own diff |
-| **6 Prove** | `review` on the whole app, then `verify` | Which features to demo; accept, or send named done-when lines back | One review acted on (ticked, fixed, re-proved); every feature's scenarios green on the merged app, evidence saved, the client demo |
-| **7 Loop** | you | — | New evidence becomes a new feature file and re-enters at 3; a screen change re-enters at 2 |
+Do them in order. Each stage ends with something the user approves.
+
+### 1. Brief and grill
+
+- Read the evidence and draft `BRIEF.md`. Each line cites its source from what
+  the user gave. Mark lines you suggest with (AI). List unknowns separately.
+- Interview the user relentlessly about every aspect of the brief until you
+  reach a shared understanding. Walk down each branch of the design tree,
+  resolving dependencies between decisions one by one. Ask one question at a
+  time. If the evidence or existing code answers a question, look there
+  instead of asking.
+- Done when every unknown is answered or marked "later".
+
+### 2. Design interface
+
+- Use the `design-interface` skill with the user. Start with the 2–3 key
+  screens; the rest follow their look.
+- Done when the user approves the design in the studio.
+
+### 3. System design
+
+- When the design is approved, start a background agent to promote it into
+  the real app folder drafting the real components. ([promote.md](../design-interface/references/promote.md))
 
 ## The fork after Approve
 
