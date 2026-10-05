@@ -1,86 +1,88 @@
 ---
 name: deliver-feature
-description: Build one feature from its feature file - scenarios first, then tests and code until they pass, in your own worktree, owning only the files the feature lists, reusing shared parts and requesting what is missing. Use for a feature from an approved plan, or a big change across frontend and backend; not for small edits.
+description: Build one approved feature file - as the backend agent or the frontend agent of a pair in one checkout, or alone - scenarios into failing tests first, then code until every test is green, bun run check clean, the journeys driven in a real browser and the evidence saved, then the feature file filled in for verify. Use for a feature from an approved plan; not for small edits.
 ---
 
 # Deliver a feature
 
-You build one feature, usually as one of several agents running at the same
-time. Read the feature file (`docs/plans/<project>/features/<slug>.md`), the
-plan and its contract, `shared/INDEX.md`, and `DESIGN.md`. If a decision is
-missing, don't guess and don't ask the user mid-feature: write the question
-in your report, and the lead updates the plan. Don't redo work that's
-already approved.
+You build one feature from its file, `docs/plans/<project>/features/<slug>.md`,
+with `Status: approved`. Usually two agents build it at the same time in the
+same checkout: the **backend agent** owns the Backend section's folders, the
+**frontend agent** owns the Frontend section's. Alone, you do both, backend
+first. The lead starts you, answers questions, and opens the PR when you
+report.
 
-**Code.** Where code goes and how it's written is the `write-code` skill. Read
-it before the first file, and run its ESLint preset on the files you touched
-before you call a slice done.
+Read first: the feature file, `plan.md`, `DESIGN.md`, the `write-code` skill
+(`structure.md`, `backend.md` or `react.md`, `tests.md`), and what already
+exists in `src/server/shared/`, `src/shared/` and the entities you touch.
+Reuse before writing.
 
-**Design.** Build screens from the promoted routes in `web/`, the parts in
-`web/src/design/parts/` and the shadcn parts `DESIGN.md` lists, with
-`design/tokens.css` names: every color, font and radius is a `var(--…)` or a
-shadcn class name from that file. Don't invent a look or copy raw values.
-Before a UI task is done, run
-`python3 <design-interface>/scripts/check_tokens.py --tokens design/tokens.css <changed files>`
-and fix what it prints. `<design-interface>` is that skill's folder, in
-`.agents/skills/` or `~/.agents/skills/`. If a task needs a screen or a part
-the approved design doesn't cover, stop that part and report it; it goes
-back to the studio.
+## Rules while two agents build
 
-## Rules while several agents build
-
-- Work in your own worktree on your own branch. Never `git stash`.
-- Edit only the files and folders your feature file's **Owns** list names.
-  The lead refuses a diff that touches anything else.
-- Never edit `shared/`, the schema or the contract. Before writing any
-  helper or part, read `shared/INDEX.md`; if it's there, import it. If it's
-  missing, write `docs/plans/<project>/requests/<feature>-<name>.md` with
-  what you need, why, and the signature, then continue with the rest of the
-  feature. Never keep a local copy of something that belongs in shared.
-- When the lead answers a request, rebase and replace what you were waiting
-  on.
+- One checkout, one branch `feature/<slug>`, no worktree, never `git stash`.
+- Edit only the files and folders your section's **Owns** list names. Commit
+  only them: `git add -- <your folders>`. Never touch the other agent's
+  files, the foundation (`server/shared/`, `shared/`, the drizzle schema
+  outside your Owns list) or another feature.
+- **Contract first.** The backend agent's first commit is the zod schema in
+  `entities/<thing>/schema.ts` and the `*.functions.ts` wrappers with
+  handlers that throw `NotImplementedError`, exactly as the Backend section
+  describes them. The frontend agent builds against those from that commit.
+- Something you need that isn't yours (a shared helper, a part, a column):
+  write `docs/plans/<project>/requests/<slug>-<name>.md` with what, why and
+  the signature, tell the lead, and continue with the rest. No local copy.
+- Run `bun run check:fix` after every edit. Your folders only need to be
+  clean for your commits; the whole tree must be clean before you report.
 
 ## Steps
 
-1. **Scenarios first.** The feature file's Scenarios section is your
-   definition of done. Turn each one into an end-to-end test (the project's
-   suite: `test:e2e`, `e2e/`, `playwright.config.*`) before writing code.
-   They fail now; that's expected. Never weaken one to make it pass; a
-   scenario that turns out wrong is a plan change and says so in your report.
-2. **Plan the tasks.** A short list of small tasks in the order they depend
-   on each other, using [task.md](references/task.md). Each task says which
-   requirement it meets, where the code goes, what it reuses, what it won't
-   do, and how it's checked.
-3. **Build in thin slices** against the contract. Each slice works end to
-   end. Unit and component tests grow with the code. Run tasks in parallel
-   only when they don't depend on each other and don't touch the same files.
-4. **Check once, at the end.** Run the project's checks from
-   `.agents/PROJECT.md`: type check, lint, unit tests, then your scenarios.
-   Drive the feature in a real browser the way a user would (the project's
-   `verify-<app>` skill if it has one, otherwise Playwright), at desktop and
-   phone. Save the action and the state it produced, not just the last
-   screen, and check the side effects (saved rows, sent messages). Compare
-   screens with the approved ones in `DESIGN.md`; ask the `design-critic`
-   agent to score the captures. Under 70, or any score of 1, means fix it
-   first. A check that was skipped, failed, or couldn't run is not a pass;
-   name it.
-5. **Fill in the feature file.** Write its Driving section (preconditions,
-   each user action with its exact command and what you should see) and any
-   Gotchas, so `verify` can run it later. Set Status to review.
-6. **Review, then report.** Run the `review` skill on your own diff. It
-   writes `reviews/<date>-<feature>/`. You own the feature, so you tick and fix
-   the problems yourself, test first; say what you're leaving and why.
-   Report: ready, blocked, or not checked, with the trace of what you ran.
+1. **Scenarios into failing tests.** Backend: one `bun test` per scenario
+   in the Scenarios section, against the `server/` logic function on Docker
+   Postgres, exact outcome and non-events asserted
+   ([tests.md](../write-code/references/tests.md)). Frontend: the journeys
+   as `e2e/<slug>.spec.ts` at desktop and phone. All red now. Never weaken
+   one; a scenario that turns out wrong is a plan change and goes in your
+   report.
+2. **Build in thin slices**, each working end to end:
+   - Backend: migration → repository → service → the wrapper calls it. Unit
+     tests on every branch as you go.
+   - Frontend: entity queries and `ui/` → the feature's `ui/` and `model/`
+     → the view → the route and its loader. Tokens only; run
+     `check_tokens.py` from `design-interface` on the files you touched.
+     A screen or part the approved design doesn't have: stop that part and
+     report it; it goes back to the studio.
+3. **Green.** Every test of yours green, the full suite green three times in
+   a row, `bun run check` clean.
+4. **Drive it.** The project's `verify-<app>` skill (launch, doctor, drive,
+   stop), or Playwright, at desktop and phone: every journey the way a user
+   would, the action and the state it produced, side effects checked (rows,
+   emails). Save the evidence under `temp/verification/<slug>/`. Compare the
+   screens with `DESIGN.md`; ask the `design-critic` agent to score the
+   captures. Under 70, or any 1, means fix first.
+5. **Fill in the feature file.** Driving (preconditions, each user action
+   with its exact command and what you should see), Gotchas, a Trace line,
+   `Status: review`.
+6. **Report** to the lead: ready, blocked or not checked; the commands that
+   ran and what they printed; what you couldn't run; any plan question.
+
+A check counts only when it ran in this session and passed. A check that
+couldn't run (no Docker, no browser) stays listed as not run; it never
+becomes a pass.
+
+## When to decide and when to ask
+
+| Kind of choice | Example | Do |
+| --- | --- | --- |
+| The feature file decides it | `cancelOrder` answers the same result twice | Follow it |
+| Small, local, invisible from outside | a private helper's name, splitting a file | Decide; one line in the Trace |
+| Visible or lasting | a column, a function's input or output, a status value, a new package, an env var | Stop that part. Write the question in your report; the lead updates the plan |
+| The file looks wrong or can't be done | a scenario needs a function nobody owns | Stop that part and report it |
+| A red test you didn't touch | | Report it. Never weaken a test |
+
+Don't ask the user mid-feature; the lead does, and updates the plan.
 
 ## When you're stuck
 
 Hand over the goal, the code change, the real error output, what you tried,
 what you still suspect, and what the environment needs. Handing it to someone
 else doesn't give the task more tries.
-
-## Changing agreed tests or contracts
-
-Change an agreed API, contract or scenario only when it's shown to be wrong,
-or the user changed the requirement. Say why and which requirements it
-affects, in the report; the lead updates the plan. Never weaken a failing
-test just to make it pass.

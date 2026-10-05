@@ -1,8 +1,9 @@
 # Writing a TypeScript file
 
-Habits that make a file read top to bottom. Prettier handles spacing; the
-ESLint preset handles import order, nesting depth, file size and naming. This
-file is the part a tool can't judge, with the shape each rule expects.
+Habits that make a file read top to bottom. oxfmt handles spacing;
+`bun run check` handles import order, nesting depth, file size and naming
+([checks.md](checks.md)). This file is the part a tool can't judge, with the
+shape each rule expects.
 
 ## Stepdown: helpers below the caller
 
@@ -97,7 +98,7 @@ results.
 
 | Limit | Rule |
 | --- | --- |
-| Ternaries | One `? :` per expression. Nested ternaries are refused by the preset |
+| Ternaries | One `? :` per expression. Nested ternaries are refused by the check |
 | Ternary layout | Condition, `?` branch and `:` branch each on their own line when the value is assigned or returned |
 | `if` / `for` nesting | Depth 2 (`for` → `if` is fine, `for` → `if` → `if` is not) |
 
@@ -131,13 +132,13 @@ before building an object.
 
 ```ts
 // ❌
-await this.mail.send(welcomeTemplate(user));
-await this.mail.send(verifyTemplate(user));
-await this.mail.send(digestTemplate(user));
+await mail.send(welcomeTemplate(user));
+await mail.send(verifyTemplate(user));
+await mail.send(digestTemplate(user));
 
 // ✅
 for (const template of templatesFor(user)) {
-  await this.mail.send(template);
+  await mail.send(template);
 }
 ```
 
@@ -151,21 +152,22 @@ key, event name — is defined once and referenced everywhere.
 
 | Kind | Where it lives |
 | --- | --- |
-| UI route paths | A named constant object per area (`AUTH_ROUTES`), `UPPER_SNAKE` keys |
-| Client HTTP paths | A named constant object per backend domain (`ORDERS_API_PATHS`) |
-| Server route paths, error codes, metadata keys | The feature's `*.enums.ts` |
-| Domain enums and option sets | The entity's model: `as const` plus a union |
+| UI route paths | TanStack Router's typed `to` (`/orders/$orderId`); the router checks them, so no constant is needed |
+| Error codes, event names, metadata keys | `server/shared/errors.server.ts` or the area's `<area>.constants.ts` |
+| Domain enums and option sets | The entity's `schema.ts`: `as const` plus a union, reused in zod |
 | Query and mutation keys | Beside the hook that owns the cache |
 | Storage keys | The module that owns the read and write |
 | Seed and fixture IDs | A seed constants file, `as const` |
 
 ```ts
-// ❌ inline route string
-@Controller('users')
+// ❌ inline status string, copied into zod and the UI
+status: z.enum(["draft", "active"]);
+if (order.status === "active") { /* … */ }
 
 // ✅ one source
-export enum UsersPath { Root = 'users' }
-@Controller(UsersPath.Root)
+export const ORDER_STATUSES = ["draft", "active"] as const;
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+status: z.enum(ORDER_STATUSES);
 
 // ❌ inline role string
 if (user.role === "admin") { /* … */ }
@@ -185,20 +187,16 @@ structure scans: methods in a class, sequential blocks in a function, sibling
 JSX.
 
 ```ts
-export class UsersService {
-  constructor(private readonly users: UsersRepository) {}
+export async function createCustomer(input: CreateCustomerInput) {
+  const customer = await customers.insert(input);
 
-  findById(id: string) {
-    return this.users.findById(id);
-  }
+  await events.publish("customer.created", customer.id);
 
-  async create(input: CreateUserInput) {
-    const user = await this.users.create(input);
+  return customer;
+}
 
-    await this.events.publish("user.created", user.id);
-
-    return user;
-  }
+export function findCustomer(id: string) {
+  return customers.findById(id);
 }
 ```
 
@@ -216,13 +214,13 @@ help.
 
 ```ts
 // ❌ says "all users", returns active ones
-function getAllUsers() {
-  return this.repo.find({ where: { active: true } });
+function findAllUsers() {
+  return db.select().from(users).where(eq(users.active, true));
 }
 
 // ✅
-function getActiveUsers() {
-  return this.repo.find({ where: { active: true } });
+function findActiveUsers() {
+  return db.select().from(users).where(eq(users.active, true));
 }
 ```
 
@@ -236,13 +234,13 @@ function getActiveUsers() {
 Groups with a blank line between them, top to bottom:
 
 1. Side-effect imports
-2. Framework (React, the router, Nest core)
+2. Framework (React, `@tanstack/*`)
 3. External packages
 4. Internal layers, outer to inner (see [structure.md](structure.md))
 5. Other relative parents (`../…`), then siblings (`./…`)
 6. Assets and styles last (`.css`, `.scss`, `.svg`, images)
 
-Don't hand-shuffle. `npx eslint --fix` on the touched files sorts them.
+Don't hand-shuffle. `bun run check:fix` sorts them.
 
 ## Comments
 

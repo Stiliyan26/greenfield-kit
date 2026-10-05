@@ -1,6 +1,7 @@
 # React components and screens
 
-Stack: React + TypeScript, a router, TanStack Query, React Hook Form with Zod.
+Stack: React + TypeScript on TanStack Start: TanStack Router, Query, Table
+and Form, zod, shadcn + Tailwind.
 Where files go is in [structure.md](structure.md); how to write the TypeScript
 is in [typescript.md](typescript.md).
 
@@ -82,8 +83,9 @@ piece of your data model."* Draw the tree before writing code.
 5. **Small shared pieces get a name when they repeat across parts:** a status
    tag, a date range, a money amount, a person's avatar and name. One
    component, used everywhere, so a change lands once.
-6. **Pages wire, parts render.** A page component loads data and passes it
-   down; it holds no markup beyond the layout components.
+6. **Routes and views wire, parts render.** The route file loads data in its
+   loader; the view passes it down and holds no markup beyond the layout
+   components.
 7. **Stop at one job.** Split when a component owns two regions or its name
    needs "and". Don't wrap a single styled element that appears once and has
    no behavior; a class is enough.
@@ -193,27 +195,34 @@ export const statusOptions = STATUS_VALUES.map((value) => ({
 }));
 ```
 
-## Routes, API paths, roles, icons
+## Routes, server calls, roles, icons
 
-- `<Route path>`, `navigate()`, `<Link to>` use the route constants from
-  `app/routes` — never a hardcoded path. A new route goes into the matching
-  domain file first, gets re-exported, then is used.
-- HTTP calls use the path constants from `shared/api`, and only from an
-  entity's `api.ts` — not from a component or a hook.
-- Don't mix the two. UI routes and API paths are different lists.
-- Read the current user's role through the project's one role helper from
-  `app/auth`. Don't read `user.role` at call sites or invent a parallel helper.
-- Reusable icons are `.svg` files: `features/<feature>/icons/` for a feature,
-  `app/layout/icons/` for chrome. A one-off decorative mark may stay inline.
+- A route file in `src/routes/` exports `Route` from `createFileRoute`, with
+  a `loader` that calls `queryClient.ensureQueryData(orderQueries.list())`
+  and a component that renders one view. Nothing else lives there.
+- `<Link to="/orders/$orderId" params={{ orderId }}>` and
+  `navigate({ to })` are typed by the router from the route tree, so a path
+  typo fails `tsc`. No route constants.
+- The browser never calls HTTP paths. A component or hook calls the entity's
+  query hook (`useOrders()`), and a feature's action calls its server function
+  through `useServerFn(cancelOrder)`. Both import a `*.functions.ts`; nothing
+  else reaches the server.
+- Read the current user through the one session hook in `entities/user`
+  (`useSession()`, `useRole()`). Don't read `user.role` at call sites or
+  invent a parallel helper.
+- Reusable icons come from the icon set the design names (`lucide-react` by
+  default). A one-off decorative mark may stay inline.
 - Basic shared components don't know about roles or permissions.
-
-The preset refuses inline `/api/…` strings in components and hooks.
 
 ## Forms and data
 
-- Server data goes through TanStack Query. After a save, refresh the data it
-  changed.
-- Forms use React Hook Form with Zod.
+- Server data goes through TanStack Query: query options in the entity's
+  `<thing>.queries.ts`, read in the loader and in hooks. After a save,
+  invalidate the queries it changed.
+- Forms use TanStack Form with the entity's zod schema; the same schema
+  validates on the server.
+- Tables use TanStack Table; sorting, filters and paging go to the server
+  function, never computed over a full list in the browser.
 - Keep filters and the page number in the URL where the screen already does.
 - A response check must match the real API. Don't hide broken data behind
   made-up defaults.
@@ -242,7 +251,7 @@ pure renames and moves.
 - Derive values during render. Don't copy a value you can work out into state,
   and don't sync derived state with an effect.
 - Never define a component inside a component — it breaks reconciliation. The
-  preset catches this one.
+  check catches this one.
 - Use the functional `setState` when the next value depends on the previous
   one. Lazy-init an expensive `useState`: `useState(() => compute())`.
 - Interaction logic belongs in event handlers. Effects are for syncing with

@@ -22,7 +22,7 @@ All from the project root.
 | --- | --- |
 | <Run the app> | `<command>` |
 | <Type check> | `<command>` |
-| <Lint the files you touched> | `npx eslint --fix <files>` |
+| Lint, format, types, dead code | `bun run check:fix` |
 | <Unit tests> | `<command>` |
 | <End-to-end tests, or "none yet"> | `<command>` |
 | Open the design studio | `python3 studio/server.py --port 4173` |

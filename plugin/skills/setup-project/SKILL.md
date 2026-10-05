@@ -1,6 +1,6 @@
 ---
 name: setup-project
-description: Set up a project for the greenfield-kit workflow - copy the working rules (AGENTS.md, .agents/INSTRUCTIONS.md, .agents/PROJECT.md) and a .claude/settings.json that enables the plugin for teammates, install the write-code ESLint preset, or install the kit's skills globally for Codex and Cursor. Use when starting a new project with the kit, or when asked to "set up the agent rules here".
+description: Set up a project for the greenfield-kit workflow - copy the working rules (AGENTS.md, .agents/INSTRUCTIONS.md, .agents/PROJECT.md) and a .claude/settings.json that enables the plugin for teammates, install the write-code checks (bun run check), or install the kit's skills globally for Codex and Cursor. Use when starting a new project with the kit, or when asked to "set up the agent rules here".
 ---
 
 # Set up a project for greenfield-kit
@@ -18,13 +18,13 @@ description: Set up a project for the greenfield-kit workflow - copy the working
 
 3. For each skipped file, show the user the difference and ask whether to merge by hand.
 4. Fill `.agents/PROJECT.md` with the project's real facts, commands and checks. Replace every line in angle brackets. Don't invent a command you haven't run.
-5. For a Node project, install the code rules as checks:
+5. For a Bun or Node project, install the code rules as checks:
 
    ```
-   python3 <plugin>/skills/write-code/scripts/install_eslint.py .
+   python3 <plugin>/skills/write-code/scripts/install_checks.py .
    ```
 
-   It writes `eslint.config.mjs` and prints the packages to install. Skip it for a project that already has an ESLint config the team likes, and say so.
+   It writes `.oxlintrc.json`, `eslint.config.mjs` and `knip.json`, adds `bun run check` and `check:fix` to `package.json`, and prints the packages to install. Skip a file the project already has and the team likes, and say so.
 6. Say what was copied, what was skipped, and what the user still has to fill in.
 
 What gets copied:
@@ -35,6 +35,7 @@ What gets copied:
 | `.agents/INSTRUCTIONS.md` | The working agreement: plain words, sources, checks, finish report |
 | `.agents/PROJECT.md` | Template for this project's facts, commands, checks and rules |
 | `.agents/README.md` | How the agent setup is organized |
+| `.agents/explain.config.json` | Starter config for the `interactive-explanation` skill; fill `journey` from the verify skill once it exists |
 | `.claude/settings.json` | Registers the greenfield-kit marketplace and enables the plugin for everyone who trusts the folder |
 
 ## Use the kit in Codex or Cursor

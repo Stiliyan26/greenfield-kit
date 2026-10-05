@@ -33,7 +33,7 @@ def main():
         for item in skipped:
             print(f"  {item}")
     print("Next: fill in .agents/PROJECT.md — its facts, commands and checks.")
-    print("For a Node project, also run write-code/scripts/install_eslint.py to install the code rules as checks.")
+    print("For a Bun or Node project, also run write-code/scripts/install_checks.py to install the code rules as checks.")
 
 
 if __name__ == "__main__":

@@ -1,112 +1,127 @@
 ---
 name: plan-feature
-description: Plan a new project or a big feature with the user before any code - what it does, how to know it's done, the data, API contract, screens' behaviour, and the feature files agents will build from. Two modes - the AI proposes and the user approves, or the user leads and the AI questions and checks. Use for new projects, or features that touch the database, API, permissions, or several screens.
+description: Plan a new project or a feature with the user before any code - the domain (entities, roles, server functions, what can go wrong) while the screens are designed, the screen wiring after the design is approved, then one feature file per feature with exact scenarios and every test, which the user approves in full. Saves each answer as it's given. Use for a new project, or a feature that touches the database, server functions, permissions or several screens.
 ---
 
 # Plan a feature or project
 
-Use this for a new project, or a feature with a database, API or permission
-change, both frontend and backend, or a new flow or screen. Small changes skip
-planning. In `greenfield-mode` this runs right after the design is approved,
-with the user, while the approved front end is promoted in the background.
+The user decides; you ask, check and write it down. Small changes skip
+planning. In `greenfield-mode` this runs in two passes: the domain pass while
+the studio designs the screens, the screen pass after the user approves the
+design. For one feature later (`add-feature`), both passes happen in one
+sitting.
 
 ## Start
 
-1. **Read what exists.** In an existing project: the project profile
-   (`.agents/PROJECT.md`), related code and tests, access rules, earlier plans.
-   Fit what's there; don't re-ask questions already answered. If `DESIGN.md`
-   exists, it settles the look and the parts; link it instead of asking about
-   colors, fonts or components. If `web/` was promoted from the studio, its
-   routes are the screens. In a new project: the brief and any constraints
-   the user gave.
-2. **Pick the mode.** If the user didn't say, ask once:
-   - **You propose**: you draft the whole plan, then go through it with the user.
-   - **I lead**: the user explains how it should work; you ask and check.
+1. **Read what exists.** `.agents/PROJECT.md`, `BRIEF.md`, `studio/project.json`
+   and `studio/app/src/data.ts` (the screens and the records they show are the
+   draft data model), earlier plans, the code around the change: schema,
+   auth, `server/shared/`, existing feature files. `DESIGN.md`, if approved,
+   settles the look and the parts. Don't ask what these already answer.
+2. **Changing something that exists?** Find every caller of it in the code
+   now ([misuse.md](references/misuse.md), "Changing what exists").
+3. **Open the plan file** with only its title, `Status: Draft — interview in
+   progress` and an empty interview record ([plan.md](references/plan.md)).
+   Every answer goes in as soon as it's given. A plan found in that state is
+   resumed: say `Resuming: Q1–Q14 answered` and continue.
+4. **Pick the mode** if the user didn't say: **you propose** (you draft, they
+   correct) or **they lead** (they explain, you ask and check).
 
-## Mode: you propose
+## Interview
 
-1. Draft the plan, using [plan.md](references/plan.md). For each real choice, give 2-3 options in
-   plain words, the tradeoff, and your recommendation with evidence.
-2. Walk the user through the decisions one at a time, biggest first. Change the
-   plan as they answer.
-3. Run the `review` skill in plan mode on the plan, the contract and the
-   feature files. It writes `reviews/<date>-plan/`; the user ticks each
-   problem, then fix what is ticked.
-4. Mark the plan **Approved** only when the user says so.
+- One question per message, in plain words, with a concrete example of what
+  happens ("12:00:00 click → email; 12:00:20 click → nothing") and **My
+  recommendation** with the reason in a line or two. For a real choice, 2–3
+  options and the tradeoff.
+- Check each answer against the code, the docs or a quick test before you
+  agree. Say which facts you checked and which are guesses. A real problem:
+  say it once, with what breaks, when, and your evidence, and offer an
+  alternative. Still disagree after one more round: write both views down,
+  the user decides.
+- "You decide" → take the recommendation, say so, record it as `my call`.
+- Decide obvious outcomes yourself (a malformed id → `InvalidInputError`; the
+  same event twice → no change). Ask only when the outcome is a product
+  choice ("cancel an already cancelled order: the same result, or
+  `ConflictError`?").
+- **Build only what is used.** No field nobody reads, no index without a
+  query, no server route without an outside caller. Offer those as accepted
+  gaps with a trigger.
+- No question budget. Settled areas are skipped, not confirmed.
 
-## Mode: I lead
+### Domain pass (runs while the screens are designed)
 
-1. List the open questions, most important first. Ask one at a time, or a few
-   small related ones together.
-2. When the user explains their approach, check it against the code, docs or a
-   quick test before answering.
-3. Reply honestly:
-   - **It holds:** agree and move on. Don't argue for show.
-   - **You see a real problem:** say it once, concretely: what breaks, when, and
-     your evidence. Offer an alternative.
-4. If the user answers the problem or brings better evidence, agree. If you
-   still disagree, allow one more round at most. Then record both views and let
-   the user decide; it's their call. Never repeat an objection without new evidence.
-5. Before the user approves, run the `review` skill in plan mode on the
-   plan, the contract and the feature files. It writes `reviews/<date>-plan/`;
-   the user ticks each problem, then fix what is ticked.
+In this order:
 
-## What the user decides, in order
+1. **Requirements:** what a user can do, and how we know it's done. Done-when
+   lines get IDs.
+2. **Entities:** each one, its fields and limits, who owns it, what happens on
+   delete, which fields each role may see.
+3. **Roles:** for every action, which roles may do it. A missing rule is an
+   open question, not a yes.
+4. **Server functions:** one per read or action, from the screens in
+   `project.json`: who may call it, the input, the output per role, the
+   errors, the same call twice, limits. A role never receives a field its
+   screens don't show.
+5. **What can go wrong:** walk [misuse.md](references/misuse.md) for every
+   server function, job, webhook and email. Each item becomes a scenario
+   with an exact outcome, or `N/A — reason`. Product choices are questions.
+6. **Data:** store, keys, constraints, retention, existing rows on a change,
+   can it be undone. An index only for a query you can name.
+7. **Other services, time, config:** what happens when a service is down or
+   slow; the timezone and where a day, week and month start; env vars and
+   startup checks; what is never logged.
+8. **Stack:** a new project uses the kit's default (`write-code`:
+   TanStack Start on Bun, drizzle, Postgres) unless a real need says
+   otherwise. An existing project keeps its stack.
 
-Every project: the data model, where data lives, auth and roles, the API
-shape, external services, the timezone, what is in the first release. Then,
-per approved screen: how its data loads (per route, cached, live), what is
-optimistic and what waits for the server, validation and where errors show,
-when the empty, loading and denied states the design drew appear, route
-guards. Only when the brief raises it: sensitive data and privacy, offline,
-keyboard-first, multi-tenant later. Each real choice comes with 2–3 options,
-the tradeoff and a recommendation.
+### Screen pass (after the design is approved)
 
-## Rules for both modes
+Walk every approved screen in `DESIGN.md` and `src/routes/`: every action
+and every piece of data on it has a server function and a role rule. Per
+screen: how data loads (loader, hook, live), what is optimistic, validation
+and where errors show, when the empty, loading, error and denied states
+appear, route guards. A screen or part the design doesn't have goes back to
+the studio first. Never plan around a screen that isn't approved.
 
-- Be sure of your facts. Label each one as checked (code, docs, test) or a guess.
-- New project: choose stack, hosting and data storage from actual needs (team
-  skills, data, scale, budget), not fashion. One deployable app until there is a
-  real reason to split it.
-- Existing project: keep its stack and structure. Propose a change only when the
-  current way can't do the job, and say why.
-- For every action, say which roles may do it. A missing rule is an open
-  question, not a yes.
-- With approved screens, walk each one: every action and every piece of data
-  it shows needs an endpoint and a role rule in the plan. Then write, per
-  endpoint, what each role gets back. A role must never receive a field its
-  screens don't show.
-- A screen the plan needs that the design doesn't have, or a part the design
-  doesn't have, goes back to the studio (`design-interface`) for a new
-  revision. Never plan around a screen that isn't approved.
-- When times are stored in UTC but shown in local time, say where a local
-  day, week and month start and end.
-- Start with the smallest version someone can actually use.
-- For a new API, module or shared helper, write how the caller will use it
-  first (the call and what comes back), then the types and files behind it.
-  For a real choice, sketch two different shapes before picking one.
-- Reject these shapes: a wrapper that only passes the same arguments on; a
-  module whose callers must call several methods in order to do one thing;
-  database or wire types leaking into other modules; files split by step
-  (load, validate, save) instead of by what they own.
-- Database changes: say what happens to existing data and whether it can be
-  undone. Add an index only for a query you can name.
-- You only plan. Don't write product code, run migrations, create tickets, or
-  message anyone.
-- If the code later needs something the plan doesn't say, update the plan and
-  tell the user. Don't quietly drift from it.
+### Features, last
 
-## What the plan produces
+Propose the split and the order, one line of reason each. A feature is one
+thing a user can use, working end to end. What others build on goes first;
+what changes others' shapes goes last. Two features that need the same table
+or helper mean it goes to the foundation.
 
-Three things, saved as [plan.md](references/plan.md) says:
+## Write it down
 
-1. `plan.md`: what it does, roles, done-when lines with IDs, changes,
-   decisions, build order.
-2. The **API contract**: a file the code checks against (TypeScript types and
-   the endpoint list, or an OpenAPI file), so the backend and the front-end
-   wiring can be built apart and still meet.
-3. `features/<slug>.md`, one per feature, from
-   `greenfield-mode`'s [features.md](../greenfield-mode/references/features.md):
-   requirement and done-when IDs, screens, what it owns, what it uses from
-   shared, dependencies, and its scenarios. Two features that need the same
-   table or helper mean that thing goes to shared or the foundation.
+- `plan.md` in the shape of [plan.md](references/plan.md): remove the
+  `interview in progress` mark; every decision carries its Q-number.
+- `features/<slug>.md`, one per feature, in the shape of
+  [features.md](../greenfield-mode/references/features.md): Backend and
+  Frontend sections with owners, the scenarios with exact outcomes, the
+  tests at every layer ([tests.md](../write-code/references/tests.md)).
+- The contract is code the plan names: the zod schemas in
+  `src/entities/<thing>/schema.ts` and the server function signatures.
+
+**Fresh-eyes review**, once, after writing. Run the `review` skill in plan
+mode on `plan.md` and the feature files; it checks every server function has
+its misuse scenarios or `N/A` lines, every outcome is exact, every caller of
+a changed thing has a feature or a gap, every gap has a trigger. Clear
+findings: fix. Product choices: ask, numbered on from the interview. Wrong
+findings: drop. One pass.
+
+**Approval.** The user reads `plan.md` and **every feature file in full** and
+says so. Only then: `Status: Approved (date, by the user)` on the plan and
+`approved` on each feature file. Report and stop:
+
+```
+Plan: docs/plans/orders/plan.md
+
+  features   3   orders-list, cancel-order, order-emails
+  scenarios  41 server-function, 7 journeys
+  gaps       4, each with a trigger
+  interview  Q1–Q23
+  review     5 findings: 4 fixed, 1 asked (Q24)
+```
+
+You only plan. Don't write product code, run migrations or message anyone.
+If the code later needs something the plan doesn't say, update the plan and
+tell the user.

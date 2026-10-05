@@ -30,6 +30,7 @@ project, committed. Shape: [report.md](references/report.md).
 | Commits | `--range <a>..<b>`; one commit is `<sha>^..<sha>` |
 | The whole app | `--app` |
 | A plan | `--plan <files>`: plan.md, the contract, the feature files; no diff |
+| The attack surface | `--security` with any target above; reviewers follow [security.md](references/security.md) and prove each finding with the request that triggers it |
 
 No target named: uncommitted work if there is any, else the branch against
 `main`. The plan block in step 3 shows the target, so the user can correct
@@ -152,8 +153,9 @@ the smallest into one agent past the cap). The fix model from the config;
 the reviewer model for a fix the review marked as needing judgement. **Wait
 for the user.**
 
-Each fix agent works in its own worktree, on a branch `fix/<feature>`, with
-the `deliver-feature` rules on ownership: only that feature's files. For
+Each fix agent works in the one checkout on a branch `fix/<feature>`, with
+the `deliver-feature` rules on ownership: only that feature's files, and it
+commits only those. Two fix agents never share a folder. For
 each problem: write the "Test to add" first and see it fail, apply the
 chosen option, run the project's tests, set the problem's Status to
 `fixing` while it works and leave it there. It never touches Decision lines
@@ -184,6 +186,7 @@ the README's Status and Fixed count. Commit (`review: close <target>`).
 | A feature, by its agent, before it reports done | `--base` on its branch | The feature agent is also the fixer; it ticks its own Decision lines and says so in its trace |
 | Merge, by the lead | `--range` on the feature's commits | Usually one reviewer; the fit section is the duplication check |
 | Prove, on the merged app | `--app` | The full machine; screenshots when the app may run |
+| Before a first release | `--app --security` | The security pass, report only; each finding fixed or an accepted gap with a trigger |
 | On demand | any | "review this branch", "review the app" |
 
 ## Set up a project

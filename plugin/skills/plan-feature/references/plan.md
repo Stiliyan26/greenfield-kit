@@ -1,19 +1,25 @@
-# Plan template
+# Plan files
 
-Save to the plan folder named in `.agents/PROJECT.md`, or
-`docs/plans/<feature>/plan.md`. The contract and the feature files sit next to
-it: `docs/plans/<feature>/contract.ts` (or `openapi.yaml`) and
-`docs/plans/<feature>/features/<slug>.md`.
+All in `docs/plans/<project>/`, or the plan folder `.agents/PROJECT.md` names:
 
-Give each "Done when" line an ID. Tests, scenarios and feature files refer to
-these IDs.
+- `plan.md`: below.
+- `features/<slug>.md`: one per feature, in the shape of
+  `greenfield-mode`'s [features.md](../../greenfield-mode/references/features.md).
+- The contract is code, not a document: the zod schemas in
+  `src/entities/<thing>/schema.ts` and the server functions in
+  `*.functions.ts`, which both sides import. `plan.md` names them.
+
+Give each "Done when" line an ID. Scenarios and feature files refer to these
+IDs. Number interview answers Q1, Q2… and write the Q-number next to every
+decision it settled.
+
+## plan.md
 
 ```markdown
-# <Feature> plan
+# <Project> plan
 
-Status: Draft | Approved (YYYY-MM-DD, by the user)
-Design: `DESIGN.md` at studio revision <n>, or "no approved design yet"
-Front end: `web/` promoted from that revision, or "not yet"
+Status: Draft — interview in progress | Draft | Approved (YYYY-MM-DD, by the user)
+Design: `DESIGN.md` at studio revision <n>, or "not approved yet"
 
 ## What it does
 Two or three sentences a user would understand.
@@ -24,52 +30,63 @@ Two or three sentences a user would understand.
 ## Done when
 - D1: <someone does X> → <they see Y>
 - D2: <someone not allowed tries X> → <blocked, sees Z>
-- D3: <edge case> → <what happens>
-- D4: <someone not logged in tries X> → <blocked, sees Z>
+- D3: <the same action twice> → <what happens>
+- D4: <a dependency is down> → <what happens>
 
-## Changes
-- Database: new or changed tables/columns; what happens to existing data.
-- API: each endpoint, who may call it, what goes in, errors. Show one
-  example call from the screen that uses it. The contract file is the
-  checked version of this list.
-- Responses: for each endpoint, the fields each role gets back. Never a
-  database row as it is.
-- Screen actions: every button, link, filter and search on each approved
-  screen, and the endpoint and role rule behind it. An action without an
-  endpoint is a gap to close or a line under "Out of this release".
-- Screens: which screens, reused or new. Name the approved studio screen and
-  the `web/` route each one follows. Don't restate colors or fonts;
-  `DESIGN.md` owns them.
-- Screen behaviour: per screen, how data loads, what is optimistic,
-  validation and where errors show, when the empty, loading and denied
-  states appear, route guards.
-- Parts: which parts each screen uses, from `web/src/design/parts/` and the
-  shadcn parts in `DESIGN.md`'s Components table. A screen that needs a part
-  the design doesn't have goes back to the studio first.
-- Dates and times: the timezone, how times are stored, and where a day, week
-  and month start and end.
+## Entities
+- <Entity>: fields with limits, owner, what happens on delete, which
+  fields each role may see.
+- Database: new or changed tables and columns; what happens to existing
+  rows; can it be undone.
 
-## Contract
-Path of the contract file, and how the code checks against it (types
-imported by both sides, or a schema check in CI).
+## Server functions
+- `<name>` (`features/<action>/api/` or `entities/<thing>/api/`): who may
+  call it, the input schema, the output per role, the errors, what the same
+  call twice does, limits. One example call from the screen that uses it.
+- Server routes, only for callers outside the app: <none, or the list>.
+
+## Screens
+Filled in after the design is approved. Per approved screen (`src/routes/`
+path, `views/<screen>`): every action and the server function behind it; how
+data loads (loader, hook, live); what is optimistic; validation and where
+errors show; when the empty, loading, error and denied states appear; route
+guards. Parts: from `shared/ui/` and `DESIGN.md`'s Components table. A
+screen or part the design doesn't have goes back to the studio first.
+
+## Dates and times
+The timezone, how times are stored, where a day, week and month start and end.
+
+## Deep dives
+Only what applies: auth, money, external services, sensitive data.
 
 ## Features
-One line per feature file: name, requirement IDs, wave, depends on. Shared
-things two features need are listed under Foundation, not in a feature.
+One line per feature file: name, done-when IDs, depends on, order.
 
 ## Foundation
-What is built before the fan-out: schema, auth, API skeleton, shared parts
-and helpers, the app shell.
+What is built before the first feature: drizzle schema and migrations, auth,
+`server/shared/`, `shared/ui/` parts from the design, the promoted routes and
+views, `bun run check`, the verify skill.
 
 ## Decisions
-- <Question>: <chosen option>. Why: <reason>. Evidence: <file, doc, test>.
-  Decided by: agreed | user (AI concern: <risk>)
+- <Question> (Q<n>): <choice>. Why: <reason>. Evidence: <file, doc, test>.
+  Decided by: user | agreed (AI concern: <risk>) | my call
 
-## Build order
-1. Foundation (D1, D2)
-2. Wave 1: <features> (D3, D4)
-3. Wave 2: <features> (D5)
+## Out of this release
+What was discussed and deliberately left out.
+
+## Accepted gaps — revisit when the trigger lands
+- <What is missing or weak> (Q<n>). <Why it's fine for now.>
+  **Trigger:** <the observable event> → <what to do then>.
 
 ## Open questions
-- <Question> (blocks step N)
+- <Question> (blocks feature <slug>)
+
+## Interview record (<YYYY-MM-DD>)
+| # | Question | Answer |
+| --- | --- | --- |
+| 1 | <Question in plain words> | <Answer; "my call" when the user delegated it> |
 ```
+
+Until the plan is written, a new `plan.md` holds only its title, the Status
+line with `interview in progress`, and the interview record, so a half-done
+interview can be resumed and nothing mistakes a draft for a plan.

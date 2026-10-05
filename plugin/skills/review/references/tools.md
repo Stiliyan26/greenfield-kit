@@ -19,8 +19,8 @@ turn a rule into a warning to get green.
 | Copied code | jscpd | 10 lines / 70 tokens | `scripts/gates/baseline.json` |
 | Dead code | knip | unused files, exports, packages | same |
 
-`write-code`'s ESLint preset already has `max-lines`, `max-depth` and
-`import/no-cycle`. Add the rest.
+`write-code`'s `bun run check` already has `max-lines`, `max-depth`,
+`import/no-cycle`, the layer direction and knip. Add the rest.
 
 ## Set it up (Node project)
 

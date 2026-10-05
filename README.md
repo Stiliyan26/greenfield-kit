@@ -1,10 +1,10 @@
 # greenfield-kit
 
-A plugin for Claude Code, Codex and Cursor that takes a product from a brief to a proven app: a studio where a model designs every screen in React + shadcn, your approval, a plan made with you while the approved front end is promoted, then features built in parallel by agents in their own worktrees, and proof on the merged app.
+A plugin for Claude Code, Codex and Cursor that takes a product from a brief to a proven app: a studio where a model designs every screen in React + shadcn while the domain is planned with you, your approval, one feature file per feature you approve in full, then one feature at a time built by a backend and a frontend agent in one checkout, each landing as a PR with an explainer page and videos you approve.
 
 The look never drifts: the code you approve in the studio is the front end, and every later screen is built from its parts and tokens.
 
-Version 0.10.4.
+Version 0.12.0.
 
 ## Contents
 
@@ -18,20 +18,21 @@ Version 0.10.4.
 ## The pipeline
 
 ```
-0 Evidence   calls, notes, your words ──► BRIEF.md (confirmed lines cite their source)
-1 Frame      roles · screens · data shapes · sample data          (you + the lead, short)
-2 Design     one model (or up to three) designs every screen in React + shadcn, in the studio
-             3 sizes · light and dark · checks + design critic ──► you tune, comment, APPROVE
-             ══ approve = the fork ══
-3A Promote   background: the approved variant becomes web/, one route per screen,
-             pixel-checked against the studio, motion added
-3B Plan      with you, one decision at a time ──► plan.md + API contract + features/*.md
-             join: plan approved and web/ accepted
-4 Foundation the lead alone: schema, auth, API skeleton, shared/ + INDEX.md
-5 Features   waves of agents, one per feature file, each in its own worktree
-             scenarios fail first ──► tests + code ──► green ──► review ──► the lead merges one at a time
-6 Prove      the verification skill drives every feature's scenarios on the merged app ──► demo
-7 Loop       new evidence ──► a new feature file ──► back to 3 (or 2 for a screen change)
+0 Input      requirements, calls, notes, your words
+1 Brief      short grill ──► BRIEF.md (confirmed lines cite their source, unknowns listed)
+2 Frame      roles · screens · real records (= the draft data model)        ══ the fork ══
+3A Design    the studio: one model designs every screen in React + shadcn, 3 sizes, light and dark,
+             checks + design critic ──► you tune, comment, APPROVE ──► DESIGN.md, tokens, parts
+3B Plan      with you while 3A runs: entities, roles, server functions, what can go wrong (misuse list)
+4 Features   after APPROVE: screens wired to server functions ──► features/*.md, one per feature,
+             Backend · Frontend · Scenarios with exact outcomes · Tests ──► you approve every file in full
+5 Foundation one agent: routes + views promoted, drizzle schema, auth, shared/, bun run check,
+             the verify skill ──► a PR with an explainer ──► you approve
+6 Build      ONE feature: a backend agent and a frontend agent, same checkout, own folders,
+             scenarios ──► failing tests ──► code ──► bun run check ──► e2e ──► the verify skill drives it
+7 PR         interactive-explanation: page + journey video + architecture video ──► you approve ──► merge
+             (while the next feature is already being built)
+8 Later      add-feature: new screen? studio or straight into the app ──► 4 ──► 6 ──► 7
 ```
 
 What you are asked at each stage, and the fixed rules, are in `plugin/skills/greenfield-mode/SKILL.md`.
@@ -81,21 +82,22 @@ python3 <plugin>/skills/setup-project/scripts/sync_global.py --push
 
 Run it without `--push` to see what differs first.
 
-**For a team.** Run the `setup-project` skill in the project. It copies the working rules (`AGENTS.md`, `.agents/INSTRUCTIONS.md`, `.agents/PROJECT.md`) and adds a `.claude/settings.json` that enables the plugin for everyone who trusts the folder. It never overwrites a file that exists. For a Node project it can also install the `write-code` ESLint preset.
+**For a team.** Run the `setup-project` skill in the project. It copies the working rules (`AGENTS.md`, `.agents/INSTRUCTIONS.md`, `.agents/PROJECT.md`) and adds a `.claude/settings.json` that enables the plugin for everyone who trusts the folder. It never overwrites a file that exists. For a Bun or Node project it can also install the `write-code` checks (`bun run check`).
 
 ## What's inside
 
 | Skill or agent | What it does |
 | --- | --- |
-| `greenfield-mode` | The pipeline: brief, frame, studio design, approval, then the plan with you while the front end is promoted, foundation, features in parallel, proof. Owns the feature-file and coordination rules. |
+| `greenfield-mode` | The pipeline: a short brief, frame, studio design while the domain is planned with you, approval, one feature file per feature you approve in full, the foundation, then one feature at a time built by a backend and a frontend agent in one checkout, each landing as a PR with an explainer. Owns the feature-file and coordination rules. |
+| `add-feature` | The same pipeline for one feature in an existing product: new screen in the studio or straight into the app, one feature file you approve, build, verify, PR with an explainer. |
 | `design-interface` | The design process and its tool: two-pass research, the product facts, one React + shadcn design per model in the studio, the quality gate, your choice, and promotion of the approved code into `web/` with a pixel check. Owns the studio engine, the app template and the scripts. |
-| `plan-feature` | Plans data, roles, the API contract, each screen's behaviour and the feature files with you, one decision at a time. Links `DESIGN.md` instead of deciding the look again. |
-| `deliver-feature` | One feature agent: scenarios first, own files only, shared parts reused or requested, tests, a browser proof and a review. |
+| `plan-feature` | Plans the domain (entities, roles, server functions, what can go wrong) while the screens are designed, the screen wiring after approval, and one feature file per feature with exact scenarios and every test, one decision at a time, answers saved as given. Links `DESIGN.md` instead of deciding the look again. |
+| `deliver-feature` | The backend agent or the frontend agent of one feature, in one checkout: scenarios into failing tests first, contract first, own folders only, `bun run check` after every edit, the journeys driven in a real browser, the feature file filled in for verify. |
+| `interactive-explanation` | Shows a change as a local page with a narrated journey video and an architecture video, and writes the PR description from the same script. Every feature and the foundation land through it. Adapted from Peter's skill. |
 | `design-animations` | Purposeful motion on the promoted screens: transitions, gestures, performance, reduced motion. |
-| `write-code` | Where code goes and how it's written: folder layers, TypeScript style, React, NestJS. Ships an ESLint preset so the mechanical rules are checked, not remembered. |
-| `refactor` | Structure changes that provably keep behavior. |
-| `create-verification-skill` | Only on `/create-verification-skill`. Writes the project's verify skill once (launch, doctor, drive, evidence, cleanup) and a feature map, then proves it on one feature. Adapted from pstack. |
-| `maintain-verification-skill` | Only on `/maintain-verification-skill`. The upkeep pass: one source reader per feature, one live run driving every feature, then one set of proven corrections. Adapted from pstack. |
+| `write-code` | Where code goes and how it's written: FSD folders for a TanStack Start app on Bun, server functions, drizzle, TypeScript style, React, tests. Ships `bun run check` (oxlint, oxfmt, tsc, knip, a four-rule ESLint config) so the mechanical rules are checked, not remembered. |
+| `create-verification-skill` | Only on `/create-verification-skill`. Writes the project's verify skill once into `.claude/skills/verify-<app>/` (launch, doctor, drive, record, evidence, stop), reading the plan's feature files as its map, then proves it on one feature. Adapted from pstack. |
+| `maintain-verification-skill` | Only on `/maintain-verification-skill`. The upkeep pass: one source reader per feature file, one live run driving every feature, then one set of proven corrections to the skill and the Driving sections. Adapted from pstack. |
 | `shadcn` | shadcn/ui in React: composition, forms, styling, icons, base vs radix, the CLI. |
 | `setup-project` | Copies the working rules into a project, enables the plugin for the team, or installs the kit globally for Codex and Cursor. |
 | `reflect` | Only on `/reflect`. Three parallel reviewers (judgment, tooling, divergent) read the session transcripts, a synthesizer sorts findings into Accepted / Rejected / Backlog, and nothing is applied to a skill until you approve. Ask it a focus question such as why a build was slow. Adapted from pstack. |
@@ -120,8 +122,9 @@ Screens color only through shadcn's names (`bg-primary`, `text-muted-foreground`
 
 ## Building
 
-- Coordination is files and git, so it works in every CLI: one feature file per feature (what it owns, what it uses from `shared/`, its scenarios), `shared/INDEX.md`, a `requests/` folder for what a feature needs added to shared, and the lead merging one feature at a time. Details: `plugin/skills/greenfield-mode/references/coordination.md`.
-- The runtime is a choice at fan-out: Claude Code agent teams, Codex multi-agent, Cursor Projects, or plain worktrees. Defaults: agent teams in Claude Code, worktrees elsewhere.
+- Coordination is files and git, so it works in every CLI: one feature file per feature (its Backend and Frontend owners, its scenarios, its tests), `shared/INDEX.md`, a `requests/` folder for what a feature needs added to the foundation, and the lead merging one PR at a time. No worktrees: the two agents of one feature share a checkout and own different folders. Details: `plugin/skills/greenfield-mode/references/coordination.md`.
+- The runtime is a choice: Claude Code agent teams, Codex multi-agent, or plain CLIs per agent. Default: agent teams in Claude Code.
+- The stack the skills assume: Bun, TanStack Start (file routes, server functions), React Query, Table and Form, shadcn + Tailwind, zod, drizzle on Postgres, Playwright, `bun test`, oxlint, oxfmt, knip. `write-code` says where every file goes.
 - Every agent keeps `STATUS.md` current and leaves a trace of what it ran, so you follow the run without reading transcripts.
 
 ## Develop this repo

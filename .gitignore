@@ -4,3 +4,6 @@
 # Python bytecode from running the studio scripts
 __pycache__/
 *.pyc
+
+# Remotion dependencies of the interactive-explanation skill (bun install in its remotion/ folder)
+plugin/skills/interactive-explanation/remotion/node_modules/

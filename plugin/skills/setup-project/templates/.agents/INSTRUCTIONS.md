@@ -38,7 +38,7 @@ the end, one short line each:
 - Look for what already exists, by name and by what it does. Read it and the
   places that use it before reusing it.
 - Follow the `write-code` skill for where code goes and how it's written, and
-  run its ESLint preset on the files you touched. Keep the app's existing look;
+  run `bun run check:fix` after every edit. Keep the app's existing look;
   don't invent a new visual style for an ordinary feature.
 - Stay within what the user asked. If something else needs changing, say so
   instead of doing it. Every changed line should trace back to the request.

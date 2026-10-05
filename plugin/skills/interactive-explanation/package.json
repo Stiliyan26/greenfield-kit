@@ -1,0 +1,6 @@
+{
+  "name": "interactive-explanation-skill",
+  "private": true,
+  "description": "ES module scope for the interactive-explanation skill scripts; the Remotion project in remotion/ has its own package.json.",
+  "type": "module"
+}

@@ -1,0 +1,105 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import", "react", "jsx-a11y"],
+  "categories": { "correctness": "error" },
+  "ignorePatterns": ["dist/**", ".output/**", ".tanstack/**", "coverage/**", "node_modules/**", "**/*.generated.*", "**/migrations/**", "src/routeTree.gen.ts"],
+  "rules": {
+    "no-nested-ternary": "error",
+    "max-depth": ["error", 2],
+    "max-lines": ["error", { "max": 450, "skipBlankLines": true, "skipComments": true }],
+    "no-else-return": ["error", { "allowElseIf": false }],
+    "no-unused-vars": ["warn", { "args": "after-used", "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "caughtErrorsIgnorePattern": "^_" }],
+
+    "import/no-cycle": "error",
+    "import/no-self-import": "error",
+    "import/no-default-export": "error",
+
+    "typescript/consistent-type-assertions": ["error", { "assertionStyle": "as", "objectLiteralTypeAssertions": "never" }],
+    "typescript/no-explicit-any": "warn",
+
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error",
+    "react/no-unstable-nested-components": "error",
+    "react/jsx-no-useless-fragment": "error",
+    "react/jsx-key": "error",
+    "react/self-closing-comp": "error",
+
+    "no-restricted-imports": ["error", { "patterns": [
+      { "group": ["@/server", "@/server/*", "**/server/*"], "message": "Only *.functions.ts may import server/. See write-code/references/structure.md, 'Server and browser'." },
+      { "group": ["@/views/*/*", "@/widgets/*/*", "@/features/*/*", "@/entities/*/*"], "message": "Import a slice through its index.ts, not its inner files. See write-code/references/structure.md." }
+    ] }]
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.functions.ts"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": [
+          { "group": ["@/views/*/*", "@/widgets/*/*", "@/features/*/*", "@/entities/*/*"], "message": "Import a slice through its index.ts, not its inner files." }
+        ] }]
+      }
+    },
+    {
+      "files": ["src/server/**"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": [
+          { "group": ["@/routes", "@/routes/*", "@/views", "@/views/*", "@/widgets", "@/widgets/*", "@/features", "@/features/*"], "message": "server/ may import only entities/ (schemas) and shared/lib. Nothing from the screens." }
+        ] }]
+      }
+    },
+    {
+      "files": ["src/shared/**"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": [
+          { "group": ["@/server", "@/server/*", "@/routes", "@/routes/*", "@/views", "@/views/*", "@/widgets", "@/widgets/*", "@/features", "@/features/*", "@/entities", "@/entities/*"], "message": "shared/ imports nothing above it. Layers: routes → views → widgets → features → entities → shared." }
+        ] }]
+      }
+    },
+    {
+      "files": ["src/entities/**"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": [
+          { "group": ["@/server", "@/server/*", "@/routes", "@/routes/*", "@/views", "@/views/*", "@/widgets", "@/widgets/*", "@/features", "@/features/*"], "message": "entities/ may import only shared/. Layers: routes → views → widgets → features → entities → shared." },
+          { "group": ["@/entities/*/*"], "message": "Import a slice through its index.ts." }
+        ] }]
+      }
+    },
+    {
+      "files": ["src/features/**"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": [
+          { "group": ["@/server", "@/server/*", "@/routes", "@/routes/*", "@/views", "@/views/*", "@/widgets", "@/widgets/*"], "message": "features/ may import only entities/ and shared/. Two features that share something put it one layer down." },
+          { "group": ["@/features", "@/features/*"], "message": "features/a never imports features/b. Move the shared piece to an entity or shared/." },
+          { "group": ["@/entities/*/*"], "message": "Import a slice through its index.ts." }
+        ] }]
+      }
+    },
+    {
+      "files": ["src/widgets/**"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": [
+          { "group": ["@/server", "@/server/*", "@/routes", "@/routes/*", "@/views", "@/views/*"], "message": "widgets/ may import only features/, entities/ and shared/." },
+          { "group": ["@/widgets", "@/widgets/*"], "message": "widgets/a never imports widgets/b." },
+          { "group": ["@/features/*/*", "@/entities/*/*"], "message": "Import a slice through its index.ts." }
+        ] }]
+      }
+    },
+    {
+      "files": ["src/views/**"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": [
+          { "group": ["@/server", "@/server/*", "@/routes", "@/routes/*"], "message": "views/ may import only widgets/, features/, entities/ and shared/." },
+          { "group": ["@/views", "@/views/*"], "message": "views/a never imports views/b." },
+          { "group": ["@/widgets/*/*", "@/features/*/*", "@/entities/*/*"], "message": "Import a slice through its index.ts." }
+        ] }]
+      }
+    },
+    {
+      "files": ["src/routes/**", "src/router.tsx", "src/start.ts", "*.config.*", "**/*.config.*"],
+      "rules": { "import/no-default-export": "off" }
+    },
+    {
+      "files": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}", "**/*.fixtures.ts", "**/*.seed.ts", "e2e/**"],
+      "rules": { "max-lines": "off", "max-depth": "off", "typescript/no-explicit-any": "off" }
+    }
+  ]
+}

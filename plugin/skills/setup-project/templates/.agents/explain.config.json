@@ -1,0 +1,6 @@
+{
+  "_readme": "Read by the interactive-explanation skill. brand: the name on the page and videos. context: where the plan, feature files and design rules live. journey: copy the commands from the verify-<app> skill's Launch, Doctor, Drive and Stop sections once it exists; without it the journey video is skipped. voiceEnv: a KEY=VALUE file with OPENROUTER_API_KEY, kept out of git.",
+  "brand": "",
+  "context": ["docs/plans", "DESIGN.md"],
+  "voiceEnv": ".agents/local/explain.env"
+}

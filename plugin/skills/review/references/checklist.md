@@ -137,20 +137,30 @@ in the diff delivers?
 
 ## Plan mode
 
-When the target is a plan (no code yet), check the plan files instead:
+When the target is a plan (no code yet), check `plan.md` and every feature
+file instead. You haven't seen the interview; find what's missing, don't
+rewrite anything. One line per finding: where → what's missing.
 
-- Every requirement in the request maps to a part of the plan; nothing in
-  the plan is out of scope.
+- Every requirement in the brief maps to a done-when line and a feature;
+  nothing in the plan is out of scope.
 - Every role's rights are stated and the server enforces each refusal;
   silent cases are open questions, not guesses.
+- Every server function, job, webhook and email has a scenario or an `N/A`
+  line for every item of `plan-feature/references/misuse.md`.
+- Every outcome is exact: the state, the rows, the message, what didn't
+  happen. "Returns an error" is a finding.
+- Every failure the design mentions (a slow service, the same call twice,
+  two at once) has a scenario.
 - Entities, ownership and deletes are clear; lists filter and page in the
   query; migrations can run on real data.
-- Request and response shapes are named, with errors and empty states.
-- Double submit, a crash halfway, a service that's down: the plan says what
-  happens.
+- Every caller of a changed function, table or field has a feature or an
+  accepted gap; every accepted gap has a trigger.
+- Backend and Frontend sections own different folders; no file, server
+  function or table has two owners; anything two features share is in the
+  foundation.
+- Every feature has tests at every layer of `write-code/references/tests.md`.
 - Parts nobody asked for, layers with one user, options "for later".
-- Each requirement has a way to check it: a test or a step in the real app.
-- Decisions the plan makes that the user never made.
+- Decisions the plan makes that the user never made (no Q-number).
 
 `Where` points at the plan file and section. "Proved by" is the requirement
 or rules line the problem rests on.

@@ -5,7 +5,7 @@ This repo is the greenfield-kit Claude Code / Codex / Cursor plugin and its mark
 ## Goal and where we are
 
 - The goal is one pipeline from a rough brief to a proven app: evidence, frame, studio design in React + shadcn, approval, then the plan with the user while the approved front end is promoted, foundation, features built in parallel by agents in their own worktrees, proof. `plugin/skills/greenfield-mode/SKILL.md` is the pipeline; each stage has its skill.
-- Where it stands (2026-09-29, version 0.10.4): the design stage, promotion and the pixel check are built and tested end to end (`test_app.mjs`). The plan, feature-file, coordination and verify stages are written as skills and not yet run on a real project. The first real run is Call OS (in Business-Freedom-OS); gaps it exposes get a general fix here.
+- Where it stands (2026-10-05, version 0.12.0): the design stage, promotion and the pixel check are built and tested end to end (`test_app.mjs`). Pipeline v2 (`docs/plans/pipeline-v2/plan.md`, `flow.excalidraw`) is written into the skills: TanStack Start + FSD + drizzle in `write-code`, the misuse checklist and feature files in `plan-feature`, the backend + frontend pair in `deliver-feature`, the verify skills reading the feature files, `interactive-explanation` and `add-feature`. Not yet run on a real project. Known gap: `promote_variant.py` still writes a Vite `web/`; it must write `src/routes/` and `src/views/` for TanStack Start. The first real run is Call OS (in Business-Freedom-OS); gaps it exposes get a general fix here.
 - Later direction, not started: `DIRECTION.md`, a desktop app over Claude Code, Codex and Cursor that shows the pipeline, its agents and their traces.
 
 ## Layout
@@ -15,7 +15,7 @@ This repo is the greenfield-kit Claude Code / Codex / Cursor plugin and its mark
 - `.codex/agents/*.toml` are generated from `plugin/agents/` by `codex_agents.py`. Never edit them by hand.
 - `.agents/skills/<name>` and `.agents/agents/<name>` are symlinks into `plugin/`, so Codex, Cursor and Claude Code in this repo use the same files.
 - `.agents/INSTRUCTIONS.md` is a symlink to the `setup-project` template. Editing it edits what new projects receive. `.agents/PROJECT.md` is this repo's own copy, not a template.
-- How to write and place code is the `write-code` skill. Its ESLint preset lives in `plugin/skills/write-code/assets/eslint.config.mjs`; this repo has no JavaScript app of its own to run it on.
+- How to write and place code is the `write-code` skill. Its checks (`.oxlintrc.json`, the four-rule `eslint.config.mjs`, `knip.json`) live in `plugin/skills/write-code/assets/`; this repo has no JavaScript app of its own to run them on.
 - The studio is the `design-interface` skill: engine `assets/studio-engine/`, app template `assets/studio-app/`, content template `assets/studio-content/`, scripts `scripts/`. A project's `studio/` holds content and its own `app/`.
 - `examples/partyfox/` is a studio with three hand-written HTML variants from before the app flow. It still opens; it is not the current test bed.
 - `docs/plans/` holds this repo's own plans. `STATUS.md` tracks the current rebuild.
