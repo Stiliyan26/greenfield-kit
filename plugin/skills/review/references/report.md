@@ -63,7 +63,7 @@ user what merged and what is blocked.
 
 Start the reviewer of each feature again, with the same agent and model,
 the feature file, the merged code and the checklist. It runs the proof of
-every `fixing` problem again ([code-reviewer.md](../../../agents/code-reviewer.md),
+every `fixing` problem again ([reviewer.md](reviewer.md),
 "Close"). Update the README's Status and Fixed count, commit
 (`review: close <target>`), and tell the user what is still open.
 

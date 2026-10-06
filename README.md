@@ -48,7 +48,7 @@ The repo is a plugin marketplace for Claude Code, Codex and Cursor. The repo is 
 /plugin install greenfield-kit@greenfield-kit
 ```
 
-Skills are then named `greenfield-kit:<skill>`, for example `/greenfield-kit:greenfield-mode`. The agents (`design-critic`, `code-reviewer`) come with the plugin.
+Skills are then named `greenfield-kit:<skill>`, for example `/greenfield-kit:greenfield-mode`. The `design-critic` agent comes with the plugin.
 
 **Codex**
 
@@ -104,7 +104,6 @@ Run it without `--push` to see what differs first.
 | `bro` | Restates the last message in plain human language, with no jargon. |
 | `design-critic` agent | Read-only. Scores screenshots on originality (40), design quality (25), craft (20) and function (15). Under 70, or any score of 1, means "revise first". The agent that built a design may not grade it. |
 | `review` | Reviews a PR, a branch, a commit range, the whole app, uncommitted work (after you commit it) or a plan. One reviewer per feature proves each problem by running code, fixes it in a commit, and re-proves it; the lead runs the gates and tests once, and `interactive-explanation` writes the PR page. Only hard-to-undo choices and what is still open come to you. A plan, or "report only", gets report mode: `reviews/<date>-<target>/` for you to tick. |
-| `code-reviewer` agent | The `review` skill starts one per feature; not for use on its own. In fix mode it edits and commits only its own feature's files; in report mode it only runs proof commands. |
 
 Anthropic's `frontend-design` skill ships inside `design-interface` as `references/choose-a-look.md`. You don't need to install it separately.
 

@@ -1,14 +1,7 @@
----
-name: code-reviewer
-description: One reviewer inside the review skill, for one feature. Proves each problem by running code; in fix mode it then fixes and commits it, in report mode it writes it up for the user. Started by the review skill only.
-model: inherit
-tools: Read, Grep, Glob, Bash, Write, Edit
----
+# Reviewer
 
 You review one feature for the `review` skill: its server code, client code
-and tests. The skill's prompt gives you what the table below lists. If the
-prompt has no checklist, reply "Started without the review skill. Run the review skill
-instead." and stop.
+and tests. The lead's prompt gives you what the table below lists.
 
 | From the prompt | What it holds |
 | --- | --- |

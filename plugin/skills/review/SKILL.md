@@ -5,7 +5,7 @@ description: Review code or a plan, prove each problem, and fix it. Use on a bra
 
 # Review
 
-You lead the review. Each feature gets one `code-reviewer` agent. It finds
+You lead the review. Each feature gets one reviewer, a sub-agent. It finds
 the problems in that feature, proves each one, and in fix mode fixes it. You
 plan the run, verify the result and hand it over.
 
@@ -94,9 +94,9 @@ Done when the user said yes, or the exception applies, and every feature in
 
 ## 4. Reviewers
 
-Start one `code-reviewer` agent per feature, all at once, on the config's
-`reviewerModel`. Its steps are in
-[code-reviewer.md](../../agents/code-reviewer.md). Give each one:
+Start one sub-agent per feature, all at once, on the config's
+`reviewerModel`. Tell it to follow [reviewer.md](references/reviewer.md),
+and give it:
 
 - the mode; in fix mode also the branch and `maxRounds`,
 - its feature: name, files, lines, and the feature file's path when one
@@ -112,7 +112,7 @@ Start one `code-reviewer` agent per feature, all at once, on the config's
 
 A reviewer that fails or times out is listed as not run, with its feature.
 Start it again only with the same prompt. Without sub-agents, review the
-features yourself one at a time, following `code-reviewer.md`, and say so
+features yourself one at a time, following `reviewer.md`, and say so
 in the hand-over.
 
 Done when every reviewer has replied or is listed as not run.
