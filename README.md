@@ -104,5 +104,4 @@ node plugin/skills/design-interface/scripts/test_studio.mjs   # the engine, ~1 m
 node plugin/skills/design-interface/scripts/test_app.mjs      # the app flow end to end, ~5 min
 claude plugin validate ./plugin --strict
 claude plugin validate . --strict
-python3 tools/check_agnostic.py
 ```
