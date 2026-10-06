@@ -8,7 +8,7 @@ description: Plan a new project or a feature with the user before any code - the
 The user decides; you ask, check and write it down. Small changes skip
 planning. In `greenfield-mode` this runs in two passes: the domain pass while
 the studio designs the screens, the screen pass after the user approves the
-design. For one feature later (`add-feature`), both passes happen in one
+design. For one feature later (`greenfield-mode`, "Add a feature"), both passes happen in one
 sitting.
 
 ## Start

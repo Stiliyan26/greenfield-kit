@@ -133,8 +133,7 @@ reports problems; fix them only if asked.
 ## Changing this setup
 
 - Shared skills and agents come from the greenfield-kit plugin. Project-only
-  ones live in `.agents/skills/` and `.agents/agents/`. Never edit generated
-  files such as `.codex/agents/*.toml` by hand.
+  ones live in `.claude/skills/` and `.claude/agents/`.
 - When you add, remove or rename a skill, agent, command or file here, update
   `.agents/README.md` in the same change.
 - Add a new rule only after a real mistake that tools or examples can't

@@ -138,7 +138,7 @@ answers. Planning asks one decision at a time; building asks almost nothing.
 - `review`: gates, then one reviewer per feature that proves by running; writes
   `reviews/<date>-<target>/` (README plus a file per feature) for the user to
   tick; fix agents work from the ticks; the reviewer re-proves each fix.
-- `create-verification-skill` / `maintain-verification-skill`: create the
+- `verify`: create the
   project's verify skill once; later audit it against the code and keep the map true.
 - `setup-project`: the working agreement (digest-first replies, `STATUS.md`,
   the trace) and the Codex/Cursor install.

@@ -24,12 +24,8 @@ def candidates():
         yield folder / "plugin" / ENGINE
         yield folder / ".agents" / ENGINE
     yield Path.home() / ".agents" / ENGINE
-    # Plugin caches of Claude Code, Codex and Cursor, newest install first.
-    caches = [
-        Path(os.environ.get("CLAUDE_CONFIG_DIR", Path.home() / ".claude")) / "plugins",
-        Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")) / "plugins",
-        Path.home() / ".cursor" / "plugins",
-    ]
+    # The Claude Code plugin cache, newest install first.
+    caches = [Path(os.environ.get("CLAUDE_CONFIG_DIR", Path.home() / ".claude")) / "plugins"]
     found = [path for cache in caches if cache.is_dir() for path in cache.glob(f"**/{ENGINE}/studio_server.py")]
     yield from (path.parent for path in sorted(found, key=lambda path: path.stat().st_mtime, reverse=True))
 

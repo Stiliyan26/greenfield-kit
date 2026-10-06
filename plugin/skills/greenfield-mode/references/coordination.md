@@ -55,8 +55,7 @@ messaging or a task list on top.
 | Runtime | What it adds | Notes |
 | --- | --- | --- |
 | Claude Code agent teams | A lead spawns the two agents as named teammates; peer messages for "the contract is in" | Default when the lead runs in Claude Code. Teammates don't survive `/resume`; the feature file's Status and Trace are what a resumed lead reads |
-| Codex multi-agent | Roles in `.codex/agents/*.toml`; results land in the lead's context | Default cap of 6 threads |
-| Plain CLIs | The lead starts `claude -p` or `codex exec` per agent and coordinates through the files | Works everywhere; the fallback |
+| Plain CLIs | The lead starts `claude -p` per agent and coordinates through the files | Works everywhere; the fallback |
 
 ## Resuming
 

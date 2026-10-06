@@ -1,23 +1,21 @@
 # greenfield-kit repository
 
-This repo is the greenfield-kit Claude Code / Codex / Cursor plugin and its marketplace. It is developed with its own workflow.
+This repo is the greenfield-kit Claude Code plugin and its marketplace. It is developed with its own workflow.
 
 ## Goal and where we are
 
 - The goal is one pipeline from a rough brief to a proven app: evidence, frame, studio design in React + shadcn, approval, then the plan with the user while the approved front end is promoted, foundation, features built in parallel by agents in their own worktrees, proof. `plugin/skills/greenfield-mode/SKILL.md` is the pipeline; each stage has its skill.
-- Where it stands (2026-10-05, version 0.12.0): the design stage, promotion and the pixel check are built and tested end to end (`test_app.mjs`). Pipeline v2 (`docs/plans/pipeline-v2/plan.md`, `flow.excalidraw`) is written into the skills: TanStack Start + FSD + drizzle in `write-code`, the misuse checklist and feature files in `plan-feature`, the backend + frontend pair in `deliver-feature`, the verify skills reading the feature files, `interactive-explanation` and `add-feature`. Not yet run on a real project. Known gap: `promote_variant.py` still writes a Vite `web/`; it must write `src/routes/` and `src/views/` for TanStack Start. The first real run is Call OS (in Business-Freedom-OS); gaps it exposes get a general fix here.
-- Later direction, not started: `DIRECTION.md`, a desktop app over Claude Code, Codex and Cursor that shows the pipeline, its agents and their traces.
+- Where it stands (2026-10-05, version 0.12.0): the design stage, promotion and the pixel check are built and tested end to end (`test_app.mjs`). Pipeline v2 (`docs/plans/pipeline-v2/plan.md`, `flow.excalidraw`) is written into the skills: TanStack Start + FSD + drizzle in `write-code`, the misuse checklist and feature files in `plan-feature`, the backend + frontend pair in `deliver-feature`, the `verify` skill reading the feature files, and `interactive-explanation`. Not yet run on a real project. Known gap: `promote_variant.py` still writes a Vite `web/`; it must write `src/routes/` and `src/views/` for TanStack Start. The first real run is Call OS (in Business-Freedom-OS); gaps it exposes get a general fix here.
+- Later direction, not started: `DIRECTION.md`, a desktop app over Claude Code that shows the pipeline, its agents and their traces.
 
 ## Layout
 
-- `plugin/` is the plugin: three manifests (`.claude-plugin/plugin.json`, `plugin.json`, `.cursor-plugin/plugin.json`), `skills/`, `agents/`. Edit skills and agents here.
-- Three marketplaces point at it: `.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json` (Codex), `.cursor-plugin/marketplace.json`.
-- `.codex/agents/*.toml` are generated from `plugin/agents/` by `codex_agents.py`. Never edit them by hand.
-- `.agents/skills/<name>` and `.agents/agents/<name>` are symlinks into `plugin/`, so Codex, Cursor and Claude Code in this repo use the same files.
+- `plugin/` is the plugin: `.claude-plugin/plugin.json`, `skills/`, `agents/`. Edit skills and agents here. `.claude-plugin/marketplace.json` points at it.
+- `.agents/skills/<name>` and `.agents/agents/<name>` are symlinks into `plugin/`, so Claude Code in this repo uses the same files.
 - `.agents/INSTRUCTIONS.md` is a symlink to the `setup-project` template. Editing it edits what new projects receive. `.agents/PROJECT.md` is this repo's own copy, not a template.
 - How to write and place code is the `write-code` skill. Its checks (`.oxlintrc.json`, the four-rule `eslint.config.mjs`, `knip.json`) live in `plugin/skills/write-code/assets/`; this repo has no JavaScript app of its own to run them on.
 - The studio is the `design-interface` skill: engine `assets/studio-engine/`, app template `assets/studio-app/`, content template `assets/studio-content/`, scripts `scripts/`. A project's `studio/` holds content and its own `app/`.
-- `examples/partyfox/` is a studio with three hand-written HTML variants from before the app flow. It still opens; it is not the current test bed.
+- `examples/partyfox/` is a studio with three hand-written HTML variants from before the app flow. It still opens as a showcase; it is not the current test bed.
 - `docs/plans/` holds this repo's own plans. `STATUS.md` tracks the current rebuild.
 - `temp/verification/` keeps screenshots and test output until the user has seen them.
 
@@ -40,10 +38,8 @@ All from the repo root. `D` is `plugin/skills/design-interface`.
 | Check screens use only tokens | `python3 $D/scripts/check_tokens.py --project <project>/studio/project.json <project>/studio/app/src/variants` |
 | Promote an approved variant and pixel-check it | `python3 $D/scripts/promote_variant.py <project> --check --studio-url <studio url>` |
 | Validate the plugin and marketplace | `claude plugin validate ./plugin --strict` and `claude plugin validate . --strict` |
-| Check the three manifests agree, or bump the version | `python3 tools/check_manifests.py [--bump <version>]` |
+| Bump the version | edit `version` in `plugin/.claude-plugin/plugin.json` |
 | Check the plugin has no project words | `python3 tools/check_agnostic.py` |
-| Regenerate the Codex agents in `.codex/agents/` | `python3 plugin/skills/setup-project/scripts/codex_agents.py --project .` |
-| Compare the kit with ~/.agents (Codex, Cursor) | `python3 plugin/skills/setup-project/scripts/sync_global.py` |
 
 ## Checks
 
@@ -55,8 +51,8 @@ Run the ones that match what you changed. A check that is missing, skipped or fa
 2. `test_studio.mjs` must print `0 failed`. After a change to the app template, `init_studio.py`, `studio-build.ts`, `promote_variant.py` or `compare_screens.mjs`, `test_app.mjs` must too.
 3. For a change to the studio page, start the PartyFox studio, capture it with `--studio`, look at the captures at 1440, 1024 and 390, and ask the `design-critic` agent to score them. Under 70 means revise first.
 
-### Skills, agents, manifests
+### Skills, agents, manifest
 
 1. `claude plugin validate ./plugin --strict` and `claude plugin validate . --strict`.
-2. `python3 tools/check_manifests.py` and `python3 tools/check_agnostic.py`.
+2. `python3 tools/check_agnostic.py`.
 3. A skill that names a file or script: the path exists. A skill that was removed or renamed: no other file names it, the `.agents/skills/` symlink follows, and the README table follows.

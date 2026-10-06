@@ -30,14 +30,8 @@ the file.
 
 ### Models to offer
 
-List what the current CLI can run, strongest first, with one line each.
-Don't invent names; if unsure, run the CLI's own list.
-
-| CLI | How to list | Names to pass |
-| --- | --- | --- |
-| Claude Code | the Agent tool's `model` values | `fable`, `opus`, `sonnet`, `haiku` |
-| Codex | `codex --help` → `--model`; the config's `model` | the names Codex shows |
-| Cursor | `cursor-agent --list-models` | the names it prints |
+The Agent tool's `model` values, strongest first: `fable`, `opus`,
+`sonnet`, `haiku`. One line each.
 
 Suggest: reviewers on the strongest model; fixes on the fast model, and the
 strongest model for a fix the review marked as needing judgement (a design

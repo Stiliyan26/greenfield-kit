@@ -58,7 +58,7 @@ Done when the file exists.
 
 Ask in one message: what worries the user most here, and quick or full when
 the config doesn't settle it. Skip what the request already answered. Skip
-the step when a pipeline step (`add-feature`, `greenfield-mode`) started the
+the step when `greenfield-mode` started the
 review.
 
 Done when both are answered or skipped.
@@ -86,7 +86,7 @@ features share a reviewer; a feature leaves the plan only when the user
 drops it. With more features than `maxReviewers`, propose the merge
 yourself.
 
-Go ahead without waiting when the request said so or a pipeline step
+Go ahead without waiting when the request said so or `greenfield-mode`
 started the review. Show the plan block as one chat line instead.
 
 Done when the user said yes, or the exception applies, and every feature in

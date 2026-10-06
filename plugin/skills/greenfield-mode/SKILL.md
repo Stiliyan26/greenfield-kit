@@ -20,7 +20,7 @@ answers.
                                                                                 │
                                       6 Build one feature (BE + FE agents) ─► 7 PR + explainer ─► merge
                                                                                 │ next feature
-                                                        8 Add a feature later: add-feature
+                                                        8 Later: add a feature (below)
 ```
 
 ## Stages
@@ -33,10 +33,10 @@ answers.
 | **3A Design** | `design-interface` steps 4–6, Opus unless the user names another model | Only studio actions: pick, tune, comment, **Approve** | `DESIGN.md`, `design/*.css`, the approved variant's code |
 | **3B Plan the domain** | you + user, `plan-feature` domain pass, while 3A runs | Mode (you propose or they lead); then one question at a time: entities, roles, server functions, what can go wrong, data, services, time, config; each real choice with 2–3 options and a recommendation; answers saved as Q1…Qn | `docs/plans/<project>/plan.md`, interview in progress |
 | **4 Plan per feature** | you + user, `plan-feature` screen pass, after Approve | Per approved screen: how data loads, what is optimistic, errors, states, guards; the feature split; then **every feature file in full** | `plan.md` approved, `features/<slug>.md` each with Backend, Frontend, Scenarios, Tests; the `review` skill in plan mode first |
-| **5 Foundation** | one agent, `deliver-feature` alone, [coordination.md](references/coordination.md) | Approve its PR | The promoted routes and views, drizzle schema, auth, `server/shared/`, `shared/` with `INDEX.md`, `bun run check`, the `verify-<app>` skill (`create-verification-skill`); a PR with an explainer |
+| **5 Foundation** | one agent, `deliver-feature` alone, [coordination.md](references/coordination.md) | Approve its PR | The promoted routes and views, drizzle schema, auth, `server/shared/`, `shared/` with `INDEX.md`, `bun run check`, the `verify-<app>` skill (`verify`); a PR with an explainer |
 | **6 Build one feature** | a backend agent and a frontend agent, `deliver-feature`, same checkout | Nothing; a plan question comes to you from the lead | Every scenario green on Docker Postgres, journeys green at desktop and phone, `bun run check` clean, the verify run's evidence, the feature file's Driving section |
 | **7 Review + PR + explainer** | you: `review` in fix mode on the feature branch (the reviewers fix and commit), then `interactive-explanation` pr mode | Read the page, watch the journey and architecture videos, answer the `left for you` problems, **approve** | The merged feature, `Status: merged`; the next feature's agents already running |
-| **8 Later** | `add-feature` | — | A new feature file through 4 → 6 → 7; a screen change through the studio |
+| **8 Later** | you, "Add a feature" below | The screen, the feature file, the PR | A new feature through 4 → 6 → 7; a screen change through the studio |
 
 ## The fork after Frame
 
@@ -73,9 +73,34 @@ the app.
 - Every feature and the foundation land as a PR with an explainer the user
   approves. A change with no feature file gets neither.
 
-## Small changes
+## Later: add a feature
 
-Not everything re-enters the whole loop. A new feature or screen later:
-`add-feature`. A look change: `design-interface`. A small change (a color,
-one more field): one agent, `bun run check`, a direct commit with a one-line
-note, no PR.
+One feature for a product with an approved design and a plan. The same
+pipeline in one sitting; the user decides three times: the screen, the
+feature file, the PR.
+
+0. Small? A color, a label, one more field with no new behaviour: one
+   agent, `bun run check`, a direct commit with a one-line note. No feature
+   file, no PR.
+1. Read `plan.md`, every feature file, `DESIGN.md`, `shared/INDEX.md` and
+   the code around the change. Find every caller of what the feature
+   changes ([misuse.md](../plan-feature/references/misuse.md)).
+2. The screen. Fits an approved screen: go on. Needs a new screen, part or
+   state: ask once, with your pick. The studio (`design-interface`) for a
+   screen users live in or anything that changes the look. Straight into
+   the app, from `design/tokens.css`, `shared/ui/` and the entity parts,
+   for a plain form, list or detail page; `check_tokens.py` clean and the
+   `design-critic` agent at 1440 and 390, under 70 or any 1 means fix
+   first. A changed layout of an approved screen: always the studio.
+3. Plan: `plan-feature`, both passes in one sitting, into `plan.md` and
+   `features/<slug>.md`. Every caller gets a line or an accepted gap.
+   `review --plan`, then the user approves the file in full.
+4. Build: stage 6, on branch `feature/<slug>`.
+5. Prove: rebase on main, the suite green three times, `bun run check`,
+   e2e, then the verify skill on this feature and on every caller from
+   step 1. Evidence in `temp/verification/<slug>/`.
+6. Stage 7. Then `Status: merged`, and one line on what the user can do now.
+
+Changing another feature's agreed scenario, schema or server function is a
+plan change: update `plan.md` and that feature file, and say so. A look
+change alone goes through `design-interface`.
