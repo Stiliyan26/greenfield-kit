@@ -148,7 +148,7 @@ when a fourth case arrives or the blocks must stay in sync.
 ## No magic strings
 
 A literal that names a concept — route path, role, status, storage key, query
-key, event name — is defined once and referenced everywhere.
+key, event name, error message — is defined once and referenced everywhere.
 
 | Kind | Where it lives |
 | --- | --- |
@@ -200,6 +200,29 @@ export function findCustomer(id: string) {
 }
 ```
 
+Consecutive declarations: keep lines that **feed each other** together (a
+derivation chain, or one value and its setter), and put a blank line between
+**unrelated** ones. Each blank marks "a new idea starts here".
+
+```ts
+// ❌ four ideas in one wall
+const skusInOrder = new Set(order.lines.map((line) => line.sku));
+const productsNotInOrder = catalog.filter((product) => !skusInOrder.has(product.sku));
+const customersGained = totalCustomers - segment.customerCount;
+const isSaving = addLinesMutation.isPending || replaceLinesMutation.isPending;
+const canSave = lineSelection.allProducts || selectedProducts.length > 0;
+
+// ✅ grouped by relation
+const skusInOrder = new Set(order.lines.map((line) => line.sku));
+const productsNotInOrder = catalog.filter((product) => !skusInOrder.has(product.sku));
+
+const customersGained = totalCustomers - segment.customerCount;
+
+const isSaving = addLinesMutation.isPending || replaceLinesMutation.isPending;
+
+const canSave = lineSelection.allProducts || selectedProducts.length > 0;
+```
+
 Tight clusters of tiny related lines are fine when a blank would hurt more than
 help.
 
@@ -208,9 +231,76 @@ help.
 - Named exports. No default exports outside the files a framework requires.
 - No `I` prefix on interfaces. Types and components are `PascalCase`, functions
   and variables `camelCase`, constants `SCREAMING_SNAKE_CASE`.
-- Clear verb prefixes: `fetch*` for an async API call, `find*` for a lookup,
-  `read*` for a sync local read, `parse*` for raw to typed.
-- A name must describe what the body does **now**.
+
+### Names say what and whose
+
+Every declaration (variable, parameter, function, method, class, type, enum,
+constant) says **what it is** and **what it is about**, without reading its
+definition.
+
+| Declaration | Form | ❌ | ✅ |
+| --- | --- | --- | --- |
+| Variable | subject noun | `data`, `result`, `listed` | `skusInOrder`, `overdueInvoices` |
+| Boolean | `is` / `has` / `can` / `should` / `was` + condition | `pending`, `active`, `seenOpen` | `isSaving`, `hasSelectedCustomers`, `wasOpen` |
+| Collection | plural of its element | `list`, `items`, `arr` | `customers`, `orderIds` |
+| Set / Map | element + role or key | `map`, `lookup` | `skusInOrder`, `customerById` |
+| Function / method | verb + the thing it acts on | `handle`, `process`, `doIt`, `run` | `cancelOrder`, `buildInvoiceRows`, `toOrderSummary` |
+| Class / module | role noun with the subject | `Manager`, `Helper`, `Utils` | `OrdersRepository`, `InvoiceTotalsCalculator` |
+| Type / interface | subject + role | `Data`, `Options`, `IUser` | `CreateOrderInput`, `OrderLine` |
+| Enum or union | singular subject; members `PascalCase` | `Status` (of what?) | `OrderStatus.Shipped` |
+| Constant | `SCREAMING_SNAKE` with the subject (and unit) | `DEFAULT`, `LIMIT`, `TIMEOUT` | `ORDER_LINES_MAX`, `LOGIN_ATTEMPTS_MAX`, `EXIT_MS` |
+| Parameter or lambda argument | the element it is | `x`, `c`, `item`, `e` | `customer`, `invoice`, `event` |
+
+- **Name the noun, not the state.** A bare participle or adjective (`listed`,
+  `gaining`, `chosen`, `active`) is not a name. Say what: `skusInOrder`,
+  `customersGained`, `selectedCustomers`.
+- **No bare category words.** `data`, `items`, `value`, `result`, `state`,
+  `info`, `config`, `options`, `selection`, `handler`, `manager`, `helper` and
+  `utils` say nothing alone. Add the subject: `customerSelection`,
+  `invoiceTotals`, `retryOptions`.
+- **The verb is honest.** `get`, `find`, `read`, `fetch`, `build`, `to`,
+  `parse` and `is` mean different things: `fetch*` is an async API call,
+  `find*` a lookup, `read*` a sync local read, `parse*` raw to typed, `to*` a
+  conversion, `build*` a new value from parts. `handle*` and `process*` hide
+  what happens.
+- **Say the container when two sources are in scope.** If `order.lines` and
+  `catalog` both hold products, a derived value says which one:
+  `catalogProductsNotInOrder`.
+- **Units and formats go in the name** when the type doesn't carry them:
+  `timeoutMs`, `priceCents`, `startDateIso`.
+- **No abbreviations** except the ones the domain already uses (`id`, `url`,
+  `api`). Single letters only for a tiny lambda or a loop index.
+- **One concept, one word** across files: not `customer` here, `client` there
+  and `buyer` elsewhere.
+
+Test: read the line where the name is used, with the definition out of view.
+If you can't say what it holds or does, rename it. A subject may be dropped
+only when the file, class or type already makes it plain (`lines` inside
+`OrderLines`, `findById` on `OrdersRepository`).
+
+```ts
+// ❌ of what? listed where? does what?
+const listed = new Set(order.lines.map((l) => l.sku));
+const gaining = totalCustomers - segment.customerCount;
+const DEFAULT = 5;
+async function handle(data: Data) { /* … */ }
+
+// ✅ reads on its own at the call site
+const skusInOrder = new Set(order.lines.map((line) => line.sku));
+const customersGained = totalCustomers - segment.customerCount;
+const LOGIN_ATTEMPTS_MAX = 5;
+async function addLinesToOrder(input: AddOrderLinesInput) { /* … */ }
+```
+
+React-only names (state pairs, hooks, props, handlers, mutations) are in
+[react.md](react.md#names-in-react).
+
+### Names match behavior
+
+A name, and its parameters and types, must describe what the body does
+**now**. When behavior shrinks, rename it or remove the leftovers. After you
+delete a flag or a branch, drop the type fields nobody uses and rename the
+helpers that no longer match.
 
 ```ts
 // ❌ says "all users", returns active ones

@@ -38,6 +38,90 @@ function LoginScreen() {
 
 Skip the groups you don't use; keep the relative order.
 
+## Blank lines between sibling JSX
+
+A blank line between block-level sibling JSX elements, as between sibling
+statements.
+
+```tsx
+return (
+  <section>
+    <p className="text-muted-foreground">{formatToday()}</p>
+
+    <h1>Welcome back{firstName ? `, ${firstName}` : ""}.</h1>
+
+    <OrderSummary orderId={orderId} />
+  </section>
+);
+```
+
+## Conditional rendering
+
+Keep a conditional element **inline, where it sits** in the JSX, as
+`cond ? <X /> : null`. Name the condition **before `return`** as a boolean
+(`showX`, `canX`, `hasX`, `isX`) when it is a negation, a compound check, or a
+raw field whose meaning isn't plain at that spot.
+
+- **Ternary, not `&&`.** `{count && <X />}` renders a stray `0`;
+  `{count ? <X /> : null}` never does.
+- **Inline, not hoisted JSX.** Don't move the element itself into a variable
+  above `return` (`const addButton = cond ? <li>…</li> : null`). The reader
+  has to jump between two places, and in a list the render order is no longer
+  visible.
+- **Named, not raw.** One naming style per block: if one item uses
+  `showEmpty`, the others do too. Avoid `!` in a JSX condition; name the
+  positive intent instead (`canAddLines`, not `!order.isLocked`).
+- **Early return only for whole-component switches** (loading, error, not
+  found, empty page), not for one item among siblings.
+
+```tsx
+// ❌ raw, negated and named conditions mixed in one list
+<ul>
+  {order.isDraft ? <DraftBadge /> : null}
+
+  {order.lines.map(…)}
+
+  {showEmpty ? <li>…</li> : null}
+
+  {!order.isLocked ? <li><Button>Add line</Button></li> : null}
+</ul>
+
+// ✅ named before return, inline where each item sits
+const showDraftBadge = order.isDraft;
+const showEmpty = order.lines.length === 0;
+const canAddLines = !order.isLocked;
+
+return (
+  <ul>
+    {showDraftBadge ? <DraftBadge /> : null}
+
+    {order.lines.map(…)}
+
+    {showEmpty ? <li>…</li> : null}
+
+    {canAddLines ? <li><Button>Add line</Button></li> : null}
+  </ul>
+);
+```
+
+## Names in React
+
+The general naming rules are in [typescript.md](typescript.md#names). On top
+of them:
+
+- **Hooks** start with `use` and name the thing and the action:
+  `useAddOrderLines`, not `useAdd` or `useOrder`.
+- **State and setter share the subject:** `[customerSelection,
+  setCustomerSelection]`, not `[selection, setSelection]`. Booleans:
+  `[isOpen, setIsOpen]`.
+- **Props** of a domain component carry the subject (`removeTarget`,
+  `otherCustomersCount`). `value` and `onChange` stay bare only on generic
+  inputs. Boolean props read as a question (`isOpen`, `isCompact`).
+- **Handlers:** `onX` for a prop the component receives, `handleX` or a verb
+  phrase (`removeSingleLine`) for the local function. Never a bare `handle`.
+- **Mutations:** `addLinesMutation`, not `addLines`, so it doesn't read as a
+  function that adds.
+
 ## Thin hooks
 
 A hook wires React to units of logic. It does not host the algorithm. It should
@@ -209,7 +293,9 @@ export const statusOptions = STATUS_VALUES.map((value) => ({
   else reaches the server.
 - Read the current user through the one session hook in `entities/user`
   (`useSession()`, `useRole()`). Don't read `user.role` at call sites or
-  invent a parallel helper.
+  invent a parallel helper. Compare with the `Role` enum and use the shared
+  role helpers (`canManageOrders(role)`) instead of repeating
+  `role === Role.Manager || role === Role.Admin`.
 - Reusable icons come from the icon set the design names (`lucide-react` by
   default). A one-off decorative mark may stay inline.
 - Basic shared components don't know about roles or permissions.
@@ -224,6 +310,20 @@ export const statusOptions = STATUS_VALUES.map((value) => ({
 - Tables use TanStack Table; sorting, filters and paging go to the server
   function, never computed over a full list in the browser.
 - Keep filters and the page number in the URL where the screen already does.
+- A list that can grow gets a pager or "load more" in the UI, wired to the
+  paged server function. Never fetch everything and `slice` in the browser.
+- A change of search or filters resets to page 1 and sends the same terms to
+  the server.
+- Debounce typing before it reaches the network; dropdown filters fire at
+  once. Pick the delay from the project's scale, and ask when you don't know
+  it:
+
+  | Delay | When |
+  | --- | --- |
+  | 100–150 ms | Filtering a small list already in memory (under about 100 items). Not for a server search |
+  | 250–300 ms | The default: search-as-you-type against the server |
+  | 400–500 ms | Heavy queries, very large result sets, or a slow network |
+
 - A response check must match the real API. Don't hide broken data behind
   made-up defaults.
 - Keep useful content on screen while it reloads. A double click must not send
@@ -259,11 +359,22 @@ pure renames and moves.
 - Don't sprinkle `useMemo` and `useCallback` by default. Reach for
   `startTransition` or `useDeferredValue` for non-urgent updates when the team
   already uses them.
-- Prefer a ternary over `&&` when the left side can be `0`.
+- Prefer a ternary over `&&` when the left side can be `0`
+  ([Conditional rendering](#conditional-rendering)).
+- Hoist static JSX and default object props out of render when they cause
+  needless child updates.
 - Import heavy libraries directly rather than through a convenience barrel.
   Dynamically import genuinely heavy optional UI (export, PDF, large editors)
   when it isn't on the critical path.
 - Version and keep small anything you persist to local or session storage.
+
+## Pragmatism
+
+- Ship a clear, slightly imperfect solution over a principle-pure rewrite that
+  doesn't fit the screen.
+- When reviewing: name the principle, show the bad and the good version, and
+  say when bending the rule is right.
+- Don't refactor for its own sake while you add a feature.
 
 ## Design
 

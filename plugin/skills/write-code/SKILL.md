@@ -34,6 +34,9 @@ What a tool can't judge is below.
   things stay apart. Never merge different behaviors behind a true/false flag.
 - **Names match the body now.** When behavior shrinks, rename it and drop the
   fields that no longer apply. No broad name over a narrow body.
+- **Names say what and whose.** No bare `data`, `items`, `result`, `handle`
+  or `utils`: every name carries its subject (`overdueInvoices`,
+  `cancelOrder`). The table is in [typescript.md](references/typescript.md#names-say-what-and-whose).
 - **Scannable first.** Open a file: the exported function should show its
   intent in a few seconds. Happy path at the top, details below it. If reading
   the export doesn't tell you what the unit does, extract or reorder.
