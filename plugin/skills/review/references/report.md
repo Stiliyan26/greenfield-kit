@@ -1,9 +1,79 @@
-# The review files (report mode)
+# Report mode
 
-Fix mode writes none of this; its record is the commit messages and the PR
-page. A report-mode review writes one folder:
-`reviews/<date>-<target>/` in the project (`2026-09-29-time-off`, `2026-09-29-app`, `2026-09-29-plan`). Committed. It
-is the record: found → chosen → fixed → proved.
+Report mode picks up after step 4 of the skill. The reviewers have written
+their feature files; the user decides what gets fixed.
+
+## 5. README
+
+Read every feature file and write `README.md` in the shape below. A problem
+that two reviewers found from both sides is one row: keep it in the feature
+file where the fix lives and point the other file at it. Copy each problem
+as its reviewer wrote it. Every row comes from a feature file.
+
+Commit the folder (`review: <target>`) unless the user said not to. Tell
+the user: counts by priority, the top three, the folder path, and "Tick the
+Decision lines, then say fix."
+
+Done when every problem of every feature file has a row.
+
+## 6. The user ticks
+
+The user edits the Decision line of each problem: fix now (with the option
+letter), later, not a problem, or explain more. The Decision lines are the
+user's. For "explain more", answer in chat with more context and evidence;
+the user then ticks again.
+
+Done when the user says "fix".
+
+## 7. Fix agents
+
+Read every Decision line and group the "fix now" problems by feature file.
+Propose the fix agents and wait for a yes:
+
+```
+Fix: 9 problems ticked in 3 features
+  1. time-off   #7A #8A #9B #21A     (sonnet)
+  2. reporting  #13A #15A            (sonnet)
+  3. people     #4A #12A #19A        (sonnet)
+Foundation change: #9B needs a server migration → fable
+Go? Or: a number of agents, another model.
+```
+
+Each feature file gets one agent, up to the config's `maxFixAgents`; past
+the cap, the smallest share an agent. Use the `fixModel`, and the
+`reviewerModel` for a fix the review marked as needing judgement.
+
+Each fix agent works in the one checkout on a branch `fix/<feature>`, with
+the ownership rules of `deliver-feature`: it edits and commits only its
+feature's files. For each problem it writes the "Test to add" and sees it
+go red, applies the chosen option, runs the project's tests, and sets
+Status to `fixing`. It reports one line per problem: fixed, or blocked and
+why.
+
+Done when every fix agent has reported.
+
+## 8. Merge
+
+Take one branch at a time: rebase, run all the project's tests, read the
+diff against the feature's ownership, merge. A fix that touches shared code
+or another feature's files goes back to its agent with a request. Tell the
+user what merged and what is blocked.
+
+## 9. Close
+
+Start the reviewer of each feature again, with the same agent and model,
+the feature file, the merged code and the checklist. It runs the proof of
+every `fixing` problem again ([code-reviewer.md](../../../agents/code-reviewer.md),
+"Close"). Update the README's Status and Fixed count, commit
+(`review: close <target>`), and tell the user what is still open.
+
+Done when no problem is left in `fixing`.
+
+## The files
+
+A report-mode review writes one folder: `reviews/<date>-<target>/` in the
+project (`2026-09-29-time-off`, `2026-09-29-app`, `2026-09-29-plan`). It is
+committed, and it is the record: found → chosen → fixed → proved.
 
 ```
 reviews/2026-09-29-app/
