@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { BRAND, DiagramType, MERMAID_CDN, Video } from '../constants.mjs';
+import { BRAND, DiagramType, Door, MERMAID_CDN, SketchKind, Video } from '../constants.mjs';
 import { erDiagram, relationSentence } from '../database.mjs';
 import { STATUS_LEGEND, usesStatusClasses, withStatusClasses } from '../page.mjs';
 import { escapeHtml, formatClock } from './html.mjs';
@@ -24,17 +24,41 @@ const DIAGRAM_KICKERS = {
   [DiagramType.State]: 'States',
 };
 
+const SKETCH_KICKERS = {
+  [SketchKind.Files]: 'Files',
+  [SketchKind.Components]: 'Components',
+  [SketchKind.Calls]: 'Call tree',
+  [SketchKind.Pseudo]: 'Logic',
+  [SketchKind.Code]: 'Code',
+};
+
+const DOOR_LABELS = {
+  [Door.OneWay]: 'One-way door',
+  [Door.TwoWay]: 'Two-way door',
+};
+
+const DIFF_LINE_STATUS = {
+  '+': 'added',
+  '-': 'removed',
+};
+
+const EVIDENCE_SIDES = [
+  { key: 'before', caption: 'Before' },
+  { key: 'after', caption: 'After' },
+];
+
 // Page order: read top to bottom in 2–5 minutes; each video sits in the section it explains.
+// Summary, Evidence and Merge danger are the PR body's top three sections; the review map
+// follows the summary, so a reviewer can jump from the story to the changed components.
 const SECTIONS = [
+  { id: 'summary', label: 'Summary', render: ({ script }) => summaryHtml(script) },
   { id: 'review', label: 'Review map', render: ({ review }) => reviewHtml(review) },
-  { id: 'what', label: 'What it does', render: ({ script }) => whatHtml(script.description) },
   { id: 'before-after', label: 'Before → After', render: ({ script }) => beforeAfterHtml(script.beforeAfter) },
   { id: 'how', label: 'How it works', render: howHtml },
   { id: 'data', label: 'Data model', render: ({ database }) => databaseHtml(database) },
-  { id: 'screens', label: 'Screens', render: screensHtml },
+  { id: 'evidence', label: 'Evidence', render: evidenceHtml },
   { id: 'outcome', label: 'Outcome', render: ({ script }) => listSection('outcome', 'Outcome', 'What people can do now', script.outcome) },
-  { id: 'impact', label: 'Impact & risk', render: ({ script }) => risksHtml(script.risks) },
-  { id: 'tests', label: 'Tests', render: ({ script }) => testsHtml(script.tests) },
+  { id: 'danger', label: 'Merge danger', render: ({ script }) => dangerHtml(script.risks) },
 ];
 
 const FONTS_LINK =
@@ -107,7 +131,20 @@ function headerHtml({ script, readMinutes, videos }) {
   ${subtitle}
   <p class="meta">${pr}<span>About ${Math.max(1, Math.round(readMinutes))} min to read</span>${Object.keys(videos).length ? '<span aria-hidden="true">·</span><span>Videos are extra</span>' : ''}</p>
   <p class="impact">${escapeHtml(script.impact)}</p>
+  ${dangerChipsHtml(script.risks)}
 </header>`;
+}
+
+// The merge danger at a glance; each chip links to the full section.
+function dangerChipsHtml(risks) {
+  const chips = [
+    risks?.door && `<a class="chip chip--${risks.door.type}" href="#danger">${escapeHtml(DOOR_LABELS[risks.door.type])}</a>`,
+    risks?.blastRadius && `<a class="chip" href="#danger">Blast radius: ${escapeHtml(risks.blastRadius.scope)}</a>`,
+  ].filter(Boolean);
+
+  if (chips.length === 0) return '';
+
+  return `<p class="chips">${chips.join('')}</p>`;
 }
 
 function navHtml(sections) {
@@ -116,13 +153,44 @@ function navHtml(sections) {
   return `<nav class="toc" aria-label="Sections">${links}</nav>`;
 }
 
-function whatHtml(description) {
-  const lines = [description].flat();
-  const body = lines.length === 1
-    ? `<p class="plain">${escapeHtml(lines[0])}</p>`
-    : `<ul class="functions">${lines.map((line) => `<li><span>${escapeHtml(line)}</span></li>`).join('')}</ul>`;
+// What it does, then the sketches: the smallest text views of the change.
+function summaryHtml(script) {
+  const sketches = (script.sketches ?? []).map(sketchHtml).join('');
 
-  return sectionHtml('what', 'What it does', null, body);
+  return sectionHtml('summary', 'Summary', null, `${descriptionHtml(script.description)}${sketches}`);
+}
+
+function descriptionHtml(description) {
+  const lines = [description].flat();
+
+  if (lines.length === 1) return `<p class="plain">${escapeHtml(lines[0])}</p>`;
+
+  return `<ul class="functions">${lines.map((line) => `<li><span>${escapeHtml(line)}</span></li>`).join('')}</ul>`;
+}
+
+function sketchHtml(sketch) {
+  const file = sketch.file ? `<figcaption class="sketch__file"><code>${escapeHtml(sketch.file)}</code></figcaption>` : '';
+  const highlighted = new Set(sketch.highlight ?? []);
+  const lines = sketch.source.split('\n').map((line, index) => sketchLineHtml(line, index + 1, { isDiff: sketch.diff === true, highlighted })).join('');
+  const numbered = sketch.kind === SketchKind.Code ? ' sketch--numbered' : '';
+
+  return `<div class="block">
+    <div class="kicker">${escapeHtml(SKETCH_KICKERS[sketch.kind])}</div>
+    <h3>${escapeHtml(sketch.heading)}</h3>
+    <p class="note">${escapeHtml(sketch.text)}</p>
+    <figure class="sketch${numbered}">${file}<pre class="sketch__source">${lines}</pre></figure>
+  </div>`;
+}
+
+function sketchLineHtml(line, lineNumber, { isDiff, highlighted }) {
+  const status = isDiff ? DIFF_LINE_STATUS[line[0]] : undefined;
+  const classes = [
+    'sketch__line',
+    status && `sketch__line--${status}`,
+    highlighted.has(lineNumber) && 'sketch__line--highlight',
+  ].filter(Boolean);
+
+  return `<span class="${classes.join(' ')}">${escapeHtml(line)}</span>`;
 }
 
 function beforeAfterHtml(beforeAfter) {
@@ -190,14 +258,33 @@ function diagramBlockHtml(diagram) {
   </div>`;
 }
 
-function screensHtml({ screens, videos }) {
-  if (!screens.length && !videos[Video.Journey]) return '';
+// Proof that the change works: before/after pairs, the screens, the journey video and the tests.
+function evidenceHtml({ script, evidence, screens, videos }) {
+  const pairs = evidence.map(evidencePairHtml).join('');
+  const gallery = screens.length ? `<div class="screens">${screens.map(screenHtml).join('')}</div>` : '';
+  const body = `${pairs}${gallery}${videoHtml(Video.Journey, videos[Video.Journey])}${testsHtml(script.tests)}`;
 
-  const gallery = screens.length
-    ? `<div class="screens">${screens.map(screenHtml).join('')}</div>`
-    : '';
+  if (!body) return '';
 
-  return sectionHtml('screens', 'Screens', 'Captured from the real app in the journey run', `${gallery}${videoHtml(Video.Journey, videos[Video.Journey])}`);
+  return sectionHtml('evidence', 'Evidence', 'Proof that the change works', body);
+}
+
+function evidencePairHtml(pair) {
+  const sides = EVIDENCE_SIDES.map(({ key, caption }) => evidenceSideHtml(pair[key], key, caption)).join('');
+
+  return `<div class="block">
+    <h3>${escapeHtml(pair.label)}</h3>
+    <div class="evidence">${sides}</div>
+  </div>`;
+}
+
+// A side is a screenshot or a test run / console output.
+function evidenceSideHtml(side, key, caption) {
+  const body = side.src
+    ? `<a href="${escapeHtml(side.src)}" target="_blank" rel="noopener"><img src="${escapeHtml(side.src)}" alt="${escapeHtml(caption)}"></a>`
+    : `<pre class="output">${escapeHtml(side.output)}</pre>`;
+
+  return `<figure class="pair__side pair__side--${key}"><figcaption>${caption}</figcaption>${body}</figure>`;
 }
 
 // Each box on a shot and its group in the reading order share data-review="<number>";
@@ -272,16 +359,27 @@ function screenHtml(screen) {
   </figure>`;
 }
 
-function risksHtml(risks) {
+// Merge danger: the door and the blast radius first, then one row per area and the deploy steps.
+function dangerHtml(risks) {
   if (!risks) return '';
 
+  const rows = [
+    risks.door && dangerRowHtml('Door', DOOR_LABELS[risks.door.type], risks.door.text),
+    risks.blastRadius && dangerRowHtml('Blast radius', risks.blastRadius.scope, risks.blastRadius.text),
+    ...(risks.items ?? []).map((item) => dangerRowHtml(item.area, null, item.text)),
+  ].filter(Boolean);
   const diagram = risks.mermaid ? `<div class="block">${mermaidHtml(risks.mermaid)}${usesStatusClasses(risks.mermaid) ? legendHtml() : ''}</div>` : '';
-  const items = risks.items.map((item) => `<div class="risk"><dt>${escapeHtml(item.area)}</dt><dd>${escapeHtml(item.text)}</dd></div>`).join('');
   const deploy = risks.deploy?.length
     ? `<h3>Deploy</h3><ol class="steps">${risks.deploy.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol>`
     : '';
 
-  return sectionHtml('impact', 'Impact & risk', 'What this changes for data, the API, users and performance', `${diagram}<dl class="risks">${items}</dl>${deploy}`);
+  return sectionHtml('danger', 'Merge danger', 'How hard it is to walk back, and what it can break', `<dl class="risks">${rows.join('')}</dl>${diagram}${deploy}`);
+}
+
+function dangerRowHtml(term, verdict, text) {
+  const parts = [verdict && `<b>${escapeHtml(verdict)}.</b>`, text && escapeHtml(text)].filter(Boolean);
+
+  return `<div class="risk"><dt>${escapeHtml(term)}</dt><dd>${parts.join(' ')}</dd></div>`;
 }
 
 function testsHtml(tests) {
@@ -290,7 +388,10 @@ function testsHtml(tests) {
   const summary = tests.summary ? `<p class="plain">${escapeHtml(tests.summary)}</p>` : '';
   const rows = tests.items.map((item) => `<tr><th scope="row"><code>${escapeHtml(item.name)}</code></th><td>${escapeHtml(item.proves)}</td></tr>`).join('');
 
-  return sectionHtml('tests', 'Tests', null, `${summary}<table class="tests"><thead><tr><th scope="col">Test</th><th scope="col">What it proves</th></tr></thead><tbody>${rows}</tbody></table>`);
+  return `<div class="block">
+    <div class="kicker">Tests</div>
+    ${summary}<table class="tests"><thead><tr><th scope="col">Test</th><th scope="col">What it proves</th></tr></thead><tbody>${rows}</tbody></table>
+  </div>`;
 }
 
 function listSection(id, heading, blurb, lines) {

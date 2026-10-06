@@ -1,6 +1,10 @@
-import { DIAGRAM_TYPES, ID_PATTERN, Mode, MODES, SCENE_KINDS, SceneKind, VIDEOS, videosIn } from './constants.mjs';
+import { DIAGRAM_TYPES, DOORS, ID_PATTERN, Mode, MODES, SCENE_KINDS, SceneKind, SKETCH_KINDS, SketchKind, VIDEOS, videosIn } from './constants.mjs';
 
 const MIN_NARRATION_LENGTH = 10;
+
+const SHOT_PATTERN = /^[a-z0-9-]+\/[A-Za-z0-9._-]+$/;
+
+const DIFF_LINE_PATTERN = /^[+\- ]/;
 
 export function validateScript(script, slug) {
   const problems = [
@@ -30,19 +34,22 @@ function checkHeader(script, slug) {
   ]);
 }
 
-// The reading sections of the page. A PR needs outcome, impact and risk, tests
-// and at least one "How it works" diagram. A task needs outcome and something to
-// see: a before/after pair or a diagram. Everything else only when it applies.
+// The reading sections of the page. A PR needs sketches, evidence, outcome, merge
+// danger, tests and at least one "How it works" diagram. A task needs outcome and
+// something to see: a before/after pair, a diagram or a sketch. Everything else
+// only when it applies.
 function checkSections(script) {
   const isPr = (script.mode ?? Mode.Pr) === Mode.Pr;
-  const hasPicture = script.beforeAfter !== undefined || hasItems(script.diagrams);
+  const hasPicture = script.beforeAfter !== undefined || hasItems(script.diagrams) || hasItems(script.sketches);
 
   return [
+    ...(isPr || script.sketches !== undefined ? checkSketches(script.sketches) : []),
     ...checkBeforeAfter(script.beforeAfter),
     ...(isPr || script.diagrams !== undefined ? checkDiagrams(script.diagrams) : []),
-    ...failures([[!isPr && !hasPicture, 'a task needs beforeAfter or at least one diagram']]),
+    ...failures([[!isPr && !hasPicture, 'a task needs beforeAfter, a diagram or a sketch']]),
     ...checkList(script.outcome, 'outcome', { required: true }),
-    ...(isPr || script.risks ? checkRisks(script.risks) : []),
+    ...(isPr || script.evidence !== undefined ? checkEvidence(script.evidence) : []),
+    ...(isPr || script.risks ? checkRisks(script.risks, { isPr }) : []),
     ...(isPr || script.tests ? checkTests(script.tests) : []),
     ...checkScreens(script.screens),
     ...checkDatabase(script.database),
@@ -53,6 +60,53 @@ function checkSections(script) {
       [script.workflow !== undefined, 'workflow is gone: use a Mermaid diagram in diagrams instead'],
     ]),
   ];
+}
+
+// Summary sketches: a file tree, component tree, call tree, pseudocode or code.
+// With `diff`, every line starts with "+", "-" or a space.
+function checkSketches(sketches) {
+  if (!hasItems(sketches)) return ['sketches must list at least one Summary sketch'];
+
+  return sketches.flatMap((sketch, index) => {
+    const sourceLines = typeof sketch.source === 'string' ? sketch.source.split('\n') : [];
+    const problems = failures([
+      [!SKETCH_KINDS.includes(sketch.kind), `kind must be one of ${SKETCH_KINDS.join(', ')}`],
+      [!isFilled(sketch.heading), 'heading is required'],
+      [!isFilled(sketch.text), 'text is required (one sentence next to the sketch)'],
+      [!isFilled(sketch.source), 'source is required'],
+      [sketch.kind === SketchKind.Code && !isFilled(sketch.file), 'code sketches need "file"'],
+      [sketch.diff === true && !sourceLines.every((line) => line === '' || DIFF_LINE_PATTERN.test(line)), 'with diff, every line starts with "+", "-" or a space'],
+      [sketch.highlight !== undefined && !isLineNumberList(sketch.highlight), 'highlight must list 1-based line numbers'],
+    ]);
+
+    return problems.map((problem) => `sketches[${index}]: ${problem}`);
+  });
+}
+
+// Evidence pairs: each side is a screenshot ({ shot }) or a test run or console output ({ output }).
+function checkEvidence(evidence) {
+  if (!hasItems(evidence)) return ['evidence must list at least one before/after pair'];
+
+  return evidence.flatMap((pair, index) => {
+    const problems = [
+      ...failures([[!isFilled(pair.label), 'label is required']]),
+      ...checkEvidenceSide(pair.before, 'before'),
+      ...checkEvidenceSide(pair.after, 'after'),
+    ];
+
+    return problems.map((problem) => `evidence[${index}]: ${problem}`);
+  });
+}
+
+function checkEvidenceSide(side, name) {
+  const hasShot = side?.shot !== undefined;
+  const hasOutput = side?.output !== undefined;
+
+  return failures([
+    [hasShot === hasOutput, `${name} needs exactly one of "shot" or "output"`],
+    [hasShot && !SHOT_PATTERN.test(side.shot), `${name}.shot must be "<feature>/<step>" from saveStep`],
+    [hasOutput && !isFilled(side.output), `${name}.output must be the test or console output`],
+  ]);
 }
 
 function checkBeforeAfter(beforeAfter) {
@@ -79,8 +133,9 @@ function checkDiagrams(diagrams) {
   });
 }
 
-function checkRisks(risks) {
-  if (!risks) return ['risks is required ({ items: [{ area, text }] }, optional mermaid)'];
+// Merge danger. A PR needs the door and the blast radius; the area rows are optional.
+function checkRisks(risks, { isPr }) {
+  if (!risks) return ['risks is required ({ door, blastRadius, items?, mermaid?, deploy? })'];
 
   const items = risks.items ?? [];
   const itemProblems = items.flatMap((item, index) => {
@@ -90,7 +145,14 @@ function checkRisks(risks) {
     ]);
   });
 
-  return [...failures([[!hasItems(items), 'risks.items must not be empty']]), ...itemProblems];
+  return [
+    ...failures([
+      [(isPr || risks.door !== undefined) && !DOORS.includes(risks.door?.type), `risks.door.type must be one of ${DOORS.join(', ')}`],
+      [(isPr || risks.blastRadius !== undefined) && !isFilled(risks.blastRadius?.scope), 'risks.blastRadius.scope is required (one word)'],
+      [risks.items !== undefined && !hasItems(items), 'risks.items must not be empty when present'],
+    ]),
+    ...itemProblems,
+  ];
 }
 
 function checkTests(tests) {
@@ -113,7 +175,7 @@ function checkScreens(screens) {
 
   return screens.flatMap((screen, index) => {
     return failures([
-      [!/^[a-z0-9-]+\/[A-Za-z0-9._-]+$/.test(screen.shot ?? ''), `screens[${index}].shot must be "<feature>/<step>" from saveStep`],
+      [!SHOT_PATTERN.test(screen.shot ?? ''), `screens[${index}].shot must be "<feature>/<step>" from saveStep`],
       [!isFilled(screen.caption), `screens[${index}].caption is required`],
     ]);
   });
@@ -202,6 +264,10 @@ function isFilled(value, minLength = 1) {
 
 function isStringList(value) {
   return hasItems(value) && value.every((item) => isFilled(item));
+}
+
+function isLineNumberList(value) {
+  return hasItems(value) && value.every((item) => Number.isInteger(item) && item > 0);
 }
 
 function hasItems(value) {

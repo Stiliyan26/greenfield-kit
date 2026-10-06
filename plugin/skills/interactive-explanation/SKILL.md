@@ -42,10 +42,33 @@ first; every key is optional:
 | `database` | `{ command, cwd }`: prints schema facts as JSON for the tables passed to it ([format](references/script-format.md#schema-facts)). Without it, draw schemas as an `er` diagram |
 | `journey` | `{ serve, doctor, drive, stop, recorder, recipe, evidence, needs }`: the verify skill's launch, doctor, drive and stop commands, the clip recorder, the recipe path, where evidence lands (`temp/verification`), what must be running. Without it, skip the journey video |
 | `context` | Folders with the plan and feature files (`docs/plans/<project>`), design rules (`DESIGN.md`) and test helpers |
-| `voiceEnv` | Env file with `OPENROUTER_API_KEY` (template: `references/explain.env.example`; default `.agents/local/explain.env`). Without a key, narration uses macOS `say`. Never ask the user to buy anything |
+| `voiceEnv` | A project-only override of the voice key file (default `.agents/local/explain.env`). Most projects leave it out; see **The voice key** below |
 
 `setup-project` writes a starter config; the `verify-<app>` skill's Record
 section is the `journey.recorder`.
+
+### The voice key
+
+Narration uses OpenRouter when `OPENROUTER_API_KEY` is set, read in this
+order: the shell, the project's `.agents/local/explain.env`, the user's
+`~/.agents/explain.env`. The user's file is set once and serves every
+project. Without a key, narration uses macOS `say`.
+
+The first time a build on this machine finds no key, ask the user once,
+before the build, and give them the command to run themselves. Never ask
+them to paste the key in chat, never read or print the file, never commit
+it:
+
+```
+mkdir -p ~/.agents && chmod 700 ~/.agents
+printf 'OPENROUTER_API_KEY=<paste here>\n' > ~/.agents/explain.env && chmod 600 ~/.agents/explain.env
+```
+
+If they'd rather not, build with `--voice say` and don't ask again in that
+session. The model and voice have defaults (`google/gemini-3.8-flash-lite-tts`,
+`Kore`; about $0.06 for five minutes); `EXPLAIN_TTS_MODEL` and
+`EXPLAIN_TTS_VOICE` in the same file change them. Never ask the user to buy
+anything.
 
 ## Modes
 
@@ -53,7 +76,7 @@ section is the `journey.recorder`.
 | --- | --- | --- |
 | When | A feature file reached `Status: review`, or the foundation is done | You changed code, schema or UI without a feature file and there is something to see |
 | Reading time | 2–5 min | 1–3 min |
-| Required | `description`, `impact`, `outcome`, 1–3 diagrams, `risks`, `tests`, `beforeAfter` or a diagram, at least one video | `description`, `impact`, `outcome`, and `beforeAfter` or a diagram |
+| Required | `description`, `impact`, `outcome`, 1–3 `sketches`, `evidence`, 1–3 diagrams, `risks` (door and blast radius), `tests`, at least one video | `description`, `impact`, `outcome`, and `beforeAfter`, a diagram or a sketch |
 | Videos | Architecture always; journey when the UI changed | Only a journey, and only when the UI change is worth watching |
 | Ask first? | Show the narration and diagram choice before recording | No. Build, open, put the path in the final reply |
 
@@ -62,10 +85,13 @@ config value, research) and say so. For a task, do steps 1, 2, 4 and 6; name
 the slug after the task (`order-row-warning`).
 
 The page shows only the sections the script has: header (title, PR link,
-reading time, impact) → Review map → What it does → Before → After → How it
-works (+ architecture video) → Data model → Screens (+ journey video) →
-Outcome → Impact & risk → Tests. `pr-body.md` has the same sections and
-Mermaid, so the PR and the page never drift.
+reading time, impact, door and blast radius chips) → Summary (+ sketches) →
+Review map → Before → After → How it works (+ architecture video) → Data
+model → Evidence (+ journey video and tests) → Outcome → Merge danger.
+
+`pr-body.md` has the same content and Mermaid, so the PR and the page never
+drift. It opens with **Summary**, **Evidence** and **Merge Danger**, then the
+Review map. Everything else folds into a "Full explanation" `<details>` block.
 
 **Review map** (automatic when screens have component boxes): each screen is
 cropped to the changed components, with one numbered box each (green added,
@@ -100,6 +126,31 @@ Pick the "How it works" diagrams from the diff:
 Tag flowchart nodes `:::added`, `:::changed`, `:::removed` or `:::kept`; the
 page adds colours and a legend.
 
+Pick the Summary **sketches** from the diff: the smallest text view that makes
+the point. Use one, sometimes two or three, never all of them:
+
+| The point is | `kind` | Shows |
+| --- | --- | --- |
+| Which files own what, or a broad refactor | `files` | A shallow file tree with a `# note` per line |
+| UI structure, with the state and module boundaries that matter | `components` | A component tree |
+| Runtime control flow | `calls` | A call tree |
+| Logic or an algorithm | `pseudo` | Pseudocode |
+| The exact new shape, when most of it is new or order matters | `code` | The lines, with `file` and `highlight` |
+
+Set `diff: true` when the point is what changes and the shape already exists:
+prefix each line with `+`, `-` or a space. Keep only the calls, files, props
+and states the point needs.
+
+Collect **evidence**: a before and an after for each claim. A screenshot pair
+is best when the change is visible. Otherwise use a test run: the same test
+failing before and passing after, or console output. For a "before" shot,
+drive the recipe on the base branch with a `-before` step name.
+
+Decide the **merge danger**. A two-way door is cheap to walk back. A one-way
+door is not: a destructive migration, deleted data, a public contract change.
+The blast radius is one word for what can break (`Orders`, `Auth`,
+`Layout`), with the ramifications in its text.
+
 For a PR, also note the 3–6 journey steps (and what each was like before),
 and the 3–6 architecture decisions: the file split, which layer holds which
 state, where a rule lives and why, each with its Q-number from `plan.md`.
@@ -115,8 +166,14 @@ example are in [references/script-format.md](references/script-format.md).
 - `description`: 2–5 things a user can do, in the user's words. `impact`:
   one sentence a manager would repeat. Decisions go in `outcome` with the
   Q-number in the text. Deploy steps go in `risks.deploy`.
+- `sketches`: each has one sentence of `text` next to it. A sketch is under
+  15 lines and 70 columns.
+- `evidence`: each pair has a `label` that names the claim it proves.
+- `risks`: `door` and `blastRadius` first. Add `items` (Data, API, Users,
+  Performance) only for an area that changes.
 - **Reading budget**: the build estimates the page (200 words a minute, 15 s
-  a diagram, 5 s a screen) and warns over the limit. Cut words before
+  a diagram, 5 s a screen, 10 s a sketch or test output) and warns over the
+  limit. Cut words before
   sections.
 - **All text is ASD-STE100**: page, PR body and narration.
   - One idea per sentence, active voice, present tense.
@@ -124,7 +181,8 @@ example are in [references/script-format.md](references/script-format.md).
   - Use the simple word ("use", not "utilize"; "about", not "approximately";
     "to", not "in order to"). No "simply", "just", "basically", "very".
   - Use what the screen calls things. File and function names belong only
-    in the architecture video.
+    in the architecture video and the Summary sketches (files, components,
+    calls, code). The prose next to a sketch still uses screen words.
   - Define a term the first time you use it.
   - The build lists every sentence that breaks a rule. Fix them all before
     you show the user.

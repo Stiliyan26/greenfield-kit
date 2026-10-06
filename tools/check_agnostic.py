@@ -29,6 +29,9 @@ def main():
     for path in sorted(PLUGIN.rglob("*")):
         if not path.is_file() or path.suffix not in EXTENSIONS or any(skip in path.parents for skip in SKIP):
             continue
+        # Installed packages (the explainer's renderer) are not the kit's words.
+        if "node_modules" in path.parts:
+            continue
         for number, line in enumerate(path.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
             match = WORDS.search(line)
             if match:

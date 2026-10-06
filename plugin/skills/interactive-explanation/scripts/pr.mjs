@@ -1,14 +1,16 @@
 // The PR description, from the same script.json as the page: same sections,
-// same Mermaid diagrams, written in ASD-STE100. Writes temp/explainers/<slug>/pr-body.md
+// same Mermaid diagrams, written in ASD-STE100. Summary, Evidence and Merge Danger
+// come first, then the review map; the rest folds into "Full explanation".
+// Writes temp/explainers/<slug>/pr-body.md
 // with the screenshots and videos as local paths; `gh pr edit --attach` uploads them
 // and rewrites each path to the uploaded file, so nothing is committed.
 import { existsSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { DiagramType, GITHUB_MEDIA_LIMIT_BYTES, ROOT, Video } from './constants.mjs';
+import { DiagramType, GITHUB_MEDIA_LIMIT_BYTES, ROOT, SketchKind, Video } from './constants.mjs';
 import { explainerDir, isMain } from './lib.mjs';
 import { erDiagram, loadDatabase, relationSentence } from './database.mjs';
-import { STATUS_LEGEND, usesStatusClasses, withStatusClasses } from './page.mjs';
+import { shotSrc, STATUS_LEGEND, usesStatusClasses, withStatusClasses } from './page.mjs';
 import { shotCaption } from './page/template.mjs';
 import { readReview } from './review.mjs';
 import { readScript } from './script.mjs';
@@ -19,6 +21,14 @@ const DIAGRAM_TITLES = {
   [DiagramType.Sequence]: 'Request flow',
   [DiagramType.Component]: 'Components',
   [DiagramType.State]: 'States',
+};
+
+const SKETCH_TITLES = {
+  [SketchKind.Files]: 'Files',
+  [SketchKind.Components]: 'Components',
+  [SketchKind.Calls]: 'Call tree',
+  [SketchKind.Pseudo]: 'Logic',
+  [SketchKind.Code]: 'Code',
 };
 
 export function writePrBody(slug) {
@@ -37,9 +47,10 @@ export function writePrBody(slug) {
 }
 
 function prBody(script, media, review) {
-  return [
-    review && section('Review map', reviewParts(review, media)),
-    section('Summary', [bullets([script.description].flat()), `**Impact:** ${script.impact}`]),
+  const screens = script.screens ?? [];
+  const evidence = script.evidence ?? [];
+  const hasEvidence = evidence.length > 0 || screens.length > 0 || media.videos[Video.Journey] || script.tests;
+  const details = [
     script.beforeAfter && section('Before and after', [
       '**Before**', mermaid(script.beforeAfter.before),
       '**After**', mermaid(script.beforeAfter.after),
@@ -50,36 +61,108 @@ function prBody(script, media, review) {
       media.videos[Video.Architecture],
     ]),
     script.database && section('Data model', databaseParts(loadDatabase(script.database))),
-    (script.screens?.length || media.videos[Video.Journey]) && section('Screens', [
-      ...screenParts(script.screens ?? [], media.screens),
-      media.videos[Video.Journey],
-    ]),
     section('Outcome', [bullets(script.outcome)]),
-    script.risks && section('Impact and risk', [
-      script.risks.mermaid && mermaid(script.risks.mermaid),
-      bullets(script.risks.items.map((item) => `**${item.area}.** ${item.text}`)),
-      script.risks.deploy?.length && `**Deploy**\n\n${numbered(script.risks.deploy)}`,
+  ].filter(Boolean);
+
+  return [
+    section('Summary', [
+      bullets([script.description].flat()),
+      `**Impact:** ${script.impact}`,
+      ...(script.sketches ?? []).flatMap(sketchParts),
     ]),
-    script.tests && section('Tests', [
-      script.tests.summary,
-      bullets(script.tests.items.map((item) => `\`${item.name}\`: ${item.proves}`)),
+    hasEvidence && section('Evidence', [
+      ...evidence.flatMap((pair) => evidenceParts(pair, media.shots)),
+      ...screens.map((screen) => shotPart(screen.shot, screen.caption, media.shots)),
+      media.videos[Video.Journey],
+      script.tests && testsParts(script.tests),
     ]),
+    script.risks && section('Merge Danger', dangerParts(script.risks)),
+    review && section('Review map', reviewParts(review, media)),
+    details.length > 0 && foldedParts('Full explanation', details),
   ]
     .filter(Boolean)
     .join('\n\n')
     .concat('\n');
 }
 
+function sketchParts(sketch) {
+  return [
+    `### ${SKETCH_TITLES[sketch.kind]}: ${sketch.heading}`,
+    sketch.text,
+    sketch.file && `\`${sketch.file}\``,
+    fenced(sketchLanguage(sketch), sketch.source),
+  ];
+}
+
+// GitHub colours a diff fence; code gets its file's language; trees and pseudocode stay plain.
+function sketchLanguage(sketch) {
+  if (sketch.diff) return 'diff';
+  if (sketch.kind === SketchKind.Code) return path.extname(sketch.file).slice(1);
+
+  return 'text';
+}
+
+function evidenceParts(pair, shots) {
+  return [
+    `### ${pair.label}`,
+    '**Before**',
+    evidenceSidePart(pair.before, `${pair.label}: before`, shots),
+    '**After**',
+    evidenceSidePart(pair.after, `${pair.label}: after`, shots),
+  ];
+}
+
+function evidenceSidePart(side, caption, shots) {
+  if (side.shot) return shotPart(side.shot, caption, shots);
+
+  return fenced('text', side.output);
+}
+
+// A screenshot shows inline when its file exists; otherwise only its caption.
+function shotPart(shot, caption, shots) {
+  const src = shotSrc(shot);
+
+  if (!shots.has(src)) return `- ${caption}`;
+
+  return `![${caption}](${src})`;
+}
+
+function testsParts(tests) {
+  return [
+    '**Tests**',
+    tests.summary,
+    bullets(tests.items.map((item) => `\`${item.name}\`: ${item.proves}`)),
+  ].filter(Boolean).join('\n\n');
+}
+
+function dangerParts(risks) {
+  return [
+    risks.door && `**Door:** ${risks.door.type}`,
+    risks.door?.text,
+    risks.blastRadius && `**Blast Radius:** ${risks.blastRadius.scope}`,
+    risks.blastRadius?.text,
+    risks.items?.length && bullets(risks.items.map((item) => `**${item.area}.** ${item.text}`)),
+    risks.mermaid && mermaid(risks.mermaid),
+    risks.deploy?.length && `**Deploy**\n\n${numbered(risks.deploy)}`,
+  ];
+}
+
+// GitHub renders Markdown inside <details> only with a blank line after <summary>.
+function foldedParts(summary, sections) {
+  return [`<details>\n<summary>${summary}</summary>`, ...sections, '</details>'].join('\n\n');
+}
+
 // The screenshots and videos the build left next to the page, as the relative
 // paths the body uses. `--attach` must get the same strings to rewrite them.
 function localMedia(dir, script, review) {
-  const screens = (script.screens ?? []).map((screen) => `./screens/${screen.shot.replace('/', '-')}.png`);
+  const evidenceShots = (script.evidence ?? []).flatMap((pair) => [pair.before.shot, pair.after.shot]).filter(Boolean);
+  const screens = [...(script.screens ?? []).map((screen) => screen.shot), ...evidenceShots].map(shotSrc);
   const reviewShots = (review?.shots ?? []).map((shot) => shot.image);
   const exists = (file) => existsSync(path.join(dir, file));
   const videoFiles = Object.values(Video).map((video) => [video, `./${video}.mp4`]).filter(([, file]) => exists(file));
 
   return {
-    screens: screens.map((file) => (exists(file) ? file : null)),
+    shots: new Set(screens.filter(exists)),
     // A video renders as a player only as image syntax alone in its paragraph.
     videos: Object.fromEntries(videoFiles.map(([video, file]) => [video, `![](${file})`])),
     reviewShots: reviewShots.filter(exists),
@@ -122,17 +205,6 @@ function reviewFileLine(entry) {
   const note = entry.note ? ` — ${entry.note}` : '';
 
   return `${'  '.repeat(entry.depth)}- ${link} · ${entry.status} <sub>${path.posix.dirname(entry.file)}</sub>${note}`;
-}
-
-// A screenshot shows inline when its file exists; otherwise only its caption.
-function screenParts(screens, files) {
-  return screens.map((screen, index) => {
-    const file = files[index];
-
-    return file
-      ? `![${screen.caption}](${file})`
-      : `- ${screen.caption}`;
-  });
 }
 
 function publishCommand(script, files) {
@@ -181,7 +253,11 @@ function section(heading, parts) {
 }
 
 function mermaid(source) {
-  return ['```mermaid', withStatusClasses(source), '```'].join('\n');
+  return fenced('mermaid', withStatusClasses(source));
+}
+
+function fenced(language, source) {
+  return [`\`\`\`${language}`, source, '```'].join('\n');
 }
 
 function bullets(lines) {

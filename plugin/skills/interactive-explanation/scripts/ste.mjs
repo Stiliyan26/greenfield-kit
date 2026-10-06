@@ -49,17 +49,20 @@ export function checkStyle(script) {
 }
 
 // Reading time for the page, videos excluded: words at a steady pace, plus a
-// fixed time to take in each diagram and screen.
+// fixed time to take in each diagram, screen and sketch (test output counts as a sketch).
 export function readingMinutes(script) {
   const words = textsOf(script, { includeVideo: false })
     .map(({ text }) => wordCount(text))
     .reduce((sum, count) => sum + count, 0);
   const diagrams = (script.diagrams?.length ?? 0) + (script.beforeAfter ? 1 : 0) + (script.risks?.mermaid ? 1 : 0) + (script.database ? 1 : 0);
-  const screens = script.screens?.length ?? 0;
+  const evidenceSides = (script.evidence ?? []).flatMap((pair) => [pair.before, pair.after]);
+  const screens = (script.screens?.length ?? 0) + evidenceSides.filter((side) => side.shot).length;
+  const sketches = (script.sketches?.length ?? 0) + evidenceSides.filter((side) => side.output).length;
   const seconds =
     (words / READING.wordsPerMinute) * 60 +
     diagrams * READING.secondsPerDiagram +
-    screens * READING.secondsPerScreen;
+    screens * READING.secondsPerScreen +
+    sketches * READING.secondsPerSketch;
 
   return seconds / 60;
 }
@@ -99,6 +102,11 @@ function textsOf(script, { includeVideo = true } = {}) {
 
   [script.description].flat().forEach((line, i) => add(`description[${i}]`, line));
   add('impact', script.impact);
+  (script.sketches ?? []).forEach((sketch, i) => {
+    add(`sketches[${i}].heading`, sketch.heading);
+    add(`sketches[${i}].text`, sketch.text);
+  });
+  (script.evidence ?? []).forEach((pair, i) => add(`evidence[${i}].label`, pair.label));
   add('beforeAfter.note', script.beforeAfter?.note);
   (script.diagrams ?? []).forEach((diagram, i) => {
     add(`diagrams[${i}].heading`, diagram.heading);
@@ -107,6 +115,8 @@ function textsOf(script, { includeVideo = true } = {}) {
   });
   (script.screens ?? []).forEach((screen, i) => add(`screens[${i}].caption`, screen.caption));
   (script.outcome ?? []).forEach((line, i) => add(`outcome[${i}]`, line));
+  add('risks.door.text', script.risks?.door?.text);
+  add('risks.blastRadius.text', script.risks?.blastRadius?.text);
   (script.risks?.items ?? []).forEach((item, i) => add(`risks.items[${i}]`, item.text));
   add('tests.summary', script.tests?.summary);
   (script.tests?.items ?? []).forEach((item, i) => add(`tests.items[${i}]`, item.proves));

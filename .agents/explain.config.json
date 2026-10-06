@@ -1,0 +1,6 @@
+{
+  "_readme": "Read by the interactive-explanation skill. This repo has no app to drive, so there is no journey block; explainers here get an architecture video only.",
+  "brand": "greenfield-kit",
+  "context": ["docs/plans", "plugin/skills"],
+  "voiceEnv": ".agents/local/explain.env"
+}

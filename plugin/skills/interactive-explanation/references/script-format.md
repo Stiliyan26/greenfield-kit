@@ -15,13 +15,15 @@ narration plus 0.9 s, or its clip if that is longer.
 | `review` | no | `{ notes: { "<repo path>": "one line" } }` | A line after a file in the review map, when its name does not say enough |
 | `description` | yes | a sentence or 2–5 strings | What it does |
 | `impact` | yes | one sentence | Header, under the title |
+| `sketches` | PR: 1–3 | `{ kind, heading, text, source, diff?, file?, highlight? }[]`, `kind` is `files`, `components`, `calls`, `pseudo` or `code` | Summary, under the description. `source` is the sketch with `\n` line breaks. With `diff: true`, each line starts with `+`, `-` or a space. `code` needs `file`; `highlight` lists 1-based lines |
 | `beforeAfter` | when behaviour changed | `{ before, after, note? }`, both Mermaid flowcharts | Two stacked flowcharts: Before muted, After in brand colours |
 | `diagrams` | PR: 1–3 | `{ type, heading, mermaid, steps?, note? }[]`, `type` is `sequence`, `component`, `state` or `flowchart` | How it works. `steps` is a numbered list, for example migration steps |
 | `database` | schema touched | `{ intro?, tables: string[], relations?: { table, column, meaning }[] }` | Data model: the ER is generated from [schema facts](#schema-facts), plus a relations table. `relations` adds what each foreign key means |
-| `screens` | UI changed | `{ shot: "<feature>/<step>", caption }[]` | Screenshot cards from the journey run |
+| `screens` | UI changed | `{ shot: "<feature>/<step>", caption }[]` | Screenshot cards in Evidence, from the journey run |
+| `evidence` | PR: at least one | `{ label, before, after }[]`, each side `{ shot: "<feature>/<step>" }` or `{ output }` | Evidence: before and after side by side. `output` is a test run or console output, shown as text |
 | `outcome` | yes | `string[]` | What people can do now, with decisions: `"… (Q7 in plan.md)."` |
-| `risks` | PR | `{ mermaid?, items: { area, text }[], deploy?: string[] }` | Impact flowchart, one row per area (Data, API, Users, Performance), numbered deploy steps |
-| `tests` | PR | `{ summary?, items: { name, proves }[] }` | A summary line, then a table with each spec and what it proves |
+| `risks` | PR | `{ door: { type, text? }, blastRadius: { scope, text? }, items?: { area, text }[], mermaid?, deploy?: string[] }`, `type` is `one-way` or `two-way` | Merge danger: door and blast radius (also as chips in the header), one row per area, an impact flowchart, numbered deploy steps |
+| `tests` | PR | `{ summary?, items: { name, proves }[] }` | In Evidence: a summary line, then a table with each spec and what it proves |
 | `journey`, `architecture` | PR: one or both | `{ scenes: Scene[] }` | The videos. Leave a key out to skip that video |
 
 ## Scene kinds
@@ -49,6 +51,10 @@ Every scene has an `id` (unique across both videos, lowercase with dashes), a
   "prUrl": "https://github.com/acme/app/pull/53",
   "description": ["Staff cancel an open order from the list or the detail page", "The customer gets one email"],
   "impact": "A wrong order is stopped in seconds, with no call to support.",
+  "sketches": [
+    { "kind": "calls", "heading": "What a cancel runs", "text": "The server function checks the owner before it writes.", "diff": true,
+      "source": " OrderRow\n+  CancelOrderDialog\n+    cancelOrder({ orderId })\n+      ordersRepository.cancel(orderId, ownerId)\n+      sendCancelEmail(customer)" }
+  ],
   "beforeAfter": {
     "before": "flowchart LR\n  S[Staff] -->|email support| X[Support edits the row]:::removed\n  X -.->|next day| C[Customer told]",
     "after": "flowchart LR\n  S[Staff] -->|Cancel + confirm| F[cancelOrder]:::added\n  F --> R[(orders.status = cancelled)]:::added\n  F --> M[One email to the customer]:::added"
@@ -65,8 +71,15 @@ Every scene has an `id` (unique across both videos, lowercase with dashes), a
     ]
   },
   "screens": [{ "shot": "cancel-order/2-confirm-dialog", "caption": "Confirm before the order is cancelled." }],
+  "evidence": [
+    { "label": "Staff cancel an open order",
+      "before": { "output": "✗ cancel-order.spec: no Cancel button on the row" },
+      "after": { "output": "✓ cancel-order.spec (9 tests)" } }
+  ],
   "outcome": ["Staff cancel an order in two clicks.", "A cancelled order keeps its row and history (Q7 in plan.md)."],
   "risks": {
+    "door": { "type": "two-way", "text": "The migration only adds a status value, so a revert keeps every row." },
+    "blastRadius": { "scope": "Orders", "text": "The orders list and the order emails." },
     "items": [{ "area": "Data", "text": "The migration adds the status value. Existing rows are unchanged." }],
     "deploy": ["Merge the pull request.", "Run the database migration in production."]
   },

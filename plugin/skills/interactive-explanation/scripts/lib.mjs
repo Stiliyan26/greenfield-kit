@@ -16,6 +16,7 @@ import {
   ID_PATTERN,
   LOCAL_ENV_FILE,
   ROOT,
+  USER_ENV_FILE,
   VERIFICATION_DIR,
 } from './constants.mjs';
 
@@ -86,15 +87,18 @@ export function probeSeconds(file) {
   return seconds;
 }
 
-// Reads .agents/local/explain.env (KEY=VALUE lines). The real environment wins.
+// Reads the project's voice env file, then the user's (KEY=VALUE lines). The
+// real environment wins, then the project file, then the user file.
 export function loadLocalEnv() {
-  if (!existsSync(LOCAL_ENV_FILE)) return;
+  for (const file of [LOCAL_ENV_FILE, USER_ENV_FILE]) {
+    if (!existsSync(file)) continue;
 
-  const lines = readFileSync(LOCAL_ENV_FILE, 'utf8').split('\n');
-  const entries = lines.map(parseEnvLine).filter(Boolean);
+    const lines = readFileSync(file, 'utf8').split('\n');
+    const entries = lines.map(parseEnvLine).filter(Boolean);
 
-  for (const [key, value] of entries) {
-    process.env[key] ||= value;
+    for (const [key, value] of entries) {
+      process.env[key] ||= value;
+    }
   }
 }
 

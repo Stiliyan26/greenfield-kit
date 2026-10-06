@@ -1,7 +1,7 @@
 // The feature page: temp/explainers/<slug>/index.html. Read top to bottom in 2–5
-// minutes: title and impact, what it does, before → after, how it works (with the
-// architecture video), screens (with the journey video), outcome, impact and
-// risk (with deploy steps) and tests.
+// minutes: title, impact and merge danger chips, summary (with sketches), before →
+// after, how it works (with the architecture video), data model, evidence (with
+// the journey video and tests), outcome, merge danger and the review map.
 import { copyFileSync, existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
@@ -30,6 +30,7 @@ export function writePage(slug) {
     script,
     database: loadDatabase(script.database),
     screens,
+    evidence: collectEvidence(dir, script.evidence),
     review: buildReview(dir, script, screens),
     readMinutes: readingMinutes(script),
     videos: Object.fromEntries(videos.map((video) => [video, describeVideo(props[video])])),
@@ -108,20 +109,39 @@ export function usesStatusClasses(source) {
 // recipe: temp/verification/<run>/drive-*/steps/<feature>/<step>.png. The newest
 // copy of each shot is copied next to the page, so it survives cleanup.
 function collectScreens(dir, screens = []) {
-  if (screens.length === 0) return [];
+  return screens.map((screen) => ({ ...screen, src: copyShot(dir, screen.shot) }));
+}
 
-  const target = path.join(dir, 'screens');
-  mkdirSync(target, { recursive: true });
+// Evidence sides with a shot get the same copy; output sides stay as text.
+function collectEvidence(dir, evidence = []) {
+  return evidence.map((pair) => ({
+    ...pair,
+    before: withShotSrc(dir, pair.before),
+    after: withShotSrc(dir, pair.after),
+  }));
+}
 
-  return screens.map((screen) => {
-    const source = newestShot(screen.shot);
-    const file = `${screen.shot.replace('/', '-')}.png`;
+function withShotSrc(dir, side) {
+  if (!side.shot) return side;
 
-    copyFileSync(source, path.join(target, file));
-    copyComponentBoxes(source, path.join(target, file));
+  return { ...side, src: copyShot(dir, side.shot) };
+}
 
-    return { ...screen, src: `./screens/${file}` };
-  });
+// The path the page and the PR body use for a shot.
+export function shotSrc(shot) {
+  return `./screens/${shot.replace('/', '-')}.png`;
+}
+
+function copyShot(dir, shot) {
+  const source = newestShot(shot);
+  const src = shotSrc(shot);
+  const target = path.join(dir, src);
+
+  mkdirSync(path.dirname(target), { recursive: true });
+  copyFileSync(source, target);
+  copyComponentBoxes(source, target);
+
+  return src;
 }
 
 // `<step>.components.json` (where each component sits on the shot) feeds the review map.

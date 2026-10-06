@@ -512,6 +512,124 @@ pre.mermaid svg {
   font-size: 14px;
 }
 
+/* Merge danger chips in the header */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+
+.chip {
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--heading);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.chip--two-way {
+  border-color: var(--added);
+  color: var(--added);
+}
+
+.chip--one-way {
+  border-color: var(--removed);
+  color: var(--removed);
+}
+
+/* Summary sketches: file, component and call trees, pseudocode, code */
+
+.sketch {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.sketch__file {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.sketch__source {
+  margin: 0;
+  padding: 10px 0;
+  overflow-x: auto;
+  counter-reset: sketch-line;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.sketch__line {
+  display: block;
+  min-height: 1.6em;
+  padding: 0 14px;
+  border-left: 3px solid transparent;
+  white-space: pre;
+}
+
+.sketch--numbered .sketch__line::before {
+  counter-increment: sketch-line;
+  content: counter(sketch-line);
+  display: inline-block;
+  width: 2.5em;
+  margin-right: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+
+.sketch__line--added {
+  background: color-mix(in srgb, var(--added) 14%, transparent);
+}
+
+.sketch__line--removed {
+  background: color-mix(in srgb, var(--removed) 14%, transparent);
+}
+
+.sketch__line--highlight {
+  border-left-color: var(--brand);
+  background: var(--wash);
+}
+
+/* Evidence: before and after, side by side */
+
+.evidence {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.evidence img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.output {
+  margin: 0;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
 /* Videos inside a section */
 
 .video {
@@ -587,7 +705,8 @@ code {
 }
 
 @media (max-width: 720px) {
-  .screens {
+  .screens,
+  .evidence {
     grid-template-columns: 1fr;
   }
 

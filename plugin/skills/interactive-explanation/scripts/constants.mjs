@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,7 +18,10 @@ export const BRAND = CONFIG.brand ?? path.basename(ROOT);
 export const EXPLAINERS_DIR = path.join(ROOT, 'temp', 'explainers');
 export const VERIFICATION_DIR = CONFIG.journey?.evidence ? path.join(ROOT, CONFIG.journey.evidence) : null;
 export const REMOTION_DIR = path.join(SKILL_DIR, 'remotion');
+// The voice key is read from, in order: the shell, the project's file, the
+// user's file. The user's file is set once and serves every project.
 export const LOCAL_ENV_FILE = path.join(ROOT, CONFIG.voiceEnv ?? path.join('.agents', 'local', 'explain.env'));
+export const USER_ENV_FILE = path.join(os.homedir(), '.agents', 'explain.env');
 
 export const ID_PATTERN = /^[a-z0-9-]+$/;
 
@@ -67,6 +71,25 @@ export const DiagramType = {
 
 export const DIAGRAM_TYPES = Object.values(DiagramType);
 
+// Summary sketches: the smallest text view of the change. Each kind answers one question.
+export const SketchKind = {
+  Files: 'files',
+  Components: 'components',
+  Calls: 'calls',
+  Pseudo: 'pseudo',
+  Code: 'code',
+};
+
+export const SKETCH_KINDS = Object.values(SketchKind);
+
+// Merge danger: a two-way door is cheap to walk back; a one-way door is not.
+export const Door = {
+  OneWay: 'one-way',
+  TwoWay: 'two-way',
+};
+
+export const DOORS = Object.values(Door);
+
 // GitHub's upload limit for one image or video (video on the Free plan). The
 // PR body attaches the media with `gh pr edit --attach`, so every file must fit.
 export const GITHUB_MEDIA_LIMIT_BYTES = 10_000_000;
@@ -78,5 +101,6 @@ export const READING = {
   wordsPerMinute: 200,
   secondsPerDiagram: 15,
   secondsPerScreen: 5,
+  secondsPerSketch: 10,
   maxMinutes: { pr: 5, task: 3 },
 };

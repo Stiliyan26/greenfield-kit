@@ -77,7 +77,7 @@ function voiceConfig(requested) {
   }
 
   if (!process.env.OPENROUTER_API_KEY) {
-    throw new Error('OPENROUTER_API_KEY is not set. Put it in the voice env file or pass --voice say.');
+    throw new Error('OPENROUTER_API_KEY is not set. Put it in ~/.agents/explain.env (once, for every project) or pass --voice say.');
   }
 
   return {
