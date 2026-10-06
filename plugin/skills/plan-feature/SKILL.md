@@ -13,7 +13,7 @@ sitting.
 
 ## Start
 
-1. **Read what exists.** `.agents/PROJECT.md`, `BRIEF.md`, `studio/project.json`
+1. **Read what exists.** `CLAUDE.md`, `BRIEF.md`, `studio/project.json`
    and `studio/app/src/data.ts` (the screens and the records they show are the
    draft data model), earlier plans, the code around the change: schema,
    auth, `server/shared/`, existing feature files. `DESIGN.md`, if approved,

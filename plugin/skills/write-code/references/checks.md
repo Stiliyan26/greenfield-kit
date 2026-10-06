@@ -39,7 +39,7 @@ default; ESLint carries the four rules oxlint 1.86 doesn't have.
 | Real buttons, labels, focus | oxlint `jsx-a11y` | react.md, "Forms and data" |
 | Formatting | oxfmt | — |
 | Types | `tsc --noEmit` | — |
-| Exports, files and dependencies nobody uses | knip | INSTRUCTIONS.md, "Before changing code" |
+| Exports, files and dependencies nobody uses | knip | CLAUDE.md, "How to work here" |
 | Casing per kind, no `I` prefix | ESLint `@typescript-eslint/naming-convention` | typescript.md, "Names" |
 | Import order, six groups, assets last | ESLint `simple-import-sort` | typescript.md, "Import order" |
 | Blank line between block-level siblings | ESLint `@stylistic/padding-line-between-statements` | typescript.md, "Blank lines between siblings" |

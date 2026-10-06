@@ -48,6 +48,6 @@ sample data. The studio engine lives in this skill and serves any project's
 If the browser or Playwright isn't available, say that visual quality is
 unchecked. Don't present candidates as reviewed.
 
-Skills installed in `~/.agents/skills/` work in every local project. A copy in
-one project's `.agents/skills/` works only there. `server.py` finds the engine
+Skills installed in `~/.claude/skills/` work in every local project. A copy in
+one project's `.claude/skills/` works only there. `server.py` finds the engine
 in either place.

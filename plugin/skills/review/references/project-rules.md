@@ -1,7 +1,7 @@
 # The project's own review rules
 
 The checklist is generic. What only this project knows goes in
-`.agents/review/`, one small file per topic; the reviewer reads the ones
+`.claude/review/`, one small file per topic; the reviewer reads the ones
 that exist before it starts. Point to the real source (a permissions doc, a
 scope doc, an ADR) instead of copying it, so there's one truth.
 
@@ -17,7 +17,7 @@ Every file here is optional. Most projects start with none.
 | `triage.json` | `scripts/triage.mjs` | Paths to leave out of every review ([triage.md](triage.md)) |
 
 Templates: [assets/project-rules/](../assets/project-rules/). Copy the ones the
-project needs into `.agents/review/`, then fill them from the project's real
+project needs into `.claude/review/`, then fill them from the project's real
 docs. Leave out a file that has nothing to say.
 
 A missing rules file changes nothing: the reviewer uses the checklist's

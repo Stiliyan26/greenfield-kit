@@ -22,8 +22,8 @@ def candidates():
         yield Path(hint.read_text(encoding="utf-8").strip())
     for folder in [HERE, *HERE.parents]:
         yield folder / "plugin" / ENGINE
-        yield folder / ".agents" / ENGINE
-    yield Path.home() / ".agents" / ENGINE
+        yield folder / ".claude" / ENGINE
+    yield Path.home() / ".claude" / ENGINE
     # Plugin caches of Claude Code, Codex and Cursor, newest install first.
     caches = [
         Path(os.environ.get("CLAUDE_CONFIG_DIR", Path.home() / ".claude")) / "plugins",

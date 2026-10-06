@@ -10,7 +10,7 @@
 // Option: --project <root> (default: the current folder).
 // Writes <dir>/files.txt ("<lines>\t<path>"), <dir>/diff.patch (not for --app or --plan)
 // and <dir>/plan.json, and prints a short plan.
-// A project may add {"ignore": ["<regex>", ...]} in <root>/.agents/review/triage.json (optional).
+// A project may add {"ignore": ["<regex>", ...]} in <root>/.claude/review/triage.json (optional).
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join, relative, resolve } from 'node:path';
@@ -368,7 +368,7 @@ function git(root, args, okCodes = [0]) {
 
 // Only "ignore" is read; any other key in the project file is ignored silently.
 function readIgnore(root) {
-  const path = resolve(root, '.agents/review/triage.json');
+  const path = resolve(root, '.claude/review/triage.json');
 
   if (!existsSync(path)) {
     return [];

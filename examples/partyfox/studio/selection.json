@@ -1,13 +1,13 @@
 {
-  "screen": "booking",
-  "variant": "opus",
+  "screen": "inbox",
+  "variant": "fable",
   "width": 1920,
   "tuning": {},
   "palette": {},
   "shortlist": [],
   "feedback": "",
   "status": "draft",
-  "revision": 266,
+  "revision": 278,
   "approvedAt": null,
   "exported": {
     "revision": 247,

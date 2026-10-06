@@ -4,5 +4,6 @@
   "mayRunApp": true,
   "depth": "full",
   "maxReviewers": 4,
-  "maxFixAgents": 4
+  "maxFixAgents": 4,
+  "maxRounds": 2
 }

@@ -50,5 +50,5 @@ and the `--out` folder. `--app` keeps only source files and `DESIGN.md`.
 Features are sorted by lines, biggest first.
 
 ## Project file (optional)
-`<root>/.agents/review/triage.json`: `{ "ignore": ["<regex>", ...] }`. Matching
+`<root>/.claude/review/triage.json`: `{ "ignore": ["<regex>", ...] }`. Matching
 paths are skipped ("project ignore rule"). Any other key is ignored.

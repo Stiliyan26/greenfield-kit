@@ -36,7 +36,7 @@ Ask the user only what the code can't tell you.
   codes, database rows.
 - Isolate: can two instances run side by side (ports, data dirs, profiles)?
   If not, the skill must refuse to drive a shared instance.
-- Feature files: where they are (`.agents/PROJECT.md` names the plan
+- Feature files: where they are (`CLAUDE.md` names the plan
   folder). None yet: the skill still works for ad-hoc drives and says the
   map arrives with `plan-feature`.
 

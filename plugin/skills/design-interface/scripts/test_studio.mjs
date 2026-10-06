@@ -18,8 +18,8 @@ const check = (name, pass, detail = "") => { results.push({ name, pass, detail }
 
 const root = await mkdtemp(join(tmpdir(), "studio-test-"))
 const studio = join(root, "studio")
-await mkdir(join(root, ".agents/skills/design-interface/assets"), { recursive: true })
-await symlink(join(skill, "assets/studio-engine"), join(root, ".agents/skills/design-interface/assets/studio-engine"))
+await mkdir(join(root, ".claude/skills/design-interface/assets"), { recursive: true })
+await symlink(join(skill, "assets/studio-engine"), join(root, ".claude/skills/design-interface/assets/studio-engine"))
 await cp(join(skill, "assets/studio-content"), studio, { recursive: true })
 await mkdir(join(studio, "candidates"))
 

@@ -45,7 +45,7 @@ function findSourceDir(from) {
 
   if (source && existsSync(source)) return source;
 
-  throw new Error('No recorded clips found. Record the journey recipe first (journey.drive in .agents/explain.config.json), or pass --clips <dir>.');
+  throw new Error('No recorded clips found. Record the journey recipe first (journey.drive in .claude/explain.config.json), or pass --clips <dir>.');
 }
 
 function listWebms(source) {

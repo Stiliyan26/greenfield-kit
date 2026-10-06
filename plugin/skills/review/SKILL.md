@@ -38,7 +38,7 @@ committed and is the record.
 
 ## 0. Gates
 
-Run the gate command from `.agents/PROJECT.md`. Note which checks are red;
+Run the gate command from `CLAUDE.md`. Note which checks are red;
 they go to the reviewers and into the hand-over, and the review goes on.
 Report mode also saves the output in `<run>/tools.txt`.
 If the project has no size, import, copied-code or dead-code checks, say so
@@ -48,7 +48,7 @@ Done when you know which gates are red.
 
 ## 1. Config
 
-Read `.agents/review/config.json`. If it is missing, ask the questions in
+Read `.claude/review/config.json`. If it is missing, ask the questions in
 [config.md](references/config.md), offer the models this CLI can run, and
 write the file.
 
@@ -75,7 +75,7 @@ you. The script writes `plan.json`, one entry per feature
 ([triage.md](references/triage.md)), plus `files.txt` and `diff.patch`.
 
 Write the goal: one paragraph on what the change is for, from the request,
-the PR text, the commits, `docs/plans/` and `.agents/PROJECT.md`, then the
+the PR text, the commits, `docs/plans/` and `CLAUDE.md`, then the
 user's worry. Fix mode puts it in each reviewer's prompt; report mode saves
 it as `<run>/goal.md`.
 
@@ -106,7 +106,7 @@ and give it:
 - the path to [checklist.md](references/checklist.md), and in report mode
   [report.md](references/report.md),
 - the `write-code` skill's `SKILL.md` path,
-- whether it may start the app, and the commands from `.agents/PROJECT.md`,
+- whether it may start the app, and the commands from `CLAUDE.md`,
 - its problem numbers: 1–99 for the first reviewer, 100–199 for the next,
 - for a plan: the plan files and the checklist's "Plan mode" section.
 
@@ -170,5 +170,5 @@ Done when the page is built and the user has the digest.
 | Need                                                            | Read                                            |
 | --------------------------------------------------------------- | ----------------------------------------------- |
 | Gate tools: size, nesting, cycles, layers, copied and dead code | [tools.md](references/tools.md)                 |
-| The project's own rules in `.agents/review/`                    | [project-rules.md](references/project-rules.md) |
+| The project's own rules in `.claude/review/`                    | [project-rules.md](references/project-rules.md) |
 | Models, the questions, the plan block                           | [config.md](references/config.md)               |

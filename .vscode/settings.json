@@ -1,8 +1,0 @@
-{
-  // The studio app template (plugin/skills/design-interface/assets/studio-app) is copied
-  // into a project and installed there. Here it has no node_modules, so the editor's
-  // TypeScript would show errors that don't exist in a real project. The template is
-  // checked for real by scripts/test_app.mjs.
-  "typescript.validate.enable": false,
-  "search.exclude": { "**/node_modules": true, "temp/verification": true }
-}

@@ -9,9 +9,9 @@ const SCRIPTS_DIR = path.dirname(fileURLToPath(import.meta.url));
 
 const SKILL_DIR = path.resolve(SCRIPTS_DIR, '..');
 export const ROOT = path.resolve(process.env.EXPLAIN_ROOT ?? process.cwd());
-const CONFIG_FILE = path.join(ROOT, '.agents', 'explain.config.json');
+const CONFIG_FILE = path.join(ROOT, '.claude', 'explain.config.json');
 
-// Everything specific to a project lives in .agents/explain.config.json; the skill runs without it.
+// Everything specific to a project lives in .claude/explain.config.json; the skill runs without it.
 export const CONFIG = existsSync(CONFIG_FILE) ? JSON.parse(readFileSync(CONFIG_FILE, 'utf8')) : {};
 
 export const BRAND = CONFIG.brand ?? path.basename(ROOT);
@@ -20,8 +20,8 @@ export const VERIFICATION_DIR = CONFIG.journey?.evidence ? path.join(ROOT, CONFI
 export const REMOTION_DIR = path.join(SKILL_DIR, 'remotion');
 // The voice key is read from, in order: the shell, the project's file, the
 // user's file. The user's file is set once and serves every project.
-export const LOCAL_ENV_FILE = path.join(ROOT, CONFIG.voiceEnv ?? path.join('.agents', 'local', 'explain.env'));
-export const USER_ENV_FILE = path.join(os.homedir(), '.agents', 'explain.env');
+export const LOCAL_ENV_FILE = path.join(ROOT, CONFIG.voiceEnv ?? path.join('.claude', 'local', 'explain.env'));
+export const USER_ENV_FILE = path.join(os.homedir(), '.claude', 'explain.env');
 
 export const ID_PATTERN = /^[a-z0-9-]+$/;
 

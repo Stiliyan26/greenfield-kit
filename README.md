@@ -48,7 +48,7 @@ The repo is a Claude Code plugin marketplace. It is private, so Claude Code clon
 
 Skills are then named `greenfield-kit:<skill>`, for example `/greenfield-kit:greenfield-mode`. The `design-critic` agent comes with the plugin.
 
-**For a team.** Run the `setup-project` skill in the project. It copies the working rules (`AGENTS.md`, `.agents/INSTRUCTIONS.md`, `.agents/PROJECT.md`) and adds a `.claude/settings.json` that enables the plugin for everyone who trusts the folder. It never overwrites a file that exists. For a Bun or Node project it also installs the `write-code` checks (`bun run check`).
+**For a team.** Run the `setup-project` skill in the project. It copies `CLAUDE.md` (the working rules and the project's facts) and adds a `.claude/settings.json` that enables the plugin for everyone who trusts the folder. It never overwrites a file that exists. For a Bun or Node project it also installs the `write-code` checks (`bun run check`).
 
 ## What's inside
 
@@ -95,9 +95,9 @@ Screens color only through shadcn's names (`bg-primary`, `text-muted-foreground`
 - `plugin/` is the plugin: `.claude-plugin/plugin.json`, `skills/`, `agents/`. Edit skills and agents here.
 - `.claude-plugin/marketplace.json` makes the repo its own marketplace.
 - After a change, bump `version` in `plugin/.claude-plugin/plugin.json`.
-- `.agents/skills/` and `.agents/agents/` link into `plugin/`, so this repo uses its own kit while you work on it.
+- `.claude/skills` and `.claude/agents` link into `plugin/`, so this repo uses its own kit while you work on it.
 - `examples/partyfox/` is a studio with three hand-written HTML variants from before the app flow; it still opens and is the engine test's shape. Run `cd examples/partyfox && python3 studio/server.py --port 4173`.
-- Checks are in `.agents/PROJECT.md`. The main ones:
+- Checks are in `CLAUDE.md`. The main ones:
 
 ```
 node plugin/skills/design-interface/scripts/test_studio.mjs   # the engine, ~1 min

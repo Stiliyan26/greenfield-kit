@@ -1,5 +1,5 @@
 // The "Data model" section. The facts (columns, keys, relations, constraints)
-// come from the command in .agents/explain.config.json (`database.command`), so
+// come from the command in .claude/explain.config.json (`database.command`), so
 // they are always what the schema says. The script only adds the story: which
 // tables and what each relation means.
 import path from 'node:path';
@@ -88,7 +88,7 @@ function readSchemaFacts(tables) {
   const source = CONFIG.database;
 
   if (!source?.command) {
-    throw new Error('The script has a "database" block, but .agents/explain.config.json has no database.command. Add one, or draw the schema as an "er" diagram.');
+    throw new Error('The script has a "database" block, but .claude/explain.config.json has no database.command. Add one, or draw the schema as an "er" diagram.');
   }
 
   const [program, ...args] = source.command;

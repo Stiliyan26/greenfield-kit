@@ -21,8 +21,8 @@ writes `DESIGN.md` (with its Components table), `design/fonts.css`, `design/toke
 
 `studio/server.py` is a small stub. It finds the engine in this order: the
 `STUDIO_ENGINE` variable; `studio/.engine-path`, which `init_studio.py` writes
-(and a `.gitignore` keeps out of git); a `plugin/` or `.agents/` folder in any
-parent directory; `~/.agents/skills/`; then the Claude Code plugin cache,
+(and a `.gitignore` keeps out of git); a `plugin/` or `.claude/` folder in any
+parent directory; `~/.claude/skills/`; then the Claude Code plugin cache,
 newest first. Run it from the project root: `python3 studio/server.py`. It
 prints its URL; add `--port 4173` for a fixed one.
 

@@ -1,6 +1,6 @@
 # Plan files
 
-All in `docs/plans/<project>/`, or the plan folder `.agents/PROJECT.md` names:
+All in `docs/plans/<project>/`, or the plan folder `CLAUDE.md` names:
 
 - `plan.md`: below.
 - `features/<slug>.md`: one per feature, in the shape of

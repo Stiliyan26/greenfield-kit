@@ -26,14 +26,14 @@ when the mode needs them. Never commit it; delete it when done (step 6).
 node <skill-root>/scripts/build.mjs <slug>
 ```
 
-`<skill-root>` is this skill's folder (`.agents/skills/interactive-explanation`
+`<skill-root>` is this skill's folder (`.claude/skills/interactive-explanation`
 or the plugin's copy). It needs `ffmpeg` and `ffprobe` on the path, and the
 renderer installed once per machine: `cd <skill-root>/remotion && bun install`.
 Set `EXPLAIN_ROOT` when you can't run from the project root.
 
 ## Project setup
 
-The skill holds no project knowledge. Read `.agents/explain.config.json`
+The skill holds no project knowledge. Read `.claude/explain.config.json`
 first; every key is optional:
 
 | Key | Meaning |
@@ -42,7 +42,7 @@ first; every key is optional:
 | `database` | `{ command, cwd }`: prints schema facts as JSON for the tables passed to it ([format](references/script-format.md#schema-facts)). Without it, draw schemas as an `er` diagram |
 | `journey` | `{ serve, doctor, drive, stop, recorder, recipe, evidence, needs }`: the verify skill's launch, doctor, drive and stop commands, the clip recorder, the recipe path, where evidence lands (`temp/verification`), what must be running. Without it, skip the journey video |
 | `context` | Folders with the plan and feature files (`docs/plans/<project>`), design rules (`DESIGN.md`) and test helpers |
-| `voiceEnv` | A project-only override of the voice key file (default `.agents/local/explain.env`). Most projects leave it out; see **The voice key** below |
+| `voiceEnv` | A project-only override of the voice key file (default `.claude/local/explain.env`). Most projects leave it out; see **The voice key** below |
 
 `setup-project` writes a starter config; the `verify-<app>` skill's Record
 section is the `journey.recorder`.
@@ -50,8 +50,8 @@ section is the `journey.recorder`.
 ### The voice key
 
 Narration uses OpenRouter when `OPENROUTER_API_KEY` is set, read in this
-order: the shell, the project's `.agents/local/explain.env`, the user's
-`~/.agents/explain.env`. The user's file is set once and serves every
+order: the shell, the project's `.claude/local/explain.env`, the user's
+`~/.claude/explain.env`. The user's file is set once and serves every
 project. Without a key, narration uses macOS `say`.
 
 The first time a build on this machine finds no key, ask the user once,
@@ -60,8 +60,8 @@ them to paste the key in chat, never read or print the file, never commit
 it:
 
 ```
-mkdir -p ~/.agents && chmod 700 ~/.agents
-printf 'OPENROUTER_API_KEY=<paste here>\n' > ~/.agents/explain.env && chmod 600 ~/.agents/explain.env
+mkdir -p ~/.claude && chmod 700 ~/.claude
+printf 'OPENROUTER_API_KEY=<paste here>\n' > ~/.claude/explain.env && chmod 600 ~/.claude/explain.env
 ```
 
 If they'd rather not, build with `--voice say` and don't ask again in that

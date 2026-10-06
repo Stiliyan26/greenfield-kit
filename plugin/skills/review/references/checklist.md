@@ -6,7 +6,7 @@ passes. Every problem you write down must name the input and the code path
 that gets there, and must be proved or marked "Not run" with the command
 that would prove it.
 
-The project's own rules live in `.agents/review/` (roles, scope, paging,
+The project's own rules live in `.claude/review/` (roles, scope, paging,
 conventions; see [project-rules.md](project-rules.md)). Read the ones that
 exist before you start. When the code and a rules file disagree, the rules
 win. Rows a rules file marks as open questions are not problems.
@@ -93,7 +93,7 @@ person's invoice".
 ## 7. Fit
 
 Read the `write-code` skill for the kinds of files in the feature, then
-`.agents/review/conventions.md`.
+`.claude/review/conventions.md`.
 
 - Each piece lives in the module and layer that owns it.
 - A helper, component or query that already exists wasn't written again.

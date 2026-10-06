@@ -10,4 +10,4 @@ plugin/skills/interactive-explanation/remotion/node_modules/
 
 # Explainer work folders and the voice key
 temp/explainers/
-.agents/local/
+.claude/local/

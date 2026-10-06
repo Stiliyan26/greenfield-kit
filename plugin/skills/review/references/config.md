@@ -1,6 +1,6 @@
 # Project config and the questions
 
-## `.agents/review/config.json`
+## `.claude/review/config.json`
 
 Written on the first review in a project, read on every later one. The
 user changes it by asking ("use Sonnet for fixes from now on") or by editing

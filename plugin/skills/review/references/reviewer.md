@@ -11,7 +11,7 @@ and tests. The lead's prompt gives you what the table below lists.
 | Screenshots | fix mode: `temp/verification/review-<date>/`; report mode: `<run>/captures/` |
 | The checklist | what to look for, and the project's rules files to read first |
 | `write-code` | how code is placed and written in this project |
-| The app | whether you may start it; its commands are in `.agents/PROJECT.md` |
+| The app | whether you may start it; its commands are in `CLAUDE.md` |
 | Problem numbers | your range, so numbers stay unique across features |
 
 ## Find

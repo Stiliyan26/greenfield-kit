@@ -75,5 +75,5 @@ turn a rule into a warning to get green.
    CI. Run it once on a clean checkout: it must pass before anything else
    changes.
 
-5. **Write it down.** Put the gate command in `.agents/PROJECT.md` → Commands,
+5. **Write it down.** Put the gate command in `CLAUDE.md` → Commands,
    so the review skill can run it.

@@ -32,7 +32,7 @@ def main():
         print("Skipped, already there (merge by hand if needed):")
         for item in skipped:
             print(f"  {item}")
-    print("Next: fill in .agents/PROJECT.md — its facts, commands and checks.")
+    print("Next: fill in CLAUDE.md: the project's facts, commands and checks.")
     print("For a Bun or Node project, also run write-code/scripts/install_checks.py to install the code rules as checks.")
 
 
