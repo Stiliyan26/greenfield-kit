@@ -35,7 +35,7 @@ answers.
 | **4 Plan per feature** | you + user, `plan-feature` screen pass, after Approve | Per approved screen: how data loads, what is optimistic, errors, states, guards; the feature split; then **every feature file in full** | `plan.md` approved, `features/<slug>.md` each with Backend, Frontend, Scenarios, Tests; the `review` skill in plan mode first |
 | **5 Foundation** | one agent, `deliver-feature` alone, [coordination.md](references/coordination.md) | Approve its PR | The promoted routes and views, drizzle schema, auth, `server/shared/`, `shared/` with `INDEX.md`, `bun run check`, the `verify-<app>` skill (`create-verification-skill`); a PR with an explainer |
 | **6 Build one feature** | a backend agent and a frontend agent, `deliver-feature`, same checkout | Nothing; a plan question comes to you from the lead | Every scenario green on Docker Postgres, journeys green at desktop and phone, `bun run check` clean, the verify run's evidence, the feature file's Driving section |
-| **7 PR + explainer** | you, `interactive-explanation` pr mode | Read the page, watch the journey and architecture videos, **approve** | The merged feature, `Status: merged`; the next feature's agents already running |
+| **7 Review + PR + explainer** | you: `review` in fix mode on the feature branch (the reviewers fix and commit), then `interactive-explanation` pr mode | Read the page, watch the journey and architecture videos, answer the `left for you` problems, **approve** | The merged feature, `Status: merged`; the next feature's agents already running |
 | **8 Later** | `add-feature` | — | A new feature file through 4 → 6 → 7; a screen change through the studio |
 
 ## The fork after Frame
@@ -67,8 +67,9 @@ the app.
 - Checks are tools the agents run (`bun run check`, the tests,
   `check_tokens.py`, the verify skill), not findings for a reviewer. A
   skipped or failed check is never a pass.
-- The `review` skill runs in plan mode before approval. Code review is not in
-  the flow yet; when it is, it runs between the explainer and the merge.
+- The `review` skill runs in plan mode before approval. It runs in fix mode
+  on each feature branch after Prove and before the explainer, so the page
+  shows the code after the fixes.
 - Every feature and the foundation land as a PR with an explainer the user
   approves. A change with no feature file gets neither.
 

@@ -69,12 +69,16 @@ skill on this feature's Driving section and on every feature the change
 could affect (the callers you found in step 1). Evidence stays in
 `temp/verification/<slug>/` until the user has seen it.
 
-## 6. PR + explainer
+## 6. Review, PR + explainer
 
-`interactive-explanation` in pr mode: the page, the journey video from the
-Driving section, the architecture video with the decisions and their
-Q-numbers. The user reads, watches and approves. Merge, set the feature file
-to `Status: merged`, and say in one line what the user can do now.
+Run the `review` skill in fix mode on `feature/<slug>`: one reviewer per
+feature finds, fixes and commits, and re-proves each fix. Then
+`interactive-explanation` in pr mode on the fixed branch: the page, the
+journey video from the Driving section, the architecture video with the
+decisions and their Q-numbers, and the review's fixed and left-for-you
+lists. The user reads, watches, answers the `left for you` problems and
+approves. Merge, set the feature
+file to `Status: merged`, and say in one line what the user can do now.
 
 ## Rules
 

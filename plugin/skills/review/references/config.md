@@ -13,18 +13,20 @@ the file.
   "mayRunApp": true,
   "depth": "full",
   "maxReviewers": 4,
-  "maxFixAgents": 4
+  "maxFixAgents": 4,
+  "maxRounds": 2
 }
 ```
 
 | Key | Asked as | Notes |
 | --- | --- | --- |
 | `reviewerModel` | "Which model reviews?" | Judgement work. Offer the strongest first. |
-| `fixModel` | "Which model fixes?" | Fixes are specified by the review, so a faster model is usually enough. Say so. |
+| `fixModel` | "Which model fixes?" | Report mode only; fix agents work from the ticked review, so a faster model is usually enough. In fix mode the reviewer fixes, on `reviewerModel`. |
 | `mayRunApp` | "May the review start the app, seed data and drive it with Playwright?" | No for projects that can't run locally or need real accounts. Tests and curl against a running server are still allowed. |
 | `depth` | "Quick or full by default?" | Quick = correctness and fit, one reviewer, no screenshots. Full = the whole checklist. Overridden per run by `--quick` / `--full`. |
 | `maxReviewers` | not asked | Default 4. The plan proposes at most this many; the user can raise it for one run. |
-| `maxFixAgents` | not asked | Default 4. |
+| `maxFixAgents` | not asked | Default 4. Report mode. |
+| `maxRounds` | not asked | Default 2. Fix mode: passes a reviewer makes over its feature (find and fix, then re-read for what the fixes added). |
 
 ### Models to offer
 

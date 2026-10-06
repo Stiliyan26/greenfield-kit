@@ -1,7 +1,8 @@
-# The review files
+# The review files (report mode)
 
-A review writes one folder: `reviews/<date>-<target>/` in the project
-(`2026-09-29-time-off`, `2026-09-29-app`, `2026-09-29-plan`). Committed. It
+Fix mode writes none of this; its record is the commit messages and the PR
+page. A report-mode review writes one folder:
+`reviews/<date>-<target>/` in the project (`2026-09-29-time-off`, `2026-09-29-app`, `2026-09-29-plan`). Committed. It
 is the record: found → chosen → fixed → proved.
 
 ```
