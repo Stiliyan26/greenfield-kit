@@ -1,7 +1,7 @@
 // The PR description, from the same script.json as the page: same sections in
 // the same order, same Mermaid diagrams, written in ASD-STE100. Nothing is folded.
 // Writes temp/explainers/<slug>/pr-body.md
-// with the screenshots and videos as local paths; `gh pr edit --attach` uploads them
+// with the review shots and videos as local paths; `gh pr edit --attach` uploads them
 // and rewrites each path to the uploaded file, so nothing is committed.
 import { existsSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -9,8 +9,7 @@ import path from 'node:path';
 import { DiagramType, GITHUB_MEDIA_LIMIT_BYTES, ROOT, SketchKind, Video } from './constants.mjs';
 import { explainerDir, isMain } from './lib.mjs';
 import { erDiagram, loadDatabase, relationSentence } from './database.mjs';
-import { shotSrc, STATUS_LEGEND, usesStatusClasses, withStatusClasses } from './page.mjs';
-import { shotCaption } from './page/template.mjs';
+import { STATUS_LEGEND, usesStatusClasses, withStatusClasses } from './page.mjs';
 import { readReview } from './review.mjs';
 import { readScript } from './script.mjs';
 
@@ -34,7 +33,7 @@ export function writePrBody(slug) {
   const dir = explainerDir(slug);
   const script = readScript(slug);
   const review = readReview(dir);
-  const media = localMedia(dir, script, review);
+  const media = localMedia(dir, review);
   const file = path.join(dir, 'pr-body.md');
 
   writeFileSync(file, prBody(script, media, review));
@@ -46,9 +45,8 @@ export function writePrBody(slug) {
 }
 
 function prBody(script, media, review) {
-  const screens = script.screens ?? [];
   const evidence = script.evidence ?? [];
-  const hasEvidence = evidence.length > 0 || screens.length > 0 || media.videos[Video.Journey] || script.tests;
+  const hasEvidence = evidence.length > 0 || media.videos[Video.Journey] || script.tests;
   return [
     section('Summary', [
       bullets([script.description].flat()),
@@ -57,8 +55,7 @@ function prBody(script, media, review) {
     ]),
     script.risks && section('Merge danger', dangerParts(script.risks)),
     hasEvidence && section('Evidence', [
-      ...evidence.flatMap((pair) => evidenceParts(pair, media.shots)),
-      ...screens.map((screen) => shotPart(screen.shot, screen.caption, media.shots)),
+      ...evidence.flatMap(evidenceParts),
       media.videos[Video.Journey],
       script.tests && testsParts(script.tests),
     ]),
@@ -97,29 +94,15 @@ function sketchLanguage(sketch) {
   return 'text';
 }
 
-function evidenceParts(pair, shots) {
+// Text only: the screens show in the review map and the journey video.
+function evidenceParts(pair) {
   return [
     `### ${pair.label}`,
     '**Before**',
-    evidenceSidePart(pair.before, `${pair.label}: before`, shots),
+    fenced('text', pair.before.output),
     '**After**',
-    evidenceSidePart(pair.after, `${pair.label}: after`, shots),
+    fenced('text', pair.after.output),
   ];
-}
-
-function evidenceSidePart(side, caption, shots) {
-  if (side.shot) return shotPart(side.shot, caption, shots);
-
-  return fenced('text', side.output);
-}
-
-// A screenshot shows inline when its file exists; otherwise only its caption.
-function shotPart(shot, caption, shots) {
-  const src = shotSrc(shot);
-
-  if (!shots.has(src)) return `- ${caption}`;
-
-  return `![${caption}](${src})`;
 }
 
 function testsParts(tests) {
@@ -142,53 +125,28 @@ function dangerParts(risks) {
   ];
 }
 
-// The screenshots and videos the build left next to the page, as the relative
+// The review shots and videos the build left next to the page, as the relative
 // paths the body uses. `--attach` must get the same strings to rewrite them.
-function localMedia(dir, script, review) {
-  const evidenceShots = (script.evidence ?? []).flatMap((pair) => [pair.before.shot, pair.after.shot]).filter(Boolean);
-  const screens = [...(script.screens ?? []).map((screen) => screen.shot), ...evidenceShots].map(shotSrc);
-  const reviewShots = (review?.shots ?? []).map((shot) => shot.image);
+function localMedia(dir, review) {
   const exists = (file) => existsSync(path.join(dir, file));
+  const reviewShots = (review?.shots ?? []).map((shot) => shot.image).filter(exists);
   const videoFiles = Object.values(Video).map((video) => [video, `./${video}.mp4`]).filter(([, file]) => exists(file));
 
   return {
-    shots: new Set(screens.filter(exists)),
     // A video renders as a player only as image syntax alone in its paragraph.
     videos: Object.fromEntries(videoFiles.map(([video, file]) => [video, `![](${file})`])),
-    reviewShots: reviewShots.filter(exists),
-    files: [...reviewShots.filter(exists), ...screens.filter(exists), ...videoFiles.map(([, file]) => file)],
+    reviewShots,
+    files: [...reviewShots, ...videoFiles.map(([, file]) => file)],
   };
 }
 
-// The annotated shots, each followed by the groups of the boxes it shows first:
-// the box's component file, then the changed files it imports, indented by depth.
+// One heading and one annotated shot per screen; the boxes name the components.
 function reviewParts(review, media) {
-  const groupByNumber = new Map(review.groups.map((group) => [group.number, group]));
   const shots = review.shots
     .filter((shot) => media.reviewShots.includes(shot.image))
-    .flatMap((shot) => [
-      `### ${shot.caption}`,
-      `![${shot.caption}](${shot.image})`,
-      shot.wholeScreen.length > 0 && `_${shotCaption(shot)}_`,
-      ...shot.firstNumbers.map((number) => reviewGroupMarkdown(groupByNumber.get(number))),
-    ].filter(Boolean));
+    .flatMap((shot) => [`### ${shot.caption}`, `![${shot.caption}](${shot.image})`]);
 
-  return ['Each box is a changed component. Under each screen, read its files top to bottom: the component first, then what it uses.', ...shots];
-}
-
-function reviewGroupMarkdown(group) {
-  return [`**${group.number}. ${group.title}**`, group.entries.map(reviewFileLine).join('\n')].join('\n\n');
-}
-
-// File name in bold for scanning, its folder small after it.
-function reviewFileLine(entry) {
-  const name = `**${path.posix.basename(entry.file)}**`;
-  const link = entry.diffUrl
-    ? `[${name}](${entry.diffUrl})`
-    : name;
-  const note = entry.note ? ` — ${entry.note}` : '';
-
-  return `${'  '.repeat(entry.depth)}- ${link} · ${entry.status} <sub>${path.posix.dirname(entry.file)}</sub>${note}`;
+  return ['Each box is a changed component on its screen.', ...shots];
 }
 
 function publishCommand(script, files) {

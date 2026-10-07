@@ -36,10 +36,11 @@ and 70 columns, with one sentence of `text` beside it.
 
 ## Evidence
 
-One before and one after per claim, each with a `label` that names the claim.
-A screenshot pair when the change is visible. Otherwise the same test failing
-before and passing after, or console output. For a "before" shot, drive the
-recipe on the base branch with a `-before` step name.
+Evidence has no screenshots. The journey video shows the screens, and the
+review map shows each screen once, with the changed components boxed. Add a
+before/after pair only when output proves a claim the video can't: the same
+test failing before and passing after, or console output. Each pair has a
+`label` that names the claim.
 
 ## Merge danger
 

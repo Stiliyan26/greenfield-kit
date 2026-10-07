@@ -55,9 +55,8 @@ export function readingMinutes(script) {
     .map(({ text }) => wordCount(text))
     .reduce((sum, count) => sum + count, 0);
   const diagrams = (script.diagrams?.length ?? 0) + (script.beforeAfter ? 1 : 0) + (script.risks?.mermaid ? 1 : 0) + (script.database ? 1 : 0);
-  const evidenceSides = (script.evidence ?? []).flatMap((pair) => [pair.before, pair.after]);
-  const screens = (script.screens?.length ?? 0) + evidenceSides.filter((side) => side.shot).length;
-  const sketches = (script.sketches?.length ?? 0) + evidenceSides.filter((side) => side.output).length;
+  const screens = script.screens?.length ?? 0;
+  const sketches = (script.sketches?.length ?? 0) + (script.evidence?.length ?? 0) * 2;
   const seconds =
     (words / READING.wordsPerMinute) * 60 +
     diagrams * READING.secondsPerDiagram +

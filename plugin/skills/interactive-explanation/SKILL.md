@@ -33,8 +33,9 @@ the script doesn't have is left out.
 
 1. Summary: what a user can do now, the impact, one to three sketches
 2. Merge danger: the door, the blast radius, deploy steps
-3. Evidence: before and after shots, the journey video, the tests
-4. Review map: each changed component boxed on its screen, then its files
+3. Evidence: the journey video, the tests, and before/after test output
+4. Review map: each changed component boxed on its screen. These are the
+   only screenshots; the journey video already shows the plain screens
 5. How it works: diagrams and the architecture video
 6. Before → After
 7. Data model
@@ -96,7 +97,8 @@ Needs `journey` in the config. Write the recipe at `journey.recipe`: one
 test per clip, each calling `recordClip` from `journey.recorder`, following
 the feature file's Driving section. Call `point` before each click and
 `pause` between actions. One idea per clip, 10–40 seconds. Save a screenshot
-at each screen the page shows and list it in `screens`.
+at each screen with a changed component and list it in `screens`; the
+review map boxes the components on it.
 
 Run `journey.serve`, then `journey.doctor`, then `journey.drive <recipe>`,
 then `journey.stop`. Use seeded accounts. Never record against a
@@ -130,7 +132,7 @@ each video's length.
 uploads the media to GitHub, so nothing is committed:
 
 ```sh
-gh pr edit 53 --body-file pr-body.md --attach ./screens/a.png --attach ./journey.mp4
+gh pr edit 53 --body-file pr-body.md --attach ./review/a.png --attach ./journey.mp4
 ```
 
 Needs gh 2.99 or later. Files must be 10 MB or less; the build warns about

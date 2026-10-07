@@ -29,8 +29,6 @@ export function writePage(slug) {
   const context = {
     script,
     database: loadDatabase(script.database),
-    screens,
-    evidence: collectEvidence(dir, script.evidence),
     review: buildReview(dir, script, screens),
     readMinutes: readingMinutes(script),
     videos: Object.fromEntries(videos.map((video) => [video, describeVideo(props[video])])),
@@ -112,23 +110,8 @@ function collectScreens(dir, screens = []) {
   return screens.map((screen) => ({ ...screen, src: copyShot(dir, screen.shot) }));
 }
 
-// Evidence sides with a shot get the same copy; output sides stay as text.
-function collectEvidence(dir, evidence = []) {
-  return evidence.map((pair) => ({
-    ...pair,
-    before: withShotSrc(dir, pair.before),
-    after: withShotSrc(dir, pair.after),
-  }));
-}
-
-function withShotSrc(dir, side) {
-  if (!side.shot) return side;
-
-  return { ...side, src: copyShot(dir, side.shot) };
-}
-
-// The path the page and the PR body use for a shot.
-export function shotSrc(shot) {
+// Where a screen is copied, next to the page; the review map reads it from there.
+function shotSrc(shot) {
   return `./screens/${shot.replace('/', '-')}.png`;
 }
 

@@ -34,8 +34,8 @@ function checkHeader(script, slug) {
   ]);
 }
 
-// The reading sections of the page. A PR needs sketches, evidence, outcome, merge
-// danger, tests and at least one "How it works" diagram. A task needs outcome and
+// The reading sections of the page. A PR needs sketches, outcome, merge danger,
+// tests and at least one "How it works" diagram. A task needs outcome and
 // something to see: a before/after pair, a diagram or a sketch. Everything else
 // only when it applies.
 function checkSections(script) {
@@ -48,7 +48,7 @@ function checkSections(script) {
     ...(isPr || script.diagrams !== undefined ? checkDiagrams(script.diagrams) : []),
     ...failures([[!isPr && !hasPicture, 'a task needs beforeAfter, a diagram or a sketch']]),
     ...checkList(script.outcome, 'outcome', { required: true }),
-    ...(isPr || script.evidence !== undefined ? checkEvidence(script.evidence) : []),
+    ...(script.evidence !== undefined ? checkEvidence(script.evidence) : []),
     ...(isPr || script.risks ? checkRisks(script.risks, { isPr }) : []),
     ...(isPr || script.tests ? checkTests(script.tests) : []),
     ...checkScreens(script.screens),
@@ -58,6 +58,7 @@ function checkSections(script) {
       [script.decisions !== undefined, 'decisions moved: put each decision in outcome, with its plan.md Q-number in the text ("… (Q7 in plan.md)")'],
       [script.deploy !== undefined, 'deploy moved: put the deploy steps in risks.deploy'],
       [script.workflow !== undefined, 'workflow is gone: use a Mermaid diagram in diagrams instead'],
+      [script.review !== undefined, 'review is gone: the review map shows only the boxed screens, with no file list'],
     ]),
   ];
 }
@@ -83,9 +84,10 @@ function checkSketches(sketches) {
   });
 }
 
-// Evidence pairs: each side is a screenshot ({ shot }) or a test run or console output ({ output }).
+// Evidence pairs: each side is a test run or console output ({ output }). Screens
+// show in the journey video and the review map, so evidence has no screenshots.
 function checkEvidence(evidence) {
-  if (!hasItems(evidence)) return ['evidence must list at least one before/after pair'];
+  if (!hasItems(evidence)) return ['evidence must be a non-empty list when present'];
 
   return evidence.flatMap((pair, index) => {
     const problems = [
@@ -99,13 +101,9 @@ function checkEvidence(evidence) {
 }
 
 function checkEvidenceSide(side, name) {
-  const hasShot = side?.shot !== undefined;
-  const hasOutput = side?.output !== undefined;
-
   return failures([
-    [hasShot === hasOutput, `${name} needs exactly one of "shot" or "output"`],
-    [hasShot && !SHOT_PATTERN.test(side.shot), `${name}.shot must be "<feature>/<step>" from saveStep`],
-    [hasOutput && !isFilled(side.output), `${name}.output must be the test or console output`],
+    [side?.shot !== undefined, `${name}.shot is gone: list the screen in screens; evidence takes { output } only`],
+    [side?.shot === undefined && !isFilled(side?.output), `${name}.output must be the test or console output`],
   ]);
 }
 

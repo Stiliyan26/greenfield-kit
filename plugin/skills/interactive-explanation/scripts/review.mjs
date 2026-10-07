@@ -1,9 +1,8 @@
-// The review map: where each changed component sits on the screens, and the order
-// to read its files. Boxes come from `<shot>.components.json` next to each
-// screenshot (written by the project's evidence helper); the reading order comes
-// from the diff and the imports between the changed files: screen first, then down.
-// Changed files no box reaches are left out; the PR's file list has them.
-import { createHash } from 'node:crypto';
+// The review map: where each changed component sits on the screens. Boxes come
+// from `<shot>.components.json` next to each screenshot (written by the project's
+// evidence helper); a component is boxed when its file changed since the base
+// branch. The shots are the only screenshots the page and the PR body show; the
+// journey video already shows the plain screens. The PR's file list has the files.
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
@@ -13,18 +12,14 @@ import { componentBoxesFile, readJson, run, writeJson } from './lib.mjs';
 
 const BASE_BRANCH = 'main';
 const CROP_MARGIN_PX = 40;
-// A component that covers more of the shot than this is the screen itself: listed, not boxed.
+// A component that covers more of the shot than this is the screen itself: not boxed.
 const WHOLE_SCREEN_SHARE = 0.5;
 const LABEL_HEIGHT_PX = 26;
 const LABEL_CHAR_PX = 8.5;
 const LABEL_PADDING_PX = 44;
 // Boxes this close on every edge show the same area (a dialog and its overlay wrapper).
 const SAME_AREA_PX = 6;
-const BARREL_FILE = /(?:^|\/)index\.[cm]?[jt]sx?$/;
-const CODE_FILE = /\.[cm]?[jt]sx?$/;
-const IMPORT_PATH = /(?:from|import)\s*\(?\s*['"](\.{1,2}\/[^'"]+)['"]/g;
 const EXPORTED_COMPONENT = /export\s+(?:default\s+)?(?:function\s+([A-Z]\w*)|const\s+([A-Z]\w*))/g;
-const RESOLVE_SUFFIXES = ['', '.ts', '.tsx', '.js', '.jsx', '.mjs', '/index.ts', '/index.tsx', '/index.js'];
 const STATUS_BY_GIT_CODE = { A: 'added', C: 'added', M: 'changed', R: 'changed', D: 'removed' };
 
 // Writes review/review.json and one annotated PNG per screen that shows a changed component.
@@ -35,16 +30,13 @@ export function buildReview(dir, script, screens) {
   if (changes.length === 0) return null;
 
   const statusByFile = new Map(changes.map((change) => [change.file, change.status]));
-  const importsByFile = importGraph(changes);
   const fileByComponent = exportedComponents(changes);
   const numberByFile = new Map();
 
   const shots = screens
     .map((screen) => boxShot(dir, screen, { fileByComponent, statusByFile, numberByFile }))
     .filter(Boolean);
-  const review = shots.length > 0
-    ? { shots: withFirstNumbers(shots), groups: readingGroups(changes, importsByFile, numberByFile, script) }
-    : null;
+  const review = shots.length > 0 ? { shots } : null;
 
   shots.forEach((shot) => renderShot(dir, shot));
   writeJson(path.join(dir, 'review', 'review.json'), review);
@@ -85,27 +77,8 @@ function boxShot(dir, screen, { fileByComponent, statusByFile, numberByFile }) {
     caption: screen.caption,
     source: screen.src.replace(/^\.\//, ''),
     image: `./review/${name}.png`,
-    wholeScreen: numbered.filter(isWholeScreen).map((box) => ({ number: box.number, label: box.name })),
     ...cropAround(boxes.length > 0 ? boxes : numbered, scale, image),
   };
-}
-
-// Each shot lists the numbers that appear on it for the first time; their file
-// groups are read right under that shot.
-function withFirstNumbers(shots) {
-  const seen = new Set();
-
-  return shots.map((shot) => {
-    const numbers = [
-      ...shot.boxes.flatMap((box) => [box.number, ...box.mergedNumbers]),
-      ...shot.wholeScreen.map((box) => box.number),
-    ];
-    const firstNumbers = [...new Set(numbers)].filter((number) => !seen.has(number)).sort((first, second) => first - second);
-
-    firstNumbers.forEach((number) => seen.add(number));
-
-    return { ...shot, firstNumbers };
-  });
 }
 
 // One box per changed file: the component named like the file wins, else the first one found.
@@ -136,9 +109,8 @@ function mergeSameArea(boxes) {
 
     if (twin) {
       twin.name = `${twin.name} · ${box.number} ${box.name}`;
-      twin.mergedNumbers = [...twin.mergedNumbers, box.number];
     } else {
-      kept.push({ ...box, mergedNumbers: [] });
+      kept.push({ ...box });
     }
   }
 
@@ -165,7 +137,6 @@ function cropAround(boxes, scale, image) {
     crop: { x: toPixels(left), y: toPixels(top), width: toPixels(right - left), height: toPixels(bottom - top) },
     boxes: placeLabels(boxes.map((box) => ({
       number: box.number,
-      mergedNumbers: box.mergedNumbers ?? [],
       label: box.name,
       file: box.file,
       status: box.status,
@@ -226,42 +197,6 @@ function renderShot(dir, shot) {
   console.log(`review: ${path.relative(ROOT, output)}`);
 }
 
-// --- Reading order
-
-function readingGroups(changes, importsByFile, numberByFile, script) {
-  const placed = new Set();
-  const entryOf = (file, depth) => ({
-    file,
-    depth,
-    status: changes.find((change) => change.file === file).status,
-    note: script.review?.notes?.[file] ?? null,
-    diffUrl: script.prUrl ? `${script.prUrl}/files#diff-${sha256(file)}` : null,
-  });
-  // A boxed file below the root keeps its own group, so it is not pulled in here.
-  const walk = (file, depth, entries) => {
-    if (placed.has(file) || (depth > 0 && numberByFile.has(file))) return entries;
-
-    placed.add(file);
-
-    // A barrel only re-exports: list what it exports at its depth, not the barrel itself.
-    const isBarrel = depth > 0 && BARREL_FILE.test(file);
-    const childDepth = isBarrel ? depth : depth + 1;
-
-    if (!isBarrel) entries.push(entryOf(file, depth));
-    (importsByFile.get(file) ?? []).forEach((imported) => walk(imported, childDepth, entries));
-
-    return entries;
-  };
-
-  return [...numberByFile]
-    .sort(([, first], [, second]) => first - second)
-    .map(([file, number]) => ({ number, title: path.parse(file).name, entries: walk(file, 0, []) }));
-}
-
-function sha256(text) {
-  return createHash('sha256').update(text).digest('hex');
-}
-
 // --- The diff
 
 // The branch the PR merges into, so the map shows only this PR's files.
@@ -292,27 +227,6 @@ function changedFiles(base) {
     .map((file) => ({ file, status: 'added' }));
 
   return [...tracked, ...untracked];
-}
-
-// Relative imports between changed files: file -> the changed files it imports.
-function importGraph(changes) {
-  const changed = new Set(changes.map((change) => change.file));
-  const sources = changes.filter((change) => CODE_FILE.test(change.file) && change.status !== 'removed');
-
-  return new Map(sources.map(({ file }) => [file, importedChangedFiles(file, changed)]));
-}
-
-function importedChangedFiles(file, changed) {
-  const source = readFileSync(path.join(ROOT, file), 'utf8');
-  const specifiers = [...source.matchAll(IMPORT_PATH)].map((match) => match[1]);
-
-  return [...new Set(specifiers.map((specifier) => resolveImport(file, specifier, changed)).filter(Boolean))];
-}
-
-function resolveImport(file, specifier, changed) {
-  const base = path.posix.normalize(path.posix.join(path.posix.dirname(file), specifier.replace(/\.js$/, '')));
-
-  return RESOLVE_SUFFIXES.map((suffix) => `${base}${suffix}`).find((candidate) => changed.has(candidate)) ?? null;
 }
 
 // Exported component names in changed .jsx/.tsx files -> their file.

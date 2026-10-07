@@ -10,17 +10,16 @@ narration plus 0.9 s, or its clip if that is longer.
 | Key | Required | Shape | Shows |
 | --- | --- | --- | --- |
 | `mode` | no (default `"pr"`) | `"task"` or `"pr"` | Budget and required keys (SKILL.md) |
-| `slug`, `title`, `subtitle?`, `prUrl?` | `slug`, `title` | strings | Header. `prUrl` also gives the review map its base branch and diff links |
+| `slug`, `title`, `subtitle?`, `prUrl?` | `slug`, `title` | strings | Header. `prUrl` also gives the review map its base branch |
 | `base` | no | branch name | The review map diffs against it. Default: the PR's base branch, else `main` |
-| `review` | no | `{ notes: { "<repo path>": "one line" } }` | A line after a file in the review map, when its name does not say enough |
 | `description` | yes | a sentence or 2–5 strings | What it does |
 | `impact` | yes | one sentence | Header, under the title |
 | `sketches` | PR: 1–3 | `{ kind, heading, text, source, diff?, file?, highlight? }[]`, `kind` is `files`, `components`, `calls`, `pseudo` or `code` | Summary, under the description. `source` is the sketch with `\n` line breaks. With `diff: true`, each line starts with `+`, `-` or a space. `code` needs `file`; `highlight` lists 1-based lines |
 | `beforeAfter` | when behaviour changed | `{ before, after, note? }`, both Mermaid flowcharts | Two stacked flowcharts: Before muted, After in brand colours |
 | `diagrams` | PR: 1–3 | `{ type, heading, mermaid, steps?, note? }[]`, `type` is `sequence`, `component`, `state` or `flowchart` | How it works. `steps` is a numbered list, for example migration steps |
 | `database` | schema touched | `{ intro?, tables: string[], relations?: { table, column, meaning }[] }` | Data model: the ER is generated from [schema facts](#schema-facts), plus a relations table. `relations` adds what each foreign key means |
-| `screens` | UI changed | `{ shot: "<feature>/<step>", caption }[]` | Screenshot cards in Evidence, from the journey run |
-| `evidence` | PR: at least one | `{ label, before, after }[]`, each side `{ shot: "<feature>/<step>" }` or `{ output }` | Evidence: before and after side by side. `output` is a test run or console output, shown as text |
+| `screens` | UI changed | `{ shot: "<feature>/<step>", caption }[]` | Review map: each shot with its changed components boxed, from the journey run. No plain screenshot shows anywhere |
+| `evidence` | no | `{ label, before, after }[]`, each side `{ output }` | Evidence: before and after side by side. `output` is a test run or console output, shown as text |
 | `outcome` | yes | `string[]` | What people can do now, with decisions: `"… (Q7 in plan.md)."` |
 | `risks` | PR | `{ door: { type, text? }, blastRadius: { scope, text? }, items?: { area, text }[], mermaid?, deploy?: string[] }`, `type` is `one-way` or `two-way` | Merge danger: door and blast radius (also as chips in the header), one row per area, an impact flowchart, numbered deploy steps |
 | `tests` | PR | `{ summary?, items: { name, proves }[] }` | In Evidence: a summary line, then a table with each spec and what it proves |

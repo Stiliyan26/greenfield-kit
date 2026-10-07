@@ -475,43 +475,6 @@ pre.mermaid svg {
 .swatch--removed { background: #fbeaea; border-color: #b42318; border-style: dashed; }
 .swatch--kept { background: #fff; border-color: #e6e1d6; }
 
-/* Screens */
-
-.screens {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.screen {
-  margin: 0;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--surface);
-}
-
-.screen img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  object-position: top left;
-  border-bottom: 1px solid var(--line);
-}
-
-.screen a:focus-visible {
-  display: block;
-  outline: 2px solid var(--brand);
-  outline-offset: -2px;
-}
-
-.screen figcaption {
-  padding: 10px 12px;
-  color: var(--heading);
-  font-size: 14px;
-}
-
 /* Merge danger chips in the header */
 
 .chips {
@@ -705,7 +668,6 @@ code {
 }
 
 @media (max-width: 720px) {
-  .screens,
   .evidence {
     grid-template-columns: 1fr;
   }
@@ -750,27 +712,19 @@ code {
   margin: 0 0 20px;
 }
 
-.review-shot__frame {
-  position: relative;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.review-shot__frame img {
+.review-shot img {
   display: block;
   width: 100%;
   height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
 }
 
-.review-shot__hit {
-  position: absolute;
-  border-radius: 8px;
-  transition: box-shadow 120ms ease;
-}
-
-.review-shot__hit.review-map--active {
-  box-shadow: 0 0 0 4px var(--brand), 0 0 0 9999px rgb(0 0 0 / 0.25);
+.review-shot a:focus-visible {
+  display: block;
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 10px;
 }
 
 .review-shot figcaption {
@@ -778,75 +732,3 @@ code {
   color: var(--muted);
   font-size: 13px;
 }
-
-.review-map {
-  margin: 0 0 24px;
-  padding: 0;
-  list-style: none;
-}
-
-.review-map__group {
-  padding: 10px 12px;
-  border-radius: 10px;
-  transition: background 120ms ease;
-}
-
-.review-map__group.review-map--active {
-  background: var(--wash);
-}
-
-.review-map__group h3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 6px;
-  font-size: 15px;
-}
-
-.review-map__number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--brand);
-  color: var(--on-brand);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.review-map__files {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.review-map__file {
-  padding: 2px 0 2px calc(var(--depth) * 20px);
-  overflow-wrap: anywhere;
-  font-size: 13px;
-}
-
-.review-map__file code {
-  font-size: 12.5px;
-  font-weight: 600;
-}
-
-.review-map__folder {
-  margin-left: 4px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.review-map__status {
-  margin-left: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.review-map__status--added { color: var(--added); }
-.review-map__status--changed { color: var(--changed); }
-.review-map__status--removed { color: var(--removed); }

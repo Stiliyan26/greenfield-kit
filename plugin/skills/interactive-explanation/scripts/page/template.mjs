@@ -9,7 +9,6 @@ import { escapeHtml, formatClock } from './html.mjs';
 const PAGE_DIR = import.meta.dirname;
 const STYLES = readFileSync(path.join(PAGE_DIR, 'page.css'), 'utf8');
 const PLAYER_SCRIPT = readFileSync(path.join(PAGE_DIR, 'player.js'), 'utf8');
-const REVIEW_SCRIPT = readFileSync(path.join(PAGE_DIR, 'review.js'), 'utf8');
 
 const VIDEO_BLURBS = {
   [Video.Journey]: { heading: 'Watch the user journey', blurb: 'How it was before, and how it works now' },
@@ -114,7 +113,6 @@ ${content}
 <script>
 ${MERMAID_INIT}
 ${PLAYER_SCRIPT}
-${REVIEW_SCRIPT}
 </script>
 </body>
 </html>
@@ -258,11 +256,11 @@ function diagramBlockHtml(diagram) {
   </div>`;
 }
 
-// Proof that the change works: before/after pairs, the screens, the journey video and the tests.
-function evidenceHtml({ script, evidence, screens, videos }) {
-  const pairs = evidence.map(evidencePairHtml).join('');
-  const gallery = screens.length ? `<div class="screens">${screens.map(screenHtml).join('')}</div>` : '';
-  const body = `${pairs}${gallery}${videoHtml(Video.Journey, videos[Video.Journey])}${testsHtml(script.tests)}`;
+// Proof that the change works: before/after output pairs, the journey video and the tests.
+// No screenshots: the journey video shows the screens, the review map shows the components.
+function evidenceHtml({ script, videos }) {
+  const pairs = (script.evidence ?? []).map(evidencePairHtml).join('');
+  const body = `${pairs}${videoHtml(Video.Journey, videos[Video.Journey])}${testsHtml(script.tests)}`;
 
   if (!body) return '';
 
@@ -278,75 +276,24 @@ function evidencePairHtml(pair) {
   </div>`;
 }
 
-// A side is a screenshot or a test run / console output.
+// A side is a test run or console output.
 function evidenceSideHtml(side, key, caption) {
-  const body = side.src
-    ? `<a href="${escapeHtml(side.src)}" target="_blank" rel="noopener"><img src="${escapeHtml(side.src)}" alt="${escapeHtml(caption)}"></a>`
-    : `<pre class="output">${escapeHtml(side.output)}</pre>`;
-
-  return `<figure class="pair__side pair__side--${key}"><figcaption>${caption}</figcaption>${body}</figure>`;
+  return `<figure class="pair__side pair__side--${key}"><figcaption>${caption}</figcaption><pre class="output">${escapeHtml(side.output)}</pre></figure>`;
 }
 
-// Each box on a shot and its group in the reading order share data-review="<number>";
-// review.js lights up both on hover.
+// One annotated shot per screen; the boxes name the changed components.
 function reviewHtml(review) {
   if (!review) return '';
 
-  const groupByNumber = new Map(review.groups.map((group) => [group.number, group]));
-  const shots = review.shots.map((shot) => {
-    const groups = shot.firstNumbers.map((number) => reviewGroupHtml(groupByNumber.get(number))).join('');
+  const shots = review.shots.map(reviewShotHtml).join('');
 
-    return `${reviewShotHtml(shot)}<ol class="review-map">${groups}</ol>`;
-  });
-
-  return sectionHtml('review', 'Review map', 'Each box is a changed component. Under each screen, read its files top to bottom: the component first, then what it uses.', shots.join(''));
+  return sectionHtml('review', 'Review map', 'Each box is a changed component on its screen.', shots);
 }
 
 function reviewShotHtml(shot) {
-  const percent = (value, total) => `${((value / total) * 100).toFixed(2)}%`;
-  const hits = shot.boxes.map((box) => {
-    const position = `left:${percent(box.x, shot.crop.width)};top:${percent(box.y, shot.crop.height)};width:${percent(box.width, shot.crop.width)};height:${percent(box.height, shot.crop.height)}`;
-
-    return `<a class="review-shot__hit" href="#review-${box.number}" data-review="${box.number}" style="${position}" aria-label="${escapeHtml(box.label)}"></a>`;
-  });
-
   return `<figure class="review-shot">
-    <div class="review-shot__frame"><img src="${escapeHtml(shot.image)}" alt="${escapeHtml(shot.caption)}">${hits.join('')}</div>
-    <figcaption>${escapeHtml(shotCaption(shot))}</figcaption>
-  </figure>`;
-}
-
-// Components that fill the shot have no box; the caption names them.
-export function shotCaption(shot) {
-  const wholeScreen = shot.wholeScreen.map((box) => `${box.number} ${box.label}`).join(', ');
-
-  return wholeScreen ? `${shot.caption} Whole screen: ${wholeScreen}.` : shot.caption;
-}
-
-function reviewGroupHtml(group) {
-  const files = group.entries.map(reviewFileHtml).join('');
-
-  return `<li class="review-map__group" id="review-${group.number}" data-review="${group.number}">
-    <h3><span class="review-map__number">${group.number}</span>${escapeHtml(group.title)}</h3>
-    <ul class="review-map__files">${files}</ul>
-  </li>`;
-}
-
-function reviewFileHtml(entry) {
-  const name = `<code>${escapeHtml(path.posix.basename(entry.file))}</code>`;
-  const folder = `<span class="review-map__folder">${escapeHtml(path.posix.dirname(entry.file))}</span>`;
-  const link = entry.diffUrl
-    ? `<a href="${escapeHtml(entry.diffUrl)}" target="_blank" rel="noopener">${name}</a>`
-    : name;
-  const note = entry.note ? ` <span class="muted">${escapeHtml(entry.note)}</span>` : '';
-
-  return `<li class="review-map__file" style="--depth:${entry.depth}">${link} <span class="review-map__status review-map__status--${entry.status}">${entry.status}</span> ${folder}${note}</li>`;
-}
-
-function screenHtml(screen) {
-  return `<figure class="screen">
-    <a href="${escapeHtml(screen.src)}" target="_blank" rel="noopener"><img src="${escapeHtml(screen.src)}" alt="${escapeHtml(screen.caption)}"></a>
-    <figcaption>${escapeHtml(screen.caption)}</figcaption>
+    <a href="${escapeHtml(shot.image)}" target="_blank" rel="noopener"><img src="${escapeHtml(shot.image)}" alt="${escapeHtml(shot.caption)}"></a>
+    <figcaption>${escapeHtml(shot.caption)}</figcaption>
   </figure>`;
 }
 
