@@ -160,10 +160,10 @@ function localMedia(dir, script, review) {
   };
 }
 
-// The annotated shots, then one group per box in reading order: the box's component
-// file, then the changed files it imports, indented by depth.
+// The annotated shots, each followed by the groups of the boxes it shows first:
+// the box's component file, then the changed files it imports, indented by depth.
 function reviewParts(review, media) {
-  const groupByNumber = new Map(review.groups.filter((group) => group.number).map((group) => [group.number, group]));
+  const groupByNumber = new Map(review.groups.map((group) => [group.number, group]));
   const shots = review.shots
     .filter((shot) => media.reviewShots.includes(shot.image))
     .flatMap((shot) => [
@@ -172,18 +172,12 @@ function reviewParts(review, media) {
       shot.wholeScreen.length > 0 && `_${shotCaption(shot)}_`,
       ...shot.firstNumbers.map((number) => reviewGroupMarkdown(groupByNumber.get(number))),
     ].filter(Boolean));
-  const placed = new Set(review.shots.flatMap((shot) => shot.firstNumbers));
-  const rest = review.groups.filter((group) => !placed.has(group.number)).map(reviewGroupMarkdown);
 
-  return ['Each box is a changed component. Under each screen, read its files top to bottom: the component first, then what it uses.', ...shots, ...rest];
+  return ['Each box is a changed component. Under each screen, read its files top to bottom: the component first, then what it uses.', ...shots];
 }
 
 function reviewGroupMarkdown(group) {
-  const title = group.number
-    ? `**${group.number}. ${group.title}**`
-    : `**${group.title}**`;
-
-  return [title, group.entries.map(reviewFileLine).join('\n')].join('\n\n');
+  return [`**${group.number}. ${group.title}**`, group.entries.map(reviewFileLine).join('\n')].join('\n\n');
 }
 
 // File name in bold for scanning, its folder small after it.

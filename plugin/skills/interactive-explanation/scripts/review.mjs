@@ -1,7 +1,8 @@
 // The review map: where each changed component sits on the screens, and the order
-// to read the changed files. Boxes come from `<shot>.components.json` next to each
+// to read its files. Boxes come from `<shot>.components.json` next to each
 // screenshot (written by the project's evidence helper); the reading order comes
 // from the diff and the imports between the changed files: screen first, then down.
+// Changed files no box reaches are left out; the PR's file list has them.
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -21,26 +22,13 @@ const LABEL_PADDING_PX = 44;
 const SAME_AREA_PX = 6;
 const BARREL_FILE = /(?:^|\/)index\.[cm]?[jt]sx?$/;
 const CODE_FILE = /\.[cm]?[jt]sx?$/;
-const TEST_FILE = /\.(?:spec|test)\.[cm]?[jt]sx?$|(?:^|\/)(?:e2e|tests?)\//;
 const IMPORT_PATH = /(?:from|import)\s*\(?\s*['"](\.{1,2}\/[^'"]+)['"]/g;
 const EXPORTED_COMPONENT = /export\s+(?:default\s+)?(?:function\s+([A-Z]\w*)|const\s+([A-Z]\w*))/g;
 const RESOLVE_SUFFIXES = ['', '.ts', '.tsx', '.js', '.jsx', '.mjs', '/index.ts', '/index.tsx', '/index.js'];
 const STATUS_BY_GIT_CODE = { A: 'added', C: 'added', M: 'changed', R: 'changed', D: 'removed' };
 
-export const GroupKind = {
-  Screen: 'screen',
-  Code: 'code',
-  Tests: 'tests',
-  Other: 'other',
-};
-
-const GROUP_TITLES = {
-  [GroupKind.Code]: 'Behind the screens',
-  [GroupKind.Tests]: 'Tests',
-  [GroupKind.Other]: 'Docs and config',
-};
-
 // Writes review/review.json and one annotated PNG per screen that shows a changed component.
+// No such screen: no review map, and review.json holds null so no older map is read back.
 export function buildReview(dir, script, screens) {
   const changes = changedFiles(baseBranch(script));
 
@@ -54,8 +42,9 @@ export function buildReview(dir, script, screens) {
   const shots = screens
     .map((screen) => boxShot(dir, screen, { fileByComponent, statusByFile, numberByFile }))
     .filter(Boolean);
-  const groups = readingGroups(changes, importsByFile, numberByFile, script);
-  const review = { shots: withFirstNumbers(shots), groups };
+  const review = shots.length > 0
+    ? { shots: withFirstNumbers(shots), groups: readingGroups(changes, importsByFile, numberByFile, script) }
+    : null;
 
   shots.forEach((shot) => renderShot(dir, shot));
   writeJson(path.join(dir, 'review', 'review.json'), review);
@@ -264,48 +253,9 @@ function readingGroups(changes, importsByFile, numberByFile, script) {
     return entries;
   };
 
-  const screenGroups = [...numberByFile]
+  return [...numberByFile]
     .sort(([, first], [, second]) => first - second)
-    .map(([file, number]) => ({ kind: GroupKind.Screen, number, title: path.parse(file).name, entries: walk(file, 0, []) }));
-
-  const rest = changes.map((change) => change.file).filter((file) => !placed.has(file));
-  const tests = rest.filter((file) => TEST_FILE.test(file));
-  const code = rest.filter((file) => CODE_FILE.test(file) && !TEST_FILE.test(file));
-  const other = rest.filter((file) => !CODE_FILE.test(file) && !TEST_FILE.test(file));
-  const importedByCode = new Set(code.flatMap((file) => importsByFile.get(file) ?? []));
-  const codeRoots = code.filter((file) => !importedByCode.has(file));
-
-  const codeEntries = [...codeRoots, ...code].reduce((entries, file) => walk(file, 0, entries), []);
-  const flatEntries = (files) => files.map((file) => entryOf(file, 0));
-  const codeGroups = byTopFolder(codeEntries).map(([folder, entries]) => ({
-    kind: GroupKind.Code,
-    title: `${GROUP_TITLES[GroupKind.Code]}: ${folder}`,
-    entries,
-  }));
-
-  return [
-    ...screenGroups,
-    ...codeGroups,
-    { kind: GroupKind.Tests, title: GROUP_TITLES[GroupKind.Tests], entries: flatEntries(tests) },
-    { kind: GroupKind.Other, title: GROUP_TITLES[GroupKind.Other], entries: flatEntries(other) },
-  ].filter((group) => group.entries.length > 0);
-}
-
-// [folder, entries] in order of first appearance; a walk stays in its root's folder.
-function byTopFolder(entries) {
-  const entriesByFolder = new Map();
-  let folder = null;
-
-  for (const entry of entries) {
-    if (entry.depth === 0) folder = `${entry.file.split('/')[0]}/`;
-
-    entriesByFolder.set(folder, [...(entriesByFolder.get(folder) ?? []), entry]);
-  }
-
-  // App folders first, tooling folders (.github/, .claude/) after them.
-  const isTooling = ([name]) => name.startsWith('.');
-
-  return [...entriesByFolder].sort((first, second) => isTooling(first) - isTooling(second) || first[0].localeCompare(second[0]));
+    .map(([file, number]) => ({ number, title: path.parse(file).name, entries: walk(file, 0, []) }));
 }
 
 function sha256(text) {

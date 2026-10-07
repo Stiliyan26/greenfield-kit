@@ -292,16 +292,14 @@ function evidenceSideHtml(side, key, caption) {
 function reviewHtml(review) {
   if (!review) return '';
 
-  const groupByNumber = new Map(review.groups.filter((group) => group.number).map((group) => [group.number, group]));
-  const placed = new Set(review.shots.flatMap((shot) => shot.firstNumbers));
+  const groupByNumber = new Map(review.groups.map((group) => [group.number, group]));
   const shots = review.shots.map((shot) => {
     const groups = shot.firstNumbers.map((number) => reviewGroupHtml(groupByNumber.get(number))).join('');
 
     return `${reviewShotHtml(shot)}<ol class="review-map">${groups}</ol>`;
   });
-  const rest = review.groups.filter((group) => !placed.has(group.number)).map(reviewGroupHtml).join('');
 
-  return sectionHtml('review', 'Review map', 'Each box is a changed component. Under each screen, read its files top to bottom: the component first, then what it uses.', `${shots.join('')}<ol class="review-map">${rest}</ol>`);
+  return sectionHtml('review', 'Review map', 'Each box is a changed component. Under each screen, read its files top to bottom: the component first, then what it uses.', shots.join(''));
 }
 
 function reviewShotHtml(shot) {
@@ -326,17 +324,10 @@ export function shotCaption(shot) {
 }
 
 function reviewGroupHtml(group) {
-  const hasNumber = Boolean(group.number);
-  const marker = hasNumber
-    ? `<span class="review-map__number">${group.number}</span>`
-    : '';
-  const attributes = hasNumber
-    ? ` id="review-${group.number}" data-review="${group.number}"`
-    : '';
   const files = group.entries.map(reviewFileHtml).join('');
 
-  return `<li class="review-map__group"${attributes}>
-    <h3>${marker}${escapeHtml(group.title)}</h3>
+  return `<li class="review-map__group" id="review-${group.number}" data-review="${group.number}">
+    <h3><span class="review-map__number">${group.number}</span>${escapeHtml(group.title)}</h3>
     <ul class="review-map__files">${files}</ul>
   </li>`;
 }
