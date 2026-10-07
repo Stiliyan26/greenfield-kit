@@ -1,6 +1,5 @@
-// The PR description, from the same script.json as the page: same sections,
-// same Mermaid diagrams, written in ASD-STE100. Summary, Evidence and Merge Danger
-// come first, then the review map; the rest folds into "Full explanation".
+// The PR description, from the same script.json as the page: same sections in
+// the same order, same Mermaid diagrams, written in ASD-STE100. Nothing is folded.
 // Writes temp/explainers/<slug>/pr-body.md
 // with the screenshots and videos as local paths; `gh pr edit --attach` uploads them
 // and rewrites each path to the uploaded file, so nothing is committed.
@@ -50,35 +49,31 @@ function prBody(script, media, review) {
   const screens = script.screens ?? [];
   const evidence = script.evidence ?? [];
   const hasEvidence = evidence.length > 0 || screens.length > 0 || media.videos[Video.Journey] || script.tests;
-  const details = [
-    script.beforeAfter && section('Before and after', [
-      '**Before**', mermaid(script.beforeAfter.before),
-      '**After**', mermaid(script.beforeAfter.after),
-      script.beforeAfter.note,
-    ]),
-    (script.diagrams?.length || media.videos[Video.Architecture]) && section('How it works', [
-      ...(script.diagrams ?? []).flatMap(diagramParts),
-      media.videos[Video.Architecture],
-    ]),
-    script.database && section('Data model', databaseParts(loadDatabase(script.database))),
-    section('Outcome', [bullets(script.outcome)]),
-  ].filter(Boolean);
-
   return [
     section('Summary', [
       bullets([script.description].flat()),
       `**Impact:** ${script.impact}`,
       ...(script.sketches ?? []).flatMap(sketchParts),
     ]),
+    script.risks && section('Merge danger', dangerParts(script.risks)),
     hasEvidence && section('Evidence', [
       ...evidence.flatMap((pair) => evidenceParts(pair, media.shots)),
       ...screens.map((screen) => shotPart(screen.shot, screen.caption, media.shots)),
       media.videos[Video.Journey],
       script.tests && testsParts(script.tests),
     ]),
-    script.risks && section('Merge Danger', dangerParts(script.risks)),
     review && section('Review map', reviewParts(review, media)),
-    details.length > 0 && foldedParts('Full explanation', details),
+    (script.diagrams?.length || media.videos[Video.Architecture]) && section('How it works', [
+      ...(script.diagrams ?? []).flatMap(diagramParts),
+      media.videos[Video.Architecture],
+    ]),
+    script.beforeAfter && section('Before and after', [
+      '**Before**', mermaid(script.beforeAfter.before),
+      '**After**', mermaid(script.beforeAfter.after),
+      script.beforeAfter.note,
+    ]),
+    script.database && section('Data model', databaseParts(loadDatabase(script.database))),
+    section('Outcome', [bullets(script.outcome)]),
   ]
     .filter(Boolean)
     .join('\n\n')
@@ -145,11 +140,6 @@ function dangerParts(risks) {
     risks.mermaid && mermaid(risks.mermaid),
     risks.deploy?.length && `**Deploy**\n\n${numbered(risks.deploy)}`,
   ];
-}
-
-// GitHub renders Markdown inside <details> only with a blank line after <summary>.
-function foldedParts(summary, sections) {
-  return [`<details>\n<summary>${summary}</summary>`, ...sections, '</details>'].join('\n\n');
 }
 
 // The screenshots and videos the build left next to the page, as the relative

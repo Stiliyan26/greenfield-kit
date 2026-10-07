@@ -47,18 +47,18 @@ const EVIDENCE_SIDES = [
   { key: 'after', caption: 'After' },
 ];
 
-// Page order: read top to bottom in 2–5 minutes; each video sits in the section it explains.
-// Summary, Evidence and Merge danger are the PR body's top three sections; the review map
-// follows the summary, so a reviewer can jump from the story to the changed components.
+// Page order, the same as the PR body: decide (summary, merge danger), trust
+// (evidence), then dig (review map, how it works, before/after, data, outcome).
+// Nothing is folded away; each video sits in the section it explains.
 const SECTIONS = [
   { id: 'summary', label: 'Summary', render: ({ script }) => summaryHtml(script) },
-  { id: 'review', label: 'Review map', render: ({ review }) => reviewHtml(review) },
-  { id: 'before-after', label: 'Before → After', render: ({ script }) => beforeAfterHtml(script.beforeAfter) },
-  { id: 'how', label: 'How it works', render: howHtml },
-  { id: 'data', label: 'Data model', render: ({ database }) => databaseHtml(database) },
-  { id: 'evidence', label: 'Evidence', render: evidenceHtml },
-  { id: 'outcome', label: 'Outcome', render: ({ script }) => listSection('outcome', 'Outcome', 'What people can do now', script.outcome) },
   { id: 'danger', label: 'Merge danger', render: ({ script }) => dangerHtml(script.risks) },
+  { id: 'evidence', label: 'Evidence', render: evidenceHtml },
+  { id: 'review', label: 'Review map', render: ({ review }) => reviewHtml(review) },
+  { id: 'how', label: 'How it works', render: howHtml },
+  { id: 'before-after', label: 'Before → After', render: ({ script }) => beforeAfterHtml(script.beforeAfter) },
+  { id: 'data', label: 'Data model', render: ({ database }) => databaseHtml(database) },
+  { id: 'outcome', label: 'Outcome', render: ({ script }) => listSection('outcome', 'Outcome', 'What people can do now', script.outcome) },
 ];
 
 const FONTS_LINK =
