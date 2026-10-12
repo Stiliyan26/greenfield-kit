@@ -21,7 +21,7 @@ Two consequences run through everything below:
 This file is the decision layer. When you move to code, load the companion reference for the exact recipe:
 
 - **[css-techniques.md](css-techniques.md)** — transitions vs keyframes, transforms, `clip-path`, `@starting-style`, stagger, hover patterns, 3D.
-- **[framer-motion.md](framer-motion.md)** — `motion/react`: `initial`/[animate](guide.md)/`exit`, spring configs, `AnimatePresence` modes, `layout`/`layoutId`, motion values & hooks, animating height, and the component recipes (drawer, crossfade, morph, shared-element, trash).
+- **[framer-motion.md](framer-motion.md)** — `motion/react`: `initial`/`animate`/`exit`, spring configs, `AnimatePresence` modes, `layout`/`layoutId`, motion values & hooks, animating height, and the component recipes (drawer, crossfade, morph, shared-element, trash).
 - **[svg-animation.md](svg-animation.md)** — `viewBox`, line-drawing (`stroke-dashoffset`), `transform-box`/origin, path morphing, shakes, ambient "life."
 
 Err on the side of loading a reference rather than approximating a value.

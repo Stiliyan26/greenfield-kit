@@ -1,9 +1,9 @@
 ---
-name: greenfield-mode
+name: start
 description: Run a new product end to end with the user - a short brief, the screens designed in the studio while the domain is planned, approval, one feature file per feature the user approves in full, the foundation, then one feature at a time built by a backend and a frontend agent in one checkout, each landing as a PR with an explainer page and videos the user approves. Use for a new product or a full restart of its design.
 ---
 
-# Greenfield mode
+# Start
 
 You lead the whole pipeline across turns. The user gives the evidence in
 chat: client calls, notes, or their own words. You keep `STATUS.md` at the

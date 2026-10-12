@@ -34,7 +34,7 @@ The cost of all this: **magic**. Complex animations come out of very little code
 />
 ```
 
-`initial` is the start state, [animate](../animate/guide.md) the end state. Values are interpolated in JavaScript, **outside React's render cycle** — an animating component doesn't re-render, which is what makes 60fps achievable.
+`initial` is the start state, `animate` the end state. Values are interpolated in JavaScript, **outside React's render cycle** — an animating component doesn't re-render, which is what makes 60fps achievable.
 
 ## Transitions and springs
 
@@ -78,7 +78,7 @@ Pull repeated spring configs into a constant. When a spring looks wrong — jitt
 
 ### Variants
 
-Named target sets, reusable across `initial`/[animate](../animate/guide.md)/`exit`. Their real power is the function form, which receives `custom`:
+Named target sets, reusable across `initial`/`animate`/`exit`. Their real power is the function form, which receives `custom`:
 
 ```jsx
 const variants = {
@@ -96,7 +96,7 @@ Store the direction in state (`setDirection(1)` on next, `-1` on back) at the sa
 
 The `layout` prop is the library's most powerful feature and the reason its animations feel native.
 
-- **`layout`** animates *any* layout change — position, size, `flex-direction`, `justify-content`. For layout animations you change the element's **actual styles** (className or inline), not the [animate](../animate/guide.md) prop; Motion measures before and after and interpolates.
+- **`layout`** animates *any* layout change — position, size, `flex-direction`, `justify-content`. For layout animations you change the element's **actual styles** (className or inline), not the `animate` prop; Motion measures before and after and interpolates.
 - Add `layout` to **neighbouring elements too**, or they'll jump while the animating one glides.
 - **`layoutId`** connects two different elements: when one mounts carrying the same `layoutId` as one that just unmounted, Motion morphs between them. Tab indicators, App Store card → detail, button → popover, images flying into a bin.
 - **You can't steer a shared layout animation.** To add motion on top, animate the **parent** and let the children come along: `<motion.div animate={{ y: 73 }} transition={{ delay: 0.13 }}>`.

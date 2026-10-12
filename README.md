@@ -4,7 +4,7 @@ A Claude Code plugin that takes a product from a brief to a proven app: a studio
 
 The look never drifts: the code you approve in the studio is the front end, and every later screen is built from its parts and tokens.
 
-Version 0.16.0.
+Version 0.21.0.
 
 ## Contents
 
@@ -35,7 +35,7 @@ Version 0.16.0.
 8 Later      add a feature: new screen? studio or straight into the app ──► 4 ──► 6 ──► 7
 ```
 
-What you are asked at each stage, and the fixed rules, are in `plugin/skills/greenfield-mode/SKILL.md`.
+What you are asked at each stage, and the fixed rules, are in `plugin/skills/start/SKILL.md`.
 
 ## Install
 
@@ -46,7 +46,7 @@ The repo is a Claude Code plugin marketplace. It is private, so Claude Code clon
 /plugin install greenfield-kit@greenfield-kit
 ```
 
-Skills are then named `greenfield-kit:<skill>`, for example `/greenfield-kit:greenfield-mode`. The `design-critic` agent comes with the plugin.
+Skills are then named `greenfield-kit:<skill>`, for example `/greenfield-kit:start`. The `design-critic` agent comes with the plugin.
 
 **For a team.** Run the `setup-project` skill in the project. It copies `CLAUDE.md` (the working rules and the project's facts) and adds a `.claude/settings.json` that enables the plugin for everyone who trusts the folder. It never overwrites a file that exists. For a Bun or Node project it also installs the `write-code` checks (`bun run check`).
 
@@ -54,7 +54,7 @@ Skills are then named `greenfield-kit:<skill>`, for example `/greenfield-kit:gre
 
 | Skill or agent | What it does |
 | --- | --- |
-| `greenfield-mode` | The pipeline: a short brief, frame, studio design while the domain is planned with you, approval, one feature file per feature you approve in full, the foundation, then one feature at a time built by a backend and a frontend agent in one checkout, each landing as a PR with an explainer. Owns the feature-file and coordination rules.. Also adds one feature later to a product that has a design and a plan. |
+| `start` | The pipeline: a short brief, frame, studio design while the domain is planned with you, approval, one feature file per feature you approve in full, the foundation, then one feature at a time built by a backend and a frontend agent in one checkout, each landing as a PR with an explainer. Owns the feature-file and coordination rules.. Also adds one feature later to a product that has a design and a plan. |
 | `design-interface` | The design process and its tool: two-pass research, the product facts, one React + shadcn design per model in the studio, the quality gate, your choice, and promotion of the approved code into `web/` with a pixel check. Owns the studio engine, the app template and the scripts. |
 | `plan-feature` | Plans the domain (entities, roles, server functions, what can go wrong) while the screens are designed, the screen wiring after approval, and one feature file per feature with exact scenarios and every test, one decision at a time, answers saved as given. Links `DESIGN.md` instead of deciding the look again. |
 | `deliver-feature` | The backend agent or the frontend agent of one feature, in one checkout: scenarios into failing tests first, contract first, own folders only, `bun run check` after every edit, the journeys driven in a real browser, the feature file filled in for verify. |
@@ -65,6 +65,7 @@ Skills are then named `greenfield-kit:<skill>`, for example `/greenfield-kit:gre
 | `shadcn` | shadcn/ui in React: composition, forms, styling, icons, base vs radix, the CLI. |
 | `setup-project` | Copies the working rules into a project, enables the plugin for the team, and installs the `write-code` checks. |
 | `reflect` | Only on `/reflect`. Three parallel reviewers (judgment, tooling, divergent) read the session transcripts, a synthesizer sorts findings into Accepted / Rejected / Backlog, and nothing is applied to a skill until you approve. Ask it a focus question such as why a build was slow. Adapted from pstack. |
+| `skill-creator-plus` | Audits, creates and improves skills against Anthropic's skill-writing rules (46 rules, file and line evidence), with a validator script for the mechanical ones; edits nothing in an audit until you approve. From robonuggets/skill-creator-plus, MIT. |
 | `bro` | Restates the last message in plain human language, with no jargon. |
 | `design-critic` agent | Read-only. Scores screenshots on originality (40), design quality (25), craft (20) and function (15). Under 70, or any score of 1, means "revise first". The agent that built a design may not grade it. |
 | `review` | Reviews a PR, a branch, a commit range, the whole app, uncommitted work (after you commit it) or a plan. One reviewer per feature proves each problem by running code, fixes it in a commit, and re-proves it; the lead runs the gates and tests once, and `interactive-explanation` writes the PR page. Only hard-to-undo choices and what is still open come to you. A plan, or "report only", gets report mode: `reviews/<date>-<target>/` for you to tick. |
@@ -85,7 +86,7 @@ Screens color only through shadcn's names (`bg-primary`, `text-muted-foreground`
 
 ## Building
 
-- Coordination is files and git, so it works in every CLI: one feature file per feature (its Backend and Frontend owners, its scenarios, its tests), `shared/INDEX.md`, a `requests/` folder for what a feature needs added to the foundation, and the lead merging one PR at a time. No worktrees: the two agents of one feature share a checkout and own different folders. Details: `plugin/skills/greenfield-mode/references/coordination.md`.
+- Coordination is files and git, so it works in every CLI: one feature file per feature (its Backend and Frontend owners, its scenarios, its tests), `shared/INDEX.md`, a `requests/` folder for what a feature needs added to the foundation, and the lead merging one PR at a time. No worktrees: the two agents of one feature share a checkout and own different folders. Details: `plugin/skills/start/references/coordination.md`.
 - The runtime: Claude Code agent teams, or `claude -p` per agent as the fallback.
 - The stack the skills assume: Bun, TanStack Start (file routes, server functions), React Query, Table and Form, shadcn + Tailwind, zod, drizzle on Postgres, Playwright, `bun test`, oxlint, oxfmt, knip. `write-code` says where every file goes.
 - Every agent keeps `STATUS.md` current and leaves a trace of what it ran, so you follow the run without reading transcripts.

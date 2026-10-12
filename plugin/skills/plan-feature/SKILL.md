@@ -6,9 +6,9 @@ description: Plan a new project or a feature with the user before any code - the
 # Plan a feature or project
 
 The user decides; you ask, check and write it down. Small changes skip
-planning. In `greenfield-mode` this runs in two passes: the domain pass while
+planning. In `start` this runs in two passes: the domain pass while
 the studio designs the screens, the screen pass after the user approves the
-design. For one feature later (`greenfield-mode`, "Add a feature"), both passes happen in one
+design. For one feature later (`start`, "Add a feature"), both passes happen in one
 sitting.
 
 ## Start
@@ -95,7 +95,7 @@ or helper mean it goes to the foundation.
 - `plan.md` in the shape of [plan.md](references/plan.md): remove the
   `interview in progress` mark; every decision carries its Q-number.
 - `features/<slug>.md`, one per feature, in the shape of
-  [features.md](../greenfield-mode/references/features.md): Backend and
+  [features.md](../start/references/features.md): Backend and
   Frontend sections with owners, the scenarios with exact outcomes, the
   tests at every layer ([tests.md](../write-code/references/tests.md)).
 - The contract is code the plan names: the zod schemas in

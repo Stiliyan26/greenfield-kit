@@ -1,6 +1,6 @@
 ---
 name: design-animations
-description: Design, implement, debug, or audit purposeful web motion using the retained animations.dev course recipes. Use for actual transitions, gestures, animation performance, or reduced-motion work.
+description: Design, implement, debug, or audit purposeful web motion using the retained animations.dev course recipes. Use for transitions, easing, springs, hover and press feedback, entrances and exits, drawers, sheets, toasts, modals and popovers; Motion for React (framer-motion, AnimatePresence, layoutId), CSS keyframes and clip-path; drag, swipe and scroll animation (reveal on scroll, parallax); reduced motion (prefers-reduced-motion); animation that feels janky, laggy or off, stutters, flickers, jumps or drops frames; choosing an animation library; naming an effect ("what's it called when..."); a motion brief, prototypes to compare, or an audit of where motion would help.
 ---
 
 # Motion

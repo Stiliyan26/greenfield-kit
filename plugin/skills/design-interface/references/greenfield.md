@@ -12,7 +12,7 @@ Check obvious feasibility constraints with `plan-feature`: roles, private inform
 
 Up to three models each design the whole product, as `design-interface`
 describes. Every model gets the same brief, screen list, data, taste log and
-reference notes, filled in from greenfield-mode's `variant-brief.md`, and
+reference notes, filled in from the `start` skill's `variant-brief.md`, and
 designs freely: structure and look. The studio shows every screen at
 1920×1080, 1440×900 and 390×844, so each design is judged on real screens,
 not a swatch board. Record the model that actually ran in each

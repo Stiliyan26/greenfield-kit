@@ -20,8 +20,8 @@ work on it.
   migration on a real database.
 - A check that was skipped, failed or couldn't run is not a pass. Say which.
 - The same fix fails twice: stop, show the evidence, question the idea.
-- Keep screenshots and test output in `temp/verification/` until the user
-  has seen them.
+- Put screenshots and test output in `temp/verification/`. When the task
+  is done and reported, delete them and `.playwright-mcp/`.
 - After changing files, finish with: what it does now, files touched,
   impact, the checks that ran, sources. Readable in under a minute.
 - Add a rule here only after a real mistake a tool can't catch. Prefer a
@@ -36,7 +36,7 @@ work on it.
   runs the live files.
 - `.claude/review/config.json` and `.claude/explain.config.json`: this
   repo's config for `review` and `interactive-explanation`.
-- `plugin/skills/greenfield-mode/SKILL.md`: the pipeline. Each stage names
+- `plugin/skills/start/SKILL.md`: the pipeline. Each stage names
   its skill.
 - `plugin/skills/setup-project/templates/`: what a new project receives
   (`CLAUDE.md`, `.claude/settings.json`, `.claude/explain.config.json`).
@@ -45,7 +45,8 @@ work on it.
   template `assets/studio-content/`, scripts `scripts/`.
 - `examples/partyfox/`: a showcase studio with three hand-written HTML
   variants. Not the test bed.
-- `temp/verification/`: evidence until the user has seen it.
+- `temp/verification/`: evidence for the task in progress; deleted when
+  it's done. Ignored by git, like `.playwright-mcp/`.
 
 ## Where it stands
 

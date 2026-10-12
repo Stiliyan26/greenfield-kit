@@ -8,6 +8,9 @@ __pycache__/
 # Remotion dependencies of the interactive-explanation skill (bun install in its remotion/ folder)
 plugin/skills/interactive-explanation/remotion/node_modules/
 
-# Explainer work folders and the voice key
-temp/explainers/
+# The voice key
 .claude/local/
+
+# Test and browser output, deleted when a task is done
+temp/
+.playwright-mcp/

@@ -248,7 +248,7 @@ The "Ново парти" form, the free-animator picker, the decline dialog and
 
 ### Components
 
-Built before this plan is approved, in the components stage (`greenfield-mode/references/components.md`): `web/` with shadcn/ui themed by `design/shadcn.css`, every row of `DESIGN.md`'s Components table (44 rows from Opus), and a gallery at `/_components` that the user accepts. Every screen in the build order uses these components. A screen that needs a part the gallery doesn't have goes back to design first.
+Built before this plan is approved, in the components stage (`start/references/components.md`): `web/` with shadcn/ui themed by `design/shadcn.css`, every row of `DESIGN.md`'s Components table (44 rows from Opus), and a gallery at `/_components` that the user accepts. Every screen in the build order uses these components. A screen that needs a part the gallery doesn't have goes back to design first.
 
 ## Decisions
 
@@ -261,7 +261,7 @@ All decided by the user on 2026-09-27, each the recommended option unless noted.
 - Leave that covers bookings (D22): approving keeps the animator and flags a clash until the owner changes it; "Одобри и намери заместник" opens the picker. Why: nothing changes silently. Rejected: removing the animator on approval.
 - Site orders (D15): a public `POST /api/site-orders` with the fields from `studio/data.js`, plus seeded orders. Why: the real form fields are unknown (`PRODUCT.md`).
 - Party length: a new booking without an end time gets 2 hours; the owner can change it. Why: there is no package length data. Rejected: lengths per package.
-- Sending messages: every call, email, reply and reminder opens a `tel:` or `mailto:` link; the app sends nothing. Why: approval doesn't allow writing to outside systems (`plugin/skills/greenfield-mode/SKILL.md`), and Viber's API is an open question.
+- Sending messages: every call, email, reply and reminder opens a `tel:` or `mailto:` link; the app sends nothing. Why: approval doesn't allow writing to outside systems (`plugin/skills/start/SKILL.md`), and Viber's API is an open question.
 - Language: Bulgarian only, no translation layer. Sofia time as set out in "Dates and times".
 - Out of this release: the week view on the day board, automatic animator choice, Viber sending, AI birthday messages, subcontractor requests, Google Calendar sync, corporate parties, feedback and animator pay tracking, any money amount. All are owner ideas or unknowns in `PRODUCT.md`.
 

@@ -103,4 +103,4 @@ svg .filter-animated    { will-change: transform; transform: translateZ(0); }
 
 ## Reduced motion
 
-For decorative SVG scenes, reduced motion is **all or nothing** — disable float, rotation, hover, and click so the asset is fully static (keeping the float would falsely imply it's interactive). Gate with `useReducedMotion()` (return identical `initial`/[animate](guide.md), or early-return the handlers).
+For decorative SVG scenes, reduced motion is **all or nothing** — disable float, rotation, hover, and click so the asset is fully static (keeping the float would falsely imply it's interactive). Gate with `useReducedMotion()` (return identical `initial`/`animate`, or early-return the handlers).

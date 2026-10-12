@@ -209,7 +209,7 @@ Two details that finish it:
 ## App Store card → detail
 
 - Every corresponding pair gets a matching `layoutId`: `card-${title}`, `image-${title}`, `title-${title}`, `description-${title}`, `button-${title}`.
-- The opened card is `position: fixed` with `inset: 0` — a **real style change**, since layout animations interpolate actual layout, not [animate](../animate/guide.md) values.
+- The opened card is `position: fixed` with `inset: 0` — a **real style change**, since layout animations interpolate actual layout, not `animate` values.
 - Separate `AnimatePresence` blocks for the overlay and the card, so the overlay can leave fast (`exit={{ opacity: 0, transition: { duration: 0.05 } }}`).
 - The long description that only exists in the open state gets `layout` plus its own opacity fade, with a very short exit so it doesn't linger while the card shrinks.
 - Inline pixel `borderRadius` everywhere, including on the images.

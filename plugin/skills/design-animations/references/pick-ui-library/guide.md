@@ -41,7 +41,7 @@ Import from `motion/react` — the rename changed nothing but the import path. N
 - **For:** springs, layout and shared-layout animations, complex motion in very little code, an API that fits React.
 - **Against:** bundle size, and a lot of magic — when something doesn't work it's hard to see why, and the docs follow the happy path.
 
-Prefer the declarative API (`initial`/[animate](../animate/guide.md)/`exit`). Imperative `useAnimate` is more powerful but harder to write and maintain — the course almost never uses it.
+Prefer the declarative API (`initial`/`animate`/`exit`). Imperative `useAnimate` is more powerful but harder to write and maintain — the course almost never uses it.
 
 ### React Spring
 

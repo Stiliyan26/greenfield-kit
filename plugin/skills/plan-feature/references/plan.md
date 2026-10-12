@@ -4,7 +4,7 @@ All in `docs/plans/<project>/`, or the plan folder `CLAUDE.md` names:
 
 - `plan.md`: below.
 - `features/<slug>.md`: one per feature, in the shape of
-  `greenfield-mode`'s [features.md](../../greenfield-mode/references/features.md).
+  `start`'s [features.md](../../start/references/features.md).
 - The contract is code, not a document: the zod schemas in
   `src/entities/<thing>/schema.ts` and the server functions in
   `*.functions.ts`, which both sides import. `plan.md` names them.
