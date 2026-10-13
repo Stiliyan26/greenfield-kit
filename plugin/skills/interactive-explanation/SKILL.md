@@ -144,13 +144,17 @@ Done when the PR shows the page's sections and the videos play.
 
 ## 6. Clean up
 
-After the publish succeeds (PR), or after the user has seen the page (task):
+After the publish succeeds (PR), or after the user has seen the page (task).
+The page keeps its own copies of the shots, so this change's test output
+goes too: `temp/verification/<slug>/` and each review or verify run there
+that this page used. Leave a folder another feature is still building with.
+`.playwright-mcp/` goes when no other agent is driving a browser.
 
 ```sh
-rm -rf temp/explainers/<slug> <the journey recipe>
+rm -rf temp/explainers/<slug> <the journey recipe> temp/verification/<slug> <the runs this page used>
 ```
 
-Done when the folder is gone.
+Done when the folders are gone.
 
 ## Changing the skill
 

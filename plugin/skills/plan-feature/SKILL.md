@@ -1,38 +1,37 @@
 ---
 name: plan-feature
-description: Plan a new project or a feature with the user before any code - the domain (entities, roles, server functions, what can go wrong) while the screens are designed, the screen wiring after the design is approved, then one feature file per feature with exact scenarios and every test, which the user approves in full. Saves each answer as it's given. Use for a new project, or a feature that touches the database, server functions, permissions or several screens.
+description: Plans a new project or a feature with the user before any code - the domain (entities, roles, server functions, what can go wrong) while the screens are designed, the screen wiring after the design is approved, then one feature file per feature with exact scenarios and every test, which the user approves in full. Use for a new project, or a feature that touches the database, server functions, permissions or several screens.
 ---
 
 # Plan a feature or project
 
 The user decides; you ask, check and write it down. Small changes skip
-planning. In `start` this runs in two passes: the domain pass while
-the studio designs the screens, the screen pass after the user approves the
-design. For one feature later (`start`, "Add a feature"), both passes happen in one
-sitting.
+planning. A new product runs in two passes: the domain pass while the
+screens are designed, the screen pass after the user approves the design.
+One feature later: both passes in one sitting.
 
-## Start
+Copy this into your first message and tick it as you go:
 
-1. **Read what exists.** `CLAUDE.md`, `BRIEF.md`, `studio/project.json`
-   and `studio/app/src/data.ts` (the screens and the records they show are the
-   draft data model), earlier plans, the code around the change: schema,
-   auth, `server/shared/`, existing feature files. `DESIGN.md`, if approved,
-   settles the look and the parts. Don't ask what these already answer.
-2. **Changing something that exists?** Find every caller of it in the code
-   now ([misuse.md](references/misuse.md), "Changing what exists").
-3. **Open the plan file** with only its title, `Status: Draft — interview in
-   progress` and an empty interview record ([plan.md](references/plan.md)).
-   Every answer goes in as soon as it's given. A plan found in that state is
-   resumed: say `Resuming: Q1–Q14 answered` and continue.
-4. **Pick the mode** if the user didn't say: **you propose** (you draft, they
-   correct) or **they lead** (they explain, you ask and check).
+```text
+Plan <project or feature>
+- [ ] 1 Read and open the plan file
+- [ ] 2 Domain pass
+- [ ] 3 Screen pass
+- [ ] 4 Features
+- [ ] 5 Write it down
+- [ ] 6 Fresh-eyes review
+- [ ] 7 Approval
+```
 
-## Interview
+## Interview rules
+
+These hold through steps 2 to 4.
 
 - One question per message, in plain words, with a concrete example of what
   happens ("12:00:00 click → email; 12:00:20 click → nothing") and **My
   recommendation** with the reason in a line or two. For a real choice, 2–3
   options and the tradeoff.
+- Every answer goes into the plan file as soon as it's given.
 - Check each answer against the code, the docs or a quick test before you
   agree. Say which facts you checked and which are guesses. A real problem:
   say it once, with what breaks, when, and your evidence, and offer an
@@ -48,79 +47,101 @@ sitting.
   gaps with a trigger.
 - No question budget. Settled areas are skipped, not confirmed.
 
-### Domain pass (runs while the screens are designed)
+## Steps
 
-In this order:
+1. **Read and open the plan file.**
+   - Read the brief, the design stage's screen list and draft records
+     (`studio/project.json`, `studio/app/src/data.ts`), earlier plans, and
+     the code around the change: schema, auth, the shared code, existing
+     feature files. `DESIGN.md`, if approved, settles the look and the
+     parts. Don't ask what these already answer.
+   - Changing something that exists? Find every caller of it in the code now
+     ([misuse.md](references/misuse.md), "Changing what exists").
+   - Open the plan file with only its title, `Status: Draft — interview in
+     progress` and an empty interview record ([plan.md](references/plan.md)).
+     A plan found in that state is resumed: say `Resuming: Q1–Q14 answered`
+     and continue.
+   - Pick the mode if the user didn't say: **you propose** (you draft, they
+     correct) or **they lead** (they explain, you ask and check).
 
-1. **Requirements:** what a user can do, and how we know it's done. Done-when
-   lines get IDs.
-2. **Entities:** each one, its fields and limits, who owns it, what happens on
-   delete, which fields each role may see.
-3. **Roles:** for every action, which roles may do it. A missing rule is an
-   open question, not a yes.
-4. **Server functions:** one per read or action, from the screens in
-   `project.json`: who may call it, the input, the output per role, the
-   errors, the same call twice, limits. A role never receives a field its
-   screens don't show.
-5. **What can go wrong:** walk [misuse.md](references/misuse.md) for every
-   server function, job, webhook and email. Each item becomes a scenario
-   with an exact outcome, or `N/A — reason`. Product choices are questions.
-6. **Data:** store, keys, constraints, retention, existing rows on a change,
-   can it be undone. An index only for a query you can name.
-7. **Other services, time, config:** what happens when a service is down or
-   slow; the timezone and where a day, week and month start; env vars and
-   startup checks; what is never logged.
-8. **Stack:** a new project uses the kit's default (`write-code`:
-   TanStack Start on Bun, drizzle, Postgres) unless a real need says
-   otherwise. An existing project keeps its stack.
+   Done when the plan file exists with its Status line and the mode is set.
 
-### Screen pass (after the design is approved)
+2. **Domain pass**, while the screens are designed. In this order:
+   1. **Requirements:** what a user can do, and how we know it's done.
+      Done-when lines get IDs.
+   2. **Entities:** each one, its fields and limits, who owns it, what
+      happens on delete, which fields each role may see.
+   3. **Roles:** for every action, which roles may do it. A missing rule is
+      an open question, not a yes.
+   4. **Server functions:** one per read or action, from the screen list: who
+      may call it, the input, the output per role, the errors, the same call
+      twice, limits. A role never receives a field its screens don't show.
+   5. **What can go wrong:** walk [misuse.md](references/misuse.md) for every
+      server function, job, webhook and email. Each item becomes a scenario
+      with an exact outcome, or `N/A — reason`. Product choices are
+      questions.
+   6. **Data:** store, keys, constraints, retention, existing rows on a
+      change, can it be undone.
+   7. **Other services, time, config:** what happens when a service is down
+      or slow; the timezone and where a day, week and month start; env vars
+      and startup checks; what is never logged.
+   8. **Stack:** a new project uses the kit's default stack in `write-code`
+      unless a real need says otherwise. An existing project keeps its stack.
 
-Walk every approved screen in `DESIGN.md` and `src/routes/`: every action
-and every piece of data on it has a server function and a role rule. Per
-screen: how data loads (loader, hook, live), what is optimistic, validation
-and where errors show, when the empty, loading, error and denied states
-appear, route guards. A screen or part the design doesn't have goes back to
-the studio first. Never plan around a screen that isn't approved.
+   Done when each of the eight is answered in `plan.md` or listed as an open
+   question.
 
-### Features, last
+3. **Screen pass**, after the design is approved. Walk every approved screen
+   in `DESIGN.md` and the promoted screens. Per screen: how data loads (with
+   the page, on demand, live), what is optimistic, validation and where
+   errors show, when the empty, loading, error and denied states appear,
+   route guards. A screen or part the design doesn't have goes back to the
+   studio first. Never plan around a screen that isn't approved.
 
-Propose the split and the order, one line of reason each. A feature is one
-thing a user can use, working end to end. What others build on goes first;
-what changes others' shapes goes last. Two features that need the same table
-or helper mean it goes to the foundation.
+   Done when every action and every piece of data on every approved screen
+   has a server function and a role rule.
 
-## Write it down
+4. **Features.** Propose the split and the order, one line of reason each. A
+   feature is one thing a user can use, working end to end. What others
+   build on goes first; what changes others' shapes goes last. Check the
+   split against the Rules in [feature-file.md](references/feature-file.md).
 
-- `plan.md` in the shape of [plan.md](references/plan.md): remove the
-  `interview in progress` mark; every decision carries its Q-number.
-- `features/<slug>.md`, one per feature, in the shape of
-  [features.md](../start/references/features.md): Backend and
-  Frontend sections with owners, the scenarios with exact outcomes, the
-  tests at every layer ([tests.md](../write-code/references/tests.md)).
-- The contract is code the plan names: the zod schemas in
-  `src/entities/<thing>/schema.ts` and the server function signatures.
+   Done when the user agrees the split and the order.
 
-**Fresh-eyes review**, once, after writing. Run the `review` skill in plan
-mode on `plan.md` and the feature files; it checks every server function has
-its misuse scenarios or `N/A` lines, every outcome is exact, every caller of
-a changed thing has a feature or a gap, every gap has a trigger. Clear
-findings: fix. Product choices: ask, numbered on from the interview. Wrong
-findings: drop. One pass.
+5. **Write it down.**
+   - `plan.md` in the shape of [plan.md](references/plan.md): remove the
+     `interview in progress` mark; every decision carries its Q-number.
+   - `features/<slug>.md`, one per feature, in the shape of
+     [feature-file.md](references/feature-file.md): Backend and Frontend
+     sections with owners and the contract, the scenarios with exact
+     outcomes, the tests at every layer write-code's `tests.md` lists.
 
-**Approval.** The user reads `plan.md` and **every feature file in full** and
-says so. Only then: `Status: Approved (date, by the user)` on the plan and
-`approved` on each feature file. Report and stop:
+   Done when `plan.md` has no `interview in progress` mark and every feature
+   file has every section above Driving.
 
-```
-Plan: docs/plans/orders/plan.md
+6. **Fresh-eyes review.** Run the `review` skill in plan mode on `plan.md`
+   and the feature files, once. Clear findings: fix. Product choices: ask,
+   numbered on from the interview. Wrong findings: drop. A finding that
+   changes the split: back to step 4.
 
-  features   3   orders-list, cancel-order, order-emails
-  scenarios  41 server-function, 7 journeys
-  gaps       4, each with a trigger
-  interview  Q1–Q23
-  review     5 findings: 4 fixed, 1 asked (Q24)
-```
+   Done when every finding is fixed, asked or dropped.
+
+7. **Approval.** The user reads `plan.md` and **every feature file in full**
+   and says so. Only then: `Status: Approved (date, by the user)` on the plan
+   and `approved` on each feature file. Report and stop:
+
+   ```
+   Plan: docs/plans/orders/plan.md
+
+     features   3   orders-list, cancel-order, order-emails
+     scenarios  41 server-function, 7 journeys
+     gaps       4, each with a trigger
+     interview  Q1–Q23
+     review     5 findings: 4 fixed, 1 asked (Q24)
+   ```
+
+   Done when the user has said they read every file and the Status lines are
+   set.
 
 You only plan. Don't write product code, run migrations or message anyone.
 If the code later needs something the plan doesn't say, update the plan and

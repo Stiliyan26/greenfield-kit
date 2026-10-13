@@ -54,9 +54,9 @@ Skills are then named `greenfield-kit:<skill>`, for example `/greenfield-kit:sta
 
 | Skill or agent | What it does |
 | --- | --- |
-| `start` | The pipeline: a short brief, frame, studio design while the domain is planned with you, approval, one feature file per feature you approve in full, the foundation, then one feature at a time built by a backend and a frontend agent in one checkout, each landing as a PR with an explainer. Owns the feature-file and coordination rules.. Also adds one feature later to a product that has a design and a plan. |
+| `start` | The pipeline: a short brief, frame, studio design while the domain is planned with you, approval, one feature file per feature you approve in full, the foundation, then one feature at a time built by a backend and a frontend agent in one checkout, each landing as a PR with an explainer. Owns the coordination rules. Also adds one feature later to a product that has a design and a plan. |
 | `design-interface` | The design process and its tool: two-pass research, the product facts, one React + shadcn design per model in the studio, the quality gate, your choice, and promotion of the approved code into `web/` with a pixel check. Owns the studio engine, the app template and the scripts. |
-| `plan-feature` | Plans the domain (entities, roles, server functions, what can go wrong) while the screens are designed, the screen wiring after approval, and one feature file per feature with exact scenarios and every test, one decision at a time, answers saved as given. Links `DESIGN.md` instead of deciding the look again. |
+| `plan-feature` | Plans the domain (entities, roles, server functions, what can go wrong) while the screens are designed, the screen wiring after approval, and one feature file per feature with exact scenarios and every test, one decision at a time, answers saved as given. Links `DESIGN.md` instead of deciding the look again. Owns the feature file format. |
 | `deliver-feature` | The backend agent or the frontend agent of one feature, in one checkout: scenarios into failing tests first, contract first, own folders only, `bun run check` after every edit, the journeys driven in a real browser, the feature file filled in for verify. |
 | `interactive-explanation` | Shows a change as a local page with a narrated journey video and an architecture video, and writes the PR description from the same script. Every feature and the foundation land through it. Adapted from Peter's skill. |
 | `design-animations` | Purposeful motion on the promoted screens: transitions, gestures, performance, reduced motion. |
@@ -86,8 +86,8 @@ Screens color only through shadcn's names (`bg-primary`, `text-muted-foreground`
 
 ## Building
 
-- Coordination is files and git, so it works in every CLI: one feature file per feature (its Backend and Frontend owners, its scenarios, its tests), `shared/INDEX.md`, a `requests/` folder for what a feature needs added to the foundation, and the lead merging one PR at a time. No worktrees: the two agents of one feature share a checkout and own different folders. Details: `plugin/skills/start/references/coordination.md`.
-- The runtime: Claude Code agent teams, or `claude -p` per agent as the fallback.
+- Coordination is files and git, so it works in every CLI: one feature file per feature (its Backend and Frontend owners, its scenarios, its tests), a `requests/` folder for what a feature needs added to the foundation, and the lead merging one PR at a time. No worktrees: the two agents of one feature share a checkout and own different folders. Details: `plugin/skills/start/references/coordination.md`.
+- The runtime: Claude Code subagents, or `claude -p` per agent as the fallback. Agents talk to the lead only through their reports and `requests/`.
 - The stack the skills assume: Bun, TanStack Start (file routes, server functions), React Query, Table and Form, shadcn + Tailwind, zod, drizzle on Postgres, Playwright, `bun test`, oxlint, oxfmt, knip. `write-code` says where every file goes.
 - Every agent keeps `STATUS.md` current and leaves a trace of what it ran, so you follow the run without reading transcripts.
 

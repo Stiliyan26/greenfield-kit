@@ -3,11 +3,7 @@
 All in `docs/plans/<project>/`, or the plan folder `CLAUDE.md` names:
 
 - `plan.md`: below.
-- `features/<slug>.md`: one per feature, in the shape of
-  `start`'s [features.md](../../start/references/features.md).
-- The contract is code, not a document: the zod schemas in
-  `src/entities/<thing>/schema.ts` and the server functions in
-  `*.functions.ts`, which both sides import. `plan.md` names them.
+- `features/<slug>.md`: one per feature, in the shape of `feature-file.md`.
 
 Give each "Done when" line an ID. Scenarios and feature files refer to these
 IDs. Number interview answers Q1, Q2… and write the Q-number next to every
@@ -40,18 +36,18 @@ Two or three sentences a user would understand.
   rows; can it be undone.
 
 ## Server functions
-- `<name>` (`features/<action>/api/` or `entities/<thing>/api/`): who may
-  call it, the input schema, the output per role, the errors, what the same
-  call twice does, limits. One example call from the screen that uses it.
+- `<name>`: who may call it, the input schema, the output per role, the
+  errors, what the same call twice does, limits. One example call from the
+  screen that uses it.
 - Server routes, only for callers outside the app: <none, or the list>.
 
 ## Screens
-Filled in after the design is approved. Per approved screen (`src/routes/`
-path, `views/<screen>`): every action and the server function behind it; how
-data loads (loader, hook, live); what is optimistic; validation and where
-errors show; when the empty, loading, error and denied states appear; route
-guards. Parts: from `shared/ui/` and `DESIGN.md`'s Components table. A
-screen or part the design doesn't have goes back to the studio first.
+Filled in after the design is approved. Per approved screen: every action
+and the server function behind it; how data loads (with the page, on demand,
+live); what is optimistic; validation and where errors show; when the empty,
+loading, error and denied states appear; route guards. Parts: from
+`DESIGN.md`'s Components table. A screen or part the design doesn't have goes
+back to the studio first.
 
 ## Dates and times
 The timezone, how times are stored, where a day, week and month start and end.
@@ -63,9 +59,9 @@ Only what applies: auth, money, external services, sensitive data.
 One line per feature file: name, done-when IDs, depends on, order.
 
 ## Foundation
-What is built before the first feature: drizzle schema and migrations, auth,
-`server/shared/`, `shared/ui/` parts from the design, the promoted routes and
-views, `bun run check`, the verify skill.
+What this project adds to the standard foundation before the first feature:
+each table, helper and part two or more features share, and which features
+need it.
 
 ## Decisions
 - <Question> (Q<n>): <choice>. Why: <reason>. Evidence: <file, doc, test>.

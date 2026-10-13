@@ -17,7 +17,8 @@ description: Set up a project for greenfield-kit - copy CLAUDE.md and the .claud
 
    It copies `CLAUDE.md` (the working rules and the project's facts, to fill
    in), `.claude/settings.json` (enables the plugin for everyone who trusts
-   the folder) and `.claude/explain.config.json`.
+   the folder) and `.claude/explain.config.json`. It adds `temp/` and
+   `.playwright-mcp/` to `.gitignore`.
 3. For each skipped file, show the difference and ask whether to merge by
    hand.
 4. Fill `CLAUDE.md` with real commands and checks. Leave no line in angle

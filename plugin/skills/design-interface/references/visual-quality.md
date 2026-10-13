@@ -67,8 +67,8 @@ follow that file and stay read-only. Say in your report that you did this.
   accent colors won't fix it.
 - After two failed passes on the same idea, replace the idea. Don't polish it
   a third time.
-- Keep captures and critiques in `temp/verification/<run>/` until the user has
-  seen them.
+- Keep captures and critiques in `temp/verification/<run>/` until the user
+  approves a design, then delete them.
 
 ## Report to the user
 

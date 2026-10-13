@@ -90,7 +90,7 @@ Edit only the verify skill's own folder and the Driving and Gotchas
 sections of the feature files. Scenarios stay as they are: a behaviour the
 app no longer does is a product regression to report. Product code stays.
 
-1. Index. Every feature file with `Status: merged` or `proven` has a
+1. Index. Every feature file with `Status: merged` has a
    Driving section; one without is drift. A file the plan no longer lists
    is a question for the user.
 2. Source wave. One read-only sub-agent per feature file, all at once. Each

@@ -6,6 +6,20 @@ from pathlib import Path
 import shutil
 
 TEMPLATES = Path(__file__).resolve().parent.parent / "templates"
+IGNORED = ["temp/", ".playwright-mcp/"]
+
+
+def ignore_scratch(root):
+    """Add the test and browser output folders to .gitignore; return the lines added."""
+    gitignore = root / ".gitignore"
+    text = gitignore.read_text() if gitignore.exists() else ""
+    missing = [line for line in IGNORED if line not in text.splitlines()]
+    if missing:
+        if text and not text.endswith("\n"):
+            text += "\n"
+        text += "\n# Test and browser output, deleted when a task is done\n" + "\n".join(missing) + "\n"
+        gitignore.write_text(text)
+    return missing
 
 
 def main():
@@ -25,6 +39,7 @@ def main():
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source.resolve(), target)
         copied.append(str(relative))
+    ignored = ignore_scratch(root)
     print("Copied:" if copied else "Copied nothing.")
     for item in copied:
         print(f"  {item}")
@@ -32,6 +47,8 @@ def main():
         print("Skipped, already there (merge by hand if needed):")
         for item in skipped:
             print(f"  {item}")
+    if ignored:
+        print(f"Added to .gitignore: {', '.join(ignored)}")
     print("Next: fill in CLAUDE.md: the project's facts, commands and checks.")
     print("For a Bun or Node project, also run write-code/scripts/install_checks.py to install the code rules as checks.")
 

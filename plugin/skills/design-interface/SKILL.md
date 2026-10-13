@@ -84,14 +84,17 @@ sample page. The approved code is the front end: nothing is redrawn later.
    each open comment, then mark it done. Only `status: "approved"` counts.
    If the user approves in chat, ask them to press **Approve** in the studio.
    Only that button writes `DESIGN.md` and the `design/` files. Never call
-   the approve API yourself, and never write those files by hand.
+   the approve API yourself, and never write those files by hand. After
+   Approve, delete `temp/verification/<run>/`; nothing reads the captures
+   again.
 
 7. **Promote.** Right after approval, follow [promote.md](references/promote.md):
    the approved variant becomes `web/`, one route per screen, with the
    approved `design/` files; the pixel comparison proves every route matches
    the studio; then a motion pass with `design-animations`. This runs in the
    background while `plan-feature` runs with the user. The user accepts the
-   promoted app or names what doesn't match.
+   promoted app or names what doesn't match. Once accepted, delete
+   `temp/verification/promote/` and `.playwright-mcp/`.
 
 Include loaded, empty, long-content, loading, save or error, and permission
 states where they matter. Give keyboard focus a visible style. Design the

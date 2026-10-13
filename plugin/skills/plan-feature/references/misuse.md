@@ -9,10 +9,21 @@ choices are interview questions; the rest the plan decides.
 This list is a floor. If the design suggests a risk that isn't here, add a
 scenario for it too.
 
+## Contents
+
+- Every entry point
+- Lists and paging
+- Server routes (callers outside the app)
+- Webhook or inbound callback
+- Scheduled job
+- Sending email
+- Changing what exists
+- Startup and config
+
 ## Every entry point
 
 - **Missing and malformed input:** each field missing, `null`, empty, the
-  wrong type; unknown extra fields (refused, `.strict()`).
+  wrong type; unknown extra fields (refused).
 - **Limits:** for every length, count, size and number: min−1, min, max,
   max+1; empty and huge lists.
 - **Text:** leading and trailing whitespace, line breaks and control

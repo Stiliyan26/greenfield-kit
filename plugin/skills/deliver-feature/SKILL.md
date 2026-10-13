@@ -1,88 +1,206 @@
 ---
 name: deliver-feature
-description: Build one approved feature file - as the backend agent or the frontend agent of a pair in one checkout, or alone - scenarios into failing tests first, then code until every test is green, bun run check clean, the journeys driven in a real browser and the evidence saved, then the feature file filled in for verify. Use for a feature from an approved plan; not for small edits.
+description: Builds one approved feature file, as the backend agent or the frontend agent of a pair in one working copy, or alone. Writes tests from the scenarios first, then code until all tests and checks pass, drives the journeys in a real browser, saves the evidence, and writes the feature file for verify. Use for a feature from an approved plan; not for small edits.
 ---
 
 # Deliver a feature
 
-You build one feature from its file, `docs/plans/<project>/features/<slug>.md`,
-with `Status: approved`. Usually two agents build it at the same time in the
-same checkout: the **backend agent** owns the Backend section's folders, the
-**frontend agent** owns the Frontend section's. Alone, you do both, backend
-first. The lead starts you, answers questions, and opens the PR when you
-report.
+You build one feature. Its file is `docs/plans/<project>/features/<slug>.md`.
+The file has `Status: approved`.
 
-Read first: the feature file, `plan.md`, `DESIGN.md`, the `write-code` skill
-(`structure.md`, `backend.md` or `react.md`, `tests.md`), and what already
-exists in `src/server/shared/`, `src/shared/` and the entities you touch.
-Reuse before writing.
+Usually two agents build the feature at the same time, in one working copy:
 
-## Rules while two agents build
+- The **backend agent** owns the Backend section of the feature file.
+- The **frontend agent** owns the Frontend section.
 
-- One checkout, one branch `feature/<slug>`, no worktree, never `git stash`.
-- Edit only the files and folders your section's **Owns** list names. Commit
-  only them: `git add -- <your folders>`. Never touch the other agent's
-  files, the foundation (`server/shared/`, `shared/`, the drizzle schema
-  outside your Owns list) or another feature.
-- **Contract first.** The backend agent's first commit is the zod schema in
-  `entities/<thing>/schema.ts` and the `*.functions.ts` wrappers with
-  handlers that throw `NotImplementedError`, exactly as the Backend section
-  describes them. The frontend agent builds against those from that commit.
-- Something you need that isn't yours (a shared helper, a part, a column):
-  write `docs/plans/<project>/requests/<slug>-<name>.md` with what, why and
-  the signature, tell the lead, and continue with the rest. No local copy.
-- Run `bun run check:fix` after every edit. Your folders only need to be
-  clean for your commits; the whole tree must be clean before you report.
+If you are alone, do both sections. Do the backend first.
+
+The lead starts you and opens the PR. You cannot send a message to the lead
+while you work. The lead reads your report and your request files when you
+stop.
+
+Before you start, read the feature file, `plan.md`, `DESIGN.md` and the
+`write-code` skill.
+
+Before you write a helper or a part, search the shared code and the entities.
+If the helper or part exists, use it.
+
+## Rules for two agents
+
+These rules apply for all of the work.
+
+**One working copy**
+
+- Use one working copy and one branch, `feature/<slug>`.
+- Do not use a worktree.
+- Do not use `git stash` or a command that resets files.
+
+Reason: each agent must see the commits of the other agent at once. The
+other agent also has edits that are not committed. `git stash` and resets
+can remove them.
+
+**Your files**
+
+- Edit only the paths in the Owns list of your section.
+- Commit only these paths, by name: `git add -- <paths>`.
+- Do not use `git add .`.
+
+Reason: `git add .` also adds the files of the other agent.
+
+The lead owns the shared code and the database schema. To change them, send
+a request.
+
+**Contract first**
+
+The contract is the schemas and the server function signatures in the
+Backend section.
+
+1. Backend agent: make the contract your first commit.
+2. Use the names and types exactly as the Backend section gives them.
+3. In each server function, throw `new Error("not implemented: <name>")`.
+4. Backend agent: report to the lead and stop. The lead starts the frontend
+   agent, then tells you to continue.
+5. Frontend agent: build against this commit.
+
+If you are alone, do not stop after the contract.
+
+Reason: the names and types are real. A server function that throws makes
+each test that calls it fail. Sample data can make a test pass when the
+feature does not work.
+
+To change a signature after this commit, stop. This is a plan change. Write
+it in your report.
+
+**A request**
+
+You need a shared helper, a part or a column that you do not own:
+
+1. Write `docs/plans/<project>/requests/<slug>-<name>.md`. Give what you
+   need, why, and the signature.
+2. Continue with the work that does not need it.
+3. If all of your remaining work needs it, report to the lead and stop.
+
+The lead commits the item on your branch, `feature/<slug>`. Then the lead
+tells you to continue.
+
+Do not make a local copy. Reason: two copies become different, and the lead
+keeps only the lead's copy.
 
 ## Steps
 
-1. **Scenarios into failing tests.** Backend: one `bun test` per scenario
-   in the Scenarios section, against the `server/` logic function on Docker
-   Postgres, exact outcome and non-events asserted
-   ([tests.md](../write-code/references/tests.md)). Frontend: the journeys
-   as `e2e/<slug>.spec.ts` at desktop and phone. All red now. Never weaken
-   one; a scenario that turns out wrong is a plan change and goes in your
-   report.
-2. **Build in thin slices**, each working end to end:
-   - Backend: migration → repository → service → the wrapper calls it. Unit
-     tests on every branch as you go.
-   - Frontend: entity queries and `ui/` → the feature's `ui/` and `model/`
-     → the view → the route and its loader. Tokens only; run
-     `check_tokens.py` from `design-interface` on the files you touched.
-     A screen or part the approved design doesn't have: stop that part and
-     report it; it goes back to the studio.
-3. **Green.** Every test of yours green, the full suite green three times in
-   a row, `bun run check` clean.
-4. **Drive it.** The project's `verify-<app>` skill (launch, doctor, drive,
-   stop), or Playwright, at desktop and phone: every journey the way a user
-   would, the action and the state it produced, side effects checked (rows,
-   emails). Save the evidence under `temp/verification/<slug>/`. Compare the
-   screens with `DESIGN.md`; ask the `design-critic` agent to score the
-   captures. Under 70, or any 1, means fix first.
-5. **Fill in the feature file.** Driving (preconditions, each user action
-   with its exact command and what you should see), Gotchas, a Trace line,
-   `Status: review`.
-6. **Report** to the lead: ready, blocked or not checked; the commands that
-   ran and what they printed; what you couldn't run; any plan question.
+Copy this list into your first message. Mark each step when it is done.
 
-A check counts only when it ran in this session and passed. A check that
-couldn't run (no Docker, no browser) stays listed as not run; it never
-becomes a pass.
+```text
+Feature <slug> · backend | frontend | alone
+- [ ] 1 Write the tests first
+- [ ] 2 Build one scenario at a time
+- [ ] 3 Make all checks pass
+- [ ] 4 Use the feature in a browser
+- [ ] 5 Write the feature file
+- [ ] 6 Report to the lead
+```
+
+### 1. Write the tests first
+
+- Backend agent: write one test for each scenario. Test the server function
+  on a real database.
+- Frontend agent: write one end-to-end test for each journey. Test at
+  desktop size and at phone size.
+- Write the tests as `tests.md` in the `write-code` skill tells you.
+
+Done when: each test exists and fails.
+
+If a scenario is wrong, do not change its test. Do not make the test pass.
+Write the problem in your report. This is a plan change.
+
+### 2. Build one scenario at a time
+
+Build one scenario or one journey from start to end, then the next.
+
+- Backend agent: change the schema first. Then write the data access, then
+  the business logic. Then make the server function call the logic.
+- Frontend agent: start at the lowest layer in `structure.md` of the
+  `write-code` skill. Go up to the route.
+
+The approved design does not have a screen or a part that you need:
+
+1. Stop work on that screen or part.
+2. Write it in your report. The design stage makes the screen or the part.
+
+Done when: the tests for each scenario and journey pass.
+
+### 3. Make all checks pass
+
+Done when:
+
+- All your tests pass.
+- The checks of the project pass.
+- The full test suite passes the Rules in `tests.md`.
+
+If a test or a check fails, go back to step 2.
+
+### 4. Use the feature in a browser
+
+Use the `verify-<app>` skill of the project. If it does not exist, use
+Playwright. Use a real browser at desktop size and at phone size. For each
+journey:
+
+- Do the action as a user does it.
+- Look at the state after the action.
+- Look at the side effects, for example rows in the database and emails.
+
+Frontend agent: compare the screens with `DESIGN.md`. Then ask the
+`design-critic` agent to score the screenshots.
+
+Keep the evidence. The explainer uses it and deletes it after the PR.
+
+Done when: the evidence is saved, and the verdict of the `design-critic`
+agent is `show the user`.
+
+If the verdict is `revise first`, go back to step 2.
+
+### 5. Write the feature file
+
+The feature file is the only file outside your Owns list that you write.
+
+- Frontend agent, or one agent alone: write the Driving, Gotchas and Trace
+  sections. Then set the Status to `review`.
+  - Driving: the preconditions. Then each user action, with its exact
+    command and the result that you see.
+  - Trace: one line.
+- Backend agent: do not edit the feature file. Put your Gotchas and your
+  Trace line in your report. The lead adds them.
+
+Done when: your sections are written, or your lines are in your report.
+
+### 6. Report to the lead
+
+Give:
+
+- The state: ready, blocked or not checked.
+- Each command that you ran, and its output.
+- Each check that you could not run.
+- Each question about the plan.
+- Each request file that you wrote.
+
+If you are blocked, also give:
+
+- The real error.
+- What you tried.
+- What you think the cause is.
+- What the environment needs.
+
+Done when: the lead has your report.
 
 ## When to decide and when to ask
 
-| Kind of choice | Example | Do |
+| Type of choice | Example | Action |
 | --- | --- | --- |
-| The feature file decides it | `cancelOrder` answers the same result twice | Follow it |
-| Small, local, invisible from outside | a private helper's name, splitting a file | Decide; one line in the Trace |
-| Visible or lasting | a column, a function's input or output, a status value, a new package, an env var | Stop that part. Write the question in your report; the lead updates the plan |
-| The file looks wrong or can't be done | a scenario needs a function nobody owns | Stop that part and report it |
-| A red test you didn't touch | | Report it. Never weaken a test |
+| The feature file gives the answer | `cancelOrder` gives the same result two times | Do what the feature file says. |
+| Small and local. Nobody outside your code sees it | the name of a private helper; one file split into two | Decide. Write one line in the Trace. |
+| Other people see it, or it stays | a column; the input or output of a function; a status value; a new package; an environment variable | Stop that work. Write the question in your report. The lead updates the plan. |
+| The feature file looks wrong, or you cannot do it | a scenario needs a function that nobody owns | Stop that work. Write it in your report. |
+| A test that you did not change fails | | Write it in your report. Do not make a test weaker: the user approved each scenario. |
 
-Don't ask the user mid-feature; the lead does, and updates the plan.
-
-## When you're stuck
-
-Hand over the goal, the code change, the real error output, what you tried,
-what you still suspect, and what the environment needs. Handing it to someone
-else doesn't give the task more tries.
+Do not ask the user questions during the feature. The lead asks the user and
+updates the plan.
