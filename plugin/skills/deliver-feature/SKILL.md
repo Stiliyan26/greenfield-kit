@@ -1,6 +1,6 @@
 ---
 name: deliver-feature
-description: Builds one approved feature file, as the backend agent or the frontend agent of a pair in one working copy, or alone. Writes tests from the scenarios first, then code until all tests and checks pass, drives the journeys in a real browser, saves the evidence, and writes the feature file for verify. Use for a feature from an approved plan; not for small edits.
+description: Builds one approved feature file, as the backend agent or the frontend agent of a pair in one working copy, or alone. Writes tests from the scenarios first, then code until all tests and checks pass, drives the journeys in a real browser, saves the evidence, and reports the notes for the feature file to the lead. Use for a feature from an approved plan; not for small edits.
 ---
 
 # Deliver a feature
@@ -96,16 +96,19 @@ Feature <slug> · backend | frontend | alone
 - [ ] 2 Build one scenario at a time
 - [ ] 3 Make all checks pass
 - [ ] 4 Use the feature in a browser
-- [ ] 5 Write the feature file
-- [ ] 6 Report to the lead
+- [ ] 5 Report to the lead
 ```
 
 ### 1. Write the tests first
 
-- Backend agent: write one test for each scenario. Test the server function
-  on a real database.
-- Frontend agent: write one end-to-end test for each journey. Test at
-  desktop size and at phone size.
+Write each test in the Tests section of the feature file that has your
+role on it:
+
+- Backend agent: the unit tests, the repository tests and the server
+  function tests. Write one server function test for each scenario, on a
+  real database.
+- Frontend agent: the unit tests and the end-to-end tests. Write one
+  end-to-end test for each journey, at desktop size and at phone size.
 - Write the tests as `tests.md` in the `write-code` skill tells you.
 
 Done when: each test exists and fails.
@@ -141,6 +144,10 @@ If a test or a check fails, go back to step 2.
 
 ### 4. Use the feature in a browser
 
+Frontend agent, or one agent alone. The backend agent does not do this step.
+Reason: the screens do not exist yet. The server function tests already
+examine the rows and the emails.
+
 Use the `verify-<app>` skill of the project. If it does not exist, use
 Playwright. Use a real browser at desktop size and at phone size. For each
 journey:
@@ -149,8 +156,8 @@ journey:
 - Look at the state after the action.
 - Look at the side effects, for example rows in the database and emails.
 
-Frontend agent: compare the screens with `DESIGN.md`. Then ask the
-`design-critic` agent to score the screenshots.
+Compare the screens with `DESIGN.md`. Then ask the `design-critic` agent
+to score the screenshots.
 
 Keep the evidence. The explainer uses it and deletes it after the PR.
 
@@ -159,25 +166,19 @@ agent is `show the user`.
 
 If the verdict is `revise first`, go back to step 2.
 
-### 5. Write the feature file
+### 5. Report to the lead
 
-The feature file is the only file outside your Owns list that you write.
-
-- Frontend agent, or one agent alone: write the Driving, Gotchas and Trace
-  sections. Then set the Status to `review`.
-  - Driving: the preconditions. Then each user action, with its exact
-    command and the result that you see.
-  - Trace: one line.
-- Backend agent: do not edit the feature file. Put your Gotchas and your
-  Trace line in your report. The lead adds them.
-
-Done when: your sections are written, or your lines are in your report.
-
-### 6. Report to the lead
+Do not edit the feature file. The lead writes your notes into it. Reason:
+two agents in one working copy cannot commit one file safely.
 
 Give:
 
 - The state: ready, blocked or not checked.
+- The notes for the feature file:
+  - Driving (frontend agent, or one agent alone): the preconditions. Then
+    each user action, with its exact command and the result that you see.
+  - Gotchas: each trap that can waste or spoil a run.
+  - Trace: one line. What ran, what it found, how long.
 - Each command that you ran, and its output.
 - Each check that you could not run.
 - Each question about the plan.
@@ -197,7 +198,7 @@ Done when: the lead has your report.
 | Type of choice | Example | Action |
 | --- | --- | --- |
 | The feature file gives the answer | `cancelOrder` gives the same result two times | Do what the feature file says. |
-| Small and local. Nobody outside your code sees it | the name of a private helper; one file split into two | Decide. Write one line in the Trace. |
+| Small and local. Nobody outside your code sees it | the name of a private helper; one file split into two | Decide. Write one line in your Trace note. |
 | Other people see it, or it stays | a column; the input or output of a function; a status value; a new package; an environment variable | Stop that work. Write the question in your report. The lead updates the plan. |
 | The feature file looks wrong, or you cannot do it | a scenario needs a function that nobody owns | Stop that work. Write it in your report. |
 | A test that you did not change fails | | Write it in your report. Do not make a test weaker: the user approved each scenario. |

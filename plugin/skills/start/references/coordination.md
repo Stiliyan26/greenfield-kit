@@ -6,7 +6,7 @@ designs, a backend agent and a frontend agent on one feature, and the verify
 run and explainer of the last feature while the next is built.
 
 ```
-LEAD (you): owns plan.md, server/shared/, shared/, the schema; merges one PR at a time
+LEAD (you): owns plan.md, the feature files, server/shared/, shared/, the schema; merges one PR at a time
    │
    ├── feature N      backend agent   src/server/<area>/**, entities/<thing>/api, features/<action>/api
    │                  frontend agent  src/views, widgets, features/<action>/{ui,model}, entities/<thing>/{ui,queries}
@@ -36,8 +36,8 @@ LEAD (you): owns plan.md, server/shared/, shared/, the schema; merges one PR at 
    other agent's uncommitted edits block a branch switch and a rebase. The
    item reaches main with the PR. A plan question: update the plan first.
    Product questions go to the user, one at a time; never to the agents.
-4. When both report ready: add the backend agent's Gotchas and Trace lines
-   to the feature file, rebase on main, run the full suite three times,
+4. When both report ready: write Driving, Gotchas and Trace into the
+   feature file from both reports, set `Status: review`, rebase on main, run the full suite three times,
    `bun run check`, the e2e suite, then the verify skill on every Driving
    section merged so far. A diff that touches files outside the Owns lists
    is sent back, not merged.

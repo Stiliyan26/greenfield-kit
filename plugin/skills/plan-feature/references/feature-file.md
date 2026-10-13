@@ -2,8 +2,9 @@
 
 The plan splits the product into features. Each is one file,
 `docs/plans/<project>/features/<slug>.md`. The planner writes it and the user
-approves it in full before anyone builds it. The builders fill in its last
-three sections, and the verify skill drives it on the merged app. Written
+approves it in full before anyone builds it. The lead writes its last three
+sections from the agents' reports, and the verify skill drives it on the
+merged app. Written
 once, read three times: plan, build, prove.
 
 ## Contents
@@ -71,12 +72,15 @@ the misuse checklist is here or in N/A.
 
 ## Tests
 
-- Unit: `canCancel(order, user)` every branch; `formatOrderStatus`.
-- Repository: `listOrders` visibility, sort ties at equal `createdAt`, page
-  boundaries, `size` 0 / 101.
-- Server function: every scenario above, on a real database.
-- E2E (`e2e/cancel-order.spec.ts`): staff cancels from the list and from the
-  detail; viewer sees no button; desktop and phone.
+Each line names the agent that writes it.
+
+- Unit (backend): `canCancel(order, user)` every branch.
+- Unit (frontend): `formatOrderStatus`; the cancel form's validation.
+- Repository (backend): `listOrders` visibility, sort ties at equal
+  `createdAt`, page boundaries, `size` 0 / 101.
+- Server function (backend): every scenario above, on a real database.
+- E2E (frontend, `e2e/cancel-order.spec.ts`): staff cancels from the list
+  and from the detail; viewer sees no button; desktop and phone.
 
 ## How to get to it (user POV)
 
@@ -100,11 +104,9 @@ One line per phase: what ran, what it found, how long.
 
 - **The planner writes everything above Driving.** A change to it after
   approval is a plan change and says so.
-- **One writer during the build.** The frontend agent, or the one agent
-  building alone, writes Driving, Gotchas and Trace and sets `review`. The
-  lead adds the backend agent's Gotchas and Trace lines from its report. Two
-  agents committing one file in one checkout would each commit the other's
-  unsaved lines.
+- **The lead writes Driving, Gotchas and Trace** from the agents' reports,
+  then sets `review`. No build agent edits this file: two agents in one
+  working copy cannot commit one file safely.
 - **One owner per file, server function and table.** Two features that need
   the same table or helper mean that thing belongs in the foundation, built
   before the first feature. An overlap is a planning error, not something
