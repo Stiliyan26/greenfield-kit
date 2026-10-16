@@ -1,0 +1,7 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["src/routes/**/*.{ts,tsx}", "src/router.tsx", "src/start.ts", "e2e/**/*.spec.ts", "drizzle.config.ts", "src/server/shared/db/migrations/**"],
+  "project": ["src/**/*.{ts,tsx}", "e2e/**/*.ts"],
+  "ignore": ["src/routeTree.gen.ts", "src/shared/ui/**"],
+  "ignoreDependencies": ["oxlint", "oxfmt"]
+}
