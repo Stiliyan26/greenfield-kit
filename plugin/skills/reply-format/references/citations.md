@@ -21,7 +21,7 @@ Reason: a quote from memory can be wrong. A quote copied from a fetched page can
 
 ## Sources list
 
-End each research reply with this list:
+Use this format for the Sources part of a research reply:
 
 ```
 **Sources**

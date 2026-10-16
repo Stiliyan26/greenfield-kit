@@ -10,7 +10,7 @@ For a question. No footer.
 **<the answer in one sentence>**
 - <why / key fact>
 - <why / key fact>
-Next: <one line, only if there is a useful next step>
+Your move: <one line, only if there is a useful next step>
 ```
 
 ## Task done
@@ -31,6 +31,7 @@ The checks go in the Evidence footer, not in the body.
 **Go with <X>** — <one-line reason>
 | Option | Good | Bad |
 |---|---|---|
+Your move: <which option to pick, or "nothing">
 ```
 
 ## Problem or blocker
@@ -39,5 +40,5 @@ The checks go in the Evidence footer, not in the body.
 **⚠️ <what's wrong, one sentence>**
 - Cause: <one line>
 - Fix: <one line>
-- Need from you: <one line, or "nothing">
+Your move: <one line, or "nothing">
 ```

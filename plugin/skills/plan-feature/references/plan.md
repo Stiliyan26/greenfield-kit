@@ -40,12 +40,11 @@ Two or three sentences a user would understand.
 - Server routes, only for callers outside the app: <none, or the list>.
 
 ## Screens
-Filled in after the design is approved. Per approved screen: every action
+Filled in by the screen pass. Per approved screen: every action
 and the server function behind it; how data loads (with the page, on demand,
 live); what is optimistic; validation and where errors show; when the empty,
 loading, error and denied states appear; route guards. Parts: from
-`DESIGN.md`'s Components table. A screen or part the design doesn't have goes
-back to the studio first.
+`DESIGN.md`'s Components table.
 
 ## Dates and times
 The timezone, how times are stored, where a day, week and month start and end.

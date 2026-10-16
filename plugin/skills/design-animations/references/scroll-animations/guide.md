@@ -1,6 +1,6 @@
 # Scroll Animations
 
-Scroll animation held to the *Animations on the Web* course bar ([animations.dev](https://animations.dev/)). Scroll is the most abused trigger in web motion, so this skill is half restraint, half implementation — in that order. The scrollbar belongs to the user: motion may respond to scrolling, but must never take it over or make content wait.
+Scroll animation held to the *Animations on the Web* course bar ([animations.dev](https://animations.dev/)). Scroll is the most abused trigger in web motion, so this reference is half restraint, half implementation — in that order. The scrollbar belongs to the user: motion may respond to scrolling, but must never take it over or make content wait.
 
 ## Gate: should this scroll animation exist?
 
@@ -38,7 +38,7 @@ A scrubbed animation has **no duration and no easing** — the user's hand is bo
 - **Reveal once. Never re-animate on scroll-up.** Intro animations run one time — replaying on every pass turns delight into a tic and makes content flicker during normal reading. Unobserve after firing (or `once: true` in Motion's `useInView`).
 - **The recipe:** `opacity: 0` + `translateY(10–16px)` → settle, with a strong `ease-out` (entering elements always ease out — the fast start reads as responsive). 400–600ms is right for marketing; product-speed 200ms reveals look nervous on a landing page.
 - **Trigger early.** Start the animation when the element is ~10–20% into the viewport (`rootMargin: "0px 0px -10% 0px"`), so it plays *as* the user arrives, not after they've stopped and stared at a blank slot.
-- **Stagger like a wave, not a metronome.** Sibling reveals offset by ~80–120ms, with delay and distance varied by importance — the heading leads, supporting text follows, the least important item can just fade with no movement. Uniform stagger kills hierarchy.
+- **Stagger like a wave, not a metronome.** Sibling reveals offset by 30–80ms (the stagger budget in [STANDARDS.md](../review-animations/STANDARDS.md#stagger--orchestration)), with delay and distance varied by importance — the heading leads, supporting text follows, the least important item can just fade with no movement. Uniform stagger kills hierarchy.
 - **Content survives without JS.** The un-animated state is *visible*; JS adds the hidden initial state right before animating. A page of `opacity: 0` sections behind a broken script is the worst failure mode a marketing page has.
 - **One entrance per container.** Don't reveal a section *and* stagger its children — pick one.
 
@@ -93,8 +93,8 @@ The golden rule holds: **animate only `transform` and `opacity`** — a scrollin
 
 ## Reduced motion
 
-Gentler, not zero: reveals keep the opacity fade and drop the translate; scrubbed decorative motion (parallax, floating shapes) turns off entirely; smooth scrolling turns off. The [animation-accessibility](../animation-accessibility/guide.md) skill has the full two-variant workflow.
+Gentler, not zero: reveals keep the opacity fade and drop the translate; scrubbed decorative motion (parallax, floating shapes) turns off entirely; smooth scrolling turns off. The [animation-accessibility](../animation-accessibility/guide.md) reference has the full two-variant workflow.
 
-## Related skills
+## Related references
 
 Deciding *whether* a page moment deserves motion at all → [find-animation-opportunities](../find-animation-opportunities/guide.md). Entrances not tied to scroll (hero intros) → [animate](../animate/guide.md). CSS-only implementation details → [css-animations](../css-animations/guide.md).

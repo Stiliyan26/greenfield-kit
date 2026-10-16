@@ -81,6 +81,7 @@ async function compare(page, a, b) {
     const read = (img) => { const c = document.createElement("canvas"); c.width = width; c.height = height; const ctx = c.getContext("2d"); ctx.drawImage(img, 0, 0); return ctx.getImageData(0, 0, width, height).data }
     const pa = read(imgA), pb = read(imgB)
     let differ = 0
+    // A pixel differs when its summed RGB change exceeds 24 of 765: below that is anti-aliasing noise.
     for (let i = 0; i < pa.length; i += 4) {
       if (Math.abs(pa[i] - pb[i]) + Math.abs(pa[i + 1] - pb[i + 1]) + Math.abs(pa[i + 2] - pb[i + 2]) > 24) differ++
     }

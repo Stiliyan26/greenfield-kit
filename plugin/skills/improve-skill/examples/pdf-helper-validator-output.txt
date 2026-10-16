@@ -17,7 +17,7 @@ WARN   ST6    reference/doc2.md  reference/doc2.md is never linked from SKILL.md
 WARN   CT3    SKILL.md:32  time-sensitive wording ("before August 2025"). It goes stale silently. State the current way; move old ways under an '## Old patterns' heading.
 WARN   SC5    SKILL.md:24  SKILL.md needs the package 'pdfplumber' but no install line was found anywhere in the skill. Add 'pip install pdfplumber' next to the script or code that needs it.
 WARN   SC5    scripts/fill_form.py:5  scripts/fill_form.py needs the package 'pypdf' but no install line was found anywhere in the skill. Add 'pip install pypdf' next to the script or code that needs it.
-WARN   NM2    SKILL.md:20  asks Claude to write out its reasoning ("Think step by step and write"). Newer models (Claude Fable 5, Opus 5.5, Sonnet 5.5) may decline this with the reasoning_extraction refusal. Ask for the answer, or a short explanation of it, instead.
+WARN   NM2    SKILL.md:20  asks Claude to write out its reasoning ("Think step by step and write"). Current Claude models may decline this with the reasoning_extraction refusal. Ask for the answer, or a short explanation of it, instead.
 WARN   NM4    SKILL.md:11  7 capitalised CRITICAL, MUST, ALWAYS or NEVER. Newer models follow brief, plain instructions, and capitals stop standing out when they are everywhere. Keep them for true hard lines and give the reason.
 NOTE   FM4    SKILL.md  claude.ai uploads and the Skills API accept only name, description, license, compatibility, metadata and allowed-tools; any other field makes the upload fail. This skill also uses: version. Fine for Claude Code only.
 NOTE   FM4    SKILL.md:3  Claude Code ignores unknown fields without an error: version. Move them under metadata: to keep them.

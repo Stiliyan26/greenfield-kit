@@ -1,6 +1,6 @@
 ---
 name: improve-skill
-description: Audits, creates and improves Agent Skills (folders with a SKILL.md) against Anthropic's skill authoring best practices, the Claude Code skills docs and the prompting guides for Claude Fable 5 and Opus 5.5. Reports every rule as pass, fail or not applicable with file and line evidence, checks that a skill stands alone and names no skill but its handoff, rewrites rules in Simplified Technical English, and changes nothing until the user approves. Use when the user asks to audit, review, check, score, improve, shorten, refactor or rewrite a skill or a folder of skills, to create a new skill or turn a repeated workflow into one, to update an old skill for newer models, to run the skill validator, or runs /improve-skill.
+description: Audits, creates and improves Agent Skills (folders with a SKILL.md) against Anthropic's skill authoring best practices, the Claude Code skills docs and the prompting guides for current Claude models. Reports every rule as pass, fail or not applicable with file and line evidence, checks that a skill stands alone and names no skill but its handoff, rewrites rules in Simplified Technical English, and changes nothing until the user approves. Use when the user asks to audit, review, check, score, improve, shorten, refactor or rewrite a skill or a folder of skills, to create a new skill or turn a repeated workflow into one, to update an old skill for newer models, to run the skill validator, or runs /improve-skill.
 argument-hint: "[skill folder]"
 license: MIT
 ---
@@ -59,7 +59,8 @@ step needs it.
 7. **No diff in chat.** Show a short summary of the changes per file. A
    few changed lines may go in a ```diff block; a whole file may not.
 
-   The user reads long text slowly. A 400-line diff hides the decision.
+   A long diff hides the decision. A summary per file lets the user
+   decide fast.
 
 ## Pick the mode
 
@@ -106,13 +107,13 @@ Audit progress:
 
 3. **Mark every rule.** Open references/audit-checklist.md. Script rules
    take the scripts' results. Read rules need evidence you can cite as
-   file and line. Mark rule 5 (stands alone) and rule 6 (STE) above too.
+   file and line. Rules 5 and 6 above are SA1 and STE1 in the checklist.
 
    Done when no rule is unmarked.
 
-4. **Write the report** in the format at the end of the checklist: the
-   table with fails first, the changes ranked by impact, then anything
-   that needs the user's decision. For each extra skill name, give a way
+4. **Write the report** in the format at the end of the checklist. Put
+   the fails first in the table. Rank the changes by impact. List last
+   what needs the user's decision. For each extra skill name, give a way
    to remove it: copy the one line it needs, or drop the name. The worked
    example in examples/ shows the bar.
 
@@ -131,7 +132,7 @@ Audit progress:
 
 7. **Re-run the scripts.** `validate_skill.py`, `check_refs.py` and, in a
    plugin repo, `claude plugin validate <plugin folder> --strict`. Report
-   each result, including any that failed or did not run. If a script
+   each result. Name each script that failed or did not run. If a script
    shows a new error or warning, return to step 6.
 
    Done when each script reports no new error or warning.
@@ -166,8 +167,8 @@ New skill progress:
    Done when each choice has a one-line reason.
 
 4. **Scaffold.** Run `python3 scripts/init_skill.py <name> --path
-   <skills-folder>`, with `--refs`, `--scripts` or `--user-invoked` as
-   needed. It creates the folder and validates it.
+   <skills-folder>`, with `--refs`, `--router`, `--scripts` or
+   `--user-invoked` as needed. It creates the folder and validates it.
 
    Done when the folder exists.
 
@@ -220,14 +221,14 @@ New skill progress:
 - [references/audit-checklist.md](references/audit-checklist.md) - every
   rule with its ID, why it matters, how to check it and its source, plus
   the report format and the failure modes. Open in AUDIT step 3, and
-  before calling any skill done.
+  before you call any skill done.
 - [references/authoring-guide.md](references/authoring-guide.md) - how to
   write each part: frontmatter fields, description, structure, degrees of
   freedom, workflows, scripts, hooks, newer models. Open in NEW steps 3 to
   5 and in REFINE.
 - [references/testing.md](references/testing.md) - evaluations,
   fresh-session baselines, Claude A and B, model sweeps, test before you
-  delete. Open in NEW steps 2 and 7, and before cutting instructions.
+  delete. Open in NEW steps 2 and 7, and before you cut instructions.
 - [examples/pdf-helper-report.md](examples/pdf-helper-report.md) - a
   finished audit report for the flawed sample skill in
   `examples/pdf-helper/`, built from the validator output in

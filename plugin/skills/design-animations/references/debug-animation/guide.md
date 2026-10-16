@@ -8,7 +8,7 @@ The diagnosis loop from Emil Kowalski's *Animations on the Web* course ([animati
 2. **Slow it down.** Most animations are too fast to diagnose by eye. Record the animation and scrub it frame by frame, or set DevTools' Animations panel playback to 10–25%. This is the single highest-leverage step — the flaw that's invisible at full speed (a late fade, a wrong origin, two states reading as separate objects) is obvious at quarter speed.
 3. **Classify the symptom** using the tables below, and check causes in order — they're sorted by likelihood.
 4. **Change one variable, re-record, compare.** Easing first, then duration — duration depends on the easing (a steep curve affords a longer duration), so tuning duration before the curve is settled is wasted work.
-5. **Verify at full speed, then with fresh eyes.** An animation approved only in slow motion hasn't been approved. Replay the complete interaction at normal speed after a focused break when useful; do not defer an authorized task solely to satisfy a next-day ritual.
+5. **Verify at full speed, then with fresh eyes.** An animation approved only in slow motion hasn't been approved. Replay the complete interaction at normal speed with a fresh pass.
 
 ## Symptom → cause
 
@@ -40,7 +40,7 @@ The diagnosis loop from Emil Kowalski's *Animations on the Web* course ([animati
 | Crossfade shows two distinct overlapping states | Add `filter: blur(2px)` during the transition — blur bridges the visual gap so the eye reads one transforming object instead of two swapped ones. |
 | Sub-animations on different clocks | Unify the timing family. The Family drawer overrides Vaul's 500ms to 200ms so open, height, and crossfade feel like a single entity — one slow sub-animation breaks the whole component. |
 | Enter and exit mismatched | Exit in the direction of entry, ~20% faster and simpler than the entrance — the user already decided; get out of the way. |
-| Motion mismatched to personality | A playful app can bounce; a dashboard stays crisp. Sonner uses `ease` over the "correct" `ease-out` because elegance fit it better — feel can overrule the blueprint, but deliberately. |
+| Motion mismatched to personality | A playful app can bounce; a dashboard stays crisp. Sonner uses `ease` over the "correct" `ease-out` because elegance fit it better — feel can overrule the rules, but deliberately. |
 
 ### "It's janky / drops frames"
 
@@ -77,6 +77,6 @@ For the full frame-budget model and profiling workflow, hand off to the [animati
 
 The animation may be *correct and wrong anyway* — built to spec but the spec is off. Re-derive the basics in order: should this animate at all (frequency of use)? → right easing family for the motion type? → duration matched to that easing and the element's size? If a reference exists (an app whose version feels right), record the reference and scrub both side by side — matching reality beats theorizing. And when a crossfade resists all tuning, a 2px blur is the sanctioned last resort.
 
-## Related skills
+## Related references
 
 Full-diff audit with a verdict → [review-animations](../review-animations/guide.md). Deep performance profiling → [animation-performance](../animation-performance/guide.md). Motion-for-React API misfires → [motion-react](../motion-react/guide.md). Naming the effect you're looking at → [animation-vocabulary](../animation-vocabulary/guide.md).

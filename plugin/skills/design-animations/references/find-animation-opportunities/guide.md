@@ -1,6 +1,6 @@
 # Finding Animation Opportunities
 
-A scouting skill. It does ONE thing: look at UI that exists and propose the small number of places where motion would genuinely improve it — with exact values — and say plainly what should be left alone. It does not implement anything, and it does not review motion that's already there (that's [review-animations](../review-animations/guide.md)).
+A scouting reference. It does one thing: look at UI that exists and propose the small number of places where motion would genuinely improve it — with exact values — and say plainly what should be left alone. It does not implement anything, and it does not review motion that's already there (that's [review-animations](../review-animations/guide.md)).
 
 ## Contents
 - Operating Posture
@@ -16,7 +16,7 @@ Your default answer is **no**. The goal is not to animate for animation's sake, 
 
 The most common mistake at the start of an animation journey is animating too much in an attempt to "delight." When a user is using a product they have a goal in mind. They don't expect to be delighted — they want to get the thing done. Motion added on top of that makes the experience worse, not better.
 
-So the value of this skill is in what it **rejects**. A run that returns three suggestions and eight rejections did its job. A run that returns twenty suggestions did not.
+So the value of this reference is in what it **rejects**. A run that returns three suggestions and eight rejections did its job. A run that returns twenty suggestions did not.
 
 ## Hard Rules
 
@@ -63,12 +63,7 @@ Each candidate must pass **all four**, in order. Record which question killed th
 
 **1. Frequency — how often will the user see this?**
 
-| Frequency | Verdict |
-| --- | --- |
-| 100+/day — keyboard shortcuts, command-palette toggle, arrow-key list navigation | **Reject.** Never animate these |
-| Tens/day — hover effects, list navigation, sidebar items | **Reject** unless the motion is instant |
-| Occasional — modals, drawers, toasts, confirmations | Eligible |
-| Rare / first-time — onboarding, feedback, celebration, marketing | Eligible, and this is where a delight budget exists |
+Use the frequency table in [STANDARDS.md](../review-animations/STANDARDS.md#should-it-animate-frequency-table). 100+/day: **reject.** Tens/day: **reject** unless the motion is instant. Occasional: eligible. Rare or first-time: eligible, and this is where a delight budget exists.
 
 A hover that looks lovely in a demo creates friction at 50 uses a day, even at 200ms. Raycast has no open/close animation, and that's the optimal experience for something opened hundreds of times a day. Imagine the interaction as a daily driver, not as a demo.
 
@@ -80,15 +75,7 @@ It must be one of: **feedback** (the interface is listening), **spatial consiste
 
 **3. Speed — does it fit the budget?**
 
-| Element | Duration |
-| --- | --- |
-| Button press | ~150ms |
-| Hover | 100–150ms |
-| Tooltip, small popover | 125–200ms |
-| Dropdown, select | 150–250ms |
-| Modal, drawer | 200–500ms |
-| Full-screen or large travel | Longer is justified — bigger elements are heavier |
-| Marketing | Freer |
+Use the duration budget in [STANDARDS.md](../review-animations/STANDARDS.md#duration). Marketing is freer.
 
 Product UI stays under ~300ms unless the size, the travel distance, or a very steep curve justifies more. If the effect you want needs longer than that on a frequently-used element, it fails.
 

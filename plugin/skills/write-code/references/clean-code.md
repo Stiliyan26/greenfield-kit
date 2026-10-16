@@ -108,14 +108,10 @@ results.
 
 ## Flat control flow
 
-| Limit | Rule |
-| --- | --- |
-| Ternaries | One `? :` per expression. The check refuses nested ternaries |
-| Ternary layout | Put the condition, the `?` branch and the `:` branch on separate lines when you assign or return the value |
-| `if` / `for` nesting | Depth 2 (`for` → `if` is fine, `for` → `if` → `if` is not) |
-
-Flatten with an early return, an extracted helper or a lookup map. Work out
-complex values in named variables before you build an object.
+The check refuses nested ternaries and `if`/`for` nesting past depth 2.
+Flatten with an early return, an extracted helper or a lookup map. Put the
+condition, the `?` branch and the `:` branch of an assigned or returned
+ternary on separate lines.
 
 ```ts
 // ❌ nested ternary
@@ -157,22 +153,8 @@ when a fourth case arrives or when the blocks must stay in sync.
 
 ## Blank lines between siblings
 
-Put a blank line between block-level sibling statements and members: methods in
-a class, sequential blocks in a function, sibling JSX.
-
-```ts
-export async function createCustomer(input: CreateCustomerInput) {
-  const customer = await customers.insert(input);
-
-  await events.publish("customer.created", customer.id);
-
-  return customer;
-}
-
-export function findCustomer(id: string) {
-  return customers.findById(id);
-}
-```
+The check puts a blank line between block-level statements. Put one between
+class members and sibling JSX too.
 
 For consecutive declarations, keep lines that **feed each other** together (a
 derivation chain, or one value and its setter). Put a blank line between
@@ -202,11 +184,7 @@ more than help.
 
 ## Names
 
-- Use named exports. Use a default export only in a file that a framework
-  requires.
-- Add no `I` prefix to an interface. Write types and components in
-  `PascalCase`, functions and variables in `camelCase`, constants in
-  `SCREAMING_SNAKE_CASE`.
+The check enforces named exports and the casing of each kind.
 
 ### Names say what and whose
 

@@ -101,8 +101,8 @@ If you may not, write "Not run".
 - The test doesn't mock the very thing it claims to test.
 - Edge cases are tested, not only the happy path.
 
-Name a missing test by what it proves: "Employee cannot download another
-person's invoice".
+Name a missing test by what it proves: "Customer cannot download another
+customer's invoice".
 
 ## 7. Fit
 
@@ -187,4 +187,4 @@ requirement or rules line the problem rests on.
 - Taste.
 - Something a rules file marks as an open question.
 - In a diff review, something in lines the diff didn't touch and didn't make
-  reachable. Put it under "Already there" in the feature file, one line each.
+  reachable. Put it under "Already there" in the feature report, one line each.

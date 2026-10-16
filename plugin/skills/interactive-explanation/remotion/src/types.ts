@@ -1,4 +1,4 @@
-// Mirrors the scene shapes documented in .claude/skills/interactive-explanation/references/script-format.md,
+// Mirrors the scene shapes documented in the skill's references/script-format.md,
 // plus the fields the skill's scripts/render.mjs adds (durations and start frames).
 
 export type FileStatus = 'added' | 'changed' | 'removed' | 'kept';

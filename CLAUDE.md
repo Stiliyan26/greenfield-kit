@@ -31,7 +31,7 @@ work on it.
   runs the live files.
 - `.claude/review/config.json` and `.claude/explain.config.json`: this
   repo's config for `review` and `interactive-explanation`.
-- `plugin/skills/start/SKILL.md`: the pipeline. Each stage names
+- `plugin/skills/start-product/SKILL.md`: the pipeline. Each stage names
   its skill.
 - `plugin/skills/setup-project/templates/`: what a new project receives
   (`CLAUDE.md`, `.claude/settings.json`, `.claude/stack.json`,

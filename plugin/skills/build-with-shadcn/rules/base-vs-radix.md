@@ -110,7 +110,7 @@ const items = [
   <SelectContent>
     <SelectGroup>
       {items.map((item) => (
-        <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>
+        <SelectItem key={item.label} value={item.value}>{item.label}</SelectItem>
       ))}
     </SelectGroup>
   </SelectContent>

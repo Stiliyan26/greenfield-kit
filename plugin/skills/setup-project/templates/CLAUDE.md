@@ -23,15 +23,16 @@ Read `write-code` before you write or change code. The stack is in
   permission already given.
 - Before you change anything, read what exists and who uses it. Stay within
   the request. Say what else needs changing instead of doing it. Remove what
-  your own change left unused. After each edit, run `pnpm run check:fix`.
+  your own change left unused. After each edit, run the check-fix command
+  (`commands.checkFix` in `.claude/stack.json`).
 - Keep the app's existing look.
 - Never open or show secrets (`.env`, key files). Do not edit generated files
   or installed packages.
 - Ask before publishing, deleting data, sending messages or running a
   migration on a real database.
 - For a screen or a flow, drive it in a real browser with Playwright, as a
-  user would. Save the screenshots. Use the `verify-<app>` skill once it
-  exists.
+  user would. Save the screenshots. Use the project's `verify-<app>` skill once
+  it exists.
 - Put screenshots and test output in `temp/verification/<task>/`. The skill
   or agent that reads them last deletes them, with `.playwright-mcp/`. If no
   skill reads them later, delete them after the report.
@@ -54,7 +55,7 @@ Read `write-code` before you write or change code. The stack is in
 | Purpose | Command |
 | --- | --- |
 | <Run the app> | `<command>` |
-| Lint, format, types, dead code | `pnpm run check:fix` |
+| Lint, format, types, dead code | `commands.check` and `commands.checkFix` in `.claude/stack.json` |
 | <Unit tests> | `<command>` |
 | <End-to-end tests, or "none yet"> | `<command>` |
 | Open the design studio | `python3 studio/server.py --port 4173` |
@@ -63,11 +64,10 @@ Read `write-code` before you write or change code. The stack is in
 
 Run the ones that match what you changed.
 
-1. `pnpm run check` and the unit tests.
+1. The check command and the unit tests.
 2. The end-to-end suite, when the change could affect it. Say "none" only
    after looking for `test:e2e`, `e2e/`, `playwright.config.*` and
    `cypress.config.*`.
 3. A screen or a flow: drive it with Playwright and save the screenshots in
-   `temp/verification/<task>/`. <Name the `verify-<app>` skill here once it
-   exists.>
+   `temp/verification/<task>/`.
 4. UI files: `check_tokens.py` against `design/tokens.css` prints `0 problems`.

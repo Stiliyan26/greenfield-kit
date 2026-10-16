@@ -41,8 +41,8 @@ and the `--out` folder. `--app` keeps only source files and `DESIGN.md`.
   "target": { "kind": "branch|uncommitted|range|app|plan", "base": "...", "range": "..." },
   "totalLines": 1234,
   "features": [
-    { "name": "time-off", "source": "docs/plans/<project>/features/time-off.md | path", "lines": 3224,
-      "files": [ { "path": "client/src/features/time-off/x.tsx", "lines": 120 } ] }
+    { "name": "orders", "source": "docs/plans/<project>/features/orders.md | path", "lines": 3224,
+      "files": [ { "path": "src/features/edit-order/ui/order-form.tsx", "lines": 120 } ] }
   ],
   "skipped": [ { "path": "package-lock.json", "why": "lock file" } ]
 }

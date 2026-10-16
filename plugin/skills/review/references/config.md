@@ -39,36 +39,24 @@ Suggest the strongest model for a fix the review marked as needing judgement
 
 ## Before each run
 
-Ask these two questions in one message. Skip each one the request already
-answers:
-
-1. **What worries you most here?** Accept free text. "Nothing" is fine. The
-   reviewers start there and mark those problems first. The README repeats
-   the answer.
-2. **Quick or full?** Ask only when the config has no `depth`, or the target
-   size makes the default a bad fit (a 30-line diff on `full`, a whole app
-   on `quick`). Say why you ask.
-
-Do not ask again what the config answers. Do not ask about known problems.
-The user names them under "what worries you" if they want.
+SKILL.md step 2 asks the two questions. The reviewers start at the worry
+and mark those problems first. Ask "quick or full?" also when the target
+size makes the default a bad fit (a 30-line diff on `full`, a whole app on
+`quick`). Say why you ask. Do not ask about known problems.
 
 ## The plan line
 
 After triage, show one block. Wait for a yes, a number, or a model name:
 
 ```
-Review: whole app · full · what worries you: balances and permissions
+Review: whole app · full · what worries you: refunds and permissions
 Reviewers (fable), one per feature:
-  1. time-off      3,224 lines · 23 files   ← starts with balances
-  2. reporting     4,813 lines · 45 files
-  3. people        5,216 lines · 28 files
-  4. other         1,102 lines · 19 files   (home, invoices, styles, server/test)
-May run the app: yes (gates, unit tests, e2e, Playwright)
+  1. orders        3,224 lines · 23 files   ← starts with refunds
+  2. invoices      4,813 lines · 45 files
+  3. customers     5,216 lines · 28 files
+  4. other         1,102 lines · 19 files   (home, styles, server/test)
+May run the app: yes (checks, unit tests, e2e, Playwright)
 Files: reviews/2026-09-29-app/
 
 Go? Or: a number of reviewers, features to merge or drop, another model.
 ```
-
-The user decides the count on every run. With fewer reviewers than features,
-merge the smallest features into one reviewer. Drop a feature only when the
-user says so.

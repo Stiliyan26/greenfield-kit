@@ -1,7 +1,7 @@
 import { theme } from './theme.ts';
 import type { DiagramNode, NodeKind } from './types';
 
-// Shared by the video (scenes/Diagram.tsx) and the page (scripts/page/diagram-svg.mjs).
+// Used by the video's diagram scene (scenes/Diagram.tsx).
 // Coordinates live on a 100 x 56 grid; the grid guides placement and never clips.
 
 export const GRID = { width: 100, height: 56 };

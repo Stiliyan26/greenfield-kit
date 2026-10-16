@@ -1,8 +1,9 @@
 # Tool checks for review
 
 Tools run before any agent. If a tool can catch a problem, no agent reports
-it. Put all of these checks in the project's gate command (for example `npm
-run gates`). Make them fail CI.
+it. Put all of these checks in the project's check command
+(`commands.check` in `.claude/stack.json`). Make them fail CI. Install each
+package with the stack's `commands.addDev`.
 
 Old code usually breaks the new limits in many places. Freeze what exists in
 a baseline, so that only new problems fail. Shrink the baseline over time.
@@ -15,12 +16,12 @@ Never turn a rule into a warning to get green.
 | Nesting too deep | ESLint `max-depth` | 2 | same |
 | Too many branches | ESLint `complexity` | 10 | same |
 | Circular imports | dependency-cruiser `no-circular` | runtime cycles | fix, or `--ignore-known` |
-| Folder layers | dependency-cruiser | `app → pages → features → entities → shared`; other slices through `index.ts` | same |
+| Folder layers | dependency-cruiser | the stack's layers, top to bottom; other slices through `index.ts` | same |
 | Copied code | jscpd | 10 lines / 70 tokens | `scripts/gates/baseline.json` |
 | Dead code | knip | unused files, exports, packages | same |
 
-The stack's check command already has `max-lines`, `max-depth`,
-`import/no-cycle`, the layer direction and knip. Add the rest.
+The stack's check command may already have some of these. Add only the
+rest.
 
 ## Set it up (Node project)
 
@@ -49,7 +50,8 @@ The stack's check command already has `max-lines`, `max-depth`,
    Commit `eslint-suppressions.json`. When you fix old code, run
    `npx eslint <src> --prune-suppressions`.
 
-2. **Import rules.** `npm install -D dependency-cruiser`, copy
+2. **Import rules.** Skip this step when the check command already enforces
+   the layers and import cycles. Otherwise add `dependency-cruiser`, copy
    [dependency-cruiser.frontend.cjs](../assets/gates/dependency-cruiser.frontend.cjs)
    or [dependency-cruiser.backend.cjs](../assets/gates/dependency-cruiser.backend.cjs)
    to `.dependency-cruiser.cjs`, point `tsConfig` at the right file, and add a
@@ -62,20 +64,20 @@ The stack's check command already has `max-lines`, `max-depth`,
    - Check a rule works: add an import that breaks it, run `deps`, see it
      fail, remove it.
 
-3. **Copied and dead code.** `npm install -D jscpd knip` in each package,
+3. **Copied and dead code.** Add `jscpd` and `knip` in each package,
    copy [baseline.mjs](../assets/gates/baseline.mjs) to
    `scripts/gates/baseline.mjs`, set `PACKAGES`, then:
 
    ```
    node scripts/gates/baseline.mjs --update   # once, and commit baseline.json
-   node scripts/gates/baseline.mjs            # in the gate command
+   node scripts/gates/baseline.mjs            # in the check command
    ```
 
-4. **Gate command.** Add the new checks to the project's gate script and to
-   CI. Run it once on a clean checkout. It must pass before anything else
+4. **Check command.** Add the new checks to the project's check script and
+   to CI. Run it once on a clean checkout. It must pass before anything else
    changes.
 
-5. **Write it down.** Put the gate command in `CLAUDE.md` → Commands, so the
-   review skill can run it.
+5. **Write it down.** Put the check command in `.claude/stack.json`
+   (`commands.check`), so the review skill can run it.
 
-Done when the gate command passes on a clean checkout and `CLAUDE.md` names it.
+Done when the check command passes on a clean checkout and `stack.json` names it.

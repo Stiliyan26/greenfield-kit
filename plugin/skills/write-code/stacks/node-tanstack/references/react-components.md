@@ -3,8 +3,6 @@
 Stack: React and TypeScript on TanStack Start. structure.md says where files
 go. clean-code.md says how to write the code.
 
-These are guidelines. Break one when it makes the code worse, and say why.
-
 ## Contents
 
 - Hook and state block order

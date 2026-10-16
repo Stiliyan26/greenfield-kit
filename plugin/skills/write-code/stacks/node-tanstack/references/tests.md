@@ -1,7 +1,7 @@
 # Tests
 
 Run `pnpm vitest run` for unit, repository, server-function and concurrency
-tests. Run Playwright in `e2e/` for journeys. Run the project's verify skill
+tests. Run Playwright in `e2e/` for journeys. Run the project's `verify-<app>` skill
 for the merged app. Docker is required: repository and server-function tests
 use a real Postgres through `@testcontainers/postgresql`. Use no in-memory
 database and no mocked repository.
@@ -20,14 +20,14 @@ database and no mocked repository.
 | --- | --- | --- |
 | Unit | one function, plain values | every function with a branch: validators, calculations, access rules, parsers, formatters |
 | Repository | the repository on Docker Postgres | every query: filters, visibility, sort and ties, paging, constraints, upserts |
-| Server function | the `server/` logic function, real Postgres, other services faked at their client | **every scenario** of the feature file: normal, wrong input, someone else's record, the same call twice, two at once, a dependency down |
-| Concurrency | two calls released together, final state asserted | every race the feature file names |
+| Server function | the `server/` logic function, real Postgres, other services faked at their client | **every scenario** of the feature: normal, wrong input, someone else's record, the same call twice, two at once, a dependency down |
+| Concurrency | two calls released together, final state asserted | every race the feature names |
 | E2E | Playwright against the running app | every journey a user can take, happy and bad paths, at desktop and phone |
-| Verify | the project's verify skill | each feature's Driving section on the merged app, evidence saved |
+| Verify | the project's `verify-<app>` skill | each feature's journeys on the merged app, evidence saved |
 
 ## What every feature must cover
 
-A feature is not done while one scenario of its feature file has no test. For
+A feature is not done while one of its scenarios has no test. For
 every server function, test:
 
 - missing, `null`, empty and wrong-type input; unknown extra fields; limits at
@@ -78,4 +78,4 @@ act through the `server/` function, and assert the state and the non-events.
 
 Put a test beside the code it tests: `orders.service.server.test.ts` beside
 `orders.service.server.ts`. Put journeys in `e2e/<feature>.spec.ts`, one file
-for each feature file.
+for each feature.

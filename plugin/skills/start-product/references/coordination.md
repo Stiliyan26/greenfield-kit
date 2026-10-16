@@ -1,26 +1,27 @@
 # Coordinating the agents
 
-Use no worktrees: one checkout, one branch per feature, ownership by folder.
+The lead and the agents share one checkout (Fixed rule 1 in SKILL.md).
 Parallel work is cheap where agents cannot collide.
 
 ```
-LEAD (you): owns plan.md, the feature files, server/shared/, shared/, the schema; merges one PR at a time
+LEAD (you): owns plan.md, the feature files, server/shared/, shared/; merges one PR at a time
    │
-   ├── feature N      backend agent   the server folder, entities/<thing>/api, features/<action>/api
+   ├── feature N      backend agent   the server folder, entities/<thing>/api, features/<action>/api, its tables and migrations
    │                  frontend agent  the views folder, widgets, features/<action>/{ui,model}, entities/<thing>/{ui,queries}
    │                  same checkout, branch feature/<slug>, each commits only its own folders
    │
-   └── feature N−1    verify run + explainer build, then the PR for the user
+   └── feature N−1    verify-<app> run + explainer build, then the PR for the user
 ```
 
 ## Before the first feature (stage 5, Foundation)
 
 1. Build what every feature needs: the routes and views from the design
-   pack, the database schema and first migration, auth, `server/shared/`,
-   `shared/ui/` from the design, the check command and the `verify-<app>`
-   skill.
+   pack, the shared tables and first migration, auth, `server/shared/`,
+   `shared/ui/` from the design and the check command. Run the `verify`
+   skill. It creates the project's `verify-<app>` skill.
 
-   Done when the app runs and the check command is clean.
+   Done when the app runs, the check command is clean and the project's
+   `verify-<app>` skill drives the app.
 
 2. Land the foundation as a PR with an explainer (`interactive-explanation`,
    pr mode). The user approves. Merge it. Features start from that commit.
@@ -47,9 +48,11 @@ LEAD (you): owns plan.md, the feature files, server/shared/, shared/, the schema
 
 3. When both agents report ready, write Driving, Gotchas and Trace into the
    feature file from both reports. Set `Status: review`. Rebase on main. Run
-   the full suite three times, the check command and the e2e suite. Then run
-   the verify skill on every Driving section merged so far. Send back a diff
-   that touches files outside the Owns lists.
+   the full suite three times, the check command and the e2e suite. Three
+   green runs catch flaky tests. Then run the project's `verify-<app>` skill
+   on every Driving section merged so far. Send back a diff that touches
+   files outside the Owns lists. If a check fails, send the failure to the
+   agent that owns it and return to step 2.
 
    Done when every check is green and the diff stays inside the Owns lists.
 
@@ -68,7 +71,7 @@ reads them and tells it to continue.
 
 | Runtime | How the lead starts and continues an agent |
 | --- | --- |
-| Claude Code subagents | The Agent tool, in the background; continue a stopped agent with a message to it. The default |
+| Claude Code subagents | The Agent tool, in the background; continue a stopped agent with SendMessage to its ID or name, so it keeps its context. The default |
 | Plain CLIs | `claude -p` per agent; continue with `claude -p --resume <session>`. The fallback |
 
 ## Never

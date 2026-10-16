@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review code or a plan, prove each problem, and fix it. Use on a branch or PR before merge (reviewers fix and commit, then interactive-explanation writes the PR page), also on a commit range, the whole app or a security pass; on a plan (report only); or to set up a project's gate tools.
+description: Reviews code or a plan, proves each problem, and fixes it. Use on a branch or PR before merge (reviewers fix and commit, then interactive-explanation writes the PR page), also on a commit range, the whole app or a security pass; on a plan (report only); or to set up a project's check tools.
 ---
 
 # Review
@@ -29,23 +29,37 @@ work if any exists. Otherwise take the branch against `main`.
 Fix mode runs steps 0 to 7. Report mode runs steps 0 to 4, then continues in
 [report.md](references/report.md).
 
-Fix mode writes no review files. Put the goal and the red gates in each
-reviewer's prompt. Put screenshots and verify output in
+Fix mode writes no review files. Put the goal and the red checks in each
+reviewer's prompt. Put screenshots and verify output in the evidence folder,
 `temp/verification/review-<date>/`.
 
 Report mode writes `reviews/<date>-<target>/`, called `<run>` below. Commit
 it. It is the record.
 
-## 0. Gates
+Copy this checklist into the reply and tick it off:
 
-1. Run the gate command from `CLAUDE.md`.
+```text
+Review progress:
+- [ ] 0 Checks run, red ones noted
+- [ ] 1 Config read or written
+- [ ] 2 Worry and depth asked or skipped
+- [ ] 3 Plan approved, one reviewer per feature
+- [ ] 4 Every reviewer replied or listed as not run
+- [ ] 5 Cross-feature problems fixed or left for you
+- [ ] 6 Checks green after the last fix
+- [ ] 7 Explainer built, digest sent
+```
+
+## 0. Checks
+
+1. Run the check command (`commands.check` in `.claude/stack.json`).
 2. Note which checks are red. Send them to the reviewers and put them in the
    hand-over. Continue the review.
 3. In report mode, save the output in `<run>/tools.txt`.
 4. If the project has no size, import, copied-code or dead-code check, say so
    in the hand-over. Offer [tools.md](references/tools.md).
 
-Done when you know which gates are red.
+Done when you know which checks are red.
 
 ## 1. Config
 
@@ -71,7 +85,7 @@ Done when both questions are answered or skipped.
    The script writes `plan.json` (one entry per feature, see
    [triage.md](references/triage.md)), `files.txt` and `diff.patch`.
 3. Write the goal in one paragraph: what the change is for, then the user's
-   worry. Take it from the request, the PR text, the commits, `docs/plans/`
+   worry. Take it from the request, the PR text, the commits, the plan files
    and `CLAUDE.md`. Fix mode puts it in each reviewer's prompt. Report mode
    saves it as `<run>/goal.md`.
 4. Show the plan block from [config.md](references/config.md). Wait for a
@@ -93,9 +107,9 @@ Start one sub-agent per feature, all at once, on the config's
 Give each:
 
 - the mode; in fix mode also the branch and `maxRounds`,
-- its feature: name, files, lines, and the feature file path when one exists
-  (`docs/plans/<project>/features/<slug>.md`),
-- fix mode: the goal, the red gates and the base ref for `git diff`,
+- its feature: name, files, lines, and its `source` from `plan.json` when
+  that is a feature file,
+- fix mode: the goal, the red checks and the base ref for `git diff`,
 - report mode: the `<run>` path,
 - the path to [checklist.md](references/checklist.md); in report mode also
   [report.md](references/report.md),
@@ -121,13 +135,13 @@ Done when each of these problems is fixed or `left for you`.
 
 ## 6. Verify
 
-1. On the branch after the last fix, run the gate command and the full test
+1. On the branch after the last fix, run the check command and the full test
    suite.
 2. Run the project's own end-to-end check on each reviewed feature when the
    project has one.
 3. Save the output in the evidence folder.
 4. If a check goes red, send the failure once to the reviewer of the feature
-   it points at. Run the checks again. If it is still red, stop and show the
+   it points at. Then return to step 6.1. If it is still red, stop and show the
    user the output.
 
 Done when every check is green, or listed as not run with the command that
@@ -156,7 +170,7 @@ Done when the page is built and the user has the digest.
 
 | Need | Read |
 | --- | --- |
-| Gate tools: size, nesting, cycles, layers, copied and dead code | [tools.md](references/tools.md) |
+| Check tools: size, nesting, cycles, layers, copied and dead code | [tools.md](references/tools.md) |
 | The project's own rules in `.claude/review/` | [project-rules.md](references/project-rules.md) |
 | Models, the questions, the plan block | [config.md](references/config.md) |
 | Templates to copy into `.claude/review/` | [roles](assets/project-rules/roles.md), [scope](assets/project-rules/scope.md), [paging](assets/project-rules/paging.md), [conventions](assets/project-rules/conventions.md) |

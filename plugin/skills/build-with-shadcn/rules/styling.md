@@ -5,6 +5,7 @@ See [customization.md](../customization.md) for theming, CSS variables, and addi
 ## Contents
 
 - Semantic colors
+- No raw color values for status/state indicators
 - Built-in variants first
 - className for layout only
 - No space-x-* / space-y-*
@@ -151,7 +152,7 @@ Use the `cn()` utility from the project for conditional or merged class names. D
 **Correct:**
 
 ```tsx
-import { cn } from "cn"
+import { cn } from "@/lib/utils" // use the project's utils alias
 
 <div className={cn("flex items-center", isActive ? "bg-primary text-primary-foreground" : "bg-muted")}>
 ```

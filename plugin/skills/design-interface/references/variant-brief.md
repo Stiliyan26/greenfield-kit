@@ -10,7 +10,8 @@
 
 The lead agent fills in every `{placeholder}` and sends the same text to each
 model. Only `{variant}`, `{model}` and `{port}` differ. Paths are absolute.
-`{skill-root}` is the `design-interface` folder.
+`{skill-root}` is the `design-interface` folder. `{evidence}` is the run's
+capture folder, `temp/verification/<run>` in the project.
 
 ---
 
@@ -37,7 +38,7 @@ Your variant id is `{variant}`. You are `{model}`.
   "variant.json" and "Screens".
 - `{skill-root}/references/visual-quality.md` and
   `{skill-root}/references/choose-a-look.md`.
-- The `shadcn` skill's rules for composition, forms and styling, and the
+- The `build-with-shadcn` skill's rules for composition, forms and styling, and the
   parts in `{studio}/app/src/components/ui/`. Every shadcn part is
   installed. Never run `shadcn add` or `npm install`. Never edit anything
   outside your folder.
@@ -107,21 +108,23 @@ Report each check's real output.
 
 1. Start your studio on port `{port}`. From `{project}`, run
    `python3 studio/server.py --port {port}` in the background.
+   Done when it prints its URL.
 2. From `{studio}/app`, run `npm run build`. It type-checks and writes
    `{studio}/candidates/{variant}/`. Open one screen at
    `http://127.0.0.1:{port}/candidates/{variant}/<screen>.html?world={variant}`.
+   Done when the build passes and the screen opens.
 3. Run `python3 {skill-root}/scripts/check_variant.py {studio} --variant {variant}`.
    Done when it prints `0 problems`.
 4. Run `node {skill-root}/scripts/capture.mjs --url http://127.0.0.1:{port} --out {evidence}/{variant} --variants {variant}`.
    Read `capture.md`. Fix sideways scroll, clipped text and console errors.
    Look at every screen at all three sizes. Fix what looks broken, crowded or
-   empty.
+   empty. Done when `capture.md` lists no unexplained problem.
 5. Run `python3 {skill-root}/scripts/check_tokens.py --project {studio}/project.json {studio}/app/src/variants/{variant}`.
    Done when it prints `0 problems`.
 6. Run `node {skill-root}/scripts/check_components.mjs --url http://127.0.0.1:{port} --variant {variant}`.
    Done when it prints `0 problems`. The studio's **Components** view (`T`)
    shows your screens as trees of parts.
-7. Stop your server.
+7. Stop your server. Done when the port no longer answers.
 
 ## Report back
 

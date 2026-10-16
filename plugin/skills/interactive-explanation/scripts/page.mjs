@@ -1,7 +1,5 @@
 // The feature page: temp/explainers/<slug>/index.html. Read top to bottom in 2–5
-// minutes: title, impact and merge danger chips, summary (with sketches), before →
-// after, how it works (with the architecture video), data model, evidence (with
-// the journey video and tests), outcome, merge danger and the review map.
+// minutes. The section order is SECTIONS in page/template.mjs, the same as the PR body.
 import { copyFileSync, existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 

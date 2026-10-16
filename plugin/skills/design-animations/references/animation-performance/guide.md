@@ -16,7 +16,7 @@ Imagine [Sonner](https://sonner.emilkowal.ski/) running at 30fps — same easing
 
 ## The frame budget
 
-60fps matches most screen refresh rates and is what the brain reads as fluid motion. It gives the renderer **16.7ms** (1000/60) to produce each frame — and on a 120Hz screen, which is now most phones and many laptops, **8ms**. The budget you're designing against is the smaller one.
+60fps matches most screen refresh rates and is what the brain reads as fluid motion. It gives the renderer **16.7ms** (1000/60) to produce each frame — and on a 120Hz screen, common on phones and laptops, **8ms**. The budget you're designing against is the smaller one.
 
 For scale: a layout recalculation on a complex page can take **upwards of 100ms**. That isn't a missed frame, it's a dozen.
 
@@ -39,7 +39,7 @@ Every property you can animate enters that pipeline at one of three points, and 
 
 | Tier | Properties | Cost |
 | --- | --- | --- |
-| **Composite only** | `transform`, `opacity` — plus `filter`, `clip-path`, `background-color` in current Chrome/Firefox | Cheapest. Browsers automatically promote these to their own graphical layer. |
+| **Composite only** | `transform`, `opacity` — plus `filter`, `clip-path`, `background-color` in some browsers | Cheapest. Browsers automatically promote these to their own graphical layer. |
 | **Paint + Composite** | `box-shadow`, `border-radius`, `color` | No re-measuring, but an expensive redraw every frame. |
 | **Layout + Paint + Composite** | `height`, `width`, `padding`, `margin`, `top`, `left`, `border-width` | Most expensive. A growing element may move everything around it, so the browser recalculates layout every frame. |
 
@@ -66,7 +66,7 @@ Two things follow:
 
 ## Axis 2 — Keep the animation off the main thread
 
-**JavaScript always runs on the main thread.** An animation driven by `requestAnimationFrame` — GSAP, and Framer Motion's React components — competes with everything else the browser is doing. When the main thread is busy, the animation's own code can be blocked from running at all, and the frame is simply late.
+**JavaScript always runs on the main thread.** An animation driven by `requestAnimationFrame` — GSAP, and Motion's React components — competes with everything else the browser is doing. When the main thread is busy, the animation's own code can be blocked from running at all, and the frame is simply late.
 
 Three ways to compute an animation, and only two can escape:
 
@@ -80,11 +80,11 @@ Three ways to compute an animation, and only two can escape:
 
 Reliably accelerated: `transform` and `opacity`. Gaining support: `filter`, `clip-path`, `background-color`, and SVG. **When you know the main thread will be busy, stay inside `transform`, `filter`, `clipPath`, and `opacity`.**
 
-This is not theoretical. Vercel's dashboard animated the active tab highlight with a Framer Motion shared layout animation. Because the browser was busy loading the new page — exactly when the animation plays — it dropped frames. The fix was moving it to a CSS animation, off the CPU.
+This is not theoretical. Vercel's dashboard animated the active tab highlight with a Motion shared layout animation. Because the browser was busy loading the new page — exactly when the animation plays — it dropped frames. The fix was moving it to a CSS animation, off the CPU.
 
 **The pattern to watch for: motion that runs *while* the page is doing heavy work.** Page transitions, tab switches during navigation, animations that fire alongside data loading or hydration. That's the case where the main-thread cost is guaranteed to bite, and the case where CSS wins.
 
-Framer Motion *can* be hardware-accelerated, but only if you animate the transform as a **string**:
+Motion *can* be hardware-accelerated, but only if you animate the transform as a **string**:
 
 ```jsx
 <motion.div animate={{ x: 100 }} />                          // main thread, can jank
@@ -105,7 +105,7 @@ That's worth knowing but not worth reversing course over: percentage translates 
 
 ## React: don't animate through state
 
-Animation libraries like Framer Motion and react-spring animate outside React's render cycle, so they're unaffected. The trap is hand-rolled, state-driven animation.
+Animation libraries like Motion and react-spring animate outside React's render cycle, so they're unaffected. The trap is hand-rolled, state-driven animation.
 
 Updating state every frame — roughly every 16.7ms — re-renders the component every frame, and the render work itself blows the budget. Write to the element instead:
 
@@ -115,7 +115,7 @@ setY(nextY);
 
 // Smooth: no re-render
 ref.current.style.transform = `translateY(${nextY}px)`;
-// or a Framer Motion motion value: y.set(nextY)
+// or a Motion motion value: y.set(nextY)
 ```
 
 ## Transform shift and `will-change`
@@ -159,9 +159,9 @@ This is the same mechanism that makes Motion's `x`/`y` shorthands unaccelerated.
 
 **No.** The problem only arises when the page is doing heavy processing *during* the animation, which is rare — and you now know how to spot and fix it.
 
-Framer Motion also buys things CSS can't do: real springs, shared layout animations, animating out unmounted components, momentum gestures. It does use `requestAnimationFrame` and it's a sizable package, so the question is whether you need those features — not whether JS animation is allowed.
+Motion also buys things CSS can't do: real springs, shared layout animations, animating out unmounted components, momentum gestures. It does use `requestAnimationFrame` and it's a sizable package, so the question is whether you need those features — not whether JS animation is allowed.
 
-**The working combination:** CSS for simple motion and anything that must be hardware-accelerated; Framer Motion for complex, dynamic, gesture-driven motion.
+**The working combination:** CSS for simple motion and anything that must be hardware-accelerated; Motion for complex, dynamic, gesture-driven motion.
 
 ## Diagnosing dropped frames
 

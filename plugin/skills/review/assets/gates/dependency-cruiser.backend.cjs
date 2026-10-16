@@ -4,7 +4,7 @@ module.exports = {
     {
       name: 'no-circular',
       comment:
-        'Circular imports. Allowed: cycles made only of `import type`, and entity ↔ entity relations (TypeORM resolves them lazily).',
+        'Circular imports. Allowed: cycles made only of `import type`, and entity ↔ entity relations (an ORM resolves them lazily).',
       severity: 'error',
       from: { pathNot: '\\.entity\\.ts$' },
       to: { circular: true, viaOnly: { dependencyTypesNot: ['type-only'] } },

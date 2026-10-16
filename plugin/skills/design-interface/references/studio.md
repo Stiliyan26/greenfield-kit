@@ -13,14 +13,15 @@
 - What the page enforces
 - What the agent reads back
 - Scripts
+- Old patterns
 
 The studio is a local page. It shows every screen, as designed by up to
 three models, at three sizes. The user compares, picks one, tunes its colors,
 pins comments and approves. Approval writes `DESIGN.md`, `design/fonts.css`,
-`design/tokens.css` and `design/shadcn.css`. Every later step builds from
-them.
+`design/tokens.css` and `design/shadcn.css`.
 
-`<skill-root>` means the `design-interface` folder.
+`<skill-root>` means the `design-interface` folder. Script paths in this file
+start from it.
 
 ## Two parts
 
@@ -212,11 +213,6 @@ The engine reads only `candidates/`. Nothing lists variants in `project.json`.
 the studio's tokens through a proxy. The studio server must be running
 (`STUDIO_URL`, default `http://127.0.0.1:4173`).
 
-A studio made with `--no-app` holds hand-written HTML candidates:
-`studio/candidates/<id>/variant.json` and one `<screen id>.html` per screen.
-Each loads `/_studio/frame.js` first and uses only `var(--…)` tokens. Older
-studios work that way and still open.
-
 ## variant.json
 
 ```json
@@ -313,8 +309,11 @@ A screen follows these rules:
   drifts toward red.
 - Work at 1920×1080, 1440×900 and 390×844, with the main job visible in the
   first screenful at each size, and in both looks (the studio's `D` key).
-- Show every state the data holds. Render a needed dialog or menu open on a
-  screen, or list it with its trigger.
+- Design the phone as its own arrangement, not a squeezed desktop.
+- Show every state the data holds: loaded, empty, long content, loading,
+  save or error, and permission where they matter. Render a needed dialog or
+  menu open on a screen, or list it with its trigger.
+- Give keyboard focus a visible style.
 - Open alone at `/candidates/<variant>/<screen>.html?world=<variant>`. Add
   `&tuned=0` to ignore the user's tuning. Add `&theme=dark` for the dark look.
 - Set `data-part` on each custom part's root. Set `data-*` attributes on
@@ -358,9 +357,6 @@ python3 <skill-root>/scripts/check_tokens.py --project studio/project.json studi
   refuses to overwrite any of the four files that the studio did not write.
   The page says when the chosen model's list is missing and keeps Approve
   disabled.
-- A project approved before `design/fonts.css` existed has the font import in
-  `tokens.css`. Re-approval moves it. The app then needs `design/fonts.css`
-  imported first.
 
 ## What the agent reads back
 
@@ -396,3 +392,13 @@ need Playwright with Chromium: `npm install playwright`, then
 `npx playwright install chromium`. They find it through `STUDIO_PLAYWRIGHT`,
 a normal import or the npx cache. If none works, they print how to install
 it.
+
+## Old patterns
+
+- A studio made with `--no-app` holds hand-written HTML candidates:
+  `studio/candidates/<id>/variant.json` and one `<screen id>.html` per
+  screen. Each loads `/_studio/frame.js` first and uses only `var(--…)`
+  tokens. Such studios still open.
+- A project approved before `design/fonts.css` existed has the font import
+  in `tokens.css`. Re-approval moves it. The app then needs
+  `design/fonts.css` imported first.

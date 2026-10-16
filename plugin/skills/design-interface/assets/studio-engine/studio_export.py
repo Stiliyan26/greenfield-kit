@@ -575,7 +575,7 @@ def components_md(variant):
     lines = ["## Components", "",
              f"The parts {variant['model'] or variant['id']} named for this design. Build each one to match the screens listed.",
              "",
-             "- `shadcn` rows: add them with the `shadcn` skill (`npx shadcn@latest add <name>`). "
+             "- `shadcn` rows: add them with the `build-with-shadcn` skill (`npx shadcn@latest add <name>`). "
              "`design/shadcn.css` gives them this design's colors, fonts and radius. Change layout and variants, never colors.",
              "- `custom` rows: build them by hand from the named screens, with `var(--…)` tokens only.",
              "- \"Find it\" is a CSS selector in the approved screen files.",

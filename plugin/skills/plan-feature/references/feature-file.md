@@ -1,6 +1,6 @@
 # Feature file
 
-The plan splits the product into features. Each feature is one file, `docs/plans/<project>/features/<slug>.md`. The planner writes it. The user approves it in full before anyone builds it. The lead writes its last three sections from the agents' reports.
+The plan splits the product into features. Each feature is one file, `docs/plans/<project>/features/<slug>.md`. The planner writes it, and the user approves it in full.
 
 ## Contents
 
@@ -14,7 +14,7 @@ The plan splits the product into features. Each feature is one file, `docs/plans
 
 One paragraph: what a user can do when this is done.
 
-- Done when: D4, D5, D9 (from plan.md; the scenarios below prove them)
+- Done when: D4, D5, D9 (from plan.md; the scenarios and journeys below prove them)
 - Screens: `orders`, `order-detail` (approved screens)
 - Depends on: `auth-login` (needs a signed-in user)
 - Order: 2
@@ -64,6 +64,14 @@ Give each scenario an exact outcome and the done-when line it proves. Put every 
   the user sees "cancelled".
 - N/A — uploads: none. N/A — scheduled job: none.
 
+## Journeys
+
+A journey is one end-to-end user path, from the first screen to the result. Give each an ID and the done-when line it proves.
+
+- J1 (D5): staff open /orders → cancel an open order → confirm → the row
+  shows "cancelled".
+- J2 (D9): a viewer opens /orders → no Cancel button.
+
 ## Tests
 
 Name the agent that writes each test.
@@ -73,8 +81,8 @@ Name the agent that writes each test.
 - Repository (backend): `listOrders` visibility, sort ties at equal
   `createdAt`, page boundaries, `size` 0 / 101.
 - Server function (backend): every scenario above, on a real database.
-- E2E (frontend, `e2e/cancel-order.spec.ts`): staff cancels from the list
-  and from the detail; viewer sees no button; desktop and phone.
+- E2E (frontend, `e2e/cancel-order.spec.ts`): one test per journey; J1 from
+  the list and from the detail; desktop and phone.
 
 ## How to get to it (user POV)
 
@@ -96,8 +104,8 @@ Write one line per phase: what ran, what it found, how long.
 ## Rules
 
 - **The planner writes everything above Driving.** A change to it after approval is a plan change. Say so.
-- **The lead writes Driving, Gotchas and Trace** from the agents' reports, then sets `review`. No build agent edits this file. Two agents in one working copy cannot commit one file safely.
-- **Give each file, server function and table one owner.** If two features need the same table or helper, build it in the foundation before the first feature. An overlap is a planning error. Agents do not sort it out.
+- **Leave Driving, Gotchas and Trace empty.** The lead fills them in.
+- **Give each file, server function and table one owner.** The backend agent owns the tables and migrations of its feature: put them in its Owns list. If two features need the same table or helper, build it in the foundation before the first feature. An overlap is a planning error. Agents do not sort it out.
 - **Give Backend and Frontend different folders.** The two agents share one checkout and never touch the same file. Write the contract in the Backend section before either starts. The contract is the input and output schemas and the server function signatures.
 - **Use Depends on** only when a feature calls another's server function or needs its data. It sets the order.
 - **Take scenarios from the done-when lines and the misuse checklist**, not from the code. Name the state, the rows, the emails and the message in each outcome. "Returns an error" is not an outcome. Say what did not happen.

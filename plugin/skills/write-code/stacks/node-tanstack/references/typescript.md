@@ -1,7 +1,7 @@
 # TypeScript specifics
 
-These rules add to clean-code.md: constants as closed unions, and the import
-order that the check command enforces.
+These rules add to clean-code.md: constants as closed unions, and who sorts
+the imports.
 
 ## Contents
 
@@ -45,13 +45,5 @@ mirror an existing enum in a constants file.
 
 ## Import order
 
-Put a blank line between groups. Order the groups from top to bottom:
-
-1. Side-effect imports
-2. Framework (React, `@tanstack/*`)
-3. External packages
-4. Internal layers, outer to inner (see structure.md)
-5. Other relative parents (`../…`), then siblings (`./…`)
-6. Assets and styles last (`.css`, `.scss`, `.svg`, images)
-
-Do not sort by hand. `pnpm run check:fix` sorts them.
+Do not sort by hand. `pnpm run check:fix` sorts imports into the six groups
+in `eslint.config.mjs`.

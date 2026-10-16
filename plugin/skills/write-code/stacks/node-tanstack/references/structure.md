@@ -106,11 +106,9 @@ that a piece belongs one layer lower. That is your judgment.
 
 ## Styling and data
 
-- Use the design tokens (colors, spacing, radius). Plain values such as `0`,
-  `auto` and `100%` need no token.
+- Plain values such as `0`, `auto` and `100%` need no design token.
 - Load data through the entity's query options: in the route loader for the
-  first paint, and through the entity's hook in components. Use no `useEffect`
-  fetch.
+  first paint, and through the entity's hook in components.
 - Keep apart: parsing a server function's result, business calculations, and
   display.
 - Add no fallback for a missing server function without a real need.

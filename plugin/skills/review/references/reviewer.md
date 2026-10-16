@@ -14,7 +14,7 @@ and tests. The lead's prompt gives you what the table lists.
 | --- | --- |
 | The mode | `fix` or `report`; in fix mode also the branch and `maxRounds` |
 | Your feature | name, files, lines, and the feature file's path when one exists |
-| The goal | fix mode: in the prompt, with the red gates and the base ref; your diff is `git diff <base>...HEAD -- <your files>`. Report mode: `<run>/goal.md`, `diff.patch`, `tools.txt` |
+| The goal | fix mode: in the prompt, with the red checks and the base ref; your diff is `git diff <base>...HEAD -- <your files>`. Report mode: `<run>/goal.md`, `diff.patch`, `tools.txt` |
 | Screenshots | fix mode: `temp/verification/review-<date>/`; report mode: `<run>/captures/` |
 | The checklist | what to look for, and the project's rules files to read first |
 | `write-code` | how code is placed and written in this project |
@@ -23,7 +23,7 @@ and tests. The lead's prompt gives you what the table lists.
 
 ## Find
 
-1. Read the goal, the checklist and your feature file. Read `DESIGN.md` when
+1. Read the goal, the checklist and your feature file if one exists. Read `DESIGN.md` when
    the feature has screens.
 2. Start where the user's worry points. Then read your files one at a time
    against the whole checklist. For a diff, read your hunks and as much
@@ -36,8 +36,8 @@ and tests. The lead's prompt gives you what the table lists.
    - `Not run:` and the exact command that would prove it, when you may not
      run it.
 4. Report only what a reader can catch: wrong results, broken access, lost
-   data, misfit with `write-code`. The gates and the linter own the
-   mechanical rules.
+   data, misfit with `write-code`. The check command owns the mechanical
+   rules.
 
 A problem needs an input and the code path it takes to go wrong. "Could be
 null" without that path is a guess. Drop it.
@@ -54,7 +54,7 @@ by priority, highest first. For each problem:
 
 1. Write the test that proves it. Watch it go red.
 2. Fix it with the project's own helpers.
-3. Run the project's tests and its gate command until they are green.
+3. Run the project's tests and its check command until they are green.
 4. Commit only your feature's files, the new test included: `git add
    <paths>`, then `git commit`. Make one commit per problem. Use the subject
    `review: <title> (#n)`. In the body, write what goes wrong, who is hurt,
@@ -99,14 +99,11 @@ Not run
 
 ## Write up (report mode)
 
-Write `<run>/<feature>.md` in the shape and rules of `report.md`. Write
+Write your feature report, `<run>/<feature>.md`, in the shape and rules of
+`report.md`. Write
 every problem in full, Critical first, then "Not run" and "Already there".
 Leave project code as it is: write only inside `<run>`. The Decision lines
 belong to the user.
-
-Without a shell or a Write tool (an older install), put the whole feature
-file in your reply between `----- BEGIN <feature>.md -----` and
-`----- END -----` lines. Say so. The lead saves it.
 
 Reply with three lines: counts by priority, the path, what you could not
 run.
@@ -114,7 +111,7 @@ run.
 ## Close (report mode)
 
 When the skill starts you to close, do this for each problem in your feature
-file whose Status is `fixing`:
+report whose Status is `fixing`:
 
 1. Run its proof again on the merged code.
 2. If it is green, set Status to `fixed · proved by <command> → <output>`,
@@ -125,7 +122,7 @@ Edit only Status lines. Reply with one line per problem.
 
 ## Limits
 
-- Run only the project's gates and tests, its start commands, Playwright,
+- Run only the project's checks and tests, its start commands, Playwright,
   `curl`, `git log`, `git blame` and read-only scripts.
 - Change data only in a test database or a seeded local run.
 - Use the packages the project already has. Stop every process you started.

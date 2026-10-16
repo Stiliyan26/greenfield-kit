@@ -1,11 +1,11 @@
 {
   "hub": "write-code",
   "handoffs": {
-    "start": [
+    "start-product": [
       "*"
     ],
     "design-interface": [
-      "shadcn",
+      "build-with-shadcn",
       "design-critic"
     ],
     "deliver-feature": [
@@ -18,14 +18,14 @@
       "interactive-explanation"
     ],
     "write-code": [
-      "shadcn"
+      "build-with-shadcn"
     ],
     "reply-format": [
       "interactive-explanation"
     ]
   },
   "values": {
-    "shadcn": [
+    "build-with-shadcn": [
       "start"
     ]
   },
@@ -65,7 +65,7 @@
     ],
     "allowed": [
       "skills/write-code/stacks",
-      "skills/shadcn",
+      "skills/build-with-shadcn",
       "skills/design-animations",
       "skills/design-interface",
       "skills/interactive-explanation",

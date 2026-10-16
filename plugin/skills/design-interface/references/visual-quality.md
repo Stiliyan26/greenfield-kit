@@ -5,9 +5,9 @@ Run this on every model's rendered variant before the user sees it.
 The gate checks pixels, not intentions. A named skill does not make a design
 good, and neither does a passing check.
 
-`<studio-scripts>` means this skill's `scripts/` folder.
+`<skill-root>` means the `design-interface` folder.
 
-## Before building
+## Before you build
 
 Each model writes down, for its own variant:
 
@@ -26,7 +26,7 @@ designs.
 1. Start the studio. Capture every screen of every variant at three sizes:
 
    ```
-   node <studio-scripts>/capture.mjs --url <studio url> --out temp/verification/<run>
+   node <skill-root>/scripts/capture.mjs --url <studio url> --out temp/verification/<run>
    ```
 
    Done when `capture.md` exists.
@@ -37,15 +37,19 @@ designs.
 
    Done when `capture.md` lists no unexplained problem.
 
-3. Run the token check:
+3. Run the token check on the source, not on the built pages:
 
    ```
-   python3 <studio-scripts>/check_tokens.py --project studio/project.json studio/candidates
+   python3 <skill-root>/scripts/check_tokens.py --project studio/project.json studio/app/src/variants
    ```
 
    Done when it prints `0 problems`.
 
-4. Run `python3 <studio-scripts>/check_variant.py studio`. Open each
+4. Run `node <skill-root>/scripts/check_components.mjs --url <studio url>`.
+
+   Done when it prints `0 problems`.
+
+5. Run `python3 <skill-root>/scripts/check_variant.py studio`. Open each
    variant's specimen. Each status color must keep one meaning.
 
    Approval stays blocked while a contrast, hue or font check fails.
@@ -75,19 +79,16 @@ Done when each variant has a score with evidence.
 ## Revise
 
 1. Fix the critic's top fixes. Capture and critique again.
-2. If a candidate is generic, change its composition or its look. Shadows and
+2. If a variant is generic, change its composition or its look. Shadows and
    accent colors do not fix it.
 3. After two failed passes on one idea, replace the idea. Do not polish it a
    third time.
-
-Keep captures and critiques in `temp/verification/<run>/` until the user
-approves a design. Then delete them.
 
 Done when no variant is marked "revise first".
 
 ## Report to the user
 
-Say what each candidate is, what the critic scored, what you fixed and what
+Say what each variant is, what the critic scored, what you fixed and what
 you could not check. If you could not capture, do not claim a visual pass.
 
 After a rejection, the user's exact words are the next round's constraint.

@@ -15,7 +15,10 @@ const base = arg("url", "http://127.0.0.1:4173").replace(/\/$/, "")
 const only = arg("variant", null)
 const widths = arg("widths", "1440,390").split(",").map(Number)
 
-const project = await fetch(`${base}/api/project`).then((response) => response.json())
+const project = await fetch(`${base}/api/project`).then((response) => response.json()).catch(() => {
+  console.error(`The studio does not answer at ${base}. Start it from the project root: python3 studio/server.py`)
+  process.exit(2)
+})
 const variants = project.variants.filter((variant) => !only || variant.id === only)
 if (!variants.length) {
   console.error(only ? `No variant '${only}' in the studio at ${base}` : `No variants in the studio at ${base}`)

@@ -77,7 +77,7 @@ export const cancelOrder = createServerFn({ method: "POST" })
 
 ## Same call twice, two at once
 
-Write in the feature file what happens. Then make it true:
+Write down what happens. Then make it true:
 
 - Make a double click or a retry end in the same state as one call. Use a
   unique constraint plus `onConflictDoNothing`, or a status check inside the
@@ -117,6 +117,6 @@ Make each one safe to run twice, and safe to rerun after a crash halfway.
 
 ## Proving it works
 
-A mocked unit test proves nothing. Run every scenario of the feature file
+A mocked unit test proves nothing. Run every scenario of the feature
 against the `server/` function with a real Postgres (see tests.md). Run the
 journeys in a real browser.

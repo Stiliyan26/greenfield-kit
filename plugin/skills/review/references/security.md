@@ -51,10 +51,10 @@ not, skip it with one line ("no uploads, N/A"). Never skip it silently.
 
 This list is a floor. Add any risk the surface suggests that is not here.
 
-## 3. Report
+## 3. Report and fix
 
-Report only. Never fix. Put each finding in the feature file in
-`reviews/<date>-<target>/` with the full report shape, plus:
+Fix each finding as the mode says. A fix that is hard to undo goes to
+`left for you`. Give each finding the problem shape of its mode, plus:
 
 - **Severity:** Critical / High / Medium / Low, by realistic impact and
   reachability (an unauthenticated remote code path is Critical; a missing

@@ -22,14 +22,19 @@ if (!args.url || !args.project) {
 const studioUrl = String(args.url).replace(/\/$/, "")
 const root = resolve(String(args.project))
 const threshold = Number(args.threshold ?? 1)
-const selection = JSON.parse(await readFile(join(root, "studio", "selection.json"), "utf8"))
+const selectionFile = join(root, "studio", "selection.json")
+if (!existsSync(selectionFile)) { console.error(`No ${selectionFile}: pass the project root that holds studio/`); process.exit(2) }
+const selection = JSON.parse(await readFile(selectionFile, "utf8"))
 const variant = args.variant && args.variant !== true ? String(args.variant) : selection.variant
 if (!variant) { console.error("No variant: approve one in the studio or pass --variant"); process.exit(2) }
 if (!args.variant && selection.status !== "approved") { console.error(`'${variant}' is not approved in the studio yet`); process.exit(2) }
 for (const name of ["DESIGN.md", "design/tokens.css", "design/fonts.css", "design/shadcn.css"]) {
   if (!existsSync(join(root, name))) { console.error(`Missing ${name}: approve the design in the studio first`); process.exit(2) }
 }
-const project = await (await fetch(`${studioUrl}/api/project`)).json()
+const project = await fetch(`${studioUrl}/api/project`).then((response) => response.json()).catch(() => {
+  console.error(`The studio does not answer at ${studioUrl}. Start it from the project root: python3 studio/server.py`)
+  process.exit(2)
+})
 const screens = project.screens.map((screen) => screen.id)
 const out = join(root, "design", "screens")
 await mkdir(out, { recursive: true })
@@ -140,6 +145,7 @@ async function compare(page, a, b) {
     const read = (img) => { const c = document.createElement("canvas"); c.width = width; c.height = height; const ctx = c.getContext("2d"); ctx.drawImage(img, 0, 0); return ctx.getImageData(0, 0, width, height).data }
     const pa = read(imgA), pb = read(imgB)
     let differ = 0
+    // A pixel differs when its summed RGB change exceeds 24 of 765: below that is anti-aliasing noise.
     for (let i = 0; i < pa.length; i += 4) {
       if (Math.abs(pa[i] - pb[i]) + Math.abs(pa[i + 1] - pb[i + 1]) + Math.abs(pa[i + 2] - pb[i + 2]) > 24) differ++
     }

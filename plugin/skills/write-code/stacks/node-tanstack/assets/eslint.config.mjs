@@ -8,8 +8,8 @@
 //   pnpm add -D eslint-plugin-simple-import-sort @stylistic/eslint-plugin
 //
 // To add project rules, rename this file's import and wrap it:
-//   import greenfield from "./eslint.greenfield.mjs"
-//   export default [...greenfield, { rules: { /* yours */ } }]
+//   import stistack from "./eslint.stistack.mjs"
+//   export default [...stistack, { rules: { /* yours */ } }]
 
 import stylistic from "@stylistic/eslint-plugin"
 import importPlugin from "eslint-plugin-import"
@@ -82,7 +82,7 @@ export default tseslint.config(
       // Layer direction on resolved relative paths — structure.md, "Layers"
       "import/no-restricted-paths": ["error", { zones: layerZones }],
 
-      // Blank line between block-level siblings — typescript.md
+      // Blank line between block-level siblings — clean-code.md, "Blank lines between siblings"
       "@stylistic/padding-line-between-statements": [
         "error",
         { blankLine: "always", prev: "*", next: "return" },
@@ -97,7 +97,7 @@ export default tseslint.config(
   {
     files: ["**/*.{ts,tsx}"],
     rules: {
-      // Names — typescript.md, "Names"
+      // Names — clean-code.md, "Names"
       "@typescript-eslint/naming-convention": [
         "error",
         { selector: "default", format: ["camelCase"], leadingUnderscore: "allow" },

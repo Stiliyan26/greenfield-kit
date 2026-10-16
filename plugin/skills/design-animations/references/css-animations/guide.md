@@ -7,10 +7,11 @@ The CSS Animations module of Emil Kowalski's *Animations on the Web* course ([an
 - Transition or keyframes — who drives it?
 - Transitions
 - Keyframes
+- Enter and exit without JS
 - Transforms
 - clip-path
 - Hover belongs to pointers
-- Easing blueprint
+- Easing
 - Reverse engineering
 
 For the worked patterns (hover reveals, toast stacks, text reveals, orbits, clip-path effects), load **[RECIPES.md](RECIPES.md)**.
@@ -104,6 +105,33 @@ Use the `animation` shorthand for the first three values only (name, duration, t
 - **Re-trigger an animation in React by changing the element's `key`**, which forces a remount.
 - **Many steps usually means the wrong tool.** Complex multi-step choreography is easier and better in Motion; keyframes are for the simple cases.
 
+## Enter and exit without JS
+
+`@starting-style` animates an element in on first render, with no `mounted` state and no `useEffect`:
+
+```css
+.toast {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 400ms ease, transform 400ms ease;
+  @starting-style {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+```
+
+Legacy fallback: mount with an initial state, then flip a `data-mounted` attribute in `useEffect(() => setMounted(true), [])` and transition to the target.
+
+Radix and Base UI animate **exit** via `[data-state="open"|"closed"]` — they suspend unmount so the closing keyframe plays:
+
+```css
+@keyframes scaleIn  { from { opacity: 0; scale: 0.98; } to { opacity: 1; scale: 1; } }
+@keyframes scaleOut { to { opacity: 0; scale: 0.98; } }   /* omit `from` — inherits current */
+.content[data-state="open"]   { animation: scaleIn  200ms ease; }
+.content[data-state="closed"] { animation: scaleOut 200ms ease; }
+```
+
 ## Transforms
 
 `transform` changes how an element looks without touching document flow — siblings lay out as if it never moved. Same as `clip-path` in that respect.
@@ -113,7 +141,7 @@ Use the `animation` shorthand for the first three values only (name, duration, t
 **Scale.** A multiplier: `scale(2)` doubles, `scale(0.5)` halves. Unlike `width`/`height`, **scaling scales the children too** — font size, icons, and `border-radius` all come along, which is exactly what you want for a button press or a zoom.
 
 - Press feedback: `scale(0.97)` on `:active`.
-- **Almost never animate from `scale(0)`.** Nothing in the real world disappears and reappears like that. Start around `0.5`–`0.97` combined with an opacity animation.
+- **Almost never animate from `scale(0)`.** Nothing in the real world disappears and reappears like that. Start at `0.9`–`0.95` combined with an opacity animation.
 - `scaleX`/`scaleY` alone usually looks bad.
 
 **Rotate.** Used less often. **Pure rotation with no other transform looks best with `ease-in-out`** — it accelerates and decelerates like a car. Constant rotation (loaders, coins) uses `linear`.
@@ -172,19 +200,9 @@ And when hover reveals *information* rather than decoration, pair it with **`:fo
 .card:focus-visible .card-description { transform: translateY(0); }
 ```
 
-## Easing blueprint
+## Easing
 
-Built-in easings are rarely strong enough for anything deliberate. These are the course's curves:
-
-```css
---ease-out-expo:     cubic-bezier(0.19, 1, 0.22, 1);      /* strong ease-out: reveals, card hovers */
---ease-out-quad:     cubic-bezier(0.25, 0.46, 0.45, 0.94);/* button press */
---ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);/* on-screen back-and-forth */
---ease-in-out-circ:  cubic-bezier(0.785, 0.135, 0.15, 0.86);
---ease-vaul:         cubic-bezier(0.32, 0.72, 0, 1);      /* iOS sheet — extremely steep start */
-```
-
-**Duration and easing are inseparable.** A steep curve buys you a longer duration: `500ms` with `ease-out-expo` doesn't read as slow, because almost all the distance is covered in the first fraction. The same `500ms` on `ease` would feel sluggish. Default hovers sit at `150–200ms` with `ease`.
+Built-in easings are rarely strong enough for anything deliberate. The course's curves and the duration budget are in [STANDARDS.md](../review-animations/STANDARDS.md) (Easing, Duration). A steep curve buys a longer duration: `500ms` with `ease-out-expo` doesn't read as slow, because almost all the distance is covered in the first fraction.
 
 ## Reverse engineering
 

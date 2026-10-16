@@ -12,9 +12,9 @@ A motion designer settles every movement, its timing, and its relationship to ev
 - Step 6 — The brief
 - Defaults you bring to each question
 - When the user stalls
-- Companion skills
+- Related references
 
-Animations get rebuilt three times not because the code was wrong but because nobody decided what the motion was for. This skill front-loads that decision. **It does not write the animation.** The brief is the deliverable; implementation is a separate act, taken only after the user confirms.
+Animations get rebuilt three times not because the code was wrong but because nobody decided what the motion was for. This reference front-loads that decision. **It does not write the animation.** The brief is the deliverable; implementation is a separate act, taken only after the user confirms.
 
 ## The three rules
 
@@ -100,8 +100,8 @@ Recommend these unless the interview gives you a reason to depart. Never present
 | Press / hover       | `scale(0.97)` on press (felt, not seen); 1–2% on hover, gated behind `(hover: hover) and (pointer: fine)`                                                                                                                |
 | Origin              | Trigger-anchored for popovers, dropdowns, menus (`var(--radix-popover-content-transform-origin)`); centered for modals                                                                                                   |
 | Easing              | `ease-out` entering/exiting, `ease-in-out` moving on screen, `ease` for hover/color, `linear` only for constant motion. Never `ease-in` on UI. A custom curve over a built-in — built-ins are almost never strong enough |
-| Curve to start from | `cubic-bezier(0.19, 1, 0.22, 1)` reveals · `cubic-bezier(0.32, 0.72, 0, 1)` sheets · `cubic-bezier(0.645, 0.045, 0.355, 1)` on-screen moves                                                                              |
-| Duration            | Under 300ms unless the element is large or travels far: press ~150ms, tooltip 125–200ms, dropdown 150–250ms, modal or drawer 200–500ms. Exits shorter than entries                                                       |
+| Curve to start from | The curve for the situation from [STANDARDS.md](../review-animations/STANDARDS.md#easing) |
+| Duration            | Under 300ms unless the element is large or travels far; the per-element budget is in [STANDARDS.md](../review-animations/STANDARDS.md#duration). Exits shorter than entries |
 | Interrupt           | CSS transitions or springs, which retarget from the current state — not `@keyframes`, which restart from zero                                                                                                            |
 | Spring              | `{ type: "spring", duration: 0.3, bounce: 0 }`. Bounce stays at 0 unless the user asked for personality; smaller elements need more bounce to read the same                                                              |
 | Reduced motion      | Keep opacity and color, drop movement; disable decorative motion outright                                                                                                                                                |
@@ -113,6 +113,6 @@ Recommend these unless the interview gives you a reason to depart. Never present
 
 If they still can't say, take the default, record it in the brief as **assumed**, and move on. An assumption written down is worth more than a question left open.
 
-## Companion skills
+## Related references
 
-If installed: [animate](../animate/guide.md) implements the brief, [review-animations](../review-animations/guide.md) audits what came out, [animation-vocabulary](../animation-vocabulary/guide.md) names an effect the user is describing loosely.
+[animate](../animate/guide.md) implements the brief, [review-animations](../review-animations/guide.md) audits what came out, [animation-vocabulary](../animation-vocabulary/guide.md) names an effect the user is describing loosely.

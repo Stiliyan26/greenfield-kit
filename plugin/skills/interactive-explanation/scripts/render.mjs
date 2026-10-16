@@ -6,10 +6,15 @@ import { BRAND, FPS, GITHUB_MEDIA_LIMIT_BYTES, REMOTION_DIR, ROOT, SceneKind, VI
 import { explainerDir, isMain, parseArgs, readJson, run, writeJson } from './lib.mjs';
 import { readScript } from './script.mjs';
 
+// Silence after the narration, so a scene does not cut off the last word.
 const PAD_SECONDS = 0.9;
+// Speech stays clear at this bitrate when a video is re-encoded to fit GitHub.
 const AUDIO_KBPS = 96;
+// Room for the mp4 container on top of the audio and video streams.
 const UPLOAD_MARGIN = 0.92;
+// The last frame of a clip stays on screen this long before the next scene.
 const CLIP_TAIL_SECONDS = 0.4;
+// The shortest time a viewer needs to read a scene; a title needs a little more.
 const DEFAULT_MIN_SECONDS = 3;
 const MIN_SECONDS = { [SceneKind.Title]: 3.5 };
 

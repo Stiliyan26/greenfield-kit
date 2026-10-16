@@ -20,7 +20,10 @@ const base = args.url.replace(/\/$/, "")
 const out = resolve(args.out)
 const pick = (value) => (value ? new Set(value.split(",")) : null)
 
-const project = await fetch(`${base}/api/project`).then((response) => response.json())
+const project = await fetch(`${base}/api/project`).then((response) => response.json()).catch(() => {
+  console.error(`The studio does not answer at ${base}. Start it from the project root: python3 studio/server.py`)
+  process.exit(2)
+})
 const sizes = project._sizes.filter((item) => !pick(args.sizes) || pick(args.sizes).has(item.id))
 const variants = project.variants.filter((item) => !pick(args.variants) || pick(args.variants).has(item.id))
 const screens = [...project.screens.map((item) => item.id), "specimen"].filter((id) => !pick(args.screens) || pick(args.screens).has(id))
@@ -53,6 +56,7 @@ for (const job of jobs) {
   page.on("requestfailed", (request) => problems.push(`request failed: ${request.url()} ${request.failure()?.errorText ?? ""}`))
   page.on("response", (response) => { if (response.status() >= 400) problems.push(`HTTP ${response.status()}: ${response.url()}`) })
   await page.goto(base + job.path, { waitUntil: "load" })
+  // The studio page has no ready flag; 1.5 s lets its frames load and lay out.
   if (job.studio) await page.waitForTimeout(1500)
   else await page.waitForFunction(() => document.documentElement.dataset.studioReady, null, { timeout: 15000 }).catch(() => problems.push("studio frame never became ready"))
   const facts = await page.evaluate(() => ({

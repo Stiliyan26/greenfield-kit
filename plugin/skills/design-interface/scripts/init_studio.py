@@ -44,7 +44,9 @@ def main():
     if not args.no_app and not shutil.which("npm"):
         parser.error("npm is needed for the studio app (or pass --no-app)")
 
-    shutil.copytree(SKILL / "assets" / "studio-content", destination)
+    # Leave out Python caches, so a new studio gets only its source files.
+    skip = shutil.ignore_patterns("__pycache__", "*.pyc")
+    shutil.copytree(SKILL / "assets" / "studio-content", destination, ignore=skip)
     for folder in ("candidates", "references"):
         (destination / folder).mkdir(exist_ok=True)
     # Remember where this engine is, so server.py finds it even from a plugin cache.
@@ -57,7 +59,7 @@ def main():
 
     if not args.no_app:
         app = destination / "app"
-        shutil.copytree(SKILL / "assets" / "studio-app", app)
+        shutil.copytree(SKILL / "assets" / "studio-app", app, ignore=skip)
         (app / "src" / "studio-theme.css").write_text(studio_export.studio_theme_css(), encoding="utf-8")
         (app / "src" / "variants").mkdir()
         run(["npm", "install", "--no-audit", "--no-fund"], app)

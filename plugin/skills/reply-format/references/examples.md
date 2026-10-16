@@ -8,7 +8,7 @@ One full reply for each template. Copy the shape, not the content.
 **The rule comes from the chat panel, not from your files.**
 - Your CLAUDE.md files and memory do not contain it.
 - The panel adds its own rules to each session.
-Next: add a line to `~/.claude/CLAUDE.md` to turn it off.
+Your move: add a line to `~/.claude/CLAUDE.md` to turn it off.
 ```
 
 ## Task done
@@ -51,6 +51,7 @@ Your move: nothing
 |---|---|---|
 | Provider A | Free, tested | Delivery speed unknown |
 | Provider B | Fast delivery | Needs prepaid credits |
+Your move: reply "A" or "B".
 ```
 
 ## Problem
@@ -59,5 +60,5 @@ Your move: nothing
 **⚠️ The build fails on the database client import.**
 - Cause: the package is not installed.
 - Fix: run the package manager's install for that client.
-- Need from you: nothing.
+Your move: nothing
 ```

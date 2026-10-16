@@ -102,7 +102,7 @@ Output:
 - **Morph / morphing** — One element smoothly changing shape or size while staying on screen (Dynamic Island, feedback popover).
 - **Shared element transition** — An element visually morphs/expands from a smaller instance to a larger one (thumbnail → full view) so the eye tracks the same object across states.
 
-### Framer Motion / layout
+### Motion / layout
 
 - **Layout animation** — Automatically animating an element between its old and new layout (position/size) across renders, including CSS-unanimatable properties like `flex-direction`.
 - **Shared layout animation (`layoutId`)** — Connecting two separate elements with the same id so the library morphs one into the other across mount/unmount (tab indicator, App Store card, trash "throw").
@@ -128,7 +128,7 @@ Output:
 - **Drag-to-dismiss** — A gesture where drag distance maps directly (via a motion value) to an element's scale/position to dismiss it.
 - **Follow-the-cursor** — An element that trails the mouse, usually via a spring so it has momentum instead of tracking rigidly.
 - **Hover intent / hover debounce** — Requiring the pointer to dwell briefly (~100ms) before triggering, to avoid accidental activation.
-- **Two-tap (touch) pattern** — On touch devices, the first tap plays the hover state and the second plays the click, compensating for the missing hover.
+- **Two-tap (touch) pattern** — On touch devices, the first tap plays the hover state and the second plays the click, compensating for the missing hover. Not for ordinary controls.
 
 ### Performance & accessibility
 

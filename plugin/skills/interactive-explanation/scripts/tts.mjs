@@ -1,5 +1,5 @@
 // Narration for every scene: temp/explainers/<slug>/audio/<scene id>.mp3 and timing.json.
-// OpenRouter's /audio/speech when OPENROUTER_API_KEY is set, otherwise macOS `say`.
+// OpenRouter's /audio/speech when OPENROUTER_API_KEY is set, otherwise `say` (macOS only).
 // Narration that has not changed is not synthesized again.
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -29,7 +29,7 @@ const Backend = {
   Say: 'say',
 };
 
-// Gemini Flash Lite is about $0.06 per five minutes. Free option: deepgram/flux-tts:free.
+// A low-cost speech model; override it with EXPLAIN_TTS_MODEL and EXPLAIN_TTS_VOICE.
 const DEFAULTS = {
   model: 'google/gemini-3.8-flash-lite-tts',
   voice: 'Kore',
@@ -69,6 +69,8 @@ function voiceConfig(requested) {
   const backend = requested ?? process.env.EXPLAIN_VOICE ?? defaultBackend();
 
   if (backend === Backend.Say) {
+    assertSayAvailable();
+
     return { backend, voice: process.env.EXPLAIN_SAY_VOICE ?? DEFAULTS.sayVoice };
   }
 
@@ -85,6 +87,13 @@ function voiceConfig(requested) {
     model: process.env.EXPLAIN_TTS_MODEL ?? DEFAULTS.model,
     voice: process.env.EXPLAIN_TTS_VOICE ?? DEFAULTS.voice,
   };
+}
+
+// `say` ships only with macOS. Elsewhere the build needs an OpenRouter key.
+function assertSayAvailable() {
+  if (process.platform === 'darwin') return;
+
+  throw new Error('No voice: OPENROUTER_API_KEY is not set and `say` exists only on macOS. Put the key in ~/.claude/explain.env, or build a script with no videos.');
 }
 
 function defaultBackend() {

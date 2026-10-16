@@ -1,13 +1,13 @@
 ---
 name: plan-feature
-description: Plans a new project or a feature with the user before any code - the domain (entities, roles, server functions, what can go wrong) while the screens are designed, the screen wiring after the design is approved, then one feature file per feature with exact scenarios and every test, which the user approves in full. Use for a new project, or a feature that touches the database, server functions, permissions or several screens.
+description: Plans a feature or the domain of a product with the user before any code - the domain (entities, roles, server functions, what can go wrong), the wiring of the approved screens, then one feature file per feature with exact scenarios, journeys and every test, which the user approves in full. Use when the user asks to plan a feature or a product's domain, or for a feature that touches the database, server functions, permissions or several screens.
 ---
 
 # Plan a feature or project
 
-The user decides. You ask, check and write it down. Skip small changes.
+The user decides. You ask, check and write it down.
 
-A new product runs two passes: the domain pass while the screens are designed, the screen pass after the user approves the design. A later feature runs both at once.
+Pick the passes by the state of the design. With no approved `DESIGN.md`, run only the domain pass. With an approved `DESIGN.md`, run the screen pass. Run the domain pass first if `plan.md` does not have it yet.
 
 Copy this list into your first message and tick each item.
 
@@ -39,16 +39,17 @@ Reason: unchecked answers hide errors. Questions that the code answers waste the
 ## Steps
 
 1. **Read and open the plan file.**
-   - Read the brief, the screen list and draft records from the design stage (`studio/project.json`, `studio/app/src/data.ts`), earlier plans, and the code around the change.: schema, auth, shared code, feature files.
+   - Read the brief, the screen list and the draft records (`studio/project.json`, `studio/app/src/data.ts`).
+   - Read earlier plans and the code around the change: schema, auth, shared code, feature files.
    - Treat an approved `DESIGN.md` as final for the look and the parts.
    - If you change something that exists, search the code now for every caller ([misuse.md](references/misuse.md), "Changing what exists").
    - Open the plan file with its title, `Status: Draft — interview in progress` and an empty interview record ([plan.md](references/plan.md)).
    - Resume a plan found in that state: say `Resuming: Q1–Q14 answered` and continue.
-   - Pick the mode if the user did not say: **you propose** (you draft, they correct) or **they lead** (they explain, you ask and check).
+   - Pick the mode if the user did not say. The default is **you propose**: you draft, they correct. In **they lead**, they explain, and you ask and check.
 
    Done when the plan file exists with its Status line and the mode is set.
 
-2. **Domain pass**, while the screens are designed. Work in this order.
+2. **Domain pass.** Work in this order.
    1. **Requirements:** what a user can do, and how we know it is done. Give each done-when line an ID.
    2. **Entities:** for each one, its fields and limits, its owner, what happens on delete, and which fields each role may see.
    3. **Roles:** for each action, which roles may do it. Treat a missing rule as an open question, not a yes.
@@ -60,8 +61,12 @@ Reason: unchecked answers hide errors. Questions that the code answers waste the
 
    Done when each of the eight is answered in `plan.md` or listed as an open question.
 
-3. **Screen pass**, after the design is approved. Walk every approved screen in `DESIGN.md` and the design pack (`design/screens/`). For each screen, decide
-   how data loads (with the page, on demand, live), what is optimistic, validation and where errors show, when the empty, loading, error and denied states appear, and the route guards.
+3. **Screen pass**, only with an approved `DESIGN.md`. Walk every approved screen in `DESIGN.md` and the design pack (`design/screens/`). For each screen, decide:
+   - how data loads: with the page, on demand or live;
+   - what is optimistic;
+   - validation, and where errors show;
+   - when the empty, loading, error and denied states appear;
+   - the route guards.
 
    Send a screen or part that the design lacks back to the studio first. Plan only approved screens.
 
@@ -72,8 +77,11 @@ Reason: unchecked answers hide errors. Questions that the code answers waste the
    Done when the user agrees to the split and the order.
 
 5. **Write it down.**
-   - Write `plan.md` in the shape of [plan.md](references/plan.md). Remove the `interview in progress` mark. Add the Q-number to each decision.
-   - Write one `features/<slug>.md` per feature in the shape of [feature-file.md](references/feature-file.md). Include the Backend and Frontend sections (owners, contract), the scenarios with exact outcomes, and the tests at every layer that the stack's test file lists.
+   - Write `plan.md` with the exact headings of [plan.md](references/plan.md). Remove the `interview in progress` mark. Add the Q-number to each decision.
+   - Write one `features/<slug>.md` per feature with the exact headings of [feature-file.md](references/feature-file.md). Fill each section above Driving.
+   - In the Tests section, list the tests at every layer that the stack's test file lists.
+
+   Later runs read these headings, so keep them exact.
 
    Done when `plan.md` has no `interview in progress` mark and every feature file has every section above Driving.
 

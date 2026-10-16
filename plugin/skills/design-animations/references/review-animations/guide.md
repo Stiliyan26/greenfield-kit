@@ -1,6 +1,6 @@
 # Reviewing Animations
 
-A specialized review skill. It does ONE thing: review animation and motion code against a high craft bar. It does not write features, fix unrelated bugs, or review non-motion code. If asked to review general code, decline and point to a general review skill.
+A review reference. It does one thing: review animation and motion code against a high craft bar. It does not write features, fix unrelated bugs, or review non-motion code; leave those to a general code review.
 
 ## Contents
 - Operating Posture
@@ -12,13 +12,13 @@ A specialized review skill. It does ONE thing: review animation and motion code 
 
 ## Operating Posture
 
-You are a senior motion-design reviewer with a brutal eye for craft. Your bias is toward **motion that feels right**, not motion that merely runs. A transition that "works" but feels sluggish, lands from the wrong origin, fires too often, or drops frames is a regression, not a pass. Default to flagging. Approval is earned, not assumed.
+Bias the review toward **motion that feels right**, not motion that merely runs. A transition that "works" but feels sluggish, lands from the wrong origin, fires too often, or drops frames is a regression, not a pass. Default to flagging. Approval is earned, not assumed.
 
 The substantive bar comes from the *Animations on the Web* course ([animations.dev](https://animations.dev/)) — every rule below traces to a lesson. The review *method* — non-negotiable standards, escalation triggers, a remedial hierarchy, tiered output, and explicit approval criteria — is adapted from aggressive code-quality review.
 
 For the full rule catalog (easing curves, duration tables, spring config, gestures, clip-path, SVG, performance, a11y), see [STANDARDS.md](STANDARDS.md). Load it whenever a finding needs a precise value or citation.
 
-When a performance or reduced-motion finding needs deeper justification than STANDARDS.md carries, the [animation-performance](../animation-performance/guide.md) and [animation-accessibility](../animation-accessibility/guide.md) skills hold the full lessons.
+When a performance or reduced-motion finding needs deeper justification than STANDARDS.md carries, the [animation-performance](../animation-performance/guide.md) and [animation-accessibility](../animation-accessibility/guide.md) references hold the full lessons.
 
 ## The Ten Non-Negotiable Standards
 
@@ -32,11 +32,11 @@ Every animation in the diff is measured against these. A violation is a finding.
 
 4. **Sub-300ms UI, duration matched to easing.** UI animations stay under 300ms unless justified by element size/distance or a very steep curve. Duration and easing are inseparable: a steep curve (e.g. Vaul's `cubic-bezier(0.32,0.72,0,1)`) can afford a longer duration; a weak curve must be shorter. Bigger/heavier elements and longer distances animate slower. Exits are shorter and simpler than entries. Per-element budgets live in [STANDARDS.md](STANDARDS.md).
 
-5. **Origin & physical correctness.** Popovers/dropdowns/tooltips scale from their trigger (`transform-origin`), not center. Never animate from `scale(0)` — start from `scale(0.9–0.97)` + opacity; nothing appears from nothing. Button press is `scale(0.97)` (felt, not seen — `0.9` is too aggressive); hover scale is 1–2% (`scale(1.05)` inflates like a balloon).
+5. **Origin & physical correctness.** Popovers/dropdowns/tooltips scale from their trigger (`transform-origin`), not center. Never animate from `scale(0)` — start from `scale(0.9–0.95)` + opacity; nothing appears from nothing. Button press is `scale(0.97)` (felt, not seen — `0.9` is too aggressive); hover scale is 1–2% (`scale(1.05)` inflates like a balloon).
 
 6. **Interruptibility.** Rapidly-triggered or gesture-driven motion (toasts, toggles, drawers, drags) must be interruptible — CSS **transitions** or **springs** that retarget from current state, not `@keyframes` that restart from zero. For gestures that must track input 1:1, use a `useMotionValue`, not a spring.
 
-7. **GPU-only properties.** Animate `transform` and `opacity` only. Animating `width`/`height`/`margin`/`padding`/`top`/`left` is a performance finding (exceptions: `position:absolute` or very few children). Framer Motion `x`/`y`/`scale` shorthands are **not** hardware-accelerated — under load use the full `transform` string. Never drive child transforms via a CSS variable on a shared parent (style-recalc storm).
+7. **GPU-only properties.** Animate `transform` and `opacity` only. Animating `width`/`height`/`margin`/`padding`/`top`/`left` is a performance finding (exceptions: `position:absolute` or very few children). Motion `x`/`y`/`scale` shorthands are **not** hardware-accelerated — under load use the full `transform` string. Never drive child transforms via a CSS variable on a shared parent (style-recalc storm).
 
 8. **Accessibility.** `prefers-reduced-motion` is honored — **gentler, not zero**: keep opacity/color, drop movement; for decorative-only motion, disable it entirely. Hover animations are gated behind `@media (hover: hover) and (pointer: fine)`. Interactive tap targets are ≥ 44×44px.
 
@@ -56,7 +56,7 @@ Flag these on sight, hard:
 - `transform-origin: center` (the default) on a trigger-anchored popover/dropdown/tooltip
 - `@keyframes` on toasts, toggles, drawers, or anything added/triggered rapidly
 - Animating layout properties (`width`/`height`/`margin`/`padding`/`top`/`left`) off the GPU
-- Framer Motion `x`/`y`/`scale` props on motion that runs while the page is busy
+- Motion `x`/`y`/`scale` props on motion that runs while the page is busy
 - Updating a CSS variable on a parent to drive children (recalc storm, e.g. per-drag-frame)
 - `hover:scale-105` (or any >2% hover scale); `translateY` hover on the hover target itself (flicker loop — move it to a child)
 - Missing `prefers-reduced-motion` handling on movement; ungated `:hover` motion
@@ -76,7 +76,7 @@ When proposing fixes, prefer earlier moves over later ones:
 3. **Fix the easing** — swap `ease-in`→`ease-out`/custom curve; replace a weak built-in with a strong cubic-bezier.
 4. **Fix the origin/physicality** — correct `transform-origin`; replace `scale(0)` with `scale(0.95)`+opacity; press `scale(0.97)`, hover 1–2%.
 5. **Make it interruptible** — keyframes → transitions/`@starting-style`, or a spring for gesture-driven motion.
-6. **Move it to the GPU** — layout props → `transform`/`opacity`; FM shorthand → full `transform` string; WAAPI for programmatic CSS.
+6. **Move it to the GPU** — layout props → `transform`/`opacity`; Motion shorthand → full `transform` string; WAAPI for programmatic CSS.
 7. **Asymmetric timing** — slow the deliberate phase, snap the response; shorten the exit.
 8. **Polish** — blur to mask crossfades, stagger (varied by importance) for groups, `@starting-style` for entry, spring/bounce for "alive" elements, adaptive duration for size-dependent transitions.
 9. **Accessibility & cohesion** — add reduced-motion + hover/pointer gating; unify timing so the component feels like one entity; tune to match personality.
@@ -85,7 +85,7 @@ When proposing fixes, prefer earlier moves over later ones:
 
 Two parts, in this order.
 
-### Part 1 — Findings table (REQUIRED)
+### Part 1 — Findings table
 
 A single markdown table. One row per issue. Never a "Before:/After:" list.
 
@@ -97,13 +97,13 @@ A single markdown table. One row per issue. Never a "Before:/After:" list.
 | `hover:scale-105` | `hover:scale-[1.02]` gated behind `(hover: hover)` | 5% inflates like a balloon; 1–2% is enough and touch shouldn't trigger it |
 | `transform-origin: center` on popover | `var(--radix-popover-content-transform-origin)` | Popovers scale from their trigger, not center (modals are exempt) |
 
-### Part 2 — Verdict (REQUIRED)
+### Part 2 — Verdict
 
 Group remaining commentary by impact tier, highest first. Omit empty tiers.
 
 1. **Feel-breaking regressions** — sluggish/weak easing, comes-from-nowhere, fires on high-frequency/keyboard actions.
 2. **Missed simplifications** — animations that should be removed or drastically reduced; double entries; too much animating at once.
-3. **Performance** — non-GPU properties, FM shorthands under load, recalc storms, unpromoted heavy filters.
+3. **Performance** — non-GPU properties, Motion shorthands under load, recalc storms, unpromoted heavy filters.
 4. **Interruptibility & timing** — keyframes where transitions/springs belong; symmetric timing that should be asymmetric.
 5. **Origin, physicality & cohesion** — wrong origin, wrong scale values, mismatched personality, jarring crossfades, broken spatial consistency.
 6. **Accessibility** — reduced-motion and pointer/hover gating, tap-target size.
@@ -117,5 +117,5 @@ Be specific and cite `file:line`. When a value is needed (a curve, a duration, a
 
 ## Guidelines
 
-- Prefer CSS transitions / `@starting-style` / WAAPI for predetermined motion; Framer Motion / springs for dynamic, interruptible, gesture-driven motion. Reach for a JS library only when CSS genuinely can't do it (real springs, shared-element/layout transitions, momentum gestures, animating out unmounted components).
+- Prefer CSS transitions / `@starting-style` / WAAPI for predetermined motion; Motion / springs for dynamic, interruptible, gesture-driven motion. Reach for a JS library only when CSS genuinely can't do it (real springs, shared-element/layout transitions, momentum gestures, animating out unmounted components).
 - When unsure whether motion feels right, recommend reviewing it recorded / in slow motion, frame by frame, and a fresh review pass rather than guessing.

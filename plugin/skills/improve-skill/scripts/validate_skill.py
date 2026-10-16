@@ -134,7 +134,7 @@ TIME_PHRASE_RE = re.compile(
     r"\b(?:before|after|until|since|as of|by|starting|prior to|beginning)\s+(?:early |mid-?|late )?"
     r"(?:" + MONTHS + r"\.?\s+)?(?:\d{1,2}(?:st|nd|rd|th)?,?\s+)?(?:19|20)\d{2}\b"
     r"|\b(?:as of (?:today|now|this writing)|at the time of writing|this year|next year|last year"
-    r"|the latest (?:version|model|release)|new in (?:19|20)\d{2})\b",
+    r"|new in (?:19|20)\d{2})\b",
     re.I)
 ISO_DATE_RE = re.compile(r"\b(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])\b")
 REASONING_ECHO_RE = re.compile(
@@ -155,6 +155,15 @@ GO_BACK_RE = re.compile(
     r"\b(?:return|go back|loop back|jump back|back) to (?:step|stage|phase)\b"
     r"|\brepeat (?:from|until|steps?)\b|\bstart again from\b", re.I)
 CHECKBOX_RE = re.compile(r"^\s*[-*]\s+\[[ xX]\]\s")
+# require("x"), import("x"), and static imports, which may span lines: import {\n a,\n} from "x".
+# [^'\";] stops the match at the end of a statement, so it never runs into the next one.
+JS_IMPORT_RE = re.compile(
+    r"\brequire\(\s*['\"]([^'\"]+)['\"]\s*\)"
+    r"|\bimport\(\s*['\"]([^'\"]+)['\"]\s*\)"
+    r"|^[ \t]*import\s+(?:type\s+)?(?:[^'\";]*?\s*from\s*)?['\"]([^'\"]+)['\"]", re.M)
+# npm package names: lowercase, optional @scope/, no leading dot or underscore. Aliases such as
+# @/components, ~/lib, #internal and $app do not match, so they are not reported as packages.
+NPM_NAME_RE = re.compile(r"^(?:@[a-z0-9][a-z0-9._~-]*/)?[a-z0-9][a-z0-9._~-]*$")
 TODO_RE = re.compile(r"\b(?:TODO|FIXME)\b")
 TODO_COMMENT_RE = re.compile(r"(?:#|//|/\*|<!--)\s*(?:TODO|FIXME)\b")
 PLACEHOLDER_RE = re.compile(r"\[FILL:")
@@ -887,17 +896,17 @@ def inside_try(rows, i, ind):
 
 
 def js_imports(text):
-    for i, row in enumerate(text.splitlines()):
-        for m in re.finditer(r"require\(\s*['\"]([^'\"]+)['\"]\s*\)|^\s*import\s+(?:[^'\"]*?\s+from\s+)?"
-                             r"['\"]([^'\"]+)['\"]|import\(\s*['\"]([^'\"]+)['\"]\s*\)", row):
-            spec = m.group(1) or m.group(2) or m.group(3)
-            if not spec or spec.startswith((".", "/", "node:", "bun:", "http:", "https:")):
-                continue
-            parts = spec.split("/")
-            pkg = "/".join(parts[:2]) if spec.startswith("@") else parts[0]
-            if pkg in NODE_BUILTINS:
-                continue
-            yield i + 1, pkg
+    """Yield (line, package) for each bare import that names an npm package.
+    Import aliases (@/x, ~/x, #x, $x) and paths are not packages, so they are skipped."""
+    for m in JS_IMPORT_RE.finditer(text):
+        spec = next(g for g in m.groups() if g is not None)
+        if spec.startswith((".", "/", "node:", "bun:", "http:", "https:")):
+            continue
+        parts = spec.split("/")
+        pkg = "/".join(parts[:2]) if spec.startswith("@") else parts[0]
+        if pkg in NODE_BUILTINS or not NPM_NAME_RE.match(pkg):
+            continue
+        yield text.count("\n", 0, m.start()) + 1, pkg
 
 
 def has_install_line(names, corpus, manifests):
@@ -1119,7 +1128,7 @@ def validate(root, label, ban_em_dash=False):
         echo = [(n, m.group(0)) for n, x in enumerate(no_inline, 1) for m in [REASONING_ECHO_RE.search(x)] if m]
         if echo:
             rep.add("WARN", "NM2", r, [e[0] for e in echo], "asks Claude to write out its reasoning (\"%s\"). "
-                    "Newer models (Claude Fable 5, Opus 5.5, Sonnet 5.5) may decline this with the "
+                    "Current Claude models may decline this with the "
                     "reasoning_extraction refusal. Ask for the answer, or a short explanation of it, instead."
                     % short(echo[0][1], 40))
         shouts = [n for n, x in enumerate(prose, 1) for _ in SHOUT_RE.findall(x)]

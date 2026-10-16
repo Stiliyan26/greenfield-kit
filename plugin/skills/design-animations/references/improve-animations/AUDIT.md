@@ -1,6 +1,6 @@
 # Audit Categories
 
-The rule catalog behind the audit, distilled from the *Animations on the Web* course ([animations.dev](https://animations.dev/)). Each category lists what to grep for, why it's a defect, the exact replacement value, and the severity to file it under.
+The audit signals, distilled from the *Animations on the Web* course ([animations.dev](https://animations.dev/)). Each category lists what to grep for, why it's a defect, the fix, and the severity to file it under. The exact curves, durations and spring configs live in [STANDARDS.md](../review-animations/STANDARDS.md).
 
 ## Contents
 - 1. Purpose & frequency
@@ -13,7 +13,7 @@ The rule catalog behind the audit, distilled from the *Animations on the Web* co
 - 8. Missed opportunities
 - Exempt — don't file these
 
-Cite these values in plans. Never approximate a curve or a duration you could copy from here.
+Cite values from STANDARDS.md in plans. Never approximate a curve or a duration you could copy from there.
 
 ---
 
@@ -21,14 +21,7 @@ Cite these values in plans. Never approximate a curve or a duration you could co
 
 The first question is never "is this animation good?" — it's "should this animate at all?"
 
-**Frequency decides.**
-
-| Frequency | Verdict |
-| --- | --- |
-| 100+/day — keyboard shortcuts, command-palette toggle, arrow-key list nav | **No animation. Ever.** |
-| Tens/day — hover effects, sidebar and list navigation | Remove, or make instant |
-| Occasional — modals, drawers, toasts | Standard animation |
-| Rare / first-time — onboarding, feedback, celebration | A delight budget exists |
+**Frequency decides** — see the frequency table in STANDARDS.md.
 
 **Signals**
 
@@ -48,15 +41,7 @@ Marketing pages get more freedom: viewed less often, mostly non-interactive, and
 
 ## 2. Easing & duration
 
-Easing is the single biggest factor in whether an animation feels right. It can make a bad animation look great and a great one look bad.
-
-| Situation | Curve |
-| --- | --- |
-| Entering or exiting the screen | `ease-out` |
-| Moving or morphing while already on screen | `ease-in-out` |
-| Hover, color, background, opacity | `ease` |
-| Constant motion — marquee, spinner, timer, hold-to-delete, 3D rotation | `linear` |
-| Default | `ease-out` |
+Easing is the single biggest factor in whether an animation feels right. The curve per situation, the curves to cite and the duration budget are in STANDARDS.md (Easing, Duration).
 
 **Signals**
 
@@ -70,35 +55,6 @@ Easing is the single biggest factor in whether an animation feels right. It can 
 | A full-screen or large-travel element given a short duration | Duration scales with distance and size — a truck stops slower than a bicycle | MEDIUM |
 | A symmetric `ease-in-out` on something the user just tapped | The slow start reads as lag between tap and response. An asymmetric curve keeps responsiveness and adds a quality settle | MEDIUM |
 | `transition: all` | Animates properties you never intended, off the GPU | HIGH |
-
-**Curves worth citing**
-
-```css
---ease-out-quad:      cubic-bezier(0.25, 0.46, 0.45, 0.94);  /* button press */
---ease-out-quint:     cubic-bezier(0.23, 1, 0.32, 1);
---ease-out-expo:      cubic-bezier(0.19, 1, 0.22, 1);        /* strong: card hover, text reveal */
---ease-in-out-cubic:  cubic-bezier(0.645, 0.045, 0.355, 1);  /* on-screen back-and-forth */
---ease-in-out-circ:   cubic-bezier(0.785, 0.135, 0.15, 0.86);
---ease-vaul:          cubic-bezier(0.32, 0.72, 0, 1);        /* iOS sheet — extremely steep start */
-```
-
-The blueprint ships 16 curves sorted weakest to strongest per easing type. When an animation feels flat, the curve is too weak — not the duration.
-
-**Duration budget**
-
-| Element | Duration |
-| --- | --- |
-| Button press | ~150ms |
-| Hover | 100–150ms (300ms feels swimmy) |
-| Tooltip, small popover | 125–200ms |
-| Dropdown, select | 150–250ms — 180ms reads as more responsive than 400ms |
-| Modal, drawer | 200–500ms |
-| Big element crossing the screen | up to ~1s |
-| Marketing | Freer |
-
-**Duration and easing are inseparable.** Vaul's enter animation is 500ms — far past the guideline — and doesn't feel slow because the curve is extremely steep at the start, front-loading the movement to mimic a spring's gentle ending. A weak curve must be shorter. Choose the easing first, then tune the duration to it. Too fast is as bad as too slow.
-
-Perceived speed is often worth more than real speed: a faster spinner makes the app seem to load faster at identical load times.
 
 ---
 
@@ -126,14 +82,7 @@ CSS **transitions** and **springs** retarget from their current value mid-flight
 | A spring driving something that must track a gesture 1:1 | A spring lags the finger; use a raw motion value for direct tracking | MEDIUM |
 | Bounce on a press-to-close, a dashboard, or anything serious | Bounce communicates personality — more is playful, zero is professional. **Default to zero.** A slight bounce is earned at the end of a *drag*, because a drag applies force, like throwing a ball against a wall | MEDIUM |
 
-Spring configuration, Apple/Motion style — perceptual duration plus bounce, easier to reason about than mass/tension/velocity:
-
-```js
-{ type: "spring", duration: 0.3, bounce: 0 }
-{ type: "spring", duration: 0.5, bounce: 0.2 }
-```
-
-Real springs are impossible in pure CSS; `linear()` only approximates one. Springs come with a bundle-size cost — a real trade-off, and Vaul deliberately chose the smaller package over a more native feel.
+Spring configs are in STANDARDS.md (Springs). Real springs are impossible in pure CSS; `linear()` only approximates one. Springs come with a bundle-size cost — a real trade-off, and Vaul deliberately chose the smaller package over a more native feel.
 
 Use `@starting-style` for an enter transition with no `mounted` state and no `useEffect`.
 

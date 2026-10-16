@@ -15,8 +15,14 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { spawnSync } from 'node:child_process';
 import { join, relative, resolve } from 'node:path';
 
-const SPLIT_LINES = 5000; // a path-derived feature above this is split one folder deeper
-const MIN_LINES = 800; // a path-derived feature below this merges into its parent folder's feature
+// About what one reviewer reads well in one pass; above it, a path-derived feature splits one folder deeper.
+const SPLIT_LINES = 5000;
+// Below this a reviewer has too little to justify its own start-up cost; the feature merges into its parent folder's.
+const MIN_LINES = 800;
+// Stops the split on deep trees; past five levels the names stop meaning a feature.
+const SPLIT_DEPTH_MAX = 4;
+// 1 GiB: a whole-app diff of a large repo must fit in one read.
+const GIT_OUTPUT_BYTES_MAX = 1 << 30;
 const SOURCE = /\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|py|go|rb|java|kt|cs|php|sql|prisma|s?css|less)$/i;
 const SKIP = [
   [/(^|\/)(package-lock\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb?|poetry\.lock|Cargo\.lock)$/i, 'lock file'],
@@ -175,10 +181,10 @@ function group(files, featureFiles) {
 
 // A path-derived feature over SPLIT_LINES that has subfolders is split one
 // level deeper, so one reviewer never gets a whole package: "plugin" becomes
-// "plugin/skills/review", "plugin/skills/shadcn", ... Feature-file features
+// "plugin/skills/review", "plugin/skills/build-with-shadcn", ... Feature-file features
 // are never split; the plan drew them.
 function split(entry, depth = 0) {
-  if (entry.source !== 'path' || entry.name === 'other' || sum(entry.files) <= SPLIT_LINES || depth > 4) {
+  if (entry.source !== 'path' || entry.name === 'other' || sum(entry.files) <= SPLIT_LINES || depth > SPLIT_DEPTH_MAX) {
     return [entry];
   }
 
@@ -357,7 +363,7 @@ function sum(files) {
 }
 
 function git(root, args, okCodes = [0]) {
-  const run = spawnSync('git', args, { cwd: root, encoding: 'utf8', maxBuffer: 1 << 30 });
+  const run = spawnSync('git', args, { cwd: root, encoding: 'utf8', maxBuffer: GIT_OUTPUT_BYTES_MAX });
 
   if (!okCodes.includes(run.status)) {
     fail(`git ${args.join(' ')} failed:\n${run.stderr}`);
@@ -374,9 +380,13 @@ function readIgnore(root) {
     return [];
   }
 
-  const project = JSON.parse(readFileSync(path, 'utf8'));
+  try {
+    const project = JSON.parse(readFileSync(path, 'utf8'));
 
-  return (Array.isArray(project.ignore) ? project.ignore : []).map((pattern) => new RegExp(pattern, 'i'));
+    return (Array.isArray(project.ignore) ? project.ignore : []).map((pattern) => new RegExp(pattern, 'i'));
+  } catch (error) {
+    return fail(`${path}: ${error.message}. Fix the file: {"ignore": ["<regex>", ...]}.`);
+  }
 }
 
 function fail(message) {

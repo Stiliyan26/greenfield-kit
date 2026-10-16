@@ -1,6 +1,6 @@
 # Animation Standards Reference
 
-The precise values, curves, and rules behind the review. Cite these in findings instead of approximating. Distilled from the *Animations on the Web* course ([animations.dev](https://animations.dev/)).
+The one source of values, curves, and rules for every reference in this skill. Cite these instead of approximating. Distilled from the *Animations on the Web* course ([animations.dev](https://animations.dev/)).
 
 ## Contents
 - Should it animate? (frequency table)
@@ -12,7 +12,7 @@ The precise values, curves, and rules behind the review. Cite these in findings 
 - Asymmetric timing
 - Performance
 - Transforms & clip-path
-- Framer Motion / Motion (motion/react)
+- Motion for React (motion/react)
 - SVG animation
 - Stagger & orchestration
 - Masking imperfect crossfades
@@ -54,19 +54,21 @@ Course curves worth citing:
 ```css
 --ease-out-expo:      cubic-bezier(0.19, 1, 0.22, 1);        /* strong ease-out: card hover, text reveal */
 --ease-out-quad:      cubic-bezier(0.25, 0.46, 0.45, 0.94);  /* button press feedback */
+--ease-out-quint:     cubic-bezier(0.23, 1, 0.32, 1);        /* strong ease-out: dropdowns, sliding highlights */
 --ease-in-out-cubic:  cubic-bezier(0.645, 0.045, 0.355, 1);  /* on-screen back-and-forth */
 --ease-in-out-circ:   cubic-bezier(0.785, 0.135, 0.15, 0.86);/* download arrow */
 --ease-vaul:          cubic-bezier(0.32, 0.72, 0, 1);        /* iOS sheet — extremely steep start (Ionic) */
 --ease-drawer-height: cubic-bezier(0.25, 1, 0.5, 1);         /* Family Drawer height — strong, snappy */
 ```
 
-The blueprint ships 16 curves sorted weakest→strongest per easing type. When an animation feels flat, the curve is probably too weak. Find/tune curves at easing tools rather than hand-rolling.
+When an animation feels flat, the curve is probably too weak. Find/tune curves at easing tools rather than hand-rolling.
 
 ## Duration
 
 | Element | Duration |
 | --- | --- |
 | Button press feedback | ~150ms |
+| Hover | 100–150ms (300ms feels swimmy) |
 | Tooltips, small popovers | 125–200ms |
 | Dropdowns, selects | 150–250ms (180ms feels more responsive than 400ms) |
 | Modals, drawers | 200–500ms |
@@ -136,7 +138,7 @@ CSS **transitions** can be interrupted and retargeted mid-flight; `@keyframes` r
 .toast { transition: transform 400ms ease; }
 ```
 
-Use `@starting-style` for enter without JS (now widely supported):
+Use `@starting-style` for enter without JS:
 
 ```css
 .toast {
@@ -161,13 +163,13 @@ Slow where the user is deciding, fast where the system responds. Declare differe
 
 - **Only animate `transform` and `opacity`** — they touch just the Composite step. `width`/`height`/`margin`/`padding`/`top`/`left` trigger Layout + Paint + Composite (expensive, drop frames). Exception: `position:absolute` or very few children can get away with layout props. Target 60fps (≤16.7ms/frame).
 - **Prefer `transform: translate` (percentages) over `margin`/`top`; `scale` over animating `width`/`height`/`padding`.** `translateY(100%)` moves by the element's own height regardless of size (how Sonner/Vaul position toasts/drawers).
-- **Framer Motion `x`/`y`/`scale` shorthands are NOT hardware-accelerated** — they run on the main thread via rAF and drop frames under load. Animate the full string when it must be smooth:
+- **Motion `x`/`y`/`scale` shorthands are NOT hardware-accelerated** — they run on the main thread via rAF and drop frames under load. Animate the full string when it must be smooth:
   ```jsx
   <motion.div animate={{ x: 100 }} />                          // main-thread, can jank
   <motion.div animate={{ transform: "translateX(100px)" }} />  // hardware accelerated
   ```
 - **Don't drive child transforms via a CSS variable on the parent** — inherited vars recalc styles for *all* descendants (the Vaul `--swipe-amount` lag past ~20 items). Set `transform` directly on the element.
-- **CSS animations beat JS under load** — they run off the main thread; rAF-based (Framer Motion) animations stutter while the browser is busy. Use CSS/WAAPI for predetermined motion, JS for dynamic/interruptible. (Vercel fixed a dropped-frame tab highlight by moving it from FM shared-layout to CSS.)
+- **CSS animations beat JS under load** — they run off the main thread; rAF-based (Motion) animations stutter while the browser is busy. Use CSS/WAAPI for predetermined motion, JS for dynamic/interruptible. (Vercel fixed a dropped-frame tab highlight by moving it from Motion shared-layout to CSS.)
 - **`will-change: transform`** fixes the 1px CPU↔GPU "transform shift," and promotes heavy elements to a GPU layer — but **add it only when you actually see dropped frames**. Too many GPU layers cost memory. Target `[data-animate]`, not everything. For expensive filtered/blur SVG elements: `transform: translateZ(0)` + `contain: layout style paint` (isolates repaint from siblings).
 - **Don't animate through React state** at 60fps — it re-renders every frame. Update a motion value / the `style` property directly instead.
 - **Blur filters ≤ ~20px** — blur gets laggy fast, especially in Safari; keep animated blur small (2–5px is plenty).
@@ -178,19 +180,19 @@ Slow where the user is deciding, fast where the system responds. Declare differe
 - **`scale()` scales children too** (font, icons, border-radius) — a feature for press feedback and zoom.
 - **Order matters** — `rotate` then `translateX` ≠ `translateX` then `rotate`.
 - **3D:** `rotateX/Y` + `transform-style: preserve-3d` on the parent (+ `perspective`, `translateZ`, `backface-visibility: hidden`) for depth/orbit/flip without JS.
-- **`clip-path: inset(t r b l)`** eats in from each side; no layout effect (no shift) and hardware-accelerated. Uses: image reveal on scroll (`inset(100%)` → `inset(0)`, more performant than height), hold-to-delete overlay (reveal left→right, `linear`), seamless tab color transitions (duplicate the active copy and clip it), comparison sliders, text masks. Trigger scroll reveals with Intersection Observer (or FM `useInView`) — avoid pulling in a heavy library just for this.
+- **`clip-path: inset(t r b l)`** eats in from each side; no layout effect (no shift) and hardware-accelerated. Uses: image reveal on scroll (`inset(100%)` → `inset(0)`, more performant than height), hold-to-delete overlay (reveal left→right, `linear`), seamless tab color transitions (duplicate the active copy and clip it), comparison sliders, text masks. Trigger scroll reveals with Intersection Observer (or Motion `useInView`) — avoid pulling in a heavy library just for this.
 
-## Framer Motion / Motion (motion/react)
+## Motion for React (motion/react)
 
 - Import from `motion/react` (formerly `framer-motion` — same API).
 - **`AnimatePresence` requires a `key`** on the animating child or the exit animation won't fire. `mode="wait"` = old fully out before new in; `mode="popLayout"` = exit and enter simultaneously with siblings reflowing (crossfade-like, chip/list removal). `initial={false}` skips the mount animation for state swaps.
 - **Pass `custom` to both `AnimatePresence` and the `motion` element** — an exiting element's state is otherwise stale (direction-aware slides break without it).
 - **`layout` / `layoutId`:** `layout` animates any layout change (even `flex-direction`); `layoutId` morphs one element into another (shared-element transitions, tab indicators, App-Store cards). Add `layout` to siblings that would otherwise jump.
-- **Layout animations distort `border-radius`/`box-shadow`** (they use `transform`) — FM corrects radius **only if it's in pixels**. Use inline `style={{ borderRadius: 12 }}`, never a `rem`/className radius, when animating layout.
-- **Animate height to a measured value, not `auto`** (FM can't do `auto`→`auto`). Measure with `useMeasure`/`ResizeObserver`; put the `ref` on an **inner** element (with the padding), not the same element carrying `animate={{ height }}`. Guard first render: `height: bounds.height ? bounds.height : null`.
+- **Layout animations distort `border-radius`/`box-shadow`** (they use `transform`) — Motion corrects radius **only if it's in pixels**. Use inline `style={{ borderRadius: 12 }}`, never a `rem`/className radius, when animating layout.
+- **Animate height to a measured value, not `auto`** (Motion can't do `auto`→`auto`). Measure with `useMeasure`/`ResizeObserver`; put the `ref` on an **inner** element (with the padding), not the same element carrying `animate={{ height }}`. Guard first render: `height: bounds.height ? bounds.height : null`.
 - **Motion values** (`useMotionValue`, `useSpring`, `useTransform`, `useMotionTemplate`) update outside React's render cycle → 60fps without re-renders. `useMotionTemplate` is required to embed a motion value in a string reactively (e.g. `inset(0 ${x}% 0 0)`).
 - Prefer declarative props; reach for imperative `useAnimate([scope, animate])` only to orchestrate many elements across events (target `[data-animate]` selectors, use a `times` array for staggered keyframes, return `Promise.all` to await).
-- `MotionConfig transition={...}` sets a default transition for all descendants; `MotionConfig reducedMotion="user"` makes FM animate only opacity/background app-wide.
+- `MotionConfig transition={...}` sets a default transition for all descendants; `MotionConfig reducedMotion="user"` makes Motion animate only opacity/background app-wide.
 
 ## SVG animation
 
@@ -245,14 +247,14 @@ const closedX = reduce ? 0 : "-100%";
 // app-wide: <MotionConfig reducedMotion="user"> animates only opacity/background
 ```
 
-Disable autoplaying animations under `reduce`; for looping animations, pause on a representative "hero" frame (`animation-play-state: paused; animation-delay: -0.4s`) rather than frame 0. For essential visual sequences, jump between frames instead of tweening. **Tap targets ≥ 44×44px** (enlarge with a `::before` hitbox without changing layout). On touch devices, hover+click fire together — detect `pointer: coarse` and use a two-tap pattern (first tap = hover, second = click).
+Disable autoplaying animations under `reduce`; for looping animations, pause on a representative "hero" frame (`animation-play-state: paused; animation-delay: -0.4s`) rather than frame 0. For essential visual sequences, jump between frames instead of tweening. **Tap targets ≥ 44×44px** (enlarge with a `::before` hitbox without changing layout).
 
 ## Debugging (recommend when feel is uncertain)
 
 - **Record & slow down** (2–5× or DevTools animation inspector): check colors crossfade cleanly, easing doesn't stop abruptly, `transform-origin` is right, coordinated properties stay in sync. Tune magic transform values live in the console.
 - **Frame-by-frame** reveals timing drift between coordinated properties.
 - **Real devices** for gestures (drawers, swipe) — hit the dev server by IP, use Safari remote devtools; opacity-heavy transitions want high refresh-rate screens.
-- **Fresh review** — inspect the full-speed result as well as individual frames; no mandatory next-day wait.
+- **Fresh review** — inspect the full-speed result as well as individual frames.
 
 ## Cohesion
 

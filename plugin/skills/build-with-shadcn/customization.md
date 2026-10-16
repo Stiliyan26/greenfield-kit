@@ -11,7 +11,6 @@ Components reference semantic CSS variable tokens. Change the variables to chang
 - Adding custom colors (Tailwind v3 and v4)
 - Border radius
 - Customizing components (variants, className, wrappers)
-- Checking for updates
 
 ---
 
@@ -191,19 +190,4 @@ export function ConfirmDialog({ title, description, onConfirm, children }) {
 }
 ```
 
----
-
-## Checking for Updates
-
-```bash
-npx shadcn@latest add button --diff
-```
-
-To preview exactly what would change before updating, use `--dry-run` and `--diff`:
-
-```bash
-npx shadcn@latest add button --dry-run        # see all affected files
-npx shadcn@latest add button --diff button.tsx # see the diff for a specific file
-```
-
-See [Updating Components in SKILL.md](./SKILL.md#updating-components) for the full smart merge workflow.
+To merge upstream updates into a changed component, see [Updating Components in SKILL.md](./SKILL.md#updating-components).

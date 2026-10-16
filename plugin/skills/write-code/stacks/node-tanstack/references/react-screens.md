@@ -41,10 +41,6 @@ your data model."* Draw the tree before you write code.
    needs "and". Do not wrap a single styled element that appears once and has
    no behavior. A class is enough.
 
-For a greenfield design, the `components` list in `variant.json` is this tree.
-`check_components.mjs` fails on a structure drawn twice that no component
-covers.
-
 ## Routes, server calls, roles, icons
 
 - Make a route file in `src/routes/` export `Route` from `createFileRoute`,
@@ -116,15 +112,12 @@ for renames and moves.
   fetches in a screen.
 - Derive values during render. Never copy a derivable value into state. Never
   sync derived state with an effect.
-- Never define a component inside a component. It breaks reconciliation. The
-  check catches this.
 - Use the functional `setState` when the next value depends on the previous
   one. Lazy-init an expensive `useState`: `useState(() => compute())`.
 - Put interaction logic in event handlers. Use effects only to sync with
   external systems.
 - Do not add `useMemo` and `useCallback` by default. Use `startTransition` or
   `useDeferredValue` for non-urgent updates when the team already uses them.
-- Use a ternary, not `&&`, when the left side can be `0`.
 - Hoist static JSX and default object props out of render when they cause
   needless child updates.
 - Import heavy libraries directly, not through a barrel. Dynamically import
@@ -142,4 +135,4 @@ for renames and moves.
 
 ## Design
 
-If the design is not settled, stop and ask the user for it. Do not invent a new look while you code. With an approved `DESIGN.md`, use shadcn/ui for the parts that its Components table marks `shadcn`. Theme them only with `design/shadcn.css`, never with shadcn's own theme.
+With an approved `DESIGN.md`, use shadcn/ui for the parts that its Components table gives to shadcn/ui. Theme them only with `design/shadcn.css`, never with shadcn's own theme.

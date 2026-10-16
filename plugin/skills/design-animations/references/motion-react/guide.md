@@ -1,6 +1,6 @@
 # Motion for React
 
-The Framer Motion module of Emil Kowalski's *Animations on the Web* course ([animations.dev](https://animations.dev/)), as a working reference.
+The Motion for React module of Emil Kowalski's *Animations on the Web* course ([animations.dev](https://animations.dev/)), as a working reference.
 
 ## Contents
 - Reach for it only when CSS can't
@@ -73,7 +73,7 @@ Pull repeated spring configs into a constant. When a spring looks wrong — jitt
 ```jsx
 <AnimatePresence mode="popLayout" initial={false} custom={direction}>
   <motion.span
-    key={state}          // REQUIRED
+    key={state}          // required
     custom={direction}   // pass again, or the exiting element reads stale props
     initial={{ opacity: 0, y: -25 }}
     animate={{ opacity: 1, y: 0 }}
@@ -184,9 +184,9 @@ const clip  = useMotionTemplate`inset(0px ${clipValue}% 0px 0px)`;      // tagge
 | Neighbouring elements jump during a layout animation | They need `layout` too. |
 | A `useMotionTemplate`-less string never updates | Motion values aren't reactive inside plain template literals. |
 | Spring looks jittery or wild | Raise `damping`. |
-| Both elements visible at once when switching fast | A known `AnimatePresence` bug; if you can't work around it, `11.0.10` predates it. |
+| Both elements visible at once when switching fast | A known `AnimatePresence` issue in some versions. Check the installed version's changelog. |
 | Animation runs on first paint when it shouldn't | Add `initial={false}` to `AnimatePresence`. |
 
 ## Imperative animation
 
-`useAnimate()` gives you `[scope, animate]` for low-level, selector-based control. It's more powerful and much harder to maintain — Emil almost never uses it. Stay declarative unless you're orchestrating many elements across events.
+`useAnimate()` gives you `[scope, animate]` for low-level, selector-based control. It's more powerful and much harder to maintain — Emil almost never uses it. Stay declarative unless you're orchestrating many elements across events. When you do: target `[data-animate]` selectors, use a `times: [0, 0.4]` array to map keyframes to fractions of the duration, return `Promise.all(...)` so callers can await, and stop an in-flight animation before restarting it.

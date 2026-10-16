@@ -57,6 +57,11 @@ def main():
     if not package_json.is_file():
         parser.error(f"No package.json in {root}. The checks fit a Node project with pnpm.")
 
+    try:
+        data = json.loads(package_json.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        sys.exit(f"{package_json} is not valid JSON: {error}. Fix it, then run this script again.")
+
     kept = []
 
     for source, name in FILES.items():
@@ -73,11 +78,10 @@ def main():
         print(f"{name} already exists. Left it alone (use --force to replace it).")
 
     if "eslint.config.mjs" in kept:
-        print("  To keep both, copy assets/eslint.config.mjs as eslint.greenfield.mjs and spread it from yours:")
-        print('    import greenfield from "./eslint.greenfield.mjs"')
-        print("    export default [...greenfield, { rules: { /* yours */ } }]")
+        print("  To keep both, copy assets/eslint.config.mjs as eslint.stistack.mjs and spread it from yours:")
+        print('    import stistack from "./eslint.stistack.mjs"')
+        print("    export default [...stistack, { rules: { /* yours */ } }]")
 
-    data = json.loads(package_json.read_text(encoding="utf-8"))
     scripts = data.setdefault("scripts", {})
     added = [name for name in SCRIPTS if name not in scripts]
 
@@ -96,8 +100,7 @@ def main():
     else:
         print("\nEvery package it needs is already in package.json.")
 
-    print("\nThen, after every edit:")
-    print("  pnpm run check:fix")
+    print("\nThen run it: pnpm run check")
     print("\nSet SRC in eslint.config.mjs and the paths in .oxlintrc.json if the layers are not under src/.")
 
     return 0

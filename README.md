@@ -38,7 +38,7 @@ Version 0.23.0.
 8 Later      add a feature: new screen? studio or straight into the app ──► 4 ──► 6 ──► 7
 ```
 
-What you are asked at each stage, and the fixed rules, are in `plugin/skills/start/SKILL.md`.
+What you are asked at each stage, and the fixed rules, are in `plugin/skills/start-product/SKILL.md`.
 
 ## Install
 
@@ -49,7 +49,7 @@ The repo is a Claude Code plugin marketplace. It is private, so Claude Code clon
 /plugin install stistack@stistack
 ```
 
-Skills are then named `stistack:<skill>`, for example `/stistack:start`. The `design-critic` agent comes with the plugin.
+Skills are then named `stistack:<skill>`, for example `/stistack:start-product`. The `design-critic` agent comes with the plugin.
 
 **For a team.** Run the `setup-project` skill in the project. It copies `CLAUDE.md` (the working rules and the project's facts) and adds a `.claude/settings.json` that enables the plugin for everyone who trusts the folder. It never overwrites a file that exists.
 
@@ -59,7 +59,7 @@ Skills are then named `stistack:<skill>`, for example `/stistack:start`. The `de
 
 | Skill or agent | What it does |
 | --- | --- |
-| `start` | The pipeline: a short brief, frame, studio design while the domain is planned with you, approval, one feature file per feature you approve in full, the foundation, then one feature at a time built by a backend and a frontend agent in one checkout, each landing as a PR with an explainer. Owns the coordination rules. Also adds one feature later to a product that has a design and a plan. |
+| `start-product` | The pipeline: a short brief, frame, studio design while the domain is planned with you, approval, one feature file per feature you approve in full, the foundation, then one feature at a time built by a backend and a frontend agent in one checkout, each landing as a PR with an explainer. Owns the coordination rules. Also adds one feature later to a product that has a design and a plan. |
 | `design-interface` | The design process and its tool: two-pass research, the product facts, one React + shadcn design per model in the studio, the quality gate, your choice, and the design pack export (rendered HTML, CSS, PNGs) with a pixel check. Owns the studio engine, the app template and the scripts. |
 | `plan-feature` | Plans the domain (entities, roles, server functions, what can go wrong) while the screens are designed, the screen wiring after approval, and one feature file per feature with exact scenarios and every test, one decision at a time, answers saved as given. Links `DESIGN.md` instead of deciding the look again. Owns the feature file format. |
 | `deliver-feature` | The backend agent or the frontend agent of one feature, in one checkout: scenarios into failing tests first, contract first, own folders only, the check command after every edit, the journeys driven in a real browser, notes for the feature file in its report to the lead. |
@@ -67,7 +67,7 @@ Skills are then named `stistack:<skill>`, for example `/stistack:start`. The `de
 | `design-animations` | Purposeful motion on the built screens: transitions, gestures, performance, reduced motion. |
 | `write-code` | The code rules a person must judge, then the project's stack folder (`stacks/<name>/`, picked by `.claude/stack.json`): folders, language style, UI, server side, tests and the `check` command that runs the linters, formatter, types and dead-code scan. |
 | `verify` | Only on `/verify`. Writes the project's own verify skill into `.claude/skills/verify-<app>/` (launch, doctor, drive, evidence, stop) when there is none, else audits it: one source reader per feature file, one live pass driving every feature, one set of proven corrections. |
-| `shadcn` | shadcn/ui in React: composition, forms, styling, icons, base vs radix, the CLI. |
+| `build-with-shadcn` | shadcn/ui in React: composition, forms, styling, icons, base vs radix, the CLI. |
 | `setup-project` | Copies the working rules into a project, enables the plugin for the team, sets the stack in `.claude/stack.json` (the one place the stack is chosen), and installs that stack's checks. |
 | `reflect` | Only on `/reflect`. Three parallel reviewers (judgment, tooling, divergent) read the session transcripts, a synthesizer sorts findings into Accepted / Rejected / Backlog, and nothing is applied to a skill until you approve. Ask it a focus question such as why a build was slow. Adapted from pstack. |
 | `improve-skill` | Audits, creates and improves skills against Anthropic's skill-writing rules (46 rules, file and line evidence), checks that each skill stands alone and names only its handoff, rewrites rules in Simplified Technical English; validator and reference-checker scripts for the mechanical rules; edits nothing until the user approves. |

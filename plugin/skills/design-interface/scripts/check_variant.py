@@ -26,6 +26,8 @@ def main():
     args = parser.parse_args()
 
     content = args.studio.resolve()
+    if not (content / "project.json").is_file():
+        parser.error(f"No project.json in {content}. Pass the studio/ folder, or create it with init_studio.py.")
     project = json.loads((content / "project.json").read_text(encoding="utf-8"))
     variants, load_problems = studio_export.load_variants(content)
     project.update(variants=variants, _loadProblems=load_problems)

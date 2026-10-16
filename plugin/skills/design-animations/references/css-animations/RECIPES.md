@@ -17,6 +17,7 @@ Worked patterns from the CSS Animations module. Each one exists because of a det
 - clip-path: seamless tab highlight
 - clip-path: theme switch wipe
 - Hold to delete
+- Nav menu (Radix, CSS-driven)
 
 Load from [guide.md](guide.md).
 
@@ -296,3 +297,7 @@ A red overlay wipes across the button while held, and snaps back on release.
 **Two different transitions, and that's the whole recipe.** A deliberate action (holding) reveals slowly and `linear`, because the fill is a progress indicator and must advance evenly. Releasing is a system response: `0.2s ease-out`. One shared transition would make the cancel feel broken.
 
 Duplicate the button's content inside the overlay so the wipe reveals a red copy of the same label and icon.
+
+## Nav menu (Radix, CSS-driven)
+
+Animate the Radix viewport size with its CSS variables and a transition. Use **`ease`** (not `ease-out`) for a large, frequently-triggered menu so it's calm, not aggressive; scale from `0.98` (never 0); make the content direction-aware with Radix `[data-motion]`. Exit uses the `[data-state]` pattern in [guide.md](guide.md).

@@ -12,9 +12,7 @@
 - Button has no isPending or isLoading prop
 - TabsTrigger must be inside TabsList
 - Avatar always needs AvatarFallback
-- Use Separator instead of raw hr or border divs
-- Use Skeleton for loading placeholders
-- Use Badge instead of custom styled spans
+- Use existing components instead of custom markup (Separator, Skeleton, Badge)
 
 ---
 

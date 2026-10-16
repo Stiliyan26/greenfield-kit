@@ -1,6 +1,6 @@
 # Motion for React Recipes
 
-The components built in the Framer Motion module. Each is a small stack of the primitives in [guide.md](guide.md) — read them for the technique, not the markup.
+The components built in the Motion for React module. Each is a small stack of the primitives in [guide.md](guide.md) — read them for the technique, not the markup.
 
 ## Contents
 - Animated button state (loading → success)
@@ -11,6 +11,7 @@ The components built in the Framer Motion module. Each is a small stack of the p
 - Cursor follower
 - Interactive graph
 - App Store card → detail
+- Dynamic Island morph (advanced)
 - Tab highlight
 - Scroll-triggered reveal
 
@@ -59,6 +60,8 @@ const [elementRef, bounds] = useMeasure();
 ```
 
 The `ref` and the animated height must be on different elements — otherwise the outer div keeps whatever height it was animated to and never reacts again. `null` on the first render means `auto`, which avoids a layout shift.
+
+For a crossfade inside it, make the opacity duration proportional to how much the height changed — the adaptive-duration snippet is in [STANDARDS.md](../review-animations/STANDARDS.md#duration). Height easing `[0.25, 1, 0.5, 1]` over ~`0.27s`.
 
 ## Multi-step component
 
@@ -226,6 +229,10 @@ Two details that finish it:
 - The long description that only exists in the open state gets `layout` plus its own opacity fade, with a very short exit so it doesn't linger while the card shrinks.
 - Inline pixel `borderRadius` everywhere, including on the images.
 - Dismiss on outside click (`useOnClickOutside`) and on `Escape`.
+
+## Dynamic Island morph (advanced)
+
+Springs **with bounce**, hardcoded per transition because smaller views need more bounce (`idle: 0.5`, `timer-ring: 0.35`, `timer-idle: 0.3`). Animate `layout` between **fixed** width/height values for full control; inline pixel `borderRadius` to avoid distortion; `mode="wait"` to morph one rich state to another; slight `blur()` on enter/exit; `tabular-nums` for changing digits. For an exit scale that differs by direction, pass per-transition `scale`/`y`/`bounce` via the `custom` prop. Hardcoding a finite set of transitions is fine — "a Dynamic Island on the web has a finite number of states."
 
 ## Tab highlight
 

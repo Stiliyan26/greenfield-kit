@@ -1,6 +1,6 @@
 ---
 name: deliver-feature
-description: Builds one approved feature file, as the backend agent or the frontend agent of a pair in one working copy, or alone. Writes tests from the scenarios first, then code until all tests and checks pass, drives the journeys in a real browser, saves the evidence, and reports the notes for the feature file to the lead. Use for a feature from an approved plan; not for small edits.
+description: Builds one approved feature file, as the backend agent or the frontend agent of a pair in one checkout, or alone. Writes tests from the scenarios first, then code until all tests and checks pass, drives the journeys in a real browser, saves the evidence, and reports the notes for the feature file to the lead. Use for a feature from an approved plan; not for small edits.
 ---
 
 # Deliver a feature
@@ -8,15 +8,15 @@ description: Builds one approved feature file, as the backend agent or the front
 You build one feature. Its file is `docs/plans/<project>/features/<slug>.md`.
 The file has `Status: approved`.
 
-Usually two agents build the feature at the same time, in one working copy:
+Usually two agents build the feature at the same time, in one checkout:
 
 - The **backend agent** owns the Backend section of the feature file.
 - The **frontend agent** owns the Frontend section.
 
 If you are alone, do both sections. Do the backend first.
 
-The lead starts you and opens the PR. You cannot send a message to the lead
-while you work. The lead reads your report and request files when you stop.
+You cannot send a message to the lead while you work. The lead reads your
+report and request files when you stop.
 
 Before you start, read these files:
 
@@ -32,9 +32,9 @@ If the helper or part exists, use it.
 
 These rules apply for all of the work.
 
-**One working copy**
+**One checkout**
 
-- Use one working copy and one branch, `feature/<slug>`.
+- Use one checkout and one branch, `feature/<slug>`.
 - Do not use a worktree.
 - Do not use `git stash` or a command that resets files.
 
@@ -49,8 +49,8 @@ Reason: each agent must see the commits of the other agent at once.
 
 Reason: `git add .` also adds the files of the other agent.
 
-The lead owns the shared code and the database schema. To change them, send
-a request.
+You own the tables and migrations in your Owns list. The lead owns the
+shared code. To change the shared code, send a request.
 
 **Contract first**
 
@@ -60,9 +60,10 @@ Backend section.
 1. Backend agent: make the contract your first commit.
 2. Use the names and types exactly as the Backend section gives them.
 3. In each server function, throw `new Error("not implemented: <name>")`.
-4. Backend agent: report to the lead and stop. The lead starts the frontend
-   agent, then tells you to continue.
+4. Backend agent: report to the lead and stop.
 5. Frontend agent: build against this commit.
+
+Done when the contract commit is on `feature/<slug>`.
 
 If you are alone, do not stop after the contract.
 
@@ -80,10 +81,10 @@ You need a shared helper, a part or a column that you do not own:
 1. Write `docs/plans/<project>/requests/<slug>-<name>.md`. Give what you
    need, why, and the signature.
 2. Continue with the work that does not need it.
-3. If all of your remaining work needs it, report to the lead and stop.
+3. If all of your other work needs it, report to the lead and stop.
 
-The lead commits the item on your branch, `feature/<slug>`. Then the lead
-tells you to continue.
+Done when the request file exists. The item arrives as a commit on
+`feature/<slug>`.
 
 Do not make a local copy. Reason: two copies become different.
 
@@ -109,7 +110,8 @@ role on it:
   function tests. Write one server function test for each scenario, on a
   real database.
 - Frontend agent: the unit tests and the end-to-end tests. Write one
-  end-to-end test for each journey, at desktop size and at phone size.
+  end-to-end test for each journey in the Journeys section, at desktop size
+  and at phone size.
 - Follow the test rules of the project.
 
 Done when: each test exists and fails.
@@ -121,14 +123,13 @@ Write the problem in your report. This is a plan change.
 
 Build one scenario or one journey from start to end, then the next.
 
-- Backend agent: change the schema first. Then write the data access, then
-  the business logic. Then make the server function call the logic.
+- Backend agent: change the schema of your tables first. Then write the
+  data access, then the business logic. Then make the server function call
+  the logic.
 - Frontend agent: start at the lowest layer. Go up to the route.
 
-The approved design does not have a screen or a part that you need:
-
-1. Stop work on that screen or part.
-2. Write it in your report. The design stage makes the screen or the part.
+The approved design does not have a screen or a part that you need: stop
+work on that screen or part, and write it in your report.
 
 Done when: the tests for each scenario and journey pass.
 
@@ -148,7 +149,7 @@ Frontend agent, or one agent alone. The backend agent does not do this step.
 Reason: the screens do not exist yet. The server function tests already
 check the rows and the emails.
 
-Use the browser-check skill of the project. If it does not exist, use
+Use the project's `verify-<app>` skill. If it does not exist, use
 Playwright. Use a real browser at desktop size and at phone size. For each
 journey:
 
@@ -159,7 +160,8 @@ journey:
 Compare the screens with `DESIGN.md`. Then ask the `design-critic` agent
 to score the screenshots.
 
-Keep the evidence. The explainer uses it and deletes it after the PR.
+Save the evidence in `temp/verification/<slug>/`. Do not delete it: the
+lead uses it for the PR.
 
 Done when: the evidence is saved, and the verdict of the `design-critic`
 agent is `show the user`.
@@ -169,7 +171,7 @@ If the verdict is `revise first`, go back to step 2.
 ### 5. Report to the lead
 
 Do not edit the feature file. The lead writes your notes into it. Reason:
-two agents in one working copy cannot commit one file safely.
+two agents in one checkout cannot commit one file safely.
 
 Give:
 
@@ -203,5 +205,5 @@ Done when: the lead has your report.
 | The feature file looks wrong, or you cannot do it | a scenario needs a function that nobody owns | Stop that work. Write it in your report. |
 | A test that you did not change fails | | Write it in your report. Do not make a test weaker: the user approved each scenario. |
 
-Do not ask the user questions during the feature. The lead asks the user and
-updates the plan.
+Do not ask the user questions during the feature. Write them in your
+report.

@@ -13,6 +13,7 @@ The single list of rules this skill enforces. AUDIT marks every rule pass, fail 
 - Newer models (NM1 to NM5)
 - Hooks (HK1)
 - Testing (TS1 to TS3)
+- Stands alone and wording (SA1, STE1)
 - Library checks (LB1, LB2)
 - Failure modes to name
 - Report format
@@ -25,7 +26,7 @@ The single list of rules this skill enforces. AUDIT marks every rule pass, fail 
 - **Check: read.** Judgment. Cite the file and line that shows the pass or the fail. "Looks fine" is not evidence.
 - **Not applicable (N/A)** only when the rule cannot apply, for example SC1 to SC5 in a skill with no scripts. Say why in the evidence column.
 
-Source codes: P = Anthropic's skill authoring best practices. CC = Claude Code skills docs. HK = Claude Code hooks docs. F5, O55, S55 = the prompting guides for Claude Fable 5, Opus 5.5 and Sonnet 5.5. ADV = advice from practice, not an Anthropic rule. Links are under Sources.
+Source codes: P = Anthropic's skill authoring best practices. CC = Claude Code skills docs. HK = Claude Code hooks docs. F5, O55, S55 = the prompting guides for current Claude models. SK = this skill's own rules in SKILL.md. ADV = advice from practice, not an Anthropic rule. Links are under Sources.
 
 ## Frontmatter and naming
 
@@ -84,7 +85,7 @@ All five are N/A when the skill has no scripts or code.
 
 ## Newer models
 
-Claude Fable 5, Opus 5.5 and Sonnet 5.5 follow instructions closely. Skills written for older models often over-steer them.
+Current Claude models follow instructions closely. Skills written for older models often over-steer them.
 
 - **NM1 Not too prescriptive.** Look for instructions the model now handles well on its own: step-by-step hand-holding, long lists of behaviours, rules that restate common sense. Mark them as candidates to cut, then test before deleting (testing.md, "Test before you delete"). Why: skills built for prior models are often too prescriptive for newer ones and can make output worse. Check: read, then test. Source: F5, O55.
 - **NM2 No reasoning echo.** No instruction to write out, show or transcribe the model's reasoning in the reply, for example `show your reasoning` or `think step by step and write it out`. A short explanation of the answer, or a summary of the actions taken, is fine. Why: these requests can be declined with the `reasoning_extraction` refusal, and server-side fallback does not retry it. Check: script + read. Source: F5, O55, S55.
@@ -102,12 +103,19 @@ Claude Fable 5, Opus 5.5 and Sonnet 5.5 follow instructions closely. Skills writ
 - **TS2 Fresh-session test on real work.** A fresh Claude runs real tasks with the skill on and off, and someone watches which files it opens and what it skips. Why: leftover context from writing the skill hides gaps. Check: read (ask the user). Source: P, CC.
 - **TS3 Tested on the models it will run on.** Haiku: enough guidance? Sonnet: clear and efficient? Opus: no over-explaining? Test prudently: run the full sweep for skills you rely on a lot or that have real consequences, and test the rest on the model you use most. Why: sweeping every skill across every model burns tokens for little gain. Check: read (ask the user). Source: P (the three questions), ADV (testing prudently).
 
+## Stands alone and wording
+
+Rules 5 and 6 in SKILL.md hold the wording and the reason. They are listed here so that no audit skips them.
+
+- **SA1 Stands alone.** Rule 5 in SKILL.md: works in any project, names no project, names only the skill it hands off to. Check: script (`check_refs.py` coupling warnings) + read. Source: SK.
+- **STE1 Simplified Technical English.** Rule 6 in SKILL.md: one instruction per sentence of at most 20 words, imperative, no "-ing" forms, numbered steps that end with "Done when". Tables and examples are exempt. Check: read. Source: SK.
+
 ## Library checks
 
-Run these when auditing a folder of skills.
+Run these when you audit a folder of skills.
 
 - **LB1 No overlapping descriptions.** Two skills should not claim the same trigger words. Merge them, or sharpen each description to its own job. Check: read (compare descriptions side by side). Source: ADV.
-- **LB2 Unused skills turned off.** Every model-invoked description costs context on each turn. In Claude Code, `/skill-doctor` shows what each skill costs and how often it gets used. Check: read (ask the user to run it). Source: CC.
+- **LB2 Unused skills turned off.** Every model-invoked description costs context on each turn. For a plugin, `claude plugin details <plugin>` shows each component and its projected token cost. Check: read (ask the user to run it). Source: CC.
 
 ## Failure modes to name
 
@@ -131,6 +139,8 @@ Validator: <E> errors, <W> warnings, <N> notes. Checklist: <P> pass, <F> fail, <
 | Rule | Result | Evidence | Proposed change |
 |---|---|---|---|
 | DS2 Third person | Fail | SKILL.md:3 "I can help you with PDFs" | Rewrite as "Extracts text from PDFs ..." |
+| SA1 Stands alone | Fail | SKILL.md:12 "then run the deploy-checks skill" | Copy the one command it needs, or drop the name |
+| STE1 Simplified Technical English | Fail | SKILL.md:15 "Validating the input, check the fields and write the output" | "Check the fields. Write the output." |
 | SC1 Solve, don't defer | N/A | No scripts in the skill | - |
 | ST4 One level deep | Pass | Validator: no ST4 findings | - |
 
@@ -145,11 +155,12 @@ Nothing has been changed yet. Reply with the change numbers to apply.
 
 ## Sources
 
-| Code | Page |
-|---|---|
-| P | https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices |
-| CC | https://code.claude.com/docs/en/skills |
-| HK | https://code.claude.com/docs/en/hooks#hooks-in-skills-and-agents |
-| F5 | https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5 |
-| O55 | https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5 |
-| S55 | https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5-5 |
+| Code | Source | Page |
+|---|---|---|
+| P | Skill authoring best practices | https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices |
+| CC | Claude Code skills docs | https://code.claude.com/docs/en/skills |
+| HK | Claude Code hooks docs | https://code.claude.com/docs/en/hooks#hooks-in-skills-and-agents |
+| F5 | Prompting guide for Claude Fable 5 | https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5 |
+| O55 | Prompting guide for Claude Opus 5.5 | https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5 |
+| S55 | Prompting guide for Claude Sonnet 5.5 | https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5-5 |
+| SK | Rules for every mode | SKILL.md |

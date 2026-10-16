@@ -22,7 +22,7 @@ Write the tests before the skill, so the skill solves real gaps instead of imagi
 4. Write the smallest skill that closes the gaps.
 5. Re-run the tests, compare with the baseline, refine. If a test still fails, return to step 4.
 
-A light format for each test, kept in the skill's repo or an `evals/` folder:
+Write each test in this shape:
 
 ```text
 ### <short name>
@@ -34,14 +34,14 @@ Done looks like: <one checkable line>
 
 Add at least one prompt that should not trigger the skill, to catch a description that grabs too much.
 
-Anthropic's page also shows a JSON shape (`skills`, `query`, `files`, `expected_behavior`) if you want machine-readable tests. There is no built-in runner for that format; Anthropic's skill-creator plugin uses its own `evals/evals.json`.
+For a skill in a plugin, store the tests where `claude plugin eval` runs them: `evals/` in the plugin, one case per `case.yaml`, or a `prompt.md` with graders in `graders/*.md`. `claude plugin eval init --bare <name>` writes a blank case; `claude plugin eval --help` lists the options. The "Done looks like" line becomes a grader.
 
 ## Run a baseline in a fresh session
 
 Run each prompt in a new session with the skill on, then again with it off, and compare. A fresh session matters because context left over from writing the skill hides gaps in what it says.
 
 - **Personal or project skill in Claude Code:** turn it off for the second run with `"skillOverrides": { "<skill-name>": "off" }` in settings, or from the `/skills` menu.
-- **Skill inside a plugin:** use `claude plugin eval`, which repeats each run with no plugin loaded.
+- **Skill inside a plugin:** run `claude plugin eval <plugin folder>`. It adds a no-plugin baseline arm and reports the score difference.
 - **To automate it:** Anthropic's skill-creator plugin (`/plugin install skill-creator@claude-plugins-official`) runs with-skill and without-skill passes, grades them and compares token cost and time.
 
 ## Claude A writes, Claude B tests

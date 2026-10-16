@@ -25,8 +25,8 @@
     "react/self-closing-comp": "error",
 
     "no-restricted-imports": ["error", { "patterns": [
-      { "group": ["@/server", "@/server/*", "**/server/*"], "message": "Only *.functions.ts may import server/. See write-code/references/structure.md, 'Server and browser'." },
-      { "group": ["@/views/*/*", "@/widgets/*/*", "@/features/*/*", "@/entities/*/*"], "message": "Import a slice through its index.ts, not its inner files. See write-code/references/structure.md." }
+      { "group": ["@/server", "@/server/*", "**/server/*"], "message": "Only *.functions.ts may import server/. See write-code/stacks/node-tanstack/references/structure.md, 'Server and browser'." },
+      { "group": ["@/views/*/*", "@/widgets/*/*", "@/features/*/*", "@/entities/*/*"], "message": "Import a slice through its index.ts, not its inner files. See write-code/stacks/node-tanstack/references/structure.md." }
     ] }]
   },
   "overrides": [

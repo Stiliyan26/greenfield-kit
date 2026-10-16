@@ -10,7 +10,7 @@ Animations are used to strategically improve an experience. **To some people, th
 - Visuals: jump, don't tween
 - Snippets
 
-Distilled from Emil Kowalski's *Animations on the Web* course ([animations.dev](https://animations.dev/)). This skill covers **reduced motion**: reading the user's preference and deciding what each animation becomes when it's set.
+Distilled from Emil Kowalski's *Animations on the Web* course ([animations.dev](https://animations.dev/)). This reference covers **reduced motion**: reading the user's preference and deciding what each animation becomes when it's set.
 
 ## The preference
 
@@ -74,7 +74,7 @@ Swap the animation, don't delete it:
 </svg>
 ```
 
-### Framer Motion — `useReducedMotion`
+### Motion — `useReducedMotion`
 
 The hook returns `true` when the user prefers reduced motion, so you can branch individual values:
 
@@ -91,9 +91,9 @@ export function Sidebar({ isOpen }) {
 
 The same hook branches whole **variant sets**, which is cleaner than patching values one at a time — see the worked example in [SNIPPETS.md](SNIPPETS.md). It also gates the properties CSS can't reach: skip `animate={{ height }}` and pass `layout={false}` under `reduce`, since layout animations move things by definition.
 
-### Framer Motion — `MotionConfig` (app-wide safety net)
+### Motion — `MotionConfig` (app-wide safety net)
 
-`reducedMotion="user"` makes Framer Motion respect the preference everywhere below it, animating only `opacity` and `backgroundColor`:
+`reducedMotion="user"` makes Motion respect the preference everywhere below it, animating only `opacity` and `backgroundColor`:
 
 ```jsx
 import { MotionConfig } from "motion/react";

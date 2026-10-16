@@ -2,10 +2,12 @@
 """Copy the stistack working rules into a project. Existing files are never overwritten."""
 
 import argparse
+import json
 from pathlib import Path
 import shutil
 
 TEMPLATES = Path(__file__).resolve().parent.parent / "templates"
+STACKS = Path(__file__).resolve().parents[2] / "write-code" / "stacks"
 IGNORED = ["temp/", ".playwright-mcp/"]
 
 
@@ -49,8 +51,21 @@ def main():
             print(f"  {item}")
     if ignored:
         print(f"Added to .gitignore: {', '.join(ignored)}")
-    print("Next: fill in CLAUDE.md: the project's facts, commands and checks.")
-    print("For a Bun or Node project, also run write-code/scripts/install_checks.py to install the code rules as checks.")
+    print(f"Next: install the stack's checks:\n  {install_checks_line(root)}")
+    print("Then fill in CLAUDE.md: the project's facts, commands and checks.")
+
+
+def install_checks_line(root):
+    """Return the command that installs the checks for the stack named in .claude/stack.json."""
+    stack_file = root / ".claude" / "stack.json"
+    try:
+        name = json.loads(stack_file.read_text())["name"]
+    except (OSError, ValueError, KeyError) as error:
+        return f"(no stack name: {stack_file} could not be read: {error}. Set its \"name\", then run this script again.)"
+    script = STACKS / name / "install_checks.py"
+    if not script.is_file():
+        return f"(no install script for stack \"{name}\": {script} does not exist. Pick a folder under {STACKS}.)"
+    return f"python3 {script} {root}"
 
 
 if __name__ == "__main__":

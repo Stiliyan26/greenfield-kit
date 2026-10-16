@@ -29,6 +29,7 @@
   "paths": {
     "routes": "src/routes",
     "views": "src/views",
+    "widgets": "src/widgets",
     "features": "src/features",
     "entities": "src/entities",
     "shared": "src/shared",

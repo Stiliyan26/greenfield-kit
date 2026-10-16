@@ -1,14 +1,14 @@
 ---
 name: reflect
-description: Spawn three parallel review subagents over the active transcript (or several transcripts of one build), surface learnings, and route each to a concrete edit on an existing skill. Use when the user says reflect or asks why a build was slow or what to improve.
+description: Spawns three parallel review subagents over the active transcript (or several transcripts of one build), surface learnings, and route each to a concrete edit on an existing skill. Use when the user says reflect or asks why a build was slow or what to improve.
 disable-model-invocation: true
 ---
 
 # Reflect
 
 Mine the conversation for durable learnings. Route each one into a skill
-edit. Skip the run when the conversation is trivial or off-topic, or when
-an existing skill that the parent followed correctly already covers it. A
+edit. Skip a trivial or off-topic conversation. Skip a learning that an
+existing skill already covers, when the parent followed that skill. A
 one-off is not a learning.
 
 If the user asks a focus question ("why was X slow", "what went wrong with
@@ -84,8 +84,11 @@ Done when the list is back.
 
 ### 4. Check for mechanisms
 
-For each Accepted item that a lint rule, script, metadata flag or runtime
-check would enforce more reliably, move it to Backlog.
+Apply the synthesizer's structural-mechanism check again to each Accepted
+item. Move each item that a cheap mechanism can enforce to Backlog.
+
+Reason: the synthesizer sees only the reviewers' text. You can see the
+repo's real lint rules, scripts and hooks.
 
 Done when no Accepted item has a cheap mechanism.
 
@@ -105,8 +108,9 @@ Done when no Accepted item has a cheap mechanism.
      one piece.
    - `tune description: <skill path>` (the skill did not trigger when it
      should have): rewrite the `description` so it names the missed trigger.
-   - `new skill: <kebab-name>`: write `plugin/skills/<kebab-name>/SKILL.md`
-     in the shape of an existing skill in this plugin.
+   - `new skill: <kebab-name>`: write `<kebab-name>/SKILL.md` in the
+     skills folder that holds the skills the transcript used. Use the shape
+     of an existing skill in that folder.
 4. Run the project's SKILL.md validator on every touched skill, if it has
    one. If a check fails, return to step 3 of this section.
 5. In a plugin repo, bump the plugin version when skill files change.

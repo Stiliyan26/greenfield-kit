@@ -1,34 +1,34 @@
 # Report mode
 
 Report mode picks up after step 4 of the skill. The reviewers have written
-their feature files. The user decides what gets fixed.
+their feature reports, `<run>/<feature>.md`. The user decides what gets fixed.
 
 ## Contents
-- 5 README
-- 6 The user ticks
-- 7 Fix agents
-- 8 Merge
-- 9 Close
+- R1 README
+- R2 The user ticks
+- R3 Fix agents
+- R4 Merge
+- R5 Close
 - The files
 - README.md
 - <feature>.md
 - Rules for every problem
 
-## 5. README
+## R1. README
 
-1. Read every feature file.
+1. Read every feature report.
 2. Write `README.md` in the shape below. If two reviewers found one problem
-   from both sides, make it one row. Keep it in the feature file where the fix
+   from both sides, make it one row. Keep it in the feature report where the fix
    lives. Point the other file at it.
 3. Copy each problem as its reviewer wrote it. Every row comes from a feature
-   file.
+   report.
 4. Commit the folder (`review: <target>`) unless the user said not to.
 5. Tell the user: counts by priority, the top three, the folder path, and
    "Tick the Decision lines, then say fix."
 
-Done when every problem of every feature file has a row.
+Done when every problem of every feature report has a row.
 
-## 6. The user ticks
+## R2. The user ticks
 
 The user edits the Decision line of each problem: fix now (with the option
 letter), later, not a problem, or explain more. The Decision lines belong to
@@ -37,21 +37,21 @@ The user then ticks again.
 
 Done when the user says "fix".
 
-## 7. Fix agents
+## R3. Fix agents
 
-1. Read every Decision line. Group the "fix now" problems by feature file.
+1. Read every Decision line. Group the "fix now" problems by feature report.
 2. Propose the fix agents and wait for a yes:
 
 ```
 Fix: 9 problems ticked in 3 features
-  1. time-off   #7A #8A #9B #21A     (sonnet)
-  2. reporting  #13A #15A            (sonnet)
-  3. people     #4A #12A #19A        (sonnet)
+  1. orders     #7A #8A #9B #21A     (sonnet)
+  2. invoices   #13A #15A            (sonnet)
+  3. customers  #4A #12A #19A        (sonnet)
 Foundation change: #9B needs a server migration → fable
 Go? Or: a number of agents, another model.
 ```
 
-3. Give each feature file one agent, up to the config's `maxFixAgents`. Past
+3. Give each feature report one agent, up to the config's `maxFixAgents`. Past
    the cap, let the smallest share an agent.
 4. Use the `fixModel`. Use the `reviewerModel` for a fix the review marked as
    needing judgement.
@@ -65,7 +65,7 @@ Go? Or: a number of agents, another model.
 
 Done when every fix agent has reported.
 
-## 8. Merge
+## R4. Merge
 
 1. Take one branch at a time: rebase, run all the project's tests, read the
    diff against the feature's ownership, merge.
@@ -75,10 +75,10 @@ Done when every fix agent has reported.
 
 Done when every branch is merged or listed as blocked.
 
-## 9. Close
+## R5. Close
 
 1. Start the reviewer of each feature again, with the same agent and model.
-   Give it the feature file, the merged code and the checklist.
+   Give it the feature report, the merged code and the checklist.
 2. It runs the proof of every `fixing` problem again (reviewer.md, "Close").
 3. Update the README's Status and Fixed count. Commit (`review: close
    <target>`). Tell the user what is still open.
@@ -88,19 +88,19 @@ Done when no problem is left in `fixing`.
 ## The files
 
 A report-mode review writes one folder: `reviews/<date>-<target>/` in the
-project (`2026-09-29-time-off`, `2026-09-29-app`, `2026-09-29-plan`). It is
+project (`2026-09-29-orders`, `2026-09-29-app`, `2026-09-29-plan`). It is
 committed, and it is the record: found → chosen → fixed → proved.
 
 ```
 reviews/2026-09-29-app/
   README.md         the summary table across every feature, and the order to fix
-  time-off.md       one file per feature, every problem in full
-  reporting.md
-  people.md
+  orders.md         one feature report per feature, every problem in full
+  invoices.md
+  customers.md
   captures/         screenshots the reviewers took (only when a problem is visible)
 ```
 
-The lead writes `README.md`. Each reviewer writes its feature file. The
+The lead writes `README.md`. Each reviewer writes its feature report. The
 user edits the Decision lines. The reviewer edits the Status lines when it
 closes a problem. Nobody else edits these files.
 
@@ -119,7 +119,7 @@ closes a problem. Nobody else edits these files.
 
 | # | Problem | Priority | Who is hurt | Feature | Proof | Decision | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Editing approved leave creates a second request | Critical | Employee: double-booked and charged twice | [time-off](time-off.md#1) | ran | | open |
+| 1 | Editing a paid order creates a second order | Critical | Customer: charged twice | [orders](orders.md#1) | ran | | open |
 | 2 | … | | | | read | | open |
 
 Proof: `ran` (a command, test or screenshot), `read` (found the line, not run).
@@ -140,8 +140,8 @@ Proof: `ran` (a command, test or screenshot), `read` (found the line, not run).
 - `path:line`: <one line each>; problems in lines this change didn't touch.
 ````
 
-Rules: put every problem from every feature file in the table. Make numbers
-global across the review: the feature file uses the same number. Write no
+Rules: put every problem from every feature report in the table. Make numbers
+global across the review: the feature report uses the same number. Write no
 score, no praise and no summary of the diff.
 
 ## <feature>.md
@@ -151,58 +151,58 @@ score, no praise and no summary of the diff.
 
 <3–5 lines: what this feature does and who uses it, from its feature file
 and DESIGN.md. Files reviewed: <n>, <lines> lines. Ran: <what was run:
-gates, unit tests, e2e specs, app started or not>.>
+checks, unit tests, e2e specs, app started or not>.>
 
-## 7. Editing approved leave creates a second request · Critical
+## 7. Editing a paid order creates a second order · Critical
 
-**Context.** Time off → an approved upcoming row → Edit → Save. The server
-has a replace path that credits the old days back and cancels the old row
-(`requests.service.ts:239`), but only PATCH reaches it.
+**Context.** Orders → a paid order → Edit → Save. The server has a replace
+path that refunds the old order and cancels it
+(`orders.service.server.ts:239`), but only the update call reaches it.
 
-**Impact.** An employee edits approved leave. The client sends a plain POST.
-Overlapping dates: the server refuses, so moving leave by a day is
-impossible. Non-overlapping: the old leave stays approved and charged, a new
-pending request is added, and the balance is charged twice once approved.
+**Impact.** A customer edits a paid order. The client calls create, not
+update. Same items: the server refuses a duplicate, so the customer cannot
+change the delivery date. Other items: the old order stays paid, a new
+pending order is added, and the card is charged twice once it is paid.
 
-**Why.** `editingApproved` sends the edit down the create path. The banner
-"Editing approved leave submits a new request" hides it.
+**Why.** `isEditingPaid` sends the edit down the create path. The banner
+"Editing a paid order places a new order" hides it.
 
-**Current code** (`client/src/features/time-off/request/ui/RecordModal.tsx:180-185`)
+**Current code** (`src/features/edit-order/ui/order-form.tsx:180-185`)
 
 ```tsx
-if (isEdit && request && !editingApproved) {
-  await updateRequest.mutateAsync({ requestId: request.id, ...payload });
+if (isEdit && order && !isEditingPaid) {
+  await updateOrder.mutateAsync({ orderId: order.id, ...payload });
 } else {
-  await createRequest.mutateAsync(payload);
+  await createOrder.mutateAsync(payload);
 }
 ```
 
-**Proved by.** `npx playwright test e2e/tests/employee/time-off-tab.spec.ts -g "edit approved"`
-→ the network log shows `POST /api/leave/requests`, not PATCH. Screenshot:
-`captures/7-edit-approved.png` (the two rows after Save).
+**Proved by.** The e2e command, `e2e/edit-order.spec.ts -g "edit paid"`
+→ the network log shows the create-order call, not update-order. Screenshot:
+`captures/7-edit-paid.png` (the two orders after Save).
 
 **Fix options**
 
-- **A (recommended).** Always PATCH on edit; the server already replaces
-  approved leave.
+- **A (recommended).** Always update on edit; the server already replaces
+  a paid order.
 
   ```tsx
-  if (isEdit && request) {
-    await updateRequest.mutateAsync({ requestId: request.id, ...payload });
+  if (isEdit && order) {
+    await updateOrder.mutateAsync({ orderId: order.id, ...payload });
   } else {
-    await createRequest.mutateAsync(payload);
+    await createOrder.mutateAsync(payload);
   }
   ```
 
-  Cost: 2 lines, no server change. Moved leave then shows a `cancelled` row
-  in history (see #9).
+  Cost: 2 lines, no server change. A replaced order then shows a `cancelled`
+  row in history (see #9).
 
-- **B.** Keep POST and add a server rule that cancels the old row when a
-  new request names `replaces: <id>`. Cost: DTO, service and migration
+- **B.** Keep create and add a server rule that cancels the old order when a
+  new one names `replaces: <id>`. Cost: input schema, service and migration
   change; two code paths for one thing.
 
-**Test to add.** "Employee edits approved upcoming leave and the old row
-stops counting."
+**Test to add.** "Customer edits a paid order and the old order stops
+counting."
 
 **Decision.** [ ] fix now: A / B · [ ] later · [ ] not a problem · [ ] explain more
 

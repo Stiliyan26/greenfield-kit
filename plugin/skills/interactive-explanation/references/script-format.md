@@ -24,7 +24,7 @@ its narration plus 0.9 s, or as long as its clip if that is longer.
 | `impact` | yes | one sentence | Header, under the title |
 | `sketches` | PR: 1–3 | `{ kind, heading, text, source, diff?, file?, highlight? }[]`, `kind` is `files`, `components`, `calls`, `pseudo` or `code` | Summary, under the description. `source` is the sketch with `\n` line breaks. With `diff: true`, each line starts with `+`, `-` or a space. `code` needs `file`; `highlight` lists 1-based lines |
 | `beforeAfter` | when behaviour changed | `{ before, after, note? }`, both Mermaid flowcharts | Two stacked flowcharts: Before muted, After in brand colours |
-| `diagrams` | PR: 1–3 | `{ type, heading, mermaid, steps?, note? }[]`, `type` is `sequence`, `component`, `state` or `flowchart` | How it works. `steps` is a numbered list, for example migration steps |
+| `diagrams` | PR: 1–3 | `{ type, heading, mermaid, steps?, note? }[]`, `type` is `sequence`, `component`, `state`, `flowchart` or `er` (a schema drawn by hand, when the config has no `database.command`) | How it works. `steps` is a numbered list, for example migration steps |
 | `database` | schema touched | `{ intro?, tables: string[], relations?: { table, column, meaning }[] }` | Data model: the ER is generated from [schema facts](#schema-facts), plus a relations table. `relations` adds what each foreign key means |
 | `screens` | UI changed | `{ shot: "<feature>/<step>", caption }[]` | Review map: each shot with its changed components boxed, from the journey run. No plain screenshot shows anywhere |
 | `evidence` | no | `{ label, before, after }[]`, each side `{ output }` | Evidence: before and after side by side. `output` is a test run or console output, shown as text |

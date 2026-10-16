@@ -59,7 +59,7 @@ export function catalogHtml({ stats, repeats, filter, frameUrl, pageSize }) {
   return `<div class="cmap-filters" role="group" aria-label="Show">${chip("all", "All")}${chip("custom", "Build by hand")}${chip("shadcn", "From shadcn")}${chip("repeats", "Not listed yet")}</div>
     ${section("repeats", "Not listed yet", "Drawn more than once, but the model didn't name it as a part. The model adds each one, or marks it as not a part and says why.", repeats.map(repeatCard))}
     ${section("custom", "Build by hand", "This product's own parts. The components stage builds each one from these screens.", custom.sort(byUse).map(partCard))}
-    ${section("shadcn", "From shadcn", "Added with the shadcn skill and themed by design/shadcn.css.", shadcn.sort(byUse).map(partCard))}`
+    ${section("shadcn", "From shadcn", "Added with the build-with-shadcn skill and themed by design/shadcn.css.", shadcn.sort(byUse).map(partCard))}`
 }
 
 export function gridHtml({ stats, repeats, screens, pick }) {

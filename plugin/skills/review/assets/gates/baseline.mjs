@@ -17,9 +17,9 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '../../..');
 const BASELINE = resolve(ROOT, 'scripts/gates/baseline.json');
-const PACKAGES = ['client', 'server']; // edit for your project
+const PACKAGES = ['.']; // one entry per package folder, e.g. ['client', 'server']
 const KNIP_TYPES = ['files', 'dependencies', 'devDependencies', 'unlisted', 'unresolved', 'exports', 'types', 'enumMembers', 'duplicates'];
-const JSCPD_ARGS = ['src', '--min-lines', '10', '--min-tokens', '70', '--ignore', '**/*.spec.ts,**/database/migrations/**', '--silent'];
+const JSCPD_ARGS = ['src', '--min-lines', '10', '--min-tokens', '70', '--ignore', '**/*.spec.ts,**/migrations/**', '--silent'];
 
 main();
 

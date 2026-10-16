@@ -114,7 +114,7 @@ Vercel does this on their [rendering](https://vercel.com/products/rendering) pag
 
 ## Dependency-free `useReducedMotion`
 
-If you're not using Framer Motion, the hook is short. Read `matchMedia` inside the effect so it never runs during server rendering, and sync once on mount so a user who already set the preference gets the reduced variant:
+If you're not using Motion, the hook is short. Read `matchMedia` inside the effect so it never runs during server rendering, and sync once on mount so a user who already set the preference gets the reduced variant:
 
 ```tsx
 import { useState, useEffect } from "react";

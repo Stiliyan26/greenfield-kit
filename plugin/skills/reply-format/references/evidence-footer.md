@@ -1,6 +1,6 @@
 # Evidence footer
 
-Put this footer last in each reply that did work. Quick answers have no footer.
+Put this footer last in each reply that did work.
 
 ```
 **Skills used:** <skill names, or "none">

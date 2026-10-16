@@ -1,27 +1,26 @@
 # Improving Animations
 
-An advisor skill. It does ONE thing: survey the motion in a codebase, decide what's worth fixing, and write implementation plans precise enough that an agent with zero context and zero taste can execute them.
+An audit reference. It does one thing: survey the motion in a codebase, decide what's worth fixing, and write implementation plans precise enough that an agent with zero context and zero taste can execute them.
 
 ## Contents
 - Operating Posture
 - Hard Rules
 - Workflow
-- Invocation Variants
 - Tone
 
-It is not a diff review (that's [review-animations](../review-animations/guide.md)), it is not a search for missing motion (that's [find-animation-opportunities](../find-animation-opportunities/guide.md)), and **it does not implement fixes itself**. Judgment happens here; execution happens elsewhere.
+It is not a diff review (that's [review-animations](../review-animations/guide.md)), it is not a search for missing motion (that's [find-animation-opportunities](../find-animation-opportunities/guide.md)), and the audit itself changes no source code. Judgment happens here; the fix follows only when the user asks for it.
 
 The bar comes from the *Animations on the Web* course ([animations.dev](https://animations.dev/)). The full rule catalog with exact values lives in [AUDIT.md](AUDIT.md); the plan format lives in [PLAN-TEMPLATE.md](PLAN-TEMPLATE.md). Load each when you reach the phase that needs it.
 
 ## Operating Posture
 
-You are a senior design engineer with a brutal eye for craft, looking for the work with the highest leverage — the `ease-in` making every dropdown feel sluggish, the keyframes making toasts jump, the keyboard action that should never have animated. One weak curve shared by fifty components outranks ten isolated nits.
+Look for the work with the highest leverage — the `ease-in` making every dropdown feel sluggish, the keyframes making toasts jump, the keyboard action that should never have animated. One weak curve shared by fifty components outranks ten isolated nits.
 
 Motion that "works" but feels sluggish, arrives from nowhere, fires too often, or drops frames is a defect. Default to flagging; but a short list of high-confidence findings beats a long padded one, and **"the motion here is already right" is a valid audit result.**
 
 ## Hard Rules
 
-1. **Never modify source code.** The only files you create live under `plans/` (or `animation-plans/` if `plans/` is taken). If asked to just fix it, decline and hand the plan to an executor.
+1. **Change no source code during the audit.** The only files you create live under `plans/` (or `animation-plans/` if `plans/` is taken). If the user asks for the fix itself, make it within the stated scope.
 2. **No mutating operations.** No installs, no builds, no commits, no formatters. Read-only analysis.
 3. **Plans must be fully self-contained.** The executor has none of this conversation and no taste of its own. Never write "use the easing we discussed" — inline the exact cubic-bezier, the exact duration, the exact file path and current-code excerpt.
 4. **Never present a finding you haven't re-read at its `file:line`.**
@@ -59,7 +58,7 @@ Complete when **every category has been applied to every animated surface you fo
 
 On anything beyond a small repo, fan out read-only subagents — one per category, or one per app area in a monorepo. Each subagent prompt must carry: the absolute path to AUDIT.md plus its section heading, the recon facts (stack, libraries, token conventions, frequency map), an instruction to return findings only (`file:line` + evidence, no fixes), and Hard Rule 5 verbatim.
 
-Depth follows the effort level (default `standard`):
+Depth follows the scope the user asks for (default `standard`):
 
 | Effort | Coverage | Subagents | Findings |
 | --- | --- | --- | --- |
@@ -91,17 +90,6 @@ One plan per selected finding, following [PLAN-TEMPLATE.md](PLAN-TEMPLATE.md), w
 Write for the weakest executor: exact paths and current-code excerpts, exact target values pulled from AUDIT.md rather than approximated, the repo's own conventions with a named exemplar file, ordered steps, explicit scope boundaries, and a verification section that includes how to **feel-check** the result — record and scrub frame by frame, and test gestures on a real device.
 
 Finish by creating or updating `plans/README.md` with the recommended execution order, dependencies between plans, and a status column.
-
-## Invocation Variants
-
-| Invocation | Behavior |
-| --- | --- |
-| bare | Full workflow: recon → audit all categories → vet → confirm → plans |
-| `quick` / `deep` | Adjust audit effort; composes with a focus |
-| a category (`performance`, `accessibility`, `easing`, `cohesion`…) | Recon plus that category only |
-| `plan <description>` | Skip the audit; recon just enough to specify, then write one plan |
-| `execute <plan>` | Dispatch an executor to implement the plan in an isolated worktree, then review its diff with the [review-animations](../review-animations/guide.md) bar and render a verdict |
-| `reconcile` | Re-check `plans/` against current code: mark finished plans DONE, refresh stale `file:line` references, retire findings that no longer exist |
 
 ## Tone
 

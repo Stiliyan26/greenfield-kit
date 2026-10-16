@@ -73,7 +73,7 @@ SKILL.md is a table of contents, not a manual. Claude reads it when the skill fi
 | Bundle | One job, with reference material or scripts that only some runs need |
 | Router | Several distinct jobs in one domain; SKILL.md holds a table that sends each job to its own file |
 
-Order SKILL.md by importance: the rules that matter most go near the top, because after compaction Claude Code keeps only the first 5,000 tokens of a skill. Write standing instructions ("check the output after each change"), not one-time steps, because the file is loaded once and not re-read on later turns.
+Order SKILL.md by importance, so the rules that matter most survive compaction (ST2). Write standing instructions ("check the output after each change"), not one-time steps (WF4).
 
 Three ways to disclose detail, from Anthropic's page:
 
@@ -135,7 +135,7 @@ Bundle a script when the same code would be rewritten on each run, when the resu
 - **Solve, don't defer.** Handle the expected failures in the script (missing file, no permission) and print what happened.
 - **Explain constants.** `TIMEOUT = 30  # most requests finish well inside 30 seconds`, never a bare `47`.
 - **Errors that help.** Name the problem and the fix: "Field 'signature_date' not found. Available fields: customer_name, order_total".
-- **List packages with an install line** next to the script that needs them, for example `pip install pypdf`. Claude Code and claude.ai can install packages. The Claude API has no network access and no runtime installs, so a skill meant for the API can only use what its code execution environment already has.
+- **List packages with an install line** next to the script that needs them, for example `pip install pypdf`. Where the skill runs decides whether an install can work (SC5).
 - **MCP tools by full name.** `BigQuery:bigquery_schema`, not `bigquery_schema`.
 - **Claude Code extras.** `${CLAUDE_SKILL_DIR}` expands to the skill's folder, so `python ${CLAUDE_SKILL_DIR}/scripts/x.py` works from any working directory. The same variable in `allowed-tools` (for example `Bash(${CLAUDE_SKILL_DIR}/scripts/x.py *)`) lets the script run without a permission prompt. Both are Claude Code only.
 
@@ -163,13 +163,13 @@ Keep judgment in prose and hard lines in hooks. Hooks are Claude Code only; for 
 
 ## Writing for newer models
 
-Claude Fable 5, Opus 5.5 and Sonnet 5.5 follow instructions closely and do more on their own. Five adjustments:
+Current Claude models follow instructions closely and do more on their own. The rules and their reasons are NM1 to NM5 in audit-checklist.md. How to apply them:
 
-1. **Cut scaffolding they no longer need.** Skills written for earlier models are often too prescriptive and can make output worse. Find the hand-holding (step-by-step walkthroughs of things the model knows, long lists of behaviours, common sense restated) and test removing it. Delete only what the test says is dead weight (testing.md, "Test before you delete").
-2. **Never ask for the reasoning in the reply.** Instructions to write out, echo or transcribe the model's reasoning can be declined with the `reasoning_extraction` refusal. Ask for the answer, a short explanation of it, or a summary of the actions taken.
-3. **Give the reason.** "Keep under 1,536 characters, because Claude Code cuts the listing there" lets Claude handle cases the rule did not foresee, and tells a later editor when the rule has stopped mattering.
-4. **Steer briefly.** One short instruction ("lead with the outcome, then the detail") works as well as listing each unwanted behaviour. Save capitals for real hard lines; when everything shouts, nothing stands out.
-5. **Make verification explicit.** Say how the work gets checked and when. For long or high-stakes runs, a fresh-context verifier (a subagent that did not do the work, checking against the spec) tends to beat self-critique.
+1. **Cut scaffolding (NM1).** Find the hand-holding: walkthroughs of things the model knows, long lists of behaviours, common sense restated. Test removing it before you delete (testing.md, "Test before you delete").
+2. **Ask for the answer (NM2).** Ask for the answer, a short explanation of it, or a summary of the actions taken.
+3. **Put the reason after the rule (NM3).** "Keep under 1,536 characters, because Claude Code cuts the listing there."
+4. **Steer briefly (NM4).** "Lead with the outcome, then the detail" instead of a list of each unwanted behaviour.
+5. **Name the check (NM5).** Say how and when the work gets checked. For long or high-stakes runs, use a subagent that did not do the work and checks against the spec.
 
 ## Judgment tools
 
@@ -180,4 +180,3 @@ These terms come from Matt Pocock's "writing-great-skills".
 - **Leading words.** A compact idea the model already knows (a "tight" loop, a "red" test) can replace a sentence of explanation. Use the same word in the description and the body so both point at the same behaviour.
 - **Completion criteria.** "Produce a change list" invites a rushed finish. "Every changed file has a line in the list" does not. Make each "done when" checkable and, where it matters, exhaustive.
 - **When to split.** Split off a new model-invoked skill only when it has its own trigger words or another skill must reach it, because each description costs context on each turn. Split a long run of steps into separate files when the later steps tempt Claude to rush the current one.
-- **One rule, one place.** When new evidence arrives, find the principle behind it and rewrite the existing rule around that principle. Do not append a new block under the old one. A good refinement usually makes the file shorter.

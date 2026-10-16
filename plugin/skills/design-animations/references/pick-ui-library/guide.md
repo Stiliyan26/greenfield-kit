@@ -21,7 +21,7 @@ Everything below is what Emil actually reaches for in the *Animations on the Web
 | Runs automatically once — page intro, text reveal, staggered entrance | **CSS `@keyframes`** (+ `animation-fill-mode: backwards`/`forwards`) | Delay via `calc(var(--delay) * var(--stagger))`; no JS |
 | A few discrete steps — blink, pulse | **CSS `@keyframes`** | Past a handful of steps it gets unwieldy — reach for Motion |
 | Simple enter/exit that won't be interrupted — dialog, popup | **CSS keyframes** or **`@starting-style`** | `@starting-style` gives an enter transition with no `mounted` state and no `useEffect` |
-| Must stay smooth while the main thread is busy | **CSS** or **WAAPI** | Both are hardware-accelerated and run off the main thread. Vercel's tab highlight dropped frames on Framer Motion shared layout during page loads and was fixed by moving it to CSS |
+| Must stay smooth while the main thread is busy | **CSS** or **WAAPI** | Both are hardware-accelerated and run off the main thread. Vercel's tab highlight dropped frames on Motion shared layout during page loads and was fixed by moving it to CSS |
 | Programmatic, but you want it hardware-accelerated and colocated with the JS logic | **WAAPI** | What the course uses for the `clip-path` scroll reveal, to keep all animation logic in one place |
 | Real springs, momentum, interruptions that keep velocity | **Motion for React** | Real springs are impossible in CSS — `linear()` is only an approximation |
 | Animating a component **out** after React removes it | **Motion for React** — `AnimatePresence` | The element is gone from the DOM; CSS has nothing left to animate |
@@ -49,7 +49,7 @@ Spring-based, smaller than Motion, highly configurable, and pairs well with the 
 
 ### GSAP
 
-Framework-agnostic with an excellent timeline feature, a large community, and arguably the easiest to learn. It powers a lot of award-site work. Against it: **no spring animations**, and it isn't tailored to React (there is a `useGSAP` hook). Now fully free after the Webflow acquisition. Recommend it for timeline-heavy marketing work, not for product UI that needs springs.
+Framework-agnostic with an excellent timeline feature, a large community, and arguably the easiest to learn. It powers a lot of award-site work. Against it: **no spring animations**, and it isn't tailored to React (there is a `useGSAP` hook). Recommend it for timeline-heavy marketing work, not for product UI that needs springs.
 
 Anime.js and Popmotion exist; the course doesn't use them, so don't recommend them as if it did.
 
@@ -67,7 +67,7 @@ Radix is the course's default: mature, battle-tested, used by shadcn and by many
 
 **Base UI** is the newer alternative with a near-identical shape — swapping a component over is a few CSS variables and data attributes, under five minutes of work. It also exposes `data-instant`, which lets you kill the animation on subsequent tooltips. **React Aria** is the other credible option.
 
-Radix is less actively maintained than it was. That is not a reason to switch: **code doesn't stop working just because it's not maintained**, and you can always patch or fork. Recommend Base UI when the user wants the newer primitive set with eyes open, not because it's newer.
+Slower maintenance alone is not a reason to switch: **code doesn't stop working just because it's not maintained**, and you can always patch or fork. Recommend Base UI when the user wants the newer primitive set with eyes open, not because it's newer.
 
 ## Utilities the course reaches for
 

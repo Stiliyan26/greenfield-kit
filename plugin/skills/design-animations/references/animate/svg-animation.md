@@ -52,7 +52,7 @@ path { stroke-dasharray: 1px 1.1px; stroke-dashoffset: 1px; animation: draw 0.6s
 
 For a zero-thickness line's bounding box, `transform-origin: 0% 100%` hits the start point (the zero dimension ignores its percentage).
 
-**In Framer Motion, SVG elements get `transform-box: fill-box` and `transform-origin: 50% 50%` by default, and Motion overrides a `transformOrigin` set in `style` back to `50% 50%`.** Set it in the **`initial`** prop instead:
+**In Motion, SVG elements get `transform-box: fill-box` and `transform-origin: 50% 50%` by default, and Motion overrides a `transformOrigin` set in `style` back to `50% 50%`.** Set it in the **`initial`** prop instead:
 
 ```jsx
 <motion.g initial={{ transformOrigin: "76.3px 69.5px" }} style={{ transformBox: "view-box" }}
