@@ -1,5 +1,5 @@
 // Dead code (knip) and copied code (jscpd) gate. Copied into a project by the
-// greenfield-kit review skill (references/tools.md).
+// stistack review skill (references/tools.md).
 // Existing findings are frozen in scripts/gates/baseline.json. A new finding
 // fails; a fixed one is reported so the baseline can shrink.
 //

@@ -2,9 +2,9 @@
 
 ## `.claude/review/config.json`
 
-Written on the first review in a project, read on every later one. The
-user changes it by asking ("use Sonnet for fixes from now on") or by editing
-the file.
+The skill writes this file on the first review in a project. It reads the
+file on every later review. The user changes it by asking ("use Sonnet for
+fixes from now on") or by editing the file.
 
 ```json
 {
@@ -33,28 +33,28 @@ the file.
 The Agent tool's `model` values, strongest first: `fable`, `opus`,
 `sonnet`, `haiku`. One line each.
 
-Suggest: reviewers on the strongest model; fixes on the fast model, and the
-strongest model for a fix the review marked as needing judgement (a design
-change, a data migration).
+Suggest the strongest model for reviewers. Suggest the fast model for fixes.
+Suggest the strongest model for a fix the review marked as needing judgement
+(a design change, a data migration).
 
 ## Before each run
 
-Ask these two, in one message, unless the user already answered in the
-request:
+Ask these two questions in one message. Skip each one the request already
+answers:
 
-1. **What worries you most here?** Free text. "Nothing" is fine. The
-   reviewers start there and mark those problems first; the README repeats
+1. **What worries you most here?** Accept free text. "Nothing" is fine. The
+   reviewers start there and mark those problems first. The README repeats
    the answer.
-2. **Quick or full?** Only when the config has no `depth`, or the target
+2. **Quick or full?** Ask only when the config has no `depth`, or the target
    size makes the default a bad fit (a 30-line diff on `full`, a whole app
-   on `quick`). Say why you're asking.
+   on `quick`). Say why you ask.
 
-Don't ask again what the config answers. Don't ask about known problems;
-the user names them under "what worries you" if they want.
+Do not ask again what the config answers. Do not ask about known problems.
+The user names them under "what worries you" if they want.
 
 ## The plan line
 
-After triage, show one block and wait for yes, a number, or a model name:
+After triage, show one block. Wait for a yes, a number, or a model name:
 
 ```
 Review: whole app · full · what worries you: balances and permissions
@@ -69,6 +69,6 @@ Files: reviews/2026-09-29-app/
 Go? Or: a number of reviewers, features to merge or drop, another model.
 ```
 
-The user decides the count every run. Fewer reviewers than features means
-the smallest features merge into one reviewer, never that a feature is
-dropped without the user saying so.
+The user decides the count on every run. With fewer reviewers than features,
+merge the smallest features into one reviewer. Drop a feature only when the
+user says so.

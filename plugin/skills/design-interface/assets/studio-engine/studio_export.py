@@ -449,7 +449,7 @@ def studio_theme_css():
     So a palette, a tune or the dark switch recolors shadcn parts with no rebuild.
     """
     lines = ["/* Written by init_studio.py. shadcn's theme variables point at the studio's live tokens. */",
-             "/* Promotion replaces this import with design/tokens.css and design/shadcn.css. */",
+             "/* The design pack links design/tokens.css and design/shadcn.css after the app CSS instead. */",
              "@theme inline {",
              "  --font-sans: var(--font-body);",
              "  --font-heading: var(--font-display);"]

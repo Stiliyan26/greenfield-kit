@@ -2,6 +2,19 @@
 
 How to build gestures that feel physical, from Emil Kowalski's *Animations on the Web* course ([animations.dev](https://animations.dev/)). A gesture is direct manipulation: while the finger is down, the UI is the finger; the moment it lifts, physics takes over. Every rule below follows from that split.
 
+## Contents
+- First decision: build it, or use a solution that exists?
+- The two phases of every gesture
+- Interruptibility is non-negotiable
+- Linked values
+- Motion drag props
+- Sheets without springs: the Vaul curve
+- Spatial consistency
+- Hold gestures are asymmetric
+- Touch checklist
+- Reduced motion
+- When it still feels wrong
+
 ## First decision: build it, or use a solution that exists?
 
 Doing a drawer gesture *right* means momentum-based dragging, overlay opacity matched to drag progress, velocity-aware dismissal, focus trapping, and Escape-to-close. That is weeks of edge cases, not an afternoon. **For a bottom sheet / drawer, default to [Vaul](https://vaul.emilkowal.ski/)** — it exists precisely because this is hard to hand-roll. Build the gesture yourself only when no library covers the interaction (custom swipe cards, bespoke drag interactions). Use the [pick-ui-library](../pick-ui-library/guide.md) reference when unsure.

@@ -2,6 +2,18 @@
 
 Recipes for `motion/react` (formerly `framer-motion` — same API, only the import path changed). Load from [guide.md](guide.md) when building JS-driven or interruptible motion. All values from the *Animations on the Web* course.
 
+## Contents
+- When to reach for it (vs CSS)
+- Basics
+- Transition & spring configs
+- AnimatePresence (exit animations)
+- Layout & shared-element
+- Animating height (auto)
+- Motion values & hooks
+- Gestures
+- Accessibility
+- Component recipes
+
 ## When to reach for it (vs CSS)
 
 Prefer CSS when you can get the same result in reasonable time (hover, simple enter/exit via Radix `[data-state]`, marquees). Reach for Framer Motion when CSS genuinely can't do it:

@@ -5,9 +5,9 @@ description: Review code or a plan, prove each problem, and fix it. Use on a bra
 
 # Review
 
-You lead the review. Each feature gets one reviewer, a sub-agent. It finds
-the problems in that feature, proves each one, and in fix mode fixes it. You
-plan the run, verify the result and hand it over.
+You lead the review. Each feature gets one reviewer, a sub-agent. The
+reviewer finds the problems in its feature, proves each one, and in fix mode
+fixes it. You plan the run, verify the result and hand it over.
 
 ## Pick the mode
 
@@ -22,153 +22,141 @@ plan the run, verify the result and hand it over.
 | A plan | `--plan <files>`: plan.md, the contract, the feature files | report mode |
 
 Every code target runs in fix mode. A plan runs in report mode, because the
-user approves plans. "Report only" from the user means report mode on any
-target. With no target named, take uncommitted work if there is any, else
-the branch against `main`.
+user approves plans; "fix" then edits the plan files. "Report only" from the
+user means report mode on any target. With no target named, take uncommitted
+work if any exists. Otherwise take the branch against `main`.
 
-Fix mode runs steps 0 to 7 below. Report mode runs steps 0 to 4, then
-continues in [report.md](references/report.md).
+Fix mode runs steps 0 to 7. Report mode runs steps 0 to 4, then continues in
+[report.md](references/report.md).
 
-Fix mode writes no review files. The goal and the red gates go into each
-reviewer's prompt. Screenshots and the verify output go in the project's
-evidence folder, `temp/verification/review-<date>/`.
+Fix mode writes no review files. Put the goal and the red gates in each
+reviewer's prompt. Put screenshots and verify output in
+`temp/verification/review-<date>/`.
 
-Report mode writes `reviews/<date>-<target>/`, called `<run>` below. It is
-committed and is the record.
+Report mode writes `reviews/<date>-<target>/`, called `<run>` below. Commit
+it. It is the record.
 
 ## 0. Gates
 
-Run the gate command from `CLAUDE.md`. Note which checks are red;
-they go to the reviewers and into the hand-over, and the review goes on.
-Report mode also saves the output in `<run>/tools.txt`.
-If the project has no size, import, copied-code or dead-code checks, say so
-in the hand-over and offer [tools.md](references/tools.md).
+1. Run the gate command from `CLAUDE.md`.
+2. Note which checks are red. Send them to the reviewers and put them in the
+   hand-over. Continue the review.
+3. In report mode, save the output in `<run>/tools.txt`.
+4. If the project has no size, import, copied-code or dead-code check, say so
+   in the hand-over. Offer [tools.md](references/tools.md).
 
 Done when you know which gates are red.
 
 ## 1. Config
 
 Read `.claude/review/config.json`. If it is missing, ask the questions in
-[config.md](references/config.md), offer the models this CLI can run, and
-write the file.
+[config.md](references/config.md). Offer the models this CLI can run. Write
+the file.
 
 Done when the file exists.
 
 ## 2. Ask
 
-Ask in one message: what worries the user most here, and quick or full when
-the config doesn't settle it. Skip what the request already answered. Skip
-the step when the `start` skill started the
-review.
+Ask in one message what worries the user most here. Ask "quick or full?"
+only when the config does not settle it. Skip each question the request
+already answers. Skip this step when the request says to go ahead.
 
-Done when both are answered or skipped.
+Done when both questions are answered or skipped.
 
 ## 3. Plan
 
-```
-node <skill-root>/scripts/triage.mjs --out <dir> <flag>
-```
+1. Run `node <skill-root>/scripts/triage.mjs --out <dir> <flag>`.
+   `<skill-root>` is the folder of this `SKILL.md`.
+2. Use `<run>` as `<dir>` in report mode. Use `temp/review/` in fix mode.
+   The script writes `plan.json` (one entry per feature, see
+   [triage.md](references/triage.md)), `files.txt` and `diff.patch`.
+3. Write the goal in one paragraph: what the change is for, then the user's
+   worry. Take it from the request, the PR text, the commits, `docs/plans/`
+   and `CLAUDE.md`. Fix mode puts it in each reviewer's prompt. Report mode
+   saves it as `<run>/goal.md`.
+4. Show the plan block from [config.md](references/config.md). Wait for a
+   yes. The user may change the number of reviewers, merge or drop features,
+   or name another model.
+5. With fewer reviewers than features, let the smallest features share a
+   reviewer. Remove a feature only when the user drops it. With more features
+   than `maxReviewers`, propose the merge yourself.
+6. Do not wait when the request said to go ahead. Show the plan block as one
+   chat line instead.
 
-`<skill-root>` is the folder this `SKILL.md` is in. `<dir>` is `<run>` in
-report mode, and `temp/review/` in fix mode, where nothing reads it but
-you. The script writes `plan.json`, one entry per feature
-([triage.md](references/triage.md)), plus `files.txt` and `diff.patch`.
-
-Write the goal: one paragraph on what the change is for, from the request,
-the PR text, the commits, `docs/plans/` and `CLAUDE.md`, then the
-user's worry. Fix mode puts it in each reviewer's prompt; report mode saves
-it as `<run>/goal.md`.
-
-Show the plan block from [config.md](references/config.md) and wait for a
-yes. The user may change the number of reviewers, merge or drop features,
-or name another model. With fewer reviewers than features, the smallest
-features share a reviewer; a feature leaves the plan only when the user
-drops it. With more features than `maxReviewers`, propose the merge
-yourself.
-
-Go ahead without waiting when the request said so or the `start` skill
-started the review. Show the plan block as one chat line instead.
-
-Done when the user said yes, or the exception applies, and every feature in
+Done when the user said yes, or step 6 applies, and every feature in
 `plan.json` has a reviewer.
 
 ## 4. Reviewers
 
 Start one sub-agent per feature, all at once, on the config's
-`reviewerModel`. Tell it to follow [reviewer.md](references/reviewer.md),
-and give it:
+`reviewerModel`. Tell each to follow [reviewer.md](references/reviewer.md).
+Give each:
 
 - the mode; in fix mode also the branch and `maxRounds`,
-- its feature: name, files, lines, and the feature file's path when one
-  exists (`docs/plans/<project>/features/<slug>.md`),
-- fix mode: the goal, the red gates, and the base ref for `git diff`;
-  report mode: the `<run>` path,
-- the path to [checklist.md](references/checklist.md), and in report mode
+- its feature: name, files, lines, and the feature file path when one exists
+  (`docs/plans/<project>/features/<slug>.md`),
+- fix mode: the goal, the red gates and the base ref for `git diff`,
+- report mode: the `<run>` path,
+- the path to [checklist.md](references/checklist.md); in report mode also
   [report.md](references/report.md),
-- the `write-code` skill's `SKILL.md` path,
+- the path to the `write-code` skill's `SKILL.md`,
 - whether it may start the app, and the commands from `CLAUDE.md`,
-- its problem numbers: 1–99 for the first reviewer, 100–199 for the next,
+- its problem numbers: 1-99 for the first reviewer, 100-199 for the next,
 - for a plan: the plan files and the checklist's "Plan mode" section.
 
-A reviewer that fails or times out is listed as not run, with its feature.
-Start it again only with the same prompt. Without sub-agents, review the
-features yourself one at a time, following `reviewer.md`, and say so
-in the hand-over.
+If a reviewer fails or times out, list it as not run, with its feature.
+Start it again only with the same prompt. If sub-agents are not available,
+review the features yourself, one at a time, by `reviewer.md`. Say so in the
+hand-over.
 
 Done when every reviewer has replied or is listed as not run.
 
 ## 5. Cross-feature problems
 
-A reviewer names a problem whose fix lives in another feature. Send it once
-to that feature's reviewer, with the same agent and model. If it is still
-open after that, it is `left for you`.
+A reviewer may name a problem whose fix lives in another feature. Send it
+once to that feature's reviewer, with the same agent and model. If it is
+still open after that, mark it `left for you`.
 
 Done when each of these problems is fixed or `left for you`.
 
 ## 6. Verify
 
-On the branch after the last fix, run the gate command, the full test
-suite, and the project's `verify-<app>` skill on each reviewed feature when
-the project has one. Save the output in the evidence folder.
-
-If a check goes red, send the failure once to the reviewer of the feature
-it points at, then run the checks again. Still red: stop and show the user
-the output.
+1. On the branch after the last fix, run the gate command and the full test
+   suite.
+2. Run the project's own end-to-end check on each reviewed feature when the
+   project has one.
+3. Save the output in the evidence folder.
+4. If a check goes red, send the failure once to the reviewer of the feature
+   it points at. Run the checks again. If it is still red, stop and show the
+   user the output.
 
 Done when every check is green, or listed as not run with the command that
-would run it. A check that didn't run is reported as not run.
+would run it.
 
 ## 7. Explain and hand over
 
-Run `interactive-explanation` on the branch as it is now: pr mode when a
-feature file exists, task mode otherwise. Give it:
+1. Run `interactive-explanation` on the branch as it is now. Use pr mode when
+   a feature file exists. Otherwise use task mode.
+2. Give it `tests`: one line per fixed problem with its proof, and the verify
+   result.
+3. Give it `risks.items`: each `left for you` block, and each fix that is
+   hard to undo.
+4. Give it a line for the PR text: "Review: <n> fixed in <shas>, <m> left for
+   you".
+5. Let the explainer build the page and the PR text. Opening the PR is a
+   separate step.
+6. Tell the user in chat: found, fixed, left for you, not run, the verify
+   result and the page path.
 
-- `tests`: one line per fixed problem with its proof, and the verify result,
-- `risks.items`: each `left for you` block, and each fix that is hard to
-  undo,
-- a line for the PR text: "Review: <n> fixed in <shas>, <m> left for you".
-
-The explainer builds the page and the PR text; opening the PR is its own
-step. Then tell the user in chat: found, fixed, left for you, not run, the
-verify result, and the page path. The user acts only on the `left for you`
-problems.
+The user acts only on the `left for you` problems.
 
 Done when the page is built and the user has the digest.
 
-## When the pipeline runs it
-
-| Where                                                  | Target                             | Mode                                                           |
-| ------------------------------------------------------ | ---------------------------------- | -------------------------------------------------------------- |
-| A plan, before the user approves it                    | `--plan`                           | report; "fix" edits the plan files                             |
-| A feature branch, after Prove and before its explainer | `--base`                           | fix                                                            |
-| The lead's merge                                       | `--range` on the feature's commits | fix; one reviewer, its fit section is the duplication check    |
-| The merged app                                         | `--app`                            | fix, with screenshots when the app may run                     |
-| Before a first release                                 | `--app --security`                 | fix; auth findings are `left for you`                          |
-
 ## Set up a project
 
-| Need                                                            | Read                                            |
-| --------------------------------------------------------------- | ----------------------------------------------- |
-| Gate tools: size, nesting, cycles, layers, copied and dead code | [tools.md](references/tools.md)                 |
-| The project's own rules in `.claude/review/`                    | [project-rules.md](references/project-rules.md) |
-| Models, the questions, the plan block                           | [config.md](references/config.md)               |
+| Need | Read |
+| --- | --- |
+| Gate tools: size, nesting, cycles, layers, copied and dead code | [tools.md](references/tools.md) |
+| The project's own rules in `.claude/review/` | [project-rules.md](references/project-rules.md) |
+| Models, the questions, the plan block | [config.md](references/config.md) |
+| Templates to copy into `.claude/review/` | [roles](assets/project-rules/roles.md), [scope](assets/project-rules/scope.md), [paging](assets/project-rules/paging.md), [conventions](assets/project-rules/conventions.md) |

@@ -16,11 +16,14 @@ Usually two agents build the feature at the same time, in one working copy:
 If you are alone, do both sections. Do the backend first.
 
 The lead starts you and opens the PR. You cannot send a message to the lead
-while you work. The lead reads your report and your request files when you
-stop.
+while you work. The lead reads your report and request files when you stop.
 
-Before you start, read the feature file, `plan.md`, `DESIGN.md` and the
-`write-code` skill.
+Before you start, read these files:
+
+- The feature file, `plan.md` and `DESIGN.md`.
+- The design pack: `design/screens/<id>.html` and its PNGs. It is a
+  reference. Never paste it as code.
+- The code rules of the project: `CLAUDE.md` and `.claude/stack.json`.
 
 Before you write a helper or a part, search the shared code and the entities.
 If the helper or part exists, use it.
@@ -35,9 +38,8 @@ These rules apply for all of the work.
 - Do not use a worktree.
 - Do not use `git stash` or a command that resets files.
 
-Reason: each agent must see the commits of the other agent at once. The
-other agent also has edits that are not committed. `git stash` and resets
-can remove them.
+Reason: each agent must see the commits of the other agent at once.
+`git stash` and resets can remove the uncommitted edits of the other agent.
 
 **Your files**
 
@@ -83,8 +85,7 @@ You need a shared helper, a part or a column that you do not own:
 The lead commits the item on your branch, `feature/<slug>`. Then the lead
 tells you to continue.
 
-Do not make a local copy. Reason: two copies become different, and the lead
-keeps only the lead's copy.
+Do not make a local copy. Reason: two copies become different.
 
 ## Steps
 
@@ -109,7 +110,7 @@ role on it:
   real database.
 - Frontend agent: the unit tests and the end-to-end tests. Write one
   end-to-end test for each journey, at desktop size and at phone size.
-- Write the tests as `tests.md` in the `write-code` skill tells you.
+- Follow the test rules of the project.
 
 Done when: each test exists and fails.
 
@@ -122,8 +123,7 @@ Build one scenario or one journey from start to end, then the next.
 
 - Backend agent: change the schema first. Then write the data access, then
   the business logic. Then make the server function call the logic.
-- Frontend agent: start at the lowest layer in `structure.md` of the
-  `write-code` skill. Go up to the route.
+- Frontend agent: start at the lowest layer. Go up to the route.
 
 The approved design does not have a screen or a part that you need:
 
@@ -138,7 +138,7 @@ Done when:
 
 - All your tests pass.
 - The checks of the project pass.
-- The full test suite passes the Rules in `tests.md`.
+- The full test suite passes.
 
 If a test or a check fails, go back to step 2.
 
@@ -146,9 +146,9 @@ If a test or a check fails, go back to step 2.
 
 Frontend agent, or one agent alone. The backend agent does not do this step.
 Reason: the screens do not exist yet. The server function tests already
-examine the rows and the emails.
+check the rows and the emails.
 
-Use the `verify-<app>` skill of the project. If it does not exist, use
+Use the browser-check skill of the project. If it does not exist, use
 Playwright. Use a real browser at desktop size and at phone size. For each
 journey:
 

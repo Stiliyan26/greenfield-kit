@@ -1,13 +1,13 @@
 {
-  "name": "greenfield-kit",
-  "displayName": "Greenfield kit",
+  "name": "stistack",
+  "displayName": "stistack",
   "description": "From a brief to a proven app: a local studio where a model designs every screen in React + shadcn, your approval, the plan made with you while the approved front end is promoted, then features built in parallel by agents and proved on the merged app.",
-  "version": "0.21.0",
+  "version": "0.23.0",
   "author": {
     "name": "Stiliyan Nikolov"
   },
-  "homepage": "https://github.com/Stiliyan26/greenfield-kit",
-  "repository": "https://github.com/Stiliyan26/greenfield-kit",
+  "homepage": "https://github.com/Stiliyan26/stistack",
+  "repository": "https://github.com/Stiliyan26/stistack",
   "keywords": [
     "design",
     "design-system",

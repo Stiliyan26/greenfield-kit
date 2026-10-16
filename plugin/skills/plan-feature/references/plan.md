@@ -1,13 +1,11 @@
 # Plan files
 
-All in `docs/plans/<project>/`, or the plan folder `CLAUDE.md` names:
+Keep plan files in `docs/plans/<project>/`, or in the folder `CLAUDE.md` names:
 
 - `plan.md`: below.
 - `features/<slug>.md`: one per feature, in the shape of `feature-file.md`.
 
-Give each "Done when" line an ID. Scenarios and feature files refer to these
-IDs. Number interview answers Q1, Q2… and write the Q-number next to every
-decision it settled.
+Give each "Done when" line an ID. Scenarios and feature files refer to these IDs. Number interview answers Q1, Q2… and write the Q-number next to each decision it settled.
 
 ## plan.md
 
@@ -83,6 +81,6 @@ What was discussed and deliberately left out.
 | 1 | <Question in plain words> | <Answer; "my call" when the user delegated it> |
 ```
 
-Until the plan is written, a new `plan.md` holds only its title, the Status
-line with `interview in progress`, and the interview record, so a half-done
-interview can be resumed and nothing mistakes a draft for a plan.
+Until the plan is written, a new `plan.md` holds only its title, the Status line with `interview in progress` and the interview record.
+
+Reason: this lets a half-done interview resume. No one mistakes it for a plan.

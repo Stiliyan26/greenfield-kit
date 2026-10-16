@@ -1,7 +1,7 @@
 """Start this project's design studio.
 
 This folder holds only the project's content. The engine is shared and lives in
-the design-interface skill (the greenfield-kit plugin). Run from the project
+the design-interface skill (the stistack plugin). Run from the project
 root: python3 studio/server.py [--port 4173]
 """
 
@@ -36,7 +36,7 @@ def candidates():
 
 engine = next((path for path in candidates() if (path / "studio_server.py").is_file()), None)
 if engine is None:
-    sys.exit("Studio engine not found. Install the greenfield-kit plugin, or set STUDIO_ENGINE to the "
+    sys.exit("Studio engine not found. Install the stistack plugin, or set STUDIO_ENGINE to the "
              "design-interface skill's assets/studio-engine folder.")
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(engine))

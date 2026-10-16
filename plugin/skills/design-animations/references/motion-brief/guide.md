@@ -2,6 +2,18 @@
 
 A motion designer settles every movement, its timing, and its relationship to every other movement before a single frame gets made. Do that for the interface: interview the user down the decision tree of one animation until a **motion brief** has no blanks, then stop.
 
+## Contents
+- The three rules
+- Step 1 — Recon
+- Step 2 — The two questions that can end the interview
+- Step 3 — Choreograph the movement
+- Step 4 — Set the feel
+- Step 5 — The edges
+- Step 6 — The brief
+- Defaults you bring to each question
+- When the user stalls
+- Companion skills
+
 Animations get rebuilt three times not because the code was wrong but because nobody decided what the motion was for. This skill front-loads that decision. **It does not write the animation.** The brief is the deliverable; implementation is a separate act, taken only after the user confirms.
 
 ## The three rules

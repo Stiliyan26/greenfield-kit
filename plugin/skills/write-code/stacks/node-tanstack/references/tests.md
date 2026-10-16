@@ -1,10 +1,18 @@
 # Tests
 
-`pnpm vitest run` for unit, repository, server-function and concurrency tests;
-Playwright in `e2e/` for journeys; the project's `verify-<app>` skill for the
-merged app. Docker is required: repository and server-function tests run on a
-real Postgres through `@testcontainers/postgresql`. No in-memory database, no
-mocked repository.
+Run `pnpm vitest run` for unit, repository, server-function and concurrency
+tests. Run Playwright in `e2e/` for journeys. Run the project's verify skill
+for the merged app. Docker is required: repository and server-function tests
+use a real Postgres through `@testcontainers/postgresql`. Use no in-memory
+database and no mocked repository.
+
+## Contents
+
+- Layers
+- What every feature must cover
+- Exact outcomes
+- Rules
+- Where tests live
 
 ## Layers
 
@@ -15,12 +23,12 @@ mocked repository.
 | Server function | the `server/` logic function, real Postgres, other services faked at their client | **every scenario** of the feature file: normal, wrong input, someone else's record, the same call twice, two at once, a dependency down |
 | Concurrency | two calls released together, final state asserted | every race the feature file names |
 | E2E | Playwright against the running app | every journey a user can take, happy and bad paths, at desktop and phone |
-| Verify | the `verify-<app>` skill | each feature's Driving section on the merged app, evidence saved |
+| Verify | the project's verify skill | each feature's Driving section on the merged app, evidence saved |
 
 ## What every feature must cover
 
-The feature file lists the scenarios; the tests make each one true. A feature
-is not done while one scenario has no test. For every server function:
+A feature is not done while one scenario of its feature file has no test. For
+every server function, test:
 
 - missing, `null`, empty and wrong-type input; unknown extra fields; limits at
   min−1, min, max, max+1; odd text (whitespace, line breaks, emoji, very long)
@@ -30,13 +38,11 @@ is not done while one scenario has no test. For every server function:
 - the database or another service failing halfway: the exact outcome, and
   nothing half-written
 
-`plan-feature` writes these from its misuse checklist with an exact outcome
-each. All the bad values of one field are one scenario and one
-`test.each`, not one test each.
+Write all the bad values of one field as one scenario and one `test.each`.
 
 ## Exact outcomes
 
-A test asserts what happened and what didn't. "Throws" is not an outcome.
+Assert what happened and what did not happen. "Throws" is not an outcome.
 
 ```ts
 test("cancel: someone else's order → NotFoundError, row unchanged, no email", async () => {
@@ -49,29 +55,27 @@ test("cancel: someone else's order → NotFoundError, row unchanged, no email", 
 });
 ```
 
-The name says the scenario and the outcome. Arrange through seed helpers,
-act through the `server/` function, assert the state and the non-events.
+Name the test with the scenario and the outcome. Arrange with seed helpers,
+act through the `server/` function, and assert the state and the non-events.
 
 ## Rules
 
-- No sleeps. Wait with `expect.poll` or Playwright's auto-waiting and an
-  explicit timeout.
-- Time comes from the clock in `server/shared/clock.server.ts`; tests set it.
-- Fresh ids and `<uuid>@example.com` addresses per test. No test depends on
-  another's data or order.
-- One Postgres container per test file, started in `beforeAll`; tables
-  truncated in `beforeEach`.
-- Fake another service only at its client (`server/shared/mail/`), and record
-  what it was asked to send.
-- "Nothing happened" is proven: the row is unchanged, the fake got no call,
-  the count is the same.
-- A test must not mock the thing it claims to test, must not pass when the
-  function returns nothing, and is never weakened to make a build pass.
-- The full suite runs green three times in a row before a feature is done.
-  One flaky run is a bug to find, not a retry.
+- Use no sleeps. Wait with `expect.poll` or Playwright's auto-waiting.
+- Set the time through the clock in `server/shared/clock.server.ts`.
+- Use fresh ids and `<uuid>@example.com` addresses in each test. Let no test
+  depend on the data or order of another.
+- Start one Postgres container for each test file in `beforeAll`. Truncate the
+  tables in `beforeEach`.
+- Fake another service only at its client (`server/shared/mail/`). Record its
+  calls.
+- Prove "nothing happened": the row is unchanged and the fake got no call.
+- Never mock the thing that the test claims to test. Never write a test that
+  passes when the function returns nothing. Never weaken a test to pass.
+- Run the full suite green three times in a row before you call a feature done.
+  Find the cause of a flaky run. Do not retry it.
 
 ## Where tests live
 
-Next to the code they test: `orders.service.server.test.ts` beside
-`orders.service.server.ts`; `cancel-order.model.test.ts` beside the model.
-Journeys in `e2e/<feature>.spec.ts`, one file per feature file.
+Put a test beside the code it tests: `orders.service.server.test.ts` beside
+`orders.service.server.ts`. Put journeys in `e2e/<feature>.spec.ts`, one file
+for each feature file.

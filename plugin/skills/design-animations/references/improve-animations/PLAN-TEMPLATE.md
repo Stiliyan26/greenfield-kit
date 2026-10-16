@@ -1,5 +1,9 @@
 # Plan Template
 
+## Contents
+- Rules for filling this in
+- The plan template: header, Problem, Where, Target, Conventions to follow, Steps, Out of scope, Verification, Notes
+
 Every plan is written for an executor with **zero context from the audit and zero taste of its own**. If a value isn't in the plan, the executor will invent one — and it will invent a built-in easing curve and a 300ms duration.
 
 Rules for filling this in:

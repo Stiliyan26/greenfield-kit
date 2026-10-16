@@ -1,14 +1,24 @@
 # Server code
 
-TanStack Start server functions, drizzle on Postgres, zod. Where files go is in
-[structure.md](structure.md); how to write the TypeScript is in
-[typescript.md](typescript.md); what to test is in [tests.md](tests.md).
+Server code uses TanStack Start server functions, drizzle on Postgres and zod.
+Files go as structure.md says. Tests follow tests.md.
+
+## Contents
+
+- Server functions
+- Access
+- Queries and lists
+- Same call twice, two at once
+- Schema and migrations
+- Time, ids, config
+- Imports, resets and scripts
+- Proving it works
 
 ## Server functions
 
-One server function per read or action. Reads live in
-`entities/<thing>/api/<thing>.functions.ts`, actions in
-`features/<action>/api/<action>.functions.ts`. The wrapper is thin:
+Write one server function for each read or action. Put reads in
+`entities/<thing>/api/<thing>.functions.ts`. Put actions in
+`features/<action>/api/<action>.functions.ts`. Keep the wrapper thin:
 
 ```ts
 // features/cancel-order/api/cancel-order.functions.ts
@@ -24,86 +34,89 @@ export const cancelOrder = createServerFn({ method: "POST" })
   .handler(({ data, context }) => cancelOrderForUser(context.user, data));
 ```
 
-- The handler calls one function from `server/<area>`. No branching, no
-  queries, no formatting in the wrapper. `pnpm vitest run` tests the `server/`
-  function directly; Playwright proves the wrapper through the browser.
-- Input is a zod schema from the entity's `schema.ts`, `.strict()` so unknown
-  fields are refused, with a limit on every string, number and list.
-- Output is a shape the caller may see, built on purpose. Never return a
-  drizzle row as it is; never a password hash, token, or another user's data.
-- Errors are the project's typed errors from `server/shared/errors.server.ts`
+- Make the handler call one function from `server/<area>`. Put no branching,
+  query or formatting in the wrapper. `pnpm vitest run` tests the `server/`
+  function. Playwright proves the wrapper.
+- Make the input a zod schema from the entity's `schema.ts`. Use `.strict()`
+  to refuse unknown fields. Limit every string, number and list.
+- Build the output on purpose, as a shape that the caller may see. Never return
+  a drizzle row as it is, a password hash, a token or another user's data.
+- Throw the project's typed errors from `server/shared/errors.server.ts`
   (`NotFoundError`, `ForbiddenError`, `ConflictError`, `InvalidInputError`).
-  Throw them; one middleware maps them to a response. Never turn an error into
-  an empty success, and never swallow one.
-- Keep pure business rules in functions that take plain values, so a test
-  needs no database to reach them.
+  One middleware maps them to a response. Never swallow an error or turn it
+  into an empty success.
+- Keep pure business rules in functions that take plain values. Tests then
+  need no database.
 
 ## Access
 
-- Auth is Better Auth. Its session is read once, in `server/shared/auth/`;
+- Auth is Better Auth. Read its session once, in `server/shared/auth/`. The
   `requireUser` middleware puts the signed-in user on `context`. A function
-  that needs a role reads it there, through the one role helper in
-  `server/shared/auth/`. Don't read `user.role` at call sites.
-- The server decides who may do what, using the user and the record's scope.
+  that needs a role reads it from there, through the one role helper in
+  `server/shared/auth/`. Never read `user.role` at a call site.
+- Let the server decide who may do what, from the user and the record's scope.
   Hiding a button is not access control.
-- Ownership is a `where` clause (`and(eq(orders.id, id), eq(orders.ownerId, user.id))`),
-  not a check after loading. A record that isn't yours answers like one that
-  doesn't exist, so an id can't be used to learn what exists.
-- Test refused and out-of-scope calls through the server function's logic,
-  not only through the UI ([tests.md](tests.md)).
+- Write ownership as a `where` clause
+  (`and(eq(orders.id, id), eq(orders.ownerId, user.id))`), not as a check after
+  the load. Make a record that is not yours answer like one that does not
+  exist, so an id cannot show what exists.
+- Test refused and out-of-scope calls through the server function's logic (see
+  tests.md).
 
 ## Queries and lists
 
-- In the query, first limit to what the user may see, then filter and sort,
-  then page. Never load everything and cut it in memory.
-- Sort in a fixed order with a unique field last (`id`), so ties don't jump
-  between pages. Paging takes `size` 1–100; out of range is `InvalidInputError`.
-- Load related data in batches (`inArray`), not one query per row.
-- Writes that must all succeed together go in `db.transaction`. Nothing
-  half-written survives a failure.
-- Counts and totals must never reveal records the user may not see.
-- Add an index only for a query you can name, in the same migration.
+- In the query, limit to what the user may see first. Then filter and sort.
+  Then page. Never load everything and cut it in memory.
+- Sort in a fixed order with a unique field last (`id`), so that ties do not
+  jump between pages. Paging takes `size` 1–100. A value out of range is an
+  `InvalidInputError`.
+- Load related data in batches (`inArray`), not one query for each row.
+- Put writes that must all succeed together in `db.transaction`.
+- Never let counts and totals reveal records that the user may not see.
+- Add an index only for a query that you can name, in its migration.
 
 ## Same call twice, two at once
 
-Say in the feature file what happens, then make it true:
+Write in the feature file what happens. Then make it true:
 
-- A double click or a client retry ends in the same state as one call: a
+- Make a double click or a retry end in the same state as one call. Use a
   unique constraint plus `onConflictDoNothing`, or a status check inside the
   transaction that returns the existing result.
-- Two writers on one row: `select … for update` inside the transaction, or an
-  optimistic `version` column; the loser gets `ConflictError`.
-- A check followed by a separate write is a race. Put both in one statement
-  or one transaction.
+- For two writers on one row, use `select … for update` inside the
+  transaction, or an optimistic `version` column. The loser gets
+  `ConflictError`.
+- Treat a check followed by a separate write as a race. Put both in one
+  statement or one transaction.
 
 ## Schema and migrations
 
-- The drizzle schema lives in `server/shared/db/schema.ts` (split per area and
-  re-exported when it grows). `pnpm drizzle-kit generate` writes a migration;
-  read it before you commit it. Never `drizzle-kit push` against anything but
-  a local database.
-- Running a migration on a real database: ask first. Writing it doesn't mean
-  you may run it.
-- A new non-null column gets a default or a backfill. Say what happens to
-  existing rows, and whether the migration can be reverted.
-- Derive zod shapes from the schema with `drizzle-zod` where they match; the
-  entity's `schema.ts` narrows them (lengths, enums) for input.
+- Keep the drizzle schema in `server/shared/db/schema.ts`. Split it per area
+  and re-export it when it grows. `pnpm drizzle-kit generate` writes a
+  migration. Read it before you commit it. Run `drizzle-kit push` only on a
+  local database.
+- Ask first before you run a migration on a real database. Writing it does not
+  allow you to run it.
+- Give a new non-null column a default or a backfill. Say what happens to
+  existing rows and whether the migration can be reverted.
+- Derive zod shapes from the schema with `drizzle-zod` where they match. Narrow
+  them (lengths, enums) in the entity's `schema.ts`.
 
 ## Time, ids, config
 
-- Read the time through `server/shared/clock.server.ts`, never `new Date()`
-  in business code, so tests can set it.
-- Ids are generated server-side (UUID v7). A client never chooses an id.
-- `server/shared/env.server.ts` parses `process.env` with zod once at startup
-  and refuses to start on a missing or invalid value, naming it.
+- Read the time through `server/shared/clock.server.ts`, never `new Date()` in
+  business code. Tests can then set the time.
+- Generate ids on the server (UUID v7). A client never chooses an id.
+- Let `server/shared/env.server.ts` parse `process.env` with zod once at
+  startup. Make it refuse to start on a missing or invalid value, and name the
+  value.
 - Never log secrets, tokens, passwords, personal data or request bodies.
 
 ## Imports, resets and scripts
 
-Must be safe to run twice, and safe to rerun after a crash halfway.
+Make each one safe to run twice, and safe to rerun after a crash halfway.
 
 ## Proving it works
 
-A mocked unit test doesn't prove the function works. Every scenario in the
-feature file runs against the `server/` function with a real Postgres
-([tests.md](tests.md)), and the journeys run in a real browser.
+A mocked unit test proves nothing. Run every scenario of the feature file
+against the `server/` function with a real Postgres (see tests.md). Run the
+journeys in a real browser.

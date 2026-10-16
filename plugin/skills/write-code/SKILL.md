@@ -1,76 +1,46 @@
 ---
 name: write-code
-description: How to write and place code - FSD folders for a TanStack Start app on Bun, server functions and server-only files, drizzle, TypeScript style, React, tests, and the checks (oxlint, oxfmt, tsc, knip, a four-rule ESLint config) that catch the mechanical rules. Use before writing or changing TypeScript or React code, and when reviewing it.
+description: How to write and place code in any project - the rules a person must judge (reuse, names, scannable files, impossible states, nothing left behind, the approved look), then the project's stack file for the folders, the server side, tests and the mechanical checks. Use before writing or changing application code, and when reviewing it.
 ---
 
 # Write code
 
-Defaults for one TanStack Start app on Bun: React, TanStack Router, Query,
-Table and Form, shadcn + Tailwind, zod, drizzle on Postgres. Files a framework
-needs in a fixed place (`src/routes/`, `src/router.tsx`) stay there. If you
-break a rule, say why.
+Every skill talks in roles: screen, server function, table, test layer, check command. The project's `.claude/stack.json` maps each role to a real tool and command. This skill holds the rules that need a person. It then opens the stack's own files for the rest.
 
-The mechanical half of these rules is checked, not written down twice.
-`bun run check` runs oxlint, oxfmt, `tsc --noEmit`, knip and a four-rule
-ESLint config ([checks.md](references/checks.md)). Install it once per
-project:
+1. **Read `.claude/stack.json`** in the project root. Its `name` picks a folder under `stacks/`. Its `commands` give the check, test and install commands. Its `paths` give the folders.
 
-```
-python3 <skill-root>/scripts/install_checks.py <project-root>
-```
+   Done when you know the stack name and the check command.
 
-Run `bun run check` after every edit and before you call any task done. Output
-that isn't clean means the task isn't done; the reviewer must never be the one
-who finds what a tool can find. `<skill-root>` is the folder holding this
-`SKILL.md`.
+2. **Open the stack folder.** `stacks/<name>/` holds the folder layout, language style, UI rules, server rules, test layers and checks. Read the file that the task needs (table below).
 
-What a tool can't judge is below.
+   Done when you have read the file for the code you are about to write.
+
+3. **Run the check command after each edit.** Run it again before you call the task done. Output that is not clean means the task is not done.
+
+   Done when the check command prints nothing.
+
+The reason: a reviewer must not find what a tool can find. Break a rule below only with a reason, and say the reason.
 
 ## The rules that need a person
 
-- **Reuse before writing.** Look for what exists, by name and by what it does.
-  Read it and its callers before reusing it.
-- **Share only real sameness.** Two pieces that look alike but mean different
-  things stay apart. Never merge different behaviors behind a true/false flag.
-- **Names match the body now.** When behavior shrinks, rename it and drop the
-  fields that no longer apply. No broad name over a narrow body.
-- **Names say what and whose.** No bare `data`, `items`, `result`, `handle`
-  or `utils`: every name carries its subject (`overdueInvoices`,
-  `cancelOrder`). The table is in [typescript.md](references/typescript.md#names-say-what-and-whose).
-- **Scannable first.** Open a file: the exported function should show its
-  intent in a few seconds. Happy path at the top, details below it. If reading
-  the export doesn't tell you what the unit does, extract or reorder.
-- **Take what you use.** A helper that reads one field takes that field, not
-  the whole parent object.
-- **Fix a crash at its cause.** No null check added only to silence it, no
-  retry or cast that hides a deeper problem.
-- **Check outside data once, where it comes in.** Server function input, URL
-  params and env get parsed with zod at the edge. No `as` cast unless the
-  value was checked first.
-- **Make impossible states impossible.** Model a state as a union with a `kind`
-  field, not a bundle of optional fields. When a new case would grow an
-  if/else chain or add a second flag that must stay in sync, use a table, map
-  or state machine.
-- **Leave nothing behind.** When a function, helper or import path changes,
-  update every caller and delete the old one in the same change. No re-export
-  shims, no old path kept alive next to the new one.
-- **Don't invent a look.** Colors, fonts and radius come from
-  `design/tokens.css` as `var(--…)`, or through shadcn's class names
-  (`bg-primary`), which `design/shadcn.css` points at the same tokens. If the
-  approved design doesn't cover what you need, stop and use `design-interface`.
-- **shadcn has it → add it.** A primitive shadcn ships (button, dialog, table,
-  select, sheet) comes from `bunx shadcn add` into `shared/ui/`. A composition
-  shadcn lacks becomes one reusable part in `shared/ui/` (no business meaning)
-  or `entities/<thing>/ui/` (one thing's card or row). Never a third copy, and
-  never a hand-written dropdown.
+- **Reuse before writing.** Search for what exists, by name and by what it does. Read it and its callers first.
+- **Share only real sameness.** Keep apart two pieces that look alike but mean different things. Never merge different behaviors behind a true/false flag.
+- **Write clean code.** Names, scannable files, narrow parameters and flat control flow follow [references/clean-code.md](references/clean-code.md). Read it with the stack file.
+- **Fix a crash at its cause.** Add no null check only to silence it. Add no retry or cast that hides a deeper problem.
+- **Check outside data once, where it comes in.** Parse server function input, URL params and env with the stack's validator at the edge. Cast a value only after you check it.
+- **Make impossible states impossible.** Model a state as a union with a `kind` field, not a bundle of optional fields. Use a table, map or state machine when a new case would grow an if/else chain or add a second flag that must stay in sync.
+- **Leave nothing behind.** When a function, helper or import path changes, update every caller and delete the old one in the same change. Keep no re-export shim and no old path.
+- **Do not invent a look.** Take colors, fonts and radius from the approved design tokens (`paths.design` in the stack file). If the approved design lacks what you need, stop and ask the user for the missing screen or part.
+- **Add what the UI library has.** Add a primitive that the stack's UI library ships with its CLI, into the shared UI folder. Make a composition that it lacks one reusable part. Never write a third copy or a hand-written dropdown.
 
-## Where to read more
+Reason: a tool cannot judge these rules. A person who reads the code can.
 
-| File | Read it when |
-| --- | --- |
-| [structure.md](references/structure.md) | Deciding which folder a file goes in, splitting a file that grew, or drawing the line between server and browser code |
-| [typescript.md](references/typescript.md) | Writing or reviewing any `.ts` / `.tsx` file |
-| [react.md](references/react.md) | Components, hooks, views, routes, forms, and frontend performance |
-| [backend.md](references/backend.md) | Server functions, access checks, drizzle queries, migrations, errors |
-| [tests.md](references/tests.md) | Writing unit, repository, server-function and e2e tests; what every feature must cover |
-| [checks.md](references/checks.md) | Installing or changing `bun run check`, or deciding whether a new rule belongs in it |
+## Stacks
+
+One folder per stack. The stack file's `name` picks the folder. Today:
+
+| Stack | Folder | Files |
+|---|---|---|
+| `node-tanstack` | [stacks/node-tanstack/](stacks/node-tanstack/README.md) | [structure](stacks/node-tanstack/references/structure.md), [typescript](stacks/node-tanstack/references/typescript.md), [react-components](stacks/node-tanstack/references/react-components.md), [react-screens](stacks/node-tanstack/references/react-screens.md), [backend](stacks/node-tanstack/references/backend.md), [tests](stacks/node-tanstack/references/tests.md), [checks](stacks/node-tanstack/references/checks.md) |
+
+To add a stack, copy a folder and rewrite each file for the new tools. Add a row here.

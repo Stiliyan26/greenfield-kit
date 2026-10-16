@@ -1,7 +1,6 @@
 # Choosing diagrams, sketches, evidence and scenes
 
-Read this while writing `script.json`. The shapes are in
-[script-format.md](script-format.md).
+Read this while you write `script.json`. The shapes are in `script-format.md`.
 
 ## Diagrams for "How it works"
 

@@ -2,6 +2,14 @@
 
 Copy-ready recipes for the cases that need a specific mechanism rather than an easing swap. From the *Animations on the Web* course ([animations.dev](https://animations.dev/)).
 
+## Contents
+- Smooth scrolling
+- Autoplaying images
+- Autoplaying video
+- Looping animation: pause on a hero frame
+- Dependency-free useReducedMotion
+- Worked example: a multi-step component
+
 ## Smooth scrolling
 
 Scroll-behavior is motion the user didn't ask for, so opt *in* under `no-preference` rather than opting out under `reduce`. Written this way, the accessible behavior is the default even in browsers that don't match either query:

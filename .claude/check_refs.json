@@ -1,0 +1,79 @@
+{
+  "hub": "write-code",
+  "handoffs": {
+    "start": [
+      "*"
+    ],
+    "design-interface": [
+      "shadcn",
+      "design-critic"
+    ],
+    "deliver-feature": [
+      "design-critic"
+    ],
+    "plan-feature": [
+      "review"
+    ],
+    "review": [
+      "interactive-explanation"
+    ],
+    "write-code": [
+      "shadcn"
+    ],
+    "reply-format": [
+      "interactive-explanation"
+    ]
+  },
+  "values": {
+    "shadcn": [
+      "start"
+    ]
+  },
+  "external": [
+    "frontend-design",
+    "skill-creator",
+    "writing-great-skills",
+    "pstack"
+  ],
+  "stack": {
+    "_readme": "Words that belong to one stack. A skill outside `allowed` that uses one gets a warning: say the role instead, or read .claude/stack.json.",
+    "words": [
+      "bun",
+      "bunx",
+      "pnpm",
+      "npm",
+      "npx",
+      "node.js",
+      "vite",
+      "vitest",
+      "oxlint",
+      "oxfmt",
+      "knip",
+      "eslint",
+      "tanstack",
+      "drizzle",
+      "postgres",
+      "zod",
+      "tailwind",
+      "better auth",
+      "src/routes",
+      "src/views",
+      "src/server",
+      "src/entities",
+      "src/features",
+      "src/shared"
+    ],
+    "allowed": [
+      "skills/write-code/stacks",
+      "skills/shadcn",
+      "skills/design-animations",
+      "skills/design-interface",
+      "skills/interactive-explanation",
+      "skills/setup-project/templates",
+      "skills/review/references/tools.md",
+      "skills/review/assets",
+      "skills/verify",
+      "skills/reply-format/references/what-changed.md"
+    ]
+  }
+}

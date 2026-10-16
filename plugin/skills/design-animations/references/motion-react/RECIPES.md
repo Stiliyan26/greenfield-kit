@@ -2,6 +2,18 @@
 
 The components built in the Framer Motion module. Each is a small stack of the primitives in [guide.md](guide.md) — read them for the technique, not the markup.
 
+## Contents
+- Animated button state (loading → success)
+- Dynamic height
+- Multi-step component
+- Feedback popover (button morphs into a form)
+- Trash interaction (shared layout + parent motion)
+- Cursor follower
+- Interactive graph
+- App Store card → detail
+- Tab highlight
+- Scroll-triggered reveal
+
 ## Animated button state (loading → success)
 
 The login button that swaps its own label. `popLayout` so the outgoing label leaves while the new one arrives and the button resizes around them; `initial={false}` so nothing animates on first paint.

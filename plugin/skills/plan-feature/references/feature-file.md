@@ -1,11 +1,6 @@
 # Feature file
 
-The plan splits the product into features. Each is one file,
-`docs/plans/<project>/features/<slug>.md`. The planner writes it and the user
-approves it in full before anyone builds it. The lead writes its last three
-sections from the agents' reports, and the verify skill drives it on the
-merged app. Written
-once, read three times: plan, build, prove.
+The plan splits the product into features. Each feature is one file, `docs/plans/<project>/features/<slug>.md`. The planner writes it. The user approves it in full before anyone builds it. The lead writes its last three sections from the agents' reports.
 
 ## Contents
 
@@ -51,8 +46,7 @@ One paragraph: what a user can do when this is done.
 
 ## Scenarios
 
-Each with an exact outcome and the done-when line it proves. Every item of
-the misuse checklist is here or in N/A.
+Give each scenario an exact outcome and the done-when line it proves. Put every item of the misuse checklist here or in N/A.
 
 - D4: three orders today, one late → staff open /orders → three rows, the
   late one marked warning.
@@ -72,7 +66,7 @@ the misuse checklist is here or in N/A.
 
 ## Tests
 
-Each line names the agent that writes it.
+Name the agent that writes each test.
 
 - Unit (backend): `canCancel(order, user)` every branch.
 - Unit (frontend): `formatOrderStatus`; the cancel form's validation.
@@ -84,47 +78,30 @@ Each line names the agent that writes it.
 
 ## How to get to it (user POV)
 
-Every way a user reaches it: menu, link, URL.
+List every way a user reaches it: menu, link, URL.
 
 ## Driving it
 
-Preconditions, then each user action with its exact command and what you
-should see. The verify skill runs it.
+List the preconditions. Then list each user action with its exact command and what you should see.
 
 ## Gotchas
 
-Traps that waste or spoil a run.
+List the traps that waste or spoil a run.
 
 ## Trace
 
-One line per phase: what ran, what it found, how long.
+Write one line per phase: what ran, what it found, how long.
 ```
 
 ## Rules
 
-- **The planner writes everything above Driving.** A change to it after
-  approval is a plan change and says so.
-- **The lead writes Driving, Gotchas and Trace** from the agents' reports,
-  then sets `review`. No build agent edits this file: two agents in one
-  working copy cannot commit one file safely.
-- **One owner per file, server function and table.** Two features that need
-  the same table or helper mean that thing belongs in the foundation, built
-  before the first feature. An overlap is a planning error, not something
-  agents sort out.
-- **Backend and Frontend own different folders.** The two agents work in one
-  checkout at the same time and never touch the same file. The contract
-  between them is the input and output schemas and the server function
-  signatures, written in the Backend section before either starts.
-- **Depends on** is for a feature that calls another's server function or
-  needs its data. It sets the order. Fewer dependencies, more freedom.
-- **Scenarios come from done-when lines and the misuse checklist, not from
-  the code.**
-- **Exact outcomes.** A scenario names the state, the rows, the emails, the
-  message. "Returns an error" is not an outcome. A negative outcome says what
-  didn't happen.
-- **Right size:** two agents finish it in one session with every test. Too
-  big splits along a screen or a server function; too small merges into its
-  neighbour.
-- **The verify map is these files.** The verify skill reads Scenarios,
-  Driving and Gotchas and drives every feature on the merged app. No second
-  feature map exists.
+- **The planner writes everything above Driving.** A change to it after approval is a plan change. Say so.
+- **The lead writes Driving, Gotchas and Trace** from the agents' reports, then sets `review`. No build agent edits this file. Two agents in one working copy cannot commit one file safely.
+- **Give each file, server function and table one owner.** If two features need the same table or helper, build it in the foundation before the first feature. An overlap is a planning error. Agents do not sort it out.
+- **Give Backend and Frontend different folders.** The two agents share one checkout and never touch the same file. Write the contract in the Backend section before either starts. The contract is the input and output schemas and the server function signatures.
+- **Use Depends on** only when a feature calls another's server function or needs its data. It sets the order.
+- **Take scenarios from the done-when lines and the misuse checklist**, not from the code. Name the state, the rows, the emails and the message in each outcome. "Returns an error" is not an outcome. Say what did not happen.
+- **Size a feature** so that two agents finish it in one session with every test. Split a feature that is too big along a screen or a server function. Merge a feature that is too small into its neighbour.
+- **Use these files as the only feature map.** A later run reads Scenarios, Driving and Gotchas.
+
+Reason: one writer per file and one owner per thing prevent merge conflicts.

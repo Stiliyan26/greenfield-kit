@@ -1,10 +1,10 @@
 // End-to-end test of the studio app flow in a throwaway project: init with the app,
-// one model's variant in React + shadcn, build, the checks, approval, promotion and
-// the pixel comparison. Needs node, npm, python3 and Playwright with Chromium.
+// one model's variant in React + shadcn, build, the checks, approval and the design
+// pack export with its pixel check against the studio. Needs node, npm, python3 and Playwright with Chromium.
 //
 //   node <design-interface>/scripts/test_app.mjs [--keep]
 //
-// It installs npm packages twice (studio app, promoted app), so it takes minutes.
+// It installs the studio app's npm packages, so it takes minutes.
 import { spawn, spawnSync } from "node:child_process"
 import { existsSync, readFileSync, readdirSync } from "node:fs"
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
@@ -115,14 +115,14 @@ try {
   const design = existsSync(join(root, "DESIGN.md")) ? readFileSync(join(root, "DESIGN.md"), "utf8") : ""
   check("DESIGN.md's Components table lists the shadcn parts", design.includes("| Badge |") && design.includes("shadcn `tabs`"))
 
-  // 7. promote and compare
-  const promote = sh("python3", [join(scripts, "promote_variant.py"), root, "--check", "--studio-url", url])
-  check("promote_variant.py builds web/ from the approved variant", existsSync(join(root, "web/dist/index.html")) && existsSync(join(root, "web/src/design/screens/orders.tsx")), promote.out.slice(-400))
-  const css = existsSync(join(root, "web/src/index.css")) ? readFileSync(join(root, "web/src/index.css"), "utf8") : ""
-  check("the promoted app imports the approved design files, not the live theme", css.includes("design/shadcn.css") && !css.includes('@import "./studio-theme.css"'))
-  const compare = existsSync(join(root, "temp/verification/promote/compare.md")) ? readFileSync(join(root, "temp/verification/promote/compare.md"), "utf8") : ""
-  const rows = compare.split("\n").filter((line) => line.startsWith("| orders") || line.startsWith("| returns"))
-  check("every route matches the studio within the threshold", promote.code === 0 && rows.length === 12 && rows.every((row) => row.endsWith("| ok |")), rows.filter((row) => !row.endsWith("| ok |")).join(" ") || promote.out.slice(-300))
+  // 7. export the design pack and check it against the studio
+  const pack = sh("node", [join(scripts, "export_pack.mjs"), "--url", url, "--project", root, "--check"])
+  check("export_pack.mjs writes the rendered HTML, app.css and the PNGs", existsSync(join(root, "design/screens/orders.html")) && existsSync(join(root, "design/screens/app.css")) && existsSync(join(root, "design/screens/returns__390__dark.png")), pack.out.slice(-400))
+  const packHtml = existsSync(join(root, "design/screens/orders.html")) ? readFileSync(join(root, "design/screens/orders.html"), "utf8") : ""
+  check("the pack HTML has no scripts and links the approved design files", !packHtml.includes("<script") && !packHtml.includes('id="studio-tokens"') && packHtml.includes('href="../tokens.css"') && packHtml.includes('href="../shadcn.css"'))
+  const readme = existsSync(join(root, "design/screens/README.md")) ? readFileSync(join(root, "design/screens/README.md"), "utf8") : ""
+  const rows = readme.split("\n").filter((line) => line.startsWith("| orders") || line.startsWith("| returns"))
+  check("every pack render matches the studio within the threshold", pack.code === 0 && rows.length === 8 && rows.every((row) => row.endsWith("· ok |")), rows.filter((row) => !row.endsWith("· ok |")).join(" ") || pack.out.slice(-300))
 } finally {
   server?.kill()
   if (keep) console.log(`Kept ${root}`)

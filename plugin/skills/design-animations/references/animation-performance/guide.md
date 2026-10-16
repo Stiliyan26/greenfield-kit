@@ -2,6 +2,16 @@
 
 Everything a user feels about your motion collapses into one number: does each frame land inside the **frame budget**? Distilled from Emil Kowalski's *Animations on the Web* course ([animations.dev](https://animations.dev/)), with mechanics from [Motion's performance guide](https://motion.dev/docs/performance).
 
+## Contents
+- The frame budget
+- Axis 1 — Animate composite-only properties
+- Axis 2 — Keep the animation off the main thread
+- React: don't animate through state
+- Transform shift and will-change
+- Two traps that pass both axes
+- So should you avoid JS animations?
+- Diagnosing dropped frames
+
 Imagine [Sonner](https://sonner.emilkowal.ski/) running at 30fps — same easing, same durations, same code. Nobody would have cared. Performance is not a polish pass applied after the motion is good; it's what lets good motion register at all.
 
 ## The frame budget

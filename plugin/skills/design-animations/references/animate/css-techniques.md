@@ -2,6 +2,15 @@
 
 Implementation recipes for CSS motion. Load from [guide.md](guide.md) when writing CSS. All values from the *Animations on the Web* course.
 
+## Contents
+- Transitions vs keyframes — which to reach for
+- Transitions
+- Keyframes
+- Transforms
+- Hover patterns
+- clip-path
+- Stagger (CSS)
+
 ## Transitions vs keyframes — which to reach for
 
 **Use a CSS transition when** the change is triggered by user interaction (hover, click, state change) and might be interrupted or retargeted mid-flight (Sonner toasts shifting position). Transitions interpolate from the *current* value, so they're smooth when reversed.

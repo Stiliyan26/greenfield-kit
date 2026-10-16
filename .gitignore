@@ -7,6 +7,7 @@ __pycache__/
 
 # Remotion dependencies of the interactive-explanation skill (bun install in its remotion/ folder)
 plugin/skills/interactive-explanation/remotion/node_modules/
+plugin/skills/reply-format/scripts/node_modules/
 
 # The voice key
 .claude/local/

@@ -2,6 +2,16 @@
 
 Recipes for animating SVG (line-drawing, rotation, path morphing, ambient motion). Load from [guide.md](guide.md) when animating vector art. All values from the *Animations on the Web* course.
 
+## Contents
+- Fundamentals
+- Line-drawing (self-drawing stroke)
+- Rotation & transform-origin (the SVG trap)
+- Path morphing
+- Shakes & multi-step motion (keyframes)
+- Ambient "subtle life"
+- Performance for busy SVG scenes
+- Reduced motion
+
 ## Fundamentals
 
 - SVG is coordinate-based with no document flow — unpositioned elements stack at `(0,0)`.

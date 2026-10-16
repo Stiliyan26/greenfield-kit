@@ -227,7 +227,7 @@ function deriveName(path) {
 }
 
 // Small path-derived features (under MIN_LINES) merge into their parent
-// folder's feature ("plugin/skills/bro" → "plugin/skills"), or into "other"
+// folder's feature ("plugin/skills/verify" → "plugin/skills"), or into "other"
 // when they have no parent, so a reviewer never gets a 7-line feature.
 function depth(name) {
   return name.split('/').length;

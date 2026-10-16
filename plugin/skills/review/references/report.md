@@ -1,34 +1,46 @@
 # Report mode
 
 Report mode picks up after step 4 of the skill. The reviewers have written
-their feature files; the user decides what gets fixed.
+their feature files. The user decides what gets fixed.
+
+## Contents
+- 5 README
+- 6 The user ticks
+- 7 Fix agents
+- 8 Merge
+- 9 Close
+- The files
+- README.md
+- <feature>.md
+- Rules for every problem
 
 ## 5. README
 
-Read every feature file and write `README.md` in the shape below. A problem
-that two reviewers found from both sides is one row: keep it in the feature
-file where the fix lives and point the other file at it. Copy each problem
-as its reviewer wrote it. Every row comes from a feature file.
-
-Commit the folder (`review: <target>`) unless the user said not to. Tell
-the user: counts by priority, the top three, the folder path, and "Tick the
-Decision lines, then say fix."
+1. Read every feature file.
+2. Write `README.md` in the shape below. If two reviewers found one problem
+   from both sides, make it one row. Keep it in the feature file where the fix
+   lives. Point the other file at it.
+3. Copy each problem as its reviewer wrote it. Every row comes from a feature
+   file.
+4. Commit the folder (`review: <target>`) unless the user said not to.
+5. Tell the user: counts by priority, the top three, the folder path, and
+   "Tick the Decision lines, then say fix."
 
 Done when every problem of every feature file has a row.
 
 ## 6. The user ticks
 
 The user edits the Decision line of each problem: fix now (with the option
-letter), later, not a problem, or explain more. The Decision lines are the
-user's. For "explain more", answer in chat with more context and evidence;
-the user then ticks again.
+letter), later, not a problem, or explain more. The Decision lines belong to
+the user. For "explain more", answer in chat with more context and evidence.
+The user then ticks again.
 
 Done when the user says "fix".
 
 ## 7. Fix agents
 
-Read every Decision line and group the "fix now" problems by feature file.
-Propose the fix agents and wait for a yes:
+1. Read every Decision line. Group the "fix now" problems by feature file.
+2. Propose the fix agents and wait for a yes:
 
 ```
 Fix: 9 problems ticked in 3 features
@@ -39,33 +51,37 @@ Foundation change: #9B needs a server migration → fable
 Go? Or: a number of agents, another model.
 ```
 
-Each feature file gets one agent, up to the config's `maxFixAgents`; past
-the cap, the smallest share an agent. Use the `fixModel`, and the
-`reviewerModel` for a fix the review marked as needing judgement.
-
-Each fix agent works in the one checkout on a branch `fix/<feature>`, with
-the ownership rules of `deliver-feature`: it edits and commits only its
-feature's files. For each problem it writes the "Test to add" and sees it
-go red, applies the chosen option, runs the project's tests, and sets
-Status to `fixing`. It reports one line per problem: fixed, or blocked and
-why.
+3. Give each feature file one agent, up to the config's `maxFixAgents`. Past
+   the cap, let the smallest share an agent.
+4. Use the `fixModel`. Use the `reviewerModel` for a fix the review marked as
+   needing judgement.
+5. Each fix agent works in the one checkout on a branch `fix/<feature>`. It
+   edits and commits only its feature's files, so two agents never share a
+   file.
+6. For each problem, the agent writes the "Test to add" and watches it go
+   red. It applies the chosen option, runs the project's tests, and sets
+   Status to `fixing`.
+7. The agent reports one line per problem: fixed, or blocked and why.
 
 Done when every fix agent has reported.
 
 ## 8. Merge
 
-Take one branch at a time: rebase, run all the project's tests, read the
-diff against the feature's ownership, merge. A fix that touches shared code
-or another feature's files goes back to its agent with a request. Tell the
-user what merged and what is blocked.
+1. Take one branch at a time: rebase, run all the project's tests, read the
+   diff against the feature's ownership, merge.
+2. If a fix touches shared code or another feature's files, send it back to
+   its agent with a request.
+3. Tell the user what merged and what is blocked.
+
+Done when every branch is merged or listed as blocked.
 
 ## 9. Close
 
-Start the reviewer of each feature again, with the same agent and model,
-the feature file, the merged code and the checklist. It runs the proof of
-every `fixing` problem again ([reviewer.md](reviewer.md),
-"Close"). Update the README's Status and Fixed count, commit
-(`review: close <target>`), and tell the user what is still open.
+1. Start the reviewer of each feature again, with the same agent and model.
+   Give it the feature file, the merged code and the checklist.
+2. It runs the proof of every `fixing` problem again (reviewer.md, "Close").
+3. Update the README's Status and Fixed count. Commit (`review: close
+   <target>`). Tell the user what is still open.
 
 Done when no problem is left in `fixing`.
 
@@ -124,9 +140,9 @@ Proof: `ran` (a command, test or screenshot), `read` (found the line, not run).
 - `path:line`: <one line each>; problems in lines this change didn't touch.
 ````
 
-Rules: every problem from every feature file is in the table, none left
-out. Numbers are global across the review: the feature file uses the same
-number. No score, no praise, no summary of the diff.
+Rules: put every problem from every feature file in the table. Make numbers
+global across the review: the feature file uses the same number. Write no
+score, no praise and no summary of the diff.
 
 ## <feature>.md
 
@@ -195,16 +211,15 @@ stops counting."
 
 ### Rules for every problem
 
-- **Title:** what goes wrong, for whom, in product words. No file names in
-  the title.
+- **Title:** what goes wrong, for whom, in product words. Use no file names.
 - **Priority:** Critical = data, money, access, or a user can't finish a
   task. Important = a wrong result or a real annoyance with a workaround.
   Later = cosmetic, cleanup, tests. Order in the file: Critical first.
 - **Context:** 3–5 lines from the feature file and `DESIGN.md`: what the part
-  does, who uses it, where this sits in the flow. The reader can't remember
+  does, who uses it, where this sits in the flow. The reader cannot recall
   the whole app.
-- **Current code:** copied from the file with `path:from-to`, never
-  paraphrased. Read the lines again right before you paste them.
+- **Current code:** copy it from the file with `path:from-to`. Never
+  paraphrase. Read the lines again right before you paste them.
 - **Proved by:** the exact command and what it printed, or the screenshot
   path, or `Not run: <command that would prove it>`. A screenshot only when
   the problem changes what the user sees in a way that matters; a one-word
@@ -219,9 +234,9 @@ stops counting."
 - **Status:** `open` → `fixing` (a fix agent has it) → `fixed` with the
   proof re-run: `fixed · proved by <command> → <output>` → or `not a
   problem` / `later` copied from the decision.
-- One problem per cause. Two symptoms of one cause are one problem, with
-  both symptoms in Impact. Every problem gets this full shape, Later
-  included. No one-liners.
+- Write one problem per cause. Two symptoms of one cause are one problem,
+  with both symptoms in Impact. Give every problem this full shape, Later
+  included. Write no one-liners.
 
 ### Per-file sections after the problems
 

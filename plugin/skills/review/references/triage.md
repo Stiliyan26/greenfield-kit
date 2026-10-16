@@ -1,7 +1,8 @@
 # Triage
 
-`node scripts/triage.mjs --out <dir> <target> [--project <root>]` collects what to
-review and groups it by feature. One reviewer per feature, no cap.
+Run `node scripts/triage.mjs --out <dir> <target> [--project <root>]`. It
+collects what to review and groups it by feature. Each feature gets one
+reviewer. The script sets no cap.
 
 ## Target (exactly one)
 - `--base <ref>` committed changes on this branch since `<ref>`
@@ -18,7 +19,7 @@ review and groups it by feature. One reviewer per feature, no cap.
 2. Otherwise a name from the path: the segment after a `features/` directory, else
    the segment after `src/` under a package dir (`server/`, `client/`, `apps/x/`),
    else the top folder. Client and server groups with the same name merge.
-3. `other`: root files, dot-folders (`.cursor`, `.github`, ...), `docs/` and `scripts/`.
+3. `other`: root files, dot-folders (`.github`, ...), `docs/` and `scripts/`.
    Never their own feature; `e2e/` stays one.
 4. A path-derived feature over 5,000 lines with subfolders is split one folder
    deeper, again if still over (`plugin` → `plugin/skills/review`, ...). Then any
@@ -40,7 +41,7 @@ and the `--out` folder. `--app` keeps only source files and `DESIGN.md`.
   "target": { "kind": "branch|uncommitted|range|app|plan", "base": "...", "range": "..." },
   "totalLines": 1234,
   "features": [
-    { "name": "time-off", "source": "docs/plans/hrise/features/time-off.md | path", "lines": 3224,
+    { "name": "time-off", "source": "docs/plans/<project>/features/time-off.md | path", "lines": 3224,
       "files": [ { "path": "client/src/features/time-off/x.tsx", "lines": 120 } ] }
   ],
   "skipped": [ { "path": "package-lock.json", "why": "lock file" } ]

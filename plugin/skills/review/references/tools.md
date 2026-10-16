@@ -1,12 +1,12 @@
 # Tool checks for review
 
-Tools run before any agent. If a tool can catch a problem, no agent reports it.
-All of these go into the project's gate command (for example `npm run gates`)
-and fail CI.
+Tools run before any agent. If a tool can catch a problem, no agent reports
+it. Put all of these checks in the project's gate command (for example `npm
+run gates`). Make them fail CI.
 
-Old code usually breaks the new limits in many places. Freeze what's there in
-a baseline, so only new problems fail, and shrink the baseline over time. Never
-turn a rule into a warning to get green.
+Old code usually breaks the new limits in many places. Freeze what exists in
+a baseline, so that only new problems fail. Shrink the baseline over time.
+Never turn a rule into a warning to get green.
 
 | Check | Tool | Limit | Baseline |
 | --- | --- | --- | --- |
@@ -19,7 +19,7 @@ turn a rule into a warning to get green.
 | Copied code | jscpd | 10 lines / 70 tokens | `scripts/gates/baseline.json` |
 | Dead code | knip | unused files, exports, packages | same |
 
-`write-code`'s `bun run check` already has `max-lines`, `max-depth`,
+The stack's check command already has `max-lines`, `max-depth`,
 `import/no-cycle`, the layer direction and knip. Add the rest.
 
 ## Set it up (Node project)
@@ -72,8 +72,10 @@ turn a rule into a warning to get green.
    ```
 
 4. **Gate command.** Add the new checks to the project's gate script and to
-   CI. Run it once on a clean checkout: it must pass before anything else
+   CI. Run it once on a clean checkout. It must pass before anything else
    changes.
 
-5. **Write it down.** Put the gate command in `CLAUDE.md` → Commands,
-   so the review skill can run it.
+5. **Write it down.** Put the gate command in `CLAUDE.md` → Commands, so the
+   review skill can run it.
+
+Done when the gate command passes on a clean checkout and `CLAUDE.md` names it.

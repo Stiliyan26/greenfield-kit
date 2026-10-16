@@ -1,0 +1,39 @@
+{
+  "_readme": "The project's stack. Skills talk in roles (screen, server function, table, check); this file maps each role to the real tool and command. write-code opens stacks/<name>/ for the code rules.",
+  "name": "node-tanstack",
+  "language": "TypeScript (strict)",
+  "runtime": "Node.js 24 LTS",
+  "packages": "pnpm",
+  "toolchain": "Vite+ (Vite, Vitest, Oxlint, Oxfmt)",
+  "framework": "TanStack Start with TanStack Router",
+  "data": "TanStack Query, Table, Form; Zod",
+  "ui": "React, Tailwind CSS, shadcn/ui",
+  "database": "PostgreSQL + Drizzle ORM",
+  "auth": "Better Auth",
+  "tests": "Vitest + Playwright",
+  "deadCode": "knip",
+  "ci": "GitHub Actions",
+  "deploy": "Docker + docker compose",
+  "commands": {
+    "install": "pnpm install",
+    "addDev": "pnpm add -D",
+    "run": "pnpm dlx",
+    "dev": "pnpm dev",
+    "check": "pnpm run check",
+    "checkFix": "pnpm run check:fix",
+    "test": "pnpm vitest run",
+    "e2e": "pnpm playwright test",
+    "migrate": "pnpm drizzle-kit generate",
+    "audit": "pnpm audit"
+  },
+  "paths": {
+    "routes": "src/routes",
+    "views": "src/views",
+    "features": "src/features",
+    "entities": "src/entities",
+    "shared": "src/shared",
+    "server": "src/server",
+    "e2e": "e2e",
+    "design": "design"
+  }
+}

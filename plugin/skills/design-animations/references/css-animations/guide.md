@@ -2,6 +2,17 @@
 
 The CSS Animations module of Emil Kowalski's *Animations on the Web* course ([animations.dev](https://animations.dev/)), as a working reference. Everything here is CSS only — no dependencies, no JavaScript.
 
+## Contents
+- Is CSS the right tool?
+- Transition or keyframes — who drives it?
+- Transitions
+- Keyframes
+- Transforms
+- clip-path
+- Hover belongs to pointers
+- Easing blueprint
+- Reverse engineering
+
 For the worked patterns (hover reveals, toast stacks, text reveals, orbits, clip-path effects), load **[RECIPES.md](RECIPES.md)**.
 
 ## Is CSS the right tool?

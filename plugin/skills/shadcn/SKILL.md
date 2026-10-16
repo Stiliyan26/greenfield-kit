@@ -7,9 +7,12 @@ allowed-tools: Bash(npx shadcn@latest *), Bash(pnpm dlx shadcn@latest *), Bash(b
 
 # shadcn/ui
 
-A framework for building ui, components and design systems. Components are added as source code to the user's project via the CLI.
+shadcn/ui adds components as source code to the project through the CLI.
 
-> **IMPORTANT:** Run all CLI commands using the project's package runner: `npx shadcn@latest`, `pnpm dlx shadcn@latest`, or `bunx --bun shadcn@latest` — based on the project's `packageManager`. Examples below use `npx shadcn@latest` but substitute the correct runner for the project.
+> **IMPORTANT:** Run each CLI command with the project's package runner:
+> `npx shadcn@latest`, `pnpm dlx shadcn@latest` or `bunx --bun shadcn@latest`.
+> Choose it from the project's `packageManager`. The examples use
+> `npx shadcn@latest`. Replace it with the correct runner.
 
 ## Current Project Context
 
@@ -17,18 +20,20 @@ A framework for building ui, components and design systems. Components are added
 !`npx shadcn@latest info --json`
 ```
 
-The JSON above contains the project config and installed components. Use `npx shadcn@latest docs <component>` to get documentation and example URLs for any component.
+The JSON above holds the project config and the installed components. Run `npx shadcn@latest docs <component>` to get the documentation and example URLs of a component.
 
 ## Principles
 
-1. **Use existing components first.** Use `npx shadcn@latest search` to check registries before writing custom UI. Check community registries too.
-2. **Compose, don't reinvent.** Settings page = Tabs + Card + form controls. Dashboard = Sidebar + Card + Chart + Table.
-3. **Use built-in variants before custom styles.** `variant="outline"`, `size="sm"`, etc.
-4. **Use semantic colors.** `bg-primary`, `text-muted-foreground` — never raw values like `bg-blue-500`.
+1. **Use existing components first.** Run `npx shadcn@latest search` to check the registries before you write custom UI. Check community registries too.
+2. **Compose. Do not reinvent.** Settings page = Tabs + Card + form controls. Dashboard = Sidebar + Card + Chart + Table.
+3. **Use built-in variants before custom styles.** Example: `variant="outline"`, `size="sm"`.
+4. **Use semantic colors.** Example: `bg-primary`, `text-muted-foreground`. Never use raw values such as `bg-blue-500`.
+
+Reason: existing components, variants and tokens follow the theme of the project. Custom code does not.
 
 ## Critical Rules
 
-These rules are **always enforced**. Each links to a file with Incorrect/Correct code pairs.
+Always apply these rules. Each links to a file with Incorrect/Correct code pairs.
 
 ### Styling & Tailwind → [styling.md](./rules/styling.md)
 
@@ -84,7 +89,7 @@ These rules are **always enforced**. Each links to a file with Incorrect/Correct
 
 ## Key Patterns
 
-These are the most common patterns that differentiate correct shadcn/ui code. For edge cases, see the linked rule files above.
+These patterns are the most common signs of correct shadcn/ui code. For edge cases, read the linked rule files above.
 
 ```tsx
 // Form layout: FieldGroup + Field, not div + Label.
@@ -141,7 +146,7 @@ These are the most common patterns that differentiate correct shadcn/ui code. Fo
 
 ## Key Fields
 
-The injected project context contains these key fields:
+The injected project context has these key fields:
 
 - **`aliases`** → use the actual alias prefix for imports (e.g. `@/`, `~/`), never hardcode.
 - **`isRSC`** → when `true`, components using `useState`, `useEffect`, event handlers, or browser APIs need `"use client"` at the top of the file. Always reference this field when advising on the directive.
@@ -159,44 +164,99 @@ See [cli.md — `info` command](./cli.md) for the full field reference.
 
 ## Component Docs, Examples, and Usage
 
-Run `npx shadcn@latest docs <component>` to get the URLs for a component's documentation, examples, and API reference. Fetch these URLs to get the actual content.
+Run `npx shadcn@latest docs <component>` to get the URLs of the documentation, examples and API reference of a component. Fetch the URLs to get the content.
 
 ```bash
 npx shadcn@latest docs button dialog select
 ```
 
-**When creating, fixing, debugging, or using a component, always run `npx shadcn@latest docs` and fetch the URLs first.** This ensures you're working with the correct API and usage patterns rather than guessing.
+**When you create, fix, debug or use a component, run `npx shadcn@latest docs` and fetch the URLs first.** The docs give the correct API and usage patterns. Do not guess them.
 
 ## Workflow
 
-1. **Get project context** — already injected above. Run `npx shadcn@latest info` again if you need to refresh.
-2. **Check installed components first** — before running `add`, always check the `components` list from project context or list the `resolvedPaths.ui` directory. Don't import components that haven't been added, and don't re-add ones already installed.
-3. **Find components** — `npx shadcn@latest search`.
-4. **Get docs and examples** — run `npx shadcn@latest docs <component>` to get URLs, then fetch them. Use `npx shadcn@latest view` to browse registry items you haven't installed. To preview changes to installed components, use `npx shadcn@latest add --diff`.
-5. **Install or update** — `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below).
-6. **Fix imports in third-party components** — After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project.
-7. **Review added components** — After adding a component or block from any registry, **always read the added files and verify they are correct**. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of the [Critical Rules](#critical-rules). Also replace any icon imports with the project's `iconLibrary` from the project context (e.g. if the registry item uses `lucide-react` but the project uses `hugeicons`, swap the imports and icon names accordingly). Fix all issues before moving on.
-8. **Registry must be explicit** — When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says "add a login block" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user.
-9. **Switching presets** — Ask the user first: **overwrite**, **partial**, **merge**, or **skip**?
-   - **Inspect current preset**: `npx shadcn@latest preset resolve`. Use `--json` when you need structured values.
-   - **Inspect incoming preset**: `npx shadcn@latest preset decode <code>`. Use `preset url <code>` or `preset open <code>` to share or open the preset builder.
-   - **Overwrite**: `npx shadcn@latest apply <code>`. Overwrites detected components, fonts, and CSS variables.
-   - **Partial**: `npx shadcn@latest apply <code> --only theme,font`. Updates only the selected preset parts without reinstalling UI components. Supported values are `theme` and `font`; comma-separated combinations are allowed. `icon` is intentionally not supported, because icon changes may require full component reinstall and transforms.
-   - **Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually.
-   - **Skip**: `npx shadcn@latest init --preset <code> --force --no-reinstall`. Only updates config and CSS, leaves components as-is.
-   - **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly — preset codes do not encode the base.
+Copy this checklist into the reply and tick each step:
+
+```text
+shadcn progress:
+- [ ] 1 Project context read
+- [ ] 2 Installed components checked
+- [ ] 3 Component found
+- [ ] 4 Docs and examples read
+- [ ] 5 Component installed or updated
+- [ ] 6 Imports of third-party components fixed
+- [ ] 7 Added files reviewed
+```
+
+1. **Get the project context.** It is injected above. Run `npx shadcn@latest info` to refresh it.
+
+   Done when you know the `base`, `iconLibrary`, `aliases` and installed components.
+
+2. **Check the installed components.** Read the `components` list in the context, or list the `resolvedPaths.ui` directory. Do not import a component that is not added. Do not add a component again.
+
+   Done when you know which components are missing.
+
+3. **Find the component.** Run `npx shadcn@latest search`.
+
+   Done when you have the name of the registry item.
+
+4. **Get the docs and examples.** Run `npx shadcn@latest docs <component>` and fetch the URLs. Run `npx shadcn@latest view` to browse an item that is not installed. Run `npx shadcn@latest add --diff` to preview changes to an installed component.
+
+   Done when you have read the documentation of each component you use.
+
+5. **Install or update.** Run `npx shadcn@latest add`. To update an existing component, preview with `--dry-run` and `--diff` first (see [Updating Components](#updating-components)).
+
+   Done when the CLI reports the files written.
+
+6. **Fix the imports of third-party components.** Components from community registries (for example `@bundui`, `@magicui`) can hold hardcoded paths such as `@/components/ui/...`. These paths can differ from the project's aliases. Run `npx shadcn@latest info` to get the correct `ui` alias (for example `@workspace/ui/components`). Rewrite the imports. The CLI rewrites imports only in its own UI files.
+
+   Done when each import in the added non-UI files resolves.
+
+7. **Review the added files.** Read each file of an added component or block. Look for missing sub-components (for example `SelectItem` without `SelectGroup`), missing imports, wrong composition and violations of the [Critical Rules](#critical-rules). Replace each icon import with the project's `iconLibrary`. Example: the item uses `lucide-react` and the project uses `hugeicons`. Swap the imports and the icon names. If you find a problem, fix it and read the file again.
+
+   Done when the files have no violation.
+
+Two rules apply at any step.
+
+- **Name the registry.** When the user asks for a block or component with no registry (for example "add a login block"), ask which registry to use. Do not choose one for the user. Registry names look like `@shadcn`, `@tailark` or `owner/repo`.
+- **Ask before you switch a preset.** Ask the user to choose: **overwrite**, **partial**, **merge** or **skip**. Then use the matching command.
+
+  Done when the user has chosen and the command has run.
+
+Reason: a wrong guess of the registry installs code from a source the user did not pick.
+
+### Preset commands
+
+- **Inspect the current preset**: `npx shadcn@latest preset resolve`. Add `--json` for structured values.
+- **Inspect the incoming preset**: `npx shadcn@latest preset decode <code>`. Run `preset url <code>` or `preset open <code>` to share the preset or open the preset builder.
+- **Overwrite**: `npx shadcn@latest apply <code>`. It overwrites the detected components, fonts and CSS variables.
+- **Partial**: `npx shadcn@latest apply <code> --only theme,font`. It updates only the chosen preset parts. It does not reinstall UI components. Valid values are `theme` and `font`, alone or comma-separated. `icon` is not supported, because an icon change can need a full reinstall and transforms.
+- **Merge**: run `npx shadcn@latest init --preset <code> --force --no-reinstall`. Run `npx shadcn@latest info` to list the installed components. For each installed component, run `--dry-run` and `--diff` and [merge it by hand](#updating-components).
+- **Skip**: run `npx shadcn@latest init --preset <code> --force --no-reinstall`. It updates only the config and CSS. It leaves the components as they are.
+
+Run preset commands inside the user's project directory. `apply` works only in an existing project with a `components.json` file. The CLI keeps the current base (`base` or `radix`) from `components.json`. In a scratch or temp directory (for example for `--dry-run` comparisons), pass `--base <current-base>`. Preset codes do not encode the base.
 
 ## Updating Components
 
-When the user asks to update a component from upstream while keeping their local changes, use `--dry-run` and `--diff` to intelligently merge. **NEVER fetch raw files from GitHub manually — always use the CLI.**
+Use `--dry-run` and `--diff` to merge upstream changes into a component that has local changes.
 
-1. Run `npx shadcn@latest add <component> --dry-run` to see all files that would be affected.
-2. For each file, run `npx shadcn@latest add <component> --diff <file>` to see what changed upstream vs local.
-3. Decide per file based on the diff:
-   - No local changes → safe to overwrite.
-   - Has local changes → read the local file, analyze the diff, and apply upstream updates while preserving local modifications.
-   - User says "just update everything" → use `--overwrite`, but confirm first.
-4. **Never use `--overwrite` without the user's explicit approval.**
+1. **List the affected files.** Run `npx shadcn@latest add <component> --dry-run`.
+
+   Done when you have the list of files.
+
+2. **Read each diff.** For each file, run `npx shadcn@latest add <component> --diff <file>`.
+
+   Done when you have seen the upstream and local changes of each file.
+
+3. **Decide per file.**
+   - No local changes: overwrite the file.
+   - Local changes: read the local file. Apply the upstream updates. Keep the local changes.
+   - The user says "just update everything": confirm first. Then use `--overwrite`.
+
+   Done when each file has a decision and the decision is applied.
+
+**NEVER** fetch raw files from GitHub by hand. Use the CLI. **NEVER** use `--overwrite` without the explicit approval of the user.
+
+Reason: `--overwrite` deletes the local changes of the user.
 
 ## Quick Reference
 
@@ -259,6 +319,8 @@ npx shadcn@latest view owner/repo/item
 
 ## Detailed References
 
+Open the file that matches the task.
+
 - [rules/forms.md](./rules/forms.md) — FieldGroup, Field, InputGroup, ToggleGroup, FieldSet, validation states
 - [rules/composition.md](./rules/composition.md) — Groups, overlays, Card, Tabs, Avatar, Alert, Empty, Toast, Separator, Skeleton, Badge, Button loading
 - [rules/icons.md](./rules/icons.md) — data-icon, icon sizing, passing icons as objects
@@ -266,3 +328,4 @@ npx shadcn@latest view owner/repo/item
 - [rules/base-vs-radix.md](./rules/base-vs-radix.md) — asChild vs render, Select, ToggleGroup, Slider, Accordion
 - [cli.md](./cli.md) — Commands, flags, presets, templates
 - [customization.md](./customization.md) — Theming, CSS variables, extending components
+- [agents/openai.yml](./agents/openai.yml) — display name and short description for agent listings

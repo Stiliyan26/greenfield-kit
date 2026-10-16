@@ -2,6 +2,19 @@
 
 The Framer Motion module of Emil Kowalski's *Animations on the Web* course ([animations.dev](https://animations.dev/)), as a working reference.
 
+## Contents
+- Reach for it only when CSS can't
+- Basics
+- Transitions and springs
+- AnimatePresence
+- Layout and shared-element animations
+- Animating height
+- Motion values
+- Gestures
+- Accessibility
+- Debugging the magic
+- Imperative animation
+
 Framer Motion is now **Motion for React**. Nothing changed but the import path:
 
 ```jsx

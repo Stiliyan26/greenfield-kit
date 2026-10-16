@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Copy the greenfield-kit working rules into a project. Existing files are never overwritten."""
+"""Copy the stistack working rules into a project. Existing files are never overwritten."""
 
 import argparse
 from pathlib import Path

@@ -2,6 +2,22 @@
 
 The complete builder's guide to motion that feels right, distilled from Emil Kowalski's *Animations on the Web* course ([animations.dev](https://animations.dev/)). Use it to make decisions first, then implement.
 
+## Contents
+- Core Philosophy
+- Load These When Implementing
+- The Animation Decision Framework
+- Easing
+- Duration
+- Physicality
+- Springs
+- Interruptibility
+- Performance
+- Stagger, hierarchy & orchestration
+- Cohesion & spatial consistency
+- Accessibility
+- Process
+- Review Format (when asked to review)
+
 
 ## Core Philosophy
 

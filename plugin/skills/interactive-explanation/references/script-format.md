@@ -1,9 +1,17 @@
 # script.json
 
-One file per explainer at `temp/explainers/<slug>/script.json`. Mermaid is a
-plain string with `\n` line breaks. All text follows the ASD-STE100 rules in
-SKILL.md. Never put timings in the script: a scene lasts as long as its
-narration plus 0.9 s, or its clip if that is longer.
+One file per explainer at `temp/explainers/<slug>/script.json`. Write Mermaid
+as a plain string with `\n` line breaks. Write all text to the ASD-STE100
+rules in writing.md. Put no timings in the script. A scene lasts as long as
+its narration plus 0.9 s, or as long as its clip if that is longer.
+
+## Contents
+
+- Top level and page sections
+- Scene kinds
+- Example
+- Schema facts
+- Component boxes
 
 ## Top level and page sections
 

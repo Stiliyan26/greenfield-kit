@@ -2,6 +2,22 @@
 
 Worked patterns from the CSS Animations module. Each one exists because of a detail that isn't obvious until it bites you — the detail is the point, not the effect.
 
+## Contents
+- Hover lift without the flicker
+- Card hover reveal
+- Download arrow (two elements, one motion)
+- Toast stack (interruptible enter, CSS only)
+- Stacked cards (Sonner's collapsed stack)
+- Text reveal (stagger)
+- Orbit (3D)
+- Coin flip (3D, two faces)
+- Blinking cursor / marquee
+- clip-path: comparison slider
+- clip-path: image reveal on scroll
+- clip-path: seamless tab highlight
+- clip-path: theme switch wipe
+- Hold to delete
+
 Load from [guide.md](guide.md).
 
 ## Hover lift without the flicker

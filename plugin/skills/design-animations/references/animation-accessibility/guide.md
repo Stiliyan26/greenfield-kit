@@ -2,6 +2,14 @@
 
 Animations are used to strategically improve an experience. **To some people, they degrade it.** Motion can [make people feel sick](https://www.a11yproject.com/posts/understanding-vestibular-disorders/) — vestibular disorders are real and common — or simply pull attention away from the task. That's not the experience you're building.
 
+## Contents
+- The preference
+- Gentler, not zero
+- Workflow
+- Implementation
+- Visuals: jump, don't tween
+- Snippets
+
 Distilled from Emil Kowalski's *Animations on the Web* course ([animations.dev](https://animations.dev/)). This skill covers **reduced motion**: reading the user's preference and deciding what each animation becomes when it's set.
 
 ## The preference

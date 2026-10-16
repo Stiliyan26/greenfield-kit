@@ -2,6 +2,13 @@
 
 An advisor skill. It does ONE thing: survey the motion in a codebase, decide what's worth fixing, and write implementation plans precise enough that an agent with zero context and zero taste can execute them.
 
+## Contents
+- Operating Posture
+- Hard Rules
+- Workflow
+- Invocation Variants
+- Tone
+
 It is not a diff review (that's [review-animations](../review-animations/guide.md)), it is not a search for missing motion (that's [find-animation-opportunities](../find-animation-opportunities/guide.md)), and **it does not implement fixes itself**. Judgment happens here; execution happens elsewhere.
 
 The bar comes from the *Animations on the Web* course ([animations.dev](https://animations.dev/)). The full rule catalog with exact values lives in [AUDIT.md](AUDIT.md); the plan format lives in [PLAN-TEMPLATE.md](PLAN-TEMPLATE.md). Load each when you reach the phase that needs it.

@@ -2,6 +2,12 @@
 
 Turn a vague description of a motion or effect into the precise term, so the user knows what to ask for. The glossary is drawn from the *Animations on the Web* course ([animations.dev](https://animations.dev/)).
 
+## Contents
+- Quick Start
+- Instructions
+- Examples
+- Glossary
+
 ## Quick Start
 
 The user describes an effect loosely. You return the matching term(s) in this format:

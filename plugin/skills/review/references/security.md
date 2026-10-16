@@ -1,13 +1,13 @@
 # Security review
 
-What a reviewer does when the target is `--security`, or when the user's
-worry is security. A security audit, not a style check: the goal is findings
-an attacker could act on today, each backed by a request or input that would
-trigger it, never a checklist recited against code that was never read.
+Follow this file when the target is `--security`, or when the user's worry
+is security. This is a security audit, not a style check. Report findings an
+attacker could act on today. Back each one with a request or input that
+triggers it. Never recite a checklist against code you did not read.
 
 ## 1. Map the attack surface first
 
-Read the code, don't ask the user. Find:
+Read the code. Do not ask the user. Find:
 
 - **Entry points:** server functions, server routes, webhooks, scheduled
   jobs reading outside state, file parsers, CLI arguments; anywhere
@@ -23,8 +23,8 @@ Read the code, don't ask the user. Find:
 
 ## 2. Apply the categories that are reachable
 
-For each one, say first whether it's reachable on the surface you mapped;
-skip it with one line ("no uploads, N/A") rather than silently.
+For each category, first say whether the surface you mapped reaches it. If
+not, skip it with one line ("no uploads, N/A"). Never skip it silently.
 
 1. **Injection:** SQL built from strings, shell commands, log lines, headers;
    anywhere untrusted input is concatenated into something a parser reads as
@@ -44,17 +44,16 @@ skip it with one line ("no uploads, N/A") rather than silently.
    by a separate write.
 7. **Secrets and config:** credentials in the repo; permissive CORS;
    insecure defaults (TLS verification off, cookie flags, debug mode).
-8. **Dependencies:** `bun audit` or `npm audit`; packages left floating.
+8. **Dependencies:** the stack's audit command; packages left floating.
 9. **Browser side:** XSS through `dangerouslySetInnerHTML` or unescaped
    output; state-changing calls authenticated by cookies alone with no
    same-site protection; missing or permissive CSP; tokens in `localStorage`.
 
-This list is a floor. A risk the surface suggests that isn't here goes in
-too.
+This list is a floor. Add any risk the surface suggests that is not here.
 
 ## 3. Report
 
-Report only; never fix. Each finding goes in the feature file in
+Report only. Never fix. Put each finding in the feature file in
 `reviews/<date>-<target>/` with the full report shape, plus:
 
 - **Severity:** Critical / High / Medium / Low, by realistic impact and
@@ -65,5 +64,5 @@ Report only; never fix. Each finding goes in the feature file in
 - **Demonstration:** the exact request, payload or input that triggers it.
   "An attacker could craft an input" is not a finding.
 
-Skip a finding an earlier review in `reviews/` already records for the same
-location and cause. Categories ruled out get one summary line each.
+Skip a finding that an earlier review in `reviews/` already records for the
+same location and cause. Give each ruled-out category one summary line.

@@ -2,6 +2,11 @@
 
 **Always use the project's configured `iconLibrary` for imports.** Check the `iconLibrary` field from project context: `lucide` → `lucide-react`, `tabler` → `@tabler/icons-react`, etc. Never assume `lucide-react`.
 
+## Contents
+- Icons in Button use data-icon attribute
+- No sizing classes on icons inside components
+- Pass icons as component objects, not string keys
+
 ---
 
 ## Icons in Button use data-icon attribute

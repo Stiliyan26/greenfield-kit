@@ -1,11 +1,11 @@
-// greenfield-kit: the four checks oxlint 1.86 doesn't have.
+// stistack: the four checks oxlint 1.86 doesn't have.
 //
 // Everything else runs in oxlint (.oxlintrc.json). When oxlint gains one of
 // these rules, move it there and delete it here.
 //
 // Install:
-//   pnpm add -D eslint@^9 @eslint/js@^9 typescript-eslint eslint-plugin-import \
-//     eslint-plugin-simple-import-sort @stylistic/eslint-plugin eslint-import-resolver-typescript
+//   pnpm add -D eslint@^9 @eslint/js@^9 typescript-eslint eslint-plugin-import eslint-import-resolver-typescript
+//   pnpm add -D eslint-plugin-simple-import-sort @stylistic/eslint-plugin
 //
 // To add project rules, rename this file's import and wrap it:
 //   import greenfield from "./eslint.greenfield.mjs"

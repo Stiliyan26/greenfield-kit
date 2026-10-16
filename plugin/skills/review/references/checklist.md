@@ -1,15 +1,29 @@
 # Checklist
 
-What a reviewer looks for in its feature. Go through the feature's files
-one at a time with the whole list in mind; don't run the list as separate
-passes. Every problem you write down must name the input and the code path
-that gets there, and must be proved or marked "Not run" with the command
+What a reviewer looks for in its feature.
+
+## Contents
+- 1 Correctness
+- 2 Access
+- 3 Data
+- 4 Contract
+- 5 UI
+- 6 Tests
+- 7 Fit
+- 8 Scope
+- 9 Last look
+- Plan mode
+- Not problems
+
+Read the feature's files one at a time with the whole list in mind. Do not
+run the list as separate passes. For every problem, name the input and the
+code path that reaches it. Prove it, or mark it "Not run" with the command
 that would prove it.
 
-The project's own rules live in `.claude/review/` (roles, scope, paging,
-conventions; see [project-rules.md](project-rules.md)). Read the ones that
-exist before you start. When the code and a rules file disagree, the rules
-win. Rows a rules file marks as open questions are not problems.
+The project's own rules live in `.claude/review/`: roles, scope, paging and
+conventions. Read the ones that exist before you start. If the code and a
+rules file disagree, the rules win. A row that a rules file marks as an open
+question is not a problem.
 
 ## 1. Correctness
 
@@ -23,7 +37,7 @@ win. Rows a rules file marks as open questions are not problems.
   what it expects.
 - Cause or symptom: a guard, retry or cast that hides a deeper problem.
 
-Before you say "this could be null", follow the call chain and show how a
+Before you write "this could be null", follow the call chain. Show how a
 null gets there.
 
 ## 2. Access
@@ -75,8 +89,8 @@ Quote both sides with file and line.
 - Screens match `DESIGN.md`, including copy and states.
 - A form can't be sent twice by a double click.
 
-Never call a screen a pass without seeing it. When you may run the app,
-look; when you may not, say "Not run".
+Never call a screen a pass without seeing it. If you may run the app, look.
+If you may not, write "Not run".
 
 ## 6. Tests
 
@@ -92,8 +106,8 @@ person's invoice".
 
 ## 7. Fit
 
-Read the `write-code` skill for the kinds of files in the feature, then
-`.claude/review/conventions.md`.
+Read the `write-code` skill for the kinds of files in the feature. Then
+read `.claude/review/conventions.md`.
 
 - Each piece lives in the module and layer that owns it.
 - A helper, component or query that already exists wasn't written again.
@@ -121,8 +135,8 @@ ships something the user said not to build.
 
 ## 9. Last look
 
-After the list: which files and hunks in your feature does none of your
-problems mention? Start there, and look where reviewers usually don't:
+After the list, find the files and hunks in your feature that none of your
+problems mention. Start there. Look where reviewers usually do not:
 
 - config and env: a new setting with no default or no doc,
 - feature flags: a path that ignores the flag,
@@ -138,15 +152,16 @@ in the diff delivers?
 ## Plan mode
 
 When the target is a plan (no code yet), check `plan.md` and every feature
-file instead. You haven't seen the interview; find what's missing, don't
-rewrite anything. One line per finding: where → what's missing.
+file instead. You did not see the interview. Find what is missing. Do not
+rewrite anything. Write one line per finding: where → what is missing.
 
 - Every requirement in the brief maps to a done-when line and a feature;
   nothing in the plan is out of scope.
 - Every role's rights are stated and the server enforces each refusal;
   silent cases are open questions, not guesses.
 - Every server function, job, webhook and email has a scenario or an `N/A`
-  line for every item of `plan-feature/references/misuse.md`.
+  line for each misuse case: wrong role, invalid input, repeated call,
+  concurrent call.
 - Every outcome is exact: the state, the rows, the message, what didn't
   happen. "Returns an error" is a finding.
 - Every failure the design mentions (a slow service, the same call twice,
@@ -158,12 +173,12 @@ rewrite anything. One line per finding: where → what's missing.
 - Backend and Frontend sections own different folders; no file, server
   function or table has two owners; anything two features share is in the
   foundation.
-- Every feature has tests at every layer of `write-code/references/tests.md`.
+- Every feature has tests at every test layer the project's stack file lists.
 - Parts nobody asked for, layers with one user, options "for later".
 - Decisions the plan makes that the user never made (no Q-number).
 
-`Where` points at the plan file and section. "Proved by" is the requirement
-or rules line the problem rests on.
+Let `Where` point at the plan file and section. Let "Proved by" name the
+requirement or rules line the problem rests on.
 
 ## Not problems
 

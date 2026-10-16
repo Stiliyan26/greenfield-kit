@@ -1,13 +1,10 @@
 # What can go wrong
 
-Apply **Every entry point** to each server function, plus the section for its
-kind. Apply **Changing what exists** whenever the feature touches something
-already built. Every item becomes one or more scenarios in the feature file
-with an exact outcome, or one line `N/A — <reason>`. Outcomes that are product
-choices are interview questions; the rest the plan decides.
+Apply **Every entry point** to each server function, and add the section for its kind. Apply **Changing what exists** when the feature touches something already built.
 
-This list is a floor. If the design suggests a risk that isn't here, add a
-scenario for it too.
+Turn each item into one or more scenarios in the feature file, each with an exact outcome. Or write one line `N/A — <reason>`. Ask the user about outcomes that are product choices. Decide the rest in the plan.
+
+This list is a floor. Add a scenario for any other risk the design suggests.
 
 ## Contents
 
@@ -34,8 +31,8 @@ scenario for it too.
   belonging to someone else.
 - **Not signed in; the wrong role; a valid session for a deleted or
   unconfirmed user.**
-- **Changing fields the caller must not set** (`id`, `ownerId`, `role`,
-  `createdAt`, counters) by sending them in the input.
+- **Fields the caller must not set** (`id`, `ownerId`, `role`,
+  `createdAt`, counters) sent in the input.
 - **Same call twice:** double click, client retry → the final state is the
   same as once.
 - **Two at once:** two writers on one record; a write racing a delete; a check
@@ -45,8 +42,7 @@ scenario for it too.
 - **Leaks:** error messages carry no stack traces, class names, SQL or other
   users' data; "not found" and "not yours" look the same.
 - **Logs:** no secrets, tokens, passwords, personal data or request bodies.
-- **Volume:** one call can't start unbounded work (fan-out, list size, emails).
-  Otherwise it's an accepted gap with a trigger.
+- **Volume:** one call cannot start unbounded work (fan-out, list size, emails). Otherwise record an accepted gap with a trigger.
 
 ## Lists and paging
 
@@ -62,8 +58,7 @@ scenario for it too.
   old valid one.
 - Wrong method (`405`), wrong content type (`415`), broken JSON (`400`), body
   over the size limit (`413`).
-- Rate limit on anything anonymous or expensive, or an accepted gap with a
-  trigger.
+- Rate limit on anything anonymous or expensive, or an accepted gap with a trigger.
 - Uploads, if any: the wrong type behind the right extension, zero bytes,
   oversize, too many files, a file name with a path in it.
 
@@ -97,14 +92,12 @@ scenario for it too.
 ## Changing what exists
 
 - **Every caller** of the changed function, table, field or event, found by
-  searching the code now: screens, jobs, scripts, the e2e suite. Each one gets
-  a step or an accepted gap.
+  searching the code now: screens, jobs, scripts, the e2e suite. Give each one a step or an accepted gap.
 - **Existing rows** in the old shape: migrated, tolerated or left as they are,
-  decided and written down.
-- **Tests that assert the old behaviour** are named and changed in the same
-  feature, never silently deleted.
+  decide and write it down.
+- **Tests that assert the old behaviour** are named and changed in the same feature. Never delete them silently.
 - **Docs** describing the old behaviour (`plan.md`, feature files, `DESIGN.md`)
-  are updated in the same change.
+  change in the same change.
 
 ## Startup and config
 

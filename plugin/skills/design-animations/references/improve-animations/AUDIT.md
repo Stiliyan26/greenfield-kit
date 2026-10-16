@@ -2,6 +2,17 @@
 
 The rule catalog behind the audit, distilled from the *Animations on the Web* course ([animations.dev](https://animations.dev/)). Each category lists what to grep for, why it's a defect, the exact replacement value, and the severity to file it under.
 
+## Contents
+- 1. Purpose & frequency
+- 2. Easing & duration
+- 3. Physicality & origin
+- 4. Interruptibility & springs
+- 5. Performance
+- 6. Accessibility
+- 7. Cohesion, hierarchy & spatial consistency
+- 8. Missed opportunities
+- Exempt — don't file these
+
 Cite these values in plans. Never approximate a curve or a duration you could copy from here.
 
 ---

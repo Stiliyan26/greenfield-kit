@@ -1,18 +1,18 @@
 ---
 name: interactive-explanation
-description: Show what a change does as a local page with videos, and write the PR description from the same script. Use in pr mode when a feature file reaches Status review or the foundation is done; in task mode after a smaller change; or on /interactive-explanation <slug> [task|pr].
+description: Show what a change does as a local page with videos, and write the PR description from the same script. Use when a feature file reaches Status review, when the foundation is done, after a smaller change that has something to see, or when the user runs /interactive-explanation with a slug and a mode (task or pr).
 ---
 
 # Interactive explanation
 
-You turn one change into a page the user can read in a few minutes, with a
-journey video for users and an architecture video for maintainers. In `pr`
-mode the same script also becomes the PR description. The user reads,
-watches and approves; nobody reads the diff.
+Turn one change into a page that the user reads in a few minutes. The page
+has a journey video for users and an architecture video for maintainers. In
+`pr` mode the same script is also the PR description. The user reads,
+watches and approves. Nobody reads the diff.
 
-`<skill-root>` is the folder this `SKILL.md` is in. Everything you make goes
-in `temp/explainers/<slug>/` in the project. It is gitignored and deleted at
-the end.
+`<skill-root>` is the folder that holds this `SKILL.md`. Put everything you
+make in `temp/explainers/<slug>/` in the project. Git ignores it. Delete it
+at the end.
 
 ## Two modes
 
@@ -23,19 +23,19 @@ the end.
 | Videos | Architecture always; journey when the UI changed | A journey only when worth watching |
 | Ask before recording | Yes, show the narration first | No |
 
-Nothing to see (a typo, a config value, research): skip the explainer and
-say so.
+If there is nothing to see (a typo, a config value, research), skip the
+explainer and say so.
 
 ## The page
 
-The page and the PR body have the same sections in the same order. A section
-the script doesn't have is left out.
+The page and the PR body have the same sections in the same order. Leave out
+a section that the script does not have.
 
 1. Summary: what a user can do now, the impact, one to three sketches
 2. Merge danger: the door, the blast radius, deploy steps
 3. Evidence: the journey video, the tests, and before/after test output
 4. Review map: each changed component boxed on its screen. These are the
-   only screenshots; the journey video already shows the plain screens
+   only screenshots. The journey video already shows the plain screens
 5. How it works: diagrams and the architecture video
 6. Before → After
 7. Data model
@@ -43,66 +43,72 @@ the script doesn't have is left out.
 
 ## Setup, once per machine and project
 
-- `ffmpeg` and `ffprobe` on the path.
-- `cd <skill-root>/remotion && bun install`.
-- The project's `.claude/explain.config.json`, written by `setup-project`.
-  Every key is optional: `brand`, `context` (where plan, feature files and
-  `DESIGN.md` live), `database` (a command that prints schema facts),
-  `journey` (the verify skill's serve, doctor, drive and stop commands, the
-  recorder, where evidence lands). No `journey`: no journey video.
-- A voice key. Narration uses OpenRouter when `OPENROUTER_API_KEY` is in
-  the shell, `.claude/local/explain.env` or `~/.claude/explain.env`. The
-  first time a build finds none, give the user this once and let them run
-  it. Never read, print or commit the file.
+1. Put `ffmpeg` and `ffprobe` on the path.
+2. Run `cd <skill-root>/remotion && bun install`.
+3. Read the project's `.claude/explain.config.json`. Every key is optional.
+   - `brand`
+   - `context`: where the plan, the feature files and `DESIGN.md` live
+   - `database`: a command that prints schema facts
+   - `journey`: the serve, doctor, drive and stop commands, the recorder
+     and where evidence lands. Without `journey`, make no journey video.
+4. Check for a voice key. Narration uses OpenRouter when `OPENROUTER_API_KEY`
+   is in the shell, in `.claude/local/explain.env` or in
+   `~/.claude/explain.env`. `references/explain.env.example` shows the file.
+   If the first build finds no key, give the user these commands once.
+   Let the user run them. Never read, print or commit the file.
 
-  ```
-  mkdir -p ~/.claude && chmod 700 ~/.claude
-  printf 'OPENROUTER_API_KEY=<paste here>\n' > ~/.claude/explain.env && chmod 600 ~/.claude/explain.env
-  ```
+   ```
+   mkdir -p ~/.claude && chmod 700 ~/.claude
+   printf 'OPENROUTER_API_KEY=<paste here>\n' > ~/.claude/explain.env && chmod 600 ~/.claude/explain.env
+   ```
 
-  They decline: build with `--voice say` and don't ask again this session.
+   If the user declines, build with `--voice say`. Do not ask again in this
+   session.
+
+Done when the tools run, the config is read and a voice is chosen.
 
 ## 1. Research
 
-Read the diff (`git diff main...HEAD`, `git log main..HEAD`), the feature
-file, `plan.md` and `DESIGN.md`. For screens, read the Driving section and
-the e2e spec and reuse their selectors.
+1. Read the diff (`git diff main...HEAD`, `git log main..HEAD`), the feature
+   file, `plan.md` and `DESIGN.md`.
+2. For screens, read the Driving section and the e2e spec. Reuse their
+   selectors.
+3. Choose the diagrams, sketches, evidence and merge danger with
+   [writing.md](references/writing.md).
+4. For a PR, list 3–6 journey steps, with what each was like before. Also
+   list 3–6 architecture decisions with their Q-numbers.
+5. Ask the user one message. Ask only what the code cannot tell you: the
+   audience, the role to record as, any "before" you are unsure of.
 
-Choose the diagrams, sketches, evidence and merge danger with
-[writing.md](references/writing.md). For a PR, also list 3–6 journey steps
-with what each was like before, and 3–6 architecture decisions with their
-Q-numbers.
-
-Ask the user one message with only what the code can't tell you: the
-audience, the role to record as, any "before" you're unsure of.
-
-Done when you can say in one line what the user can do now that they
-couldn't before.
+Done when you can say in one line what the user can do now that they could
+not before.
 
 ## 2. Script
 
-Write `temp/explainers/<slug>/script.json` in the shape of
-[script-format.md](references/script-format.md), with the text rules in
-[writing.md](references/writing.md).
-
-For a PR, show the user the narration as a numbered list with the diagram
-types. Wait for a yes.
+1. Write `temp/explainers/<slug>/script.json` in the shape of
+   [script-format.md](references/script-format.md). Follow the text rules in
+   [writing.md](references/writing.md).
+2. For a PR, show the narration to the user as a numbered list with the
+   diagram types. Wait for a yes.
 
 Done when the script validates (`build.mjs --pr-only` prints no style
 warnings) and, for a PR, the user said yes.
 
 ## 3. Record the journey
 
-Needs `journey` in the config. Write the recipe at `journey.recipe`: one
-test per clip, each calling `recordClip` from `journey.recorder`, following
-the feature file's Driving section. Call `point` before each click and
-`pause` between actions. One idea per clip, 10–40 seconds. Save a screenshot
-at each screen with a changed component and list it in `screens`; the
-review map boxes the components on it.
+This step needs `journey` in the config.
 
-Run `journey.serve`, then `journey.doctor`, then `journey.drive <recipe>`,
-then `journey.stop`. Use seeded accounts. Never record against a
-development or production database.
+1. Write the recipe at `journey.recipe`. Use one test per clip. Each test
+   calls `recordClip` from `journey.recorder`. Follow the Driving section of
+   the feature file.
+2. Call `point` before each click. Call `pause` between actions.
+3. Show one idea per clip, 10–40 seconds.
+4. Save a screenshot at each screen with a changed component. List it in
+   `screens`. The review map boxes the components on it.
+5. Run `journey.serve`, then `journey.doctor`, then `journey.drive <recipe>`,
+   then `journey.stop`.
+6. Use seeded accounts. Never record against a development or production
+   database.
 
 Done when every clip and screenshot is in `journey.evidence`.
 
@@ -115,40 +121,45 @@ node <skill-root>/scripts/build.mjs <slug> --pr-only  # the PR body only, fast
 node <skill-root>/scripts/build.mjs <slug> --voice say
 ```
 
-Narration is cached and clips are reused, so rebuilds are cheap. "Cannot
-render yet" names what is missing.
+Narration is cached and clips are reused, so a rebuild is cheap. The message
+"Cannot render yet" names what is missing.
 
-Open `index.html` and fix without asking: narration that runs past its clip
-(split the scene), a scene that says more than it shows (move detail to the
-narration), a diagram too wide (`LR` to `TD`, or split it), any style
-warning, a reading time over budget.
+1. Run the build.
+2. Open `index.html`. Fix these without asking:
+   - Narration that runs past its clip: split the scene.
+   - A scene that says more than it shows: move the detail to the narration.
+   - A diagram that is too wide: change `LR` to `TD`, or split it.
+   - Any style warning.
+   - A reading time over budget.
+3. Tell the user the sections of the page and the length of each video.
 
-Done when the page opens clean and you've told the user its sections and
-each video's length.
+Done when the page opens clean and the user knows its sections and video
+lengths.
 
 ## 5. Publish the PR description
 
-`--pr` prints the publish command. It runs in the explainer folder and
-uploads the media to GitHub, so nothing is committed:
+1. Run `build.mjs <slug> --pr`. It prints the publish command. The command
+   runs in the explainer folder. It uploads the media to GitHub, so Git
+   commits nothing.
 
-```sh
-gh pr edit 53 --body-file pr-body.md --attach ./review/a.png --attach ./journey.mp4
-```
+   ```sh
+   gh pr edit 53 --body-file pr-body.md --attach ./review/a.png --attach ./journey.mp4
+   ```
 
-Needs gh 2.99 or later. Files must be 10 MB or less; the build warns about
-bigger ones. Without `prUrl` in the script the command is `gh pr create`.
-
-Ask before you run it. Publishing is the user's call.
+2. Use gh 2.99 or later. Keep each file at 10 MB or less. The build warns
+   about bigger files.
+3. If the script has no `prUrl`, the command is `gh pr create`.
+4. Ask the user before you run the command. Publishing is the user's call.
 
 Done when the PR shows the page's sections and the videos play.
 
 ## 6. Clean up
 
-After the publish succeeds (PR), or after the user has seen the page (task).
-The page keeps its own copies of the shots, so this change's test output
-goes too: `temp/verification/<slug>/` and each review or verify run there
-that this page used. Leave a folder another feature is still building with.
-`.playwright-mcp/` goes when no other agent is driving a browser.
+Start after the publish succeeds (PR), or after the user has seen the page
+(task). The page keeps its own copies of the shots. Delete this change's
+test output too: `temp/verification/<slug>/` and each review or verify run
+there that this page used. Keep a folder that another feature still uses.
+Delete `.playwright-mcp/` when no other agent drives a browser.
 
 ```sh
 rm -rf temp/explainers/<slug> <the journey recipe> temp/verification/<slug> <the runs this page used>
@@ -158,9 +169,22 @@ Done when the folders are gone.
 
 ## Changing the skill
 
-Scripts live in `scripts/` (`build.mjs` is the entry, `page/` the page) and
-the renderer in `remotion/`. A new scene kind changes six places together:
-`remotion/src/types.ts`, a component in `remotion/src/scenes/`, a case in
-`Explainer.tsx`, `SceneKind` in `scripts/constants.mjs`, the checks in
-`scripts/validate-script.mjs`, and the scene table in
-`references/script-format.md`.
+Scripts live in `scripts/`. `build.mjs` is the entry and `page/` holds the
+page. The renderer lives in `remotion/`. `tsconfig.json` and `bun.lock` pin
+the build. `src/Root.tsx` registers the compositions. `src/ReviewShot.tsx`
+draws the review shots. Each scene kind has one component in
+`src/scenes/`: `Title.tsx`, `BeforeAfter.tsx`, `Clip.tsx`, `Files.tsx`,
+`Diagram.tsx`, `Code.tsx` and `Bullets.tsx`. `shared.tsx` holds their common
+parts.
+
+A new scene kind changes six places together:
+
+1. `remotion/src/types.ts`
+2. A component in `remotion/src/scenes/`
+3. A case in `Explainer.tsx`
+4. `SceneKind` in `scripts/constants.mjs`
+5. The checks in `scripts/validate-script.mjs`
+6. The scene table in `references/script-format.md`
+
+Reason: the six places must agree. A scene kind that one of them lacks
+fails at validation or at render.

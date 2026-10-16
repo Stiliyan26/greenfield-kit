@@ -2,6 +2,25 @@
 
 The precise values, curves, and rules behind the review. Cite these in findings instead of approximating. Distilled from the *Animations on the Web* course ([animations.dev](https://animations.dev/)).
 
+## Contents
+- Should it animate? (frequency table)
+- Easing
+- Duration
+- Physicality
+- Springs
+- Interruptibility
+- Asymmetric timing
+- Performance
+- Transforms & clip-path
+- Framer Motion / Motion (motion/react)
+- SVG animation
+- Stagger & orchestration
+- Masking imperfect crossfades
+- Numbers & text
+- Accessibility
+- Debugging (recommend when feel is uncertain)
+- Cohesion
+
 ## Should it animate? (frequency table)
 
 | Frequency | Decision |

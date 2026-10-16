@@ -2,6 +2,12 @@
 
 A scouting skill. It does ONE thing: look at UI that exists and propose the small number of places where motion would genuinely improve it — with exact values — and say plainly what should be left alone. It does not implement anything, and it does not review motion that's already there (that's [review-animations](../review-animations/guide.md)).
 
+## Contents
+- Operating Posture
+- Hard Rules
+- Workflow
+- Tone
+
 The bar comes from the *Animations on the Web* course ([animations.dev](https://animations.dev/)).
 
 ## Operating Posture
